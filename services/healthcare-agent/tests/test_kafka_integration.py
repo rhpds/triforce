@@ -1,64 +1,59 @@
-"""Tests for healthcare agent Kafka integration.
+"""Tests for healthcare agent Kafka integration with LangGraph pipeline.
 
-These test the pipeline logic without requiring a running Kafka broker.
+Tests the pipeline logic without requiring a running Kafka broker.
 Integration tests that use real Kafka are in tests/e2e/.
 """
 
-import asyncio
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
 from kafka_consumer import HealthcareKafkaPipeline
-import models
 
 
 @pytest.fixture
-def mock_classify():
-    async def classify(req):
-        return models.ClassifyResponse(
-            classification=models.DocumentType.discharge_summary,
-            confidence=0.92,
-            model="granite-2b-cpu",
-            accelerator="cpu",
-            inference_ms=150,
-        )
-    return classify
-
-
-@pytest.fixture
-def mock_extract():
-    async def extract(req):
-        return models.ExtractEntitiesResponse(
-            entities=[
-                models.MedicalEntity(text="Type 2 Diabetes", type=models.EntityType.condition, start=0, end=16),
-                models.MedicalEntity(text="Metformin", type=models.EntityType.medication, start=20, end=29),
-                models.MedicalEntity(text="Hypertension", type=models.EntityType.condition, start=35, end=47),
+def mock_graph_fn():
+    async def graph_fn(text, patient_id):
+        return {
+            "classification": "discharge_summary",
+            "entities": [
+                {"text": "Type 2 Diabetes", "type": "condition"},
+                {"text": "Metformin", "type": "medication"},
+                {"text": "Lisinopril", "type": "medication"},
+                {"text": "Hypertension", "type": "condition"},
             ],
-            model="granite-2b-cpu",
-            accelerator="cpu",
-            inference_ms=200,
-        )
-    return extract
+            "drug_interactions": [
+                {"drug_a": "Metformin", "drug_b": "Lisinopril", "severity": "moderate",
+                 "description": "Monitor renal function"}
+            ],
+            "summary": "65yo male with diabetes and hypertension, stable on current medications.",
+            "inference_log": [
+                {"node": "classify", "model": "granite-2b-cpu", "latency_ms": 800, "accelerator": "cpu"},
+                {"node": "extract_entities", "model": "granite-2b-cpu", "latency_ms": 5000, "accelerator": "cpu"},
+                {"node": "check_interactions", "tool": "drug_interaction_check", "latency_ms": 50},
+                {"node": "summarize", "model": "granite-3-2-8b-instruct", "latency_ms": 2000, "accelerator": "cpu"},
+            ],
+        }
+    return graph_fn
 
 
 class TestHealthcareKafkaPipeline:
-    def test_pipeline_creates(self, mock_classify, mock_extract):
-        pipeline = HealthcareKafkaPipeline(mock_classify, mock_extract)
+    def test_pipeline_creates(self, mock_graph_fn):
+        pipeline = HealthcareKafkaPipeline(graph_fn=mock_graph_fn)
         assert pipeline is not None
         assert pipeline._running is False
 
     @pytest.mark.asyncio
-    async def test_process_record_produces_results(self, mock_classify, mock_extract):
-        pipeline = HealthcareKafkaPipeline(mock_classify, mock_extract)
+    async def test_process_record_produces_results(self, mock_graph_fn):
+        pipeline = HealthcareKafkaPipeline(graph_fn=mock_graph_fn)
         pipeline.producer = AsyncMock()
         pipeline.producer.send = AsyncMock()
 
         record = {
             "patient_id": "test-patient-1",
             "record_type": "discharge_summary",
-            "text": "Patient is a 65-year-old male with Type 2 Diabetes on Metformin, history of Hypertension.",
+            "text": "Patient is a 65-year-old male with Type 2 Diabetes on Metformin.",
             "generated_at": "2026-06-12T00:00:00Z",
         }
 
@@ -68,18 +63,19 @@ class TestHealthcareKafkaPipeline:
         topics_sent = [c[0][0] for c in calls]
 
         assert "healthcare.analysis.results" in topics_sent
-        assert topics_sent.count("healthcare.analysis.results") == 2  # classification + NER
+        result_count = topics_sent.count("healthcare.analysis.results")
+        assert result_count >= 3  # classification + NER + drug_interactions + summarization
 
     @pytest.mark.asyncio
-    async def test_process_record_sends_alert_on_critical(self, mock_classify, mock_extract):
-        pipeline = HealthcareKafkaPipeline(mock_classify, mock_extract)
+    async def test_process_record_sends_alert_on_interactions(self, mock_graph_fn):
+        pipeline = HealthcareKafkaPipeline(graph_fn=mock_graph_fn)
         pipeline.producer = AsyncMock()
         pipeline.producer.send = AsyncMock()
 
         record = {
             "patient_id": "test-patient-2",
             "record_type": "progress_note",
-            "text": "Multiple conditions found.",
+            "text": "Multiple medications detected.",
         }
 
         await pipeline._process_record(record)
@@ -90,12 +86,12 @@ class TestHealthcareKafkaPipeline:
 
         alert_calls = [c for c in calls if c[0][0] == "healthcare.alerts"]
         alert_data = alert_calls[0][0][1]
-        assert alert_data["severity"] == "warning"
-        assert alert_data["patient_id"] == "test-patient-2"
+        assert alert_data["severity"] == "critical"
+        assert alert_data["type"] == "drug_interaction"
 
     @pytest.mark.asyncio
-    async def test_process_record_result_format(self, mock_classify, mock_extract):
-        pipeline = HealthcareKafkaPipeline(mock_classify, mock_extract)
+    async def test_process_record_result_format(self, mock_graph_fn):
+        pipeline = HealthcareKafkaPipeline(graph_fn=mock_graph_fn)
         pipeline.producer = AsyncMock()
         pipeline.producer.send = AsyncMock()
 
@@ -120,11 +116,29 @@ class TestHealthcareKafkaPipeline:
         assert "processed_at" in result_data
 
     @pytest.mark.asyncio
-    async def test_process_record_handles_errors(self, mock_extract):
-        async def failing_classify(req):
+    async def test_process_record_logs_all_graph_steps(self, mock_graph_fn):
+        pipeline = HealthcareKafkaPipeline(graph_fn=mock_graph_fn)
+        pipeline.producer = AsyncMock()
+        pipeline.producer.send = AsyncMock()
+
+        record = {"patient_id": "test-patient-4", "text": "test", "record_type": "unknown"}
+        await pipeline._process_record(record)
+
+        calls = pipeline.producer.send.call_args_list
+        result_calls = [c for c in calls if c[0][0] == "healthcare.analysis.results"]
+        analysis_types = [c[0][1]["analysis_type"] for c in result_calls]
+
+        assert "classification" in analysis_types
+        assert "ner" in analysis_types
+        assert "summarization" in analysis_types
+        assert "drug_interactions" in analysis_types
+
+    @pytest.mark.asyncio
+    async def test_process_record_handles_errors(self):
+        async def failing_graph(text, patient_id):
             raise Exception("LiteLLM timeout")
 
-        pipeline = HealthcareKafkaPipeline(failing_classify, mock_extract)
+        pipeline = HealthcareKafkaPipeline(graph_fn=failing_graph)
         pipeline.producer = AsyncMock()
         pipeline.producer.send = AsyncMock()
 

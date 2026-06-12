@@ -1,19 +1,17 @@
-"""Healthcare Agent — FastAPI application with A2A protocol support.
+"""Healthcare Agent — LangGraph-powered FastAPI application with A2A protocol.
 
-Clinical NLP agent for medical document classification, entity extraction,
-and patient record summarization. All inference runs on Intel Xeon 6 CPU
-via MAAS/LiteLLM.
+Multi-step clinical NLP agent: classify → extract entities → check drug
+interactions (conditional) → summarize. All inference on Intel Xeon 6 CPU
+via MAAS/LiteLLM. MCP tools provide FHIR data and drug interaction checking.
 """
 
 import asyncio
 import json
 import logging
 import os
-import time
 import uuid
 from contextlib import asynccontextmanager
 
-import httpx
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -25,54 +23,65 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("healthcare-agent")
 
 kafka_pipeline = None
+healthcare_graph = None
+
+SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "8081"))
+
+
+async def run_graph(text: str, patient_id: str = None) -> dict:
+    """Execute the full LangGraph pipeline on a clinical text."""
+    global healthcare_graph
+    if healthcare_graph is None:
+        from graph import build_graph
+        healthcare_graph = await build_graph()
+
+    result = await healthcare_graph.ainvoke({
+        "messages": [],
+        "patient_id": patient_id or str(uuid.uuid4()),
+        "text": text,
+        "classification": None,
+        "entities": [],
+        "drug_interactions": [],
+        "summary": None,
+        "inference_log": [],
+    })
+
+    for entry in result.get("inference_log", []):
+        await db.log_inference(
+            agent_name="healthcare-agent",
+            model=entry.get("model", "unknown"),
+            task_type=entry.get("node", "unknown"),
+            latency_ms=entry.get("latency_ms", 0),
+            accelerator=entry.get("accelerator", "cpu"),
+        )
+
+    return result
 
 
 @asynccontextmanager
 async def lifespan(app):
-    global kafka_pipeline
+    global kafka_pipeline, healthcare_graph
     await db.init_pool()
+
+    from graph import build_graph
+    healthcare_graph = await build_graph()
+    logger.info("LangGraph healthcare pipeline compiled")
+
     kafka_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "")
     if kafka_servers:
         from kafka_consumer import HealthcareKafkaPipeline
-        kafka_pipeline = HealthcareKafkaPipeline(
-            classify_fn=classify_document,
-            extract_fn=extract_entities,
-        )
+        kafka_pipeline = HealthcareKafkaPipeline(graph_fn=run_graph)
         asyncio.create_task(kafka_pipeline.run())
         logger.info("Kafka pipeline started")
+
     yield
+
     if kafka_pipeline:
         await kafka_pipeline.stop()
     await db.close_pool()
 
 
 app = FastAPI(title="Triforce Healthcare Agent", version="0.1.0", lifespan=lifespan)
-
-LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.maas.redhatworkshops.io")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
-CLASSIFY_MODEL = "granite-2b-cpu"
-SUMMARIZE_MODEL = "granite-3-2-8b-instruct"
-SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "8081"))
-
-
-async def llm_complete(model: str, prompt: str, max_tokens: int = 512) -> tuple[str, int]:
-    """Call LiteLLM for inference. Returns (response_text, latency_ms)."""
-    start = time.monotonic()
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.post(
-            f"{LITELLM_API_BASE}/v1/chat/completions",
-            headers={"Authorization": f"Bearer {LITELLM_API_KEY}"},
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": max_tokens,
-                "temperature": 0.1,
-            },
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    latency_ms = int((time.monotonic() - start) * 1000)
-    return data["choices"][0]["message"]["content"], latency_ms
 
 
 # --- Health ---
@@ -99,11 +108,41 @@ async def a2a_endpoint(request: models.JsonRpcRequest):
         parts = message.get("parts", [])
         text = parts[0].get("text", "") if parts else ""
 
-        result_text = f"Healthcare agent processed: {text[:100]}"
         try:
-            result_text, _ = await llm_complete(CLASSIFY_MODEL, text, max_tokens=256)
-        except Exception:
-            pass
+            result = await run_graph(text, patient_id=task_id)
+            artifacts = []
+
+            if result.get("classification"):
+                artifacts.append(models.Artifact(
+                    parts=[models.Part(text=f"Classification: {result['classification']}")]
+                ))
+
+            if result.get("entities"):
+                entity_text = json.dumps(result["entities"][:10])
+                artifacts.append(models.Artifact(
+                    parts=[models.Part(text=f"Entities: {entity_text}")]
+                ))
+
+            if result.get("drug_interactions"):
+                interaction_text = json.dumps(result["drug_interactions"])
+                artifacts.append(models.Artifact(
+                    parts=[models.Part(text=f"Drug Interactions: {interaction_text}")]
+                ))
+
+            if result.get("summary"):
+                artifacts.append(models.Artifact(
+                    parts=[models.Part(text=result["summary"])]
+                ))
+
+            if not artifacts:
+                artifacts = [models.Artifact(parts=[models.Part(text="Analysis complete")])]
+
+            steps = len(result.get("inference_log", []))
+            logger.info("A2A task %s completed: %d graph steps", task_id, steps)
+
+        except Exception as e:
+            logger.error("A2A task %s failed: %s", task_id, e)
+            artifacts = [models.Artifact(parts=[models.Part(text=f"Error: {e}")])]
 
         return models.JsonRpcResponse(
             id=request.id,
@@ -111,9 +150,7 @@ async def a2a_endpoint(request: models.JsonRpcRequest):
                 id=task_id,
                 contextId=str(uuid.uuid4()),
                 status=models.TaskStatus(state="completed"),
-                artifacts=[
-                    models.Artifact(parts=[models.Part(text=result_text)])
-                ],
+                artifacts=artifacts,
             ),
         )
 
@@ -146,105 +183,58 @@ async def a2a_endpoint(request: models.JsonRpcRequest):
     )
 
 
-# --- Clinical NLP Endpoints ---
+# --- Clinical NLP Endpoints (graph-powered) ---
 
 @app.post("/api/v1/classify")
 async def classify_document(req: models.ClassifyRequest):
-    prompt = f"""Classify the following clinical document into exactly one category:
-discharge_summary, progress_note, lab_report, radiology_report, pathology_report, surgical_note, consultation, prescription.
-
-Respond with only the category name, nothing else.
-
-Document:
-{req.text[:5000]}"""
-
-    try:
-        response, latency_ms = await llm_complete(CLASSIFY_MODEL, prompt, max_tokens=20)
-        classification = response.strip().lower().replace(" ", "_")
-        valid = [e.value for e in models.DocumentType if e != models.DocumentType.unknown]
-        if classification not in valid:
-            classification = "unknown"
-    except Exception:
-        classification = "unknown"
-        latency_ms = 0
-
-    await db.log_inference("healthcare-agent", CLASSIFY_MODEL, "classification", latency_ms)
+    result = await run_graph(req.text)
+    total_ms = sum(e.get("latency_ms", 0) for e in result.get("inference_log", []) if e.get("node") == "classify")
 
     return models.ClassifyResponse(
-        classification=models.DocumentType(classification),
+        classification=models.DocumentType(result.get("classification", "unknown")),
         confidence=0.85,
-        model=CLASSIFY_MODEL,
+        model="granite-2b-cpu",
         accelerator="cpu",
-        inference_ms=latency_ms,
+        inference_ms=total_ms,
     )
 
 
 @app.post("/api/v1/extract-entities")
 async def extract_entities(req: models.ExtractEntitiesRequest):
-    prompt = f"""Extract medical entities from the following clinical text.
-For each entity, provide: the exact text, the type (condition, medication, procedure, lab_test, anatomy, dosage), and the character offsets.
+    result = await run_graph(req.text)
+    total_ms = sum(e.get("latency_ms", 0) for e in result.get("inference_log", []) if e.get("node") == "extract_entities")
 
-Respond in JSON format as a list of objects with keys: text, type, start, end.
-
-Clinical text:
-{req.text[:5000]}"""
-
-    try:
-        response, latency_ms = await llm_complete(CLASSIFY_MODEL, prompt, max_tokens=1024)
-        try:
-            entities_raw = json.loads(response)
-        except json.JSONDecodeError:
-            entities_raw = []
-
-        entities = []
-        for e in entities_raw:
-            if isinstance(e, dict) and "text" in e and "type" in e:
-                entity_type = e["type"].lower()
-                valid_types = [t.value for t in models.EntityType]
-                if entity_type in valid_types:
-                    entities.append(models.MedicalEntity(
-                        text=e["text"],
-                        type=models.EntityType(entity_type),
-                        start=e.get("start", 0),
-                        end=e.get("end", len(e["text"])),
-                    ))
-    except Exception:
-        entities = []
-        latency_ms = 0
-
-    await db.log_inference("healthcare-agent", CLASSIFY_MODEL, "ner", latency_ms)
+    entities = []
+    for e in result.get("entities", []):
+        entity_type = e.get("type", "condition")
+        valid_types = [t.value for t in models.EntityType]
+        if entity_type in valid_types:
+            entities.append(models.MedicalEntity(
+                text=e["text"],
+                type=models.EntityType(entity_type),
+                start=e.get("start", 0),
+                end=e.get("end", len(e["text"])),
+            ))
 
     return models.ExtractEntitiesResponse(
         entities=entities,
-        model=CLASSIFY_MODEL,
+        model="granite-2b-cpu",
         accelerator="cpu",
-        inference_ms=latency_ms,
+        inference_ms=total_ms,
     )
 
 
 @app.post("/api/v1/summarize")
 async def summarize_record(req: models.SummarizeRequest):
-    prompt = f"""Summarize the following patient record in {req.max_length} words or fewer.
-Include key findings as bullet points.
-
-Patient record:
-{req.text[:10000]}"""
-
-    try:
-        response, latency_ms = await llm_complete(SUMMARIZE_MODEL, prompt, max_tokens=req.max_length)
-    except Exception:
-        response = "Summary unavailable."
-        latency_ms = 0
-
-    await db.log_inference("healthcare-agent", SUMMARIZE_MODEL, "summarization", latency_ms)
+    result = await run_graph(req.text)
+    total_ms = sum(e.get("latency_ms", 0) for e in result.get("inference_log", []) if e.get("node") == "summarize")
 
     return models.SummarizeResponse(
-        summary=response.strip(),
-        model=SUMMARIZE_MODEL,
+        summary=result.get("summary", "Summary unavailable."),
+        model="granite-3-2-8b-instruct",
         accelerator="cpu",
-        inference_ms=latency_ms,
+        inference_ms=total_ms,
     )
-
 
 
 @app.get("/api/v1/stats")
