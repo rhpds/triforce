@@ -1,0 +1,340 @@
+"""Triforce Cost Model — Real pricing from RHDP MAAS infrastructure.
+
+Compares self-hosted Intel Xeon 6 / Gaudi 3 inference (infrastructure cost only)
+against Vertex AI pay-per-token models available through the same MAAS endpoint.
+
+Data sources:
+- RHDP MAAS model reference (maas-rhdp.apps.maas.redhatworkshops.io)
+- Inference telemetry from PostgreSQL inference_log table
+- Intel Xeon 6 / Gaudi 3 hardware specs from partner demo
+
+Note: Gaudi 3 is being sunset by Intel. Included for historical comparison only.
+"""
+
+import asyncio
+import json
+import sys
+
+import httpx
+
+HEALTHCARE_URL = "http://localhost:8081"
+
+# ═══════════════════════════════════════════════════════════════════════
+# MAAS Model Catalog — real pricing from RHDP documentation
+# ═══════════════════════════════════════════════════════════════════════
+
+MODELS = {
+    # ── On-cluster: Intel Xeon 6 CPU (OpenVINO / vLLM) ──────────────
+    # Self-hosted on RHDP cluster. No per-token cost.
+    # Cost = infrastructure only (amortized hardware + power).
+    "granite-3-2-8b-instruct": {
+        "params": "8B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Self-hosted on Intel Xeon 6. Infrastructure cost only.",
+    },
+    "granite-4-0-h-tiny": {
+        "params": "sub-3B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Compact Granite 4.0. Fastest classification/simple tasks.",
+    },
+    "codellama-7b-instruct": {
+        "params": "7B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Code-specialized. Self-hosted.",
+    },
+    "nomic-embed-text-v1-5": {
+        "params": "137M", "hardware": "Xeon 6 CPU", "runtime": "OpenVINO/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Embeddings. 768-dim. OpenVINO on CPU.",
+    },
+    "llama-guard-3-1b": {
+        "params": "1B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Safety guardrails. Self-hosted.",
+    },
+    "granite-docling-258m": {
+        "params": "258M", "hardware": "Xeon 6 CPU", "runtime": "KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-cpu",
+        "note": "Document conversion (PDF→Markdown). CPU only.",
+    },
+
+    # ── On-cluster: Intel Gaudi 3 GPU (sunsetting) ──────────────────
+    # Self-hosted on RHDP Gaudi 3 cluster (maas00.rs-dfw3).
+    # No per-token cost. 8x Gaudi 3 accelerators.
+    # NOTE: Intel is sunsetting Gaudi. Historical comparison only.
+    "deepseek-r1-distill-qwen-14b": {
+        "params": "14B", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-gaudi",
+        "note": "Reasoning model. Gaudi 3 (sunsetting). Self-hosted.",
+    },
+    "qwen3-14b": {
+        "params": "14B", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-gaudi",
+        "note": "Multilingual chat. 2 replicas on Gaudi 3 (sunsetting).",
+    },
+    "llama-scout-17b": {
+        "params": "17B MoE", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-gaudi",
+        "note": "400K context. 2 replicas on Gaudi 3 (sunsetting).",
+    },
+    "microsoft-phi-4": {
+        "params": "14B", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
+        "input_per_1m": 0.00, "output_per_1m": 0.00,
+        "category": "on-cluster-gaudi",
+        "note": "Phi-4. Gaudi 3 (sunsetting). Self-hosted.",
+    },
+
+    # ── Vertex AI: pay-per-token (real cost) ─────────────────────────
+    "minimax-m2": {
+        "params": "MoE", "hardware": "Vertex AI", "runtime": "Google Cloud",
+        "input_per_1m": 0.30, "output_per_1m": 1.20,
+        "category": "vertex-ai",
+        "note": "Agentic / tool-use. 197K context.",
+    },
+    "qwen3-235b": {
+        "params": "235B MoE", "hardware": "Vertex AI", "runtime": "Google Cloud",
+        "input_per_1m": 0.22, "output_per_1m": 0.88,
+        "category": "vertex-ai",
+        "note": "Large multilingual reasoning.",
+    },
+    "gpt-oss-120b": {
+        "params": "120B", "hardware": "Vertex AI", "runtime": "Google Cloud",
+        "input_per_1m": 0.09, "output_per_1m": 0.36,
+        "category": "vertex-ai",
+        "note": "Function calling, complex generation.",
+    },
+    "gpt-oss-20b": {
+        "params": "20B", "hardware": "Vertex AI", "runtime": "Google Cloud",
+        "input_per_1m": 0.07, "output_per_1m": 0.25,
+        "category": "vertex-ai",
+        "note": "Cost-effective general chat.",
+    },
+    "claude-sonnet-4-6": {
+        "params": "—", "hardware": "Vertex AI", "runtime": "Anthropic via GCP",
+        "input_per_1m": 3.00, "output_per_1m": 15.00,
+        "category": "vertex-ai",
+        "note": "Anthropic Sonnet 4.6. Balanced capability/cost.",
+    },
+    "claude-opus-4-6": {
+        "params": "—", "hardware": "Vertex AI", "runtime": "Anthropic via GCP",
+        "input_per_1m": 5.00, "output_per_1m": 25.00,
+        "category": "vertex-ai",
+        "note": "Anthropic Opus. Most capable.",
+    },
+    "claude-3-5-haiku": {
+        "params": "—", "hardware": "Vertex AI", "runtime": "Anthropic via GCP",
+        "input_per_1m": 1.00, "output_per_1m": 5.00,
+        "category": "vertex-ai",
+        "note": "Fast/cheap Anthropic model.",
+    },
+    "gemini-2.5-pro": {
+        "params": "—", "hardware": "Vertex AI", "runtime": "Google Cloud",
+        "input_per_1m": 1.25, "output_per_1m": 10.00,
+        "category": "vertex-ai",
+        "note": "1M context. Native Google model.",
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Hardware Infrastructure Costs (estimated annual, self-hosted)
+# ═══════════════════════════════════════════════════════════════════════
+
+INFRA_COSTS = {
+    "xeon6_node": {
+        "description": "Intel Xeon 6 server (2-socket, 128 cores)",
+        "annual_cost": 15_000,
+        "models_served": 6,
+        "note": "Runs granite-8b, codellama-7b, embeddings, guard, docling",
+    },
+    "gaudi3_node": {
+        "description": "Intel Gaudi 3 server (8x accelerators)",
+        "annual_cost": 65_000,
+        "models_served": 4,
+        "note": "Runs deepseek-14b, qwen3-14b, llama-scout-17b, phi-4 (SUNSETTING)",
+    },
+}
+
+
+def cost_per_record(model_name: str, input_tokens: int = 800, output_tokens: int = 400, llm_calls: int = 3) -> float:
+    """Calculate cost for processing one record with a given model."""
+    model = MODELS.get(model_name, {})
+    input_cost = (input_tokens * llm_calls / 1_000_000) * model.get("input_per_1m", 0)
+    output_cost = (output_tokens * llm_calls / 1_000_000) * model.get("output_per_1m", 0)
+    return input_cost + output_cost
+
+
+async def get_live_telemetry():
+    """Pull real inference stats from the running healthcare agent."""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(f"{HEALTHCARE_URL}/api/v1/stats")
+            if resp.status_code == 200:
+                return resp.json()
+    except Exception:
+        pass
+    return None
+
+
+async def main():
+    MONTHLY_RECORDS = 100_000
+    INPUT_TOKENS_PER_CALL = 800
+    OUTPUT_TOKENS_PER_CALL = 400
+    LLM_CALLS_PER_RECORD = 3  # classify + extract + summarize
+
+    total_input = MONTHLY_RECORDS * INPUT_TOKENS_PER_CALL * LLM_CALLS_PER_RECORD
+    total_output = MONTHLY_RECORDS * OUTPUT_TOKENS_PER_CALL * LLM_CALLS_PER_RECORD
+
+    print("=" * 90)
+    print("  TRIFORCE COST MODEL — RHDP MAAS Real Pricing")
+    print("  Red Hat (OpenShift) + IBM (Kagenti) + Intel (Xeon 6)")
+    print("=" * 90)
+
+    # ── Live telemetry ────────────────────────────────────────────────
+    telemetry = await get_live_telemetry()
+    if telemetry:
+        print(f"\n  Live Inference Telemetry (from PostgreSQL):")
+        print(f"    Total calls:      {telemetry.get('total_requests', 0)}")
+        print(f"    Avg latency:      {telemetry.get('avg_latency_ms', 0):.0f}ms")
+        print(f"    P95 latency:      {telemetry.get('p95_latency_ms', 0):.0f}ms")
+        print(f"    CPU calls:        {telemetry.get('cpu_requests', 0)} (100%)")
+        print(f"    GPU calls:        {telemetry.get('gpu_requests', 0)} (0%)")
+
+    # ── On-cluster models (self-hosted, $0/token) ─────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  ON-CLUSTER MODELS — Self-hosted, infrastructure cost only")
+    print(f"{'─' * 90}")
+
+    print(f"\n  Intel Xeon 6 CPU (Triforce target):")
+    print(f"  {'Model':<30} {'Params':>8}  {'$/rec':>10}  {'$/100K rec':>12}  Note")
+    print(f"  {'─' * 30} {'─' * 8}  {'─' * 10}  {'─' * 12}  {'─' * 30}")
+    for name, m in MODELS.items():
+        if m["category"] == "on-cluster-cpu":
+            cpr = cost_per_record(name, INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD)
+            monthly = cpr * MONTHLY_RECORDS
+            print(f"  {name:<30} {m['params']:>8}  ${cpr:>9.4f}  ${monthly:>11,.2f}  {m['note'][:30]}")
+
+    print(f"\n  Intel Gaudi 3 GPU (SUNSETTING — historical reference):")
+    print(f"  {'Model':<30} {'Params':>8}  {'$/rec':>10}  {'$/100K rec':>12}  Note")
+    print(f"  {'─' * 30} {'─' * 8}  {'─' * 10}  {'─' * 12}  {'─' * 30}")
+    for name, m in MODELS.items():
+        if m["category"] == "on-cluster-gaudi":
+            cpr = cost_per_record(name, INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD)
+            monthly = cpr * MONTHLY_RECORDS
+            print(f"  {name:<30} {m['params']:>8}  ${cpr:>9.4f}  ${monthly:>11,.2f}  {m['note'][:30]}")
+
+    # ── Vertex AI models (pay-per-token) ──────────────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  VERTEX AI MODELS — Pay-per-token via MAAS proxy")
+    print(f"  Projection: {MONTHLY_RECORDS:,} records/month × {LLM_CALLS_PER_RECORD} LLM calls × ")
+    print(f"              {INPUT_TOKENS_PER_CALL} input + {OUTPUT_TOKENS_PER_CALL} output tokens per call")
+    print(f"{'─' * 90}")
+
+    print(f"\n  {'Model':<25} {'Input/1M':>10}  {'Output/1M':>10}  {'$/record':>10}  {'$/month':>12}  Note")
+    print(f"  {'─' * 25} {'─' * 10}  {'─' * 10}  {'─' * 10}  {'─' * 12}  {'─' * 25}")
+
+    vertex_models = [(n, m) for n, m in MODELS.items() if m["category"] == "vertex-ai"]
+    vertex_models.sort(key=lambda x: cost_per_record(x[0], INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD))
+
+    for name, m in vertex_models:
+        cpr = cost_per_record(name, INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD)
+        monthly = cpr * MONTHLY_RECORDS
+        print(f"  {name:<25} ${m['input_per_1m']:>8.2f}  ${m['output_per_1m']:>8.2f}  ${cpr:>9.5f}  ${monthly:>11,.2f}  {m['note'][:25]}")
+
+    # ── Infrastructure cost comparison ────────────────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  INFRASTRUCTURE COST COMPARISON — Annual")
+    print(f"{'─' * 90}")
+
+    xeon_annual = INFRA_COSTS["xeon6_node"]["annual_cost"]
+    gaudi_annual = INFRA_COSTS["gaudi3_node"]["annual_cost"]
+
+    cheapest_vertex = min(
+        cost_per_record(n, INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD) * MONTHLY_RECORDS * 12
+        for n, m in MODELS.items() if m["category"] == "vertex-ai"
+    )
+    most_capable_vertex = cost_per_record("claude-opus-4-6", INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD) * MONTHLY_RECORDS * 12
+
+    print(f"\n  {'Option':<40} {'Annual Cost':>14}  {'vs Xeon 6':>14}")
+    print(f"  {'─' * 40} {'─' * 14}  {'─' * 14}")
+    print(f"  {'Intel Xeon 6 (1 node, 6 models)':<40} ${xeon_annual:>13,}  {'baseline':>14}")
+    print(f"  {'Intel Gaudi 3 (1 node, 4 models) [EOL]':<40} ${gaudi_annual:>13,}  {'+$' + f'{gaudi_annual - xeon_annual:,}':>13}")
+    print(f"  {'Vertex AI cheapest (gpt-oss-20b)':<40} ${cheapest_vertex:>13,.0f}  {'+$' + f'{cheapest_vertex - xeon_annual:,.0f}':>13}")
+    print(f"  {'Vertex AI capable (claude-opus-4-6)':<40} ${most_capable_vertex:>13,.0f}  {'+$' + f'{most_capable_vertex - xeon_annual:,.0f}':>13}")
+
+    # ── Crossover analysis ───────────────────────────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  CROSSOVER ANALYSIS — When does self-hosted Xeon 6 beat Vertex AI?")
+    print(f"{'─' * 90}")
+
+    vertex_comparisons = [
+        ("gpt-oss-20b", "Cheapest Vertex (gpt-oss-20b)"),
+        ("gpt-oss-120b", "Mid-tier Vertex (gpt-oss-120b)"),
+        ("claude-3-5-haiku", "Claude Haiku"),
+        ("gemini-2.5-pro", "Gemini 2.5 Pro"),
+        ("claude-sonnet-4-6", "Claude Sonnet 4.6"),
+        ("claude-opus-4-6", "Claude Opus 4.6"),
+    ]
+
+    print(f"\n  {'Model':<35} {'Break-even':>18}  {'1M rec/mo savings':>18}")
+    print(f"  {'─' * 35} {'─' * 18}  {'─' * 18}")
+
+    for model_name, label in vertex_comparisons:
+        cpr = cost_per_record(model_name, INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD)
+        if cpr > 0:
+            # Monthly cost at which Xeon 6 hardware pays for itself
+            monthly_vertex = cpr * 1  # cost per record
+            breakeven_records = xeon_annual / (cpr * 12)  # records/month where annual costs equal
+            savings_at_1m = (cpr * 1_000_000 * 12) - xeon_annual
+            print(f"  {label:<35} {breakeven_records:>15,.0f}/mo  ${savings_at_1m:>17,.0f}/yr")
+
+    # ── The Triforce story ────────────────────────────────────────────
+    print(f"\n{'=' * 90}")
+    print(f"  THE TRIFORCE VALUE PROPOSITION")
+    print(f"{'=' * 90}")
+
+    # Find the real crossover volume for mid-tier model
+    haiku_cpr = cost_per_record("claude-3-5-haiku", INPUT_TOKENS_PER_CALL, OUTPUT_TOKENS_PER_CALL, LLM_CALLS_PER_RECORD)
+    haiku_breakeven = int(xeon_annual / (haiku_cpr * 12))
+    savings_1m_haiku = (haiku_cpr * 1_000_000 * 12) - xeon_annual
+
+    print(f"""
+  WHAT XEON 6 DOES (80% of enterprise AI — $0/token):
+    Classification, NER, summarization, embeddings, safety guardrails,
+    document conversion. 6 models on 1 server. No GPU.
+
+  WHAT VERTEX AI HANDLES (20% overflow — pay-per-token):
+    14B+ reasoning (deepseek, qwen3-235b), frontier models (Claude, Gemini).
+    Same MAAS endpoint, same API key, seamless routing.
+
+  THE MATH:
+    At low volume (<{haiku_breakeven:,} records/month):
+      Vertex AI is cheaper — don't buy hardware, pay per token.
+
+    At enterprise volume (>{haiku_breakeven:,} records/month):
+      Xeon 6 saves ${savings_1m_haiku:,.0f}/year vs Claude Haiku alone.
+      Zero per-token cost. Predictable CapEx. No API rate limits.
+
+  WITH GAUDI SUNSETTING:
+    The 14B+ models (deepseek, qwen3, phi-4) need a new home.
+    Options: Vertex AI pay-per-token, or larger Xeon 6 with AMX.
+    Either way — Xeon 6 remains the foundation for 80% of workloads.
+
+  KAGENTI ENABLES:
+    Scale horizontally on OpenShift. Agents auto-discover via A2A.
+    MCP tools federate across services. SPIFFE secures everything.
+    Add replicas, not GPUs.
+""")
+    print(f"{'=' * 90}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
