@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY models.py .
 COPY agent.py .
+COPY db.py .
 COPY kafka_consumer.py .
 
 USER 1001

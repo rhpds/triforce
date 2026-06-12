@@ -18,6 +18,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+import db
 import models
 
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,7 @@ kafka_pipeline = None
 @asynccontextmanager
 async def lifespan(app):
     global kafka_pipeline
+    await db.init_pool()
     kafka_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "")
     if kafka_servers:
         from kafka_consumer import HealthcareKafkaPipeline
@@ -41,6 +43,7 @@ async def lifespan(app):
     yield
     if kafka_pipeline:
         await kafka_pipeline.stop()
+    await db.close_pool()
 
 
 app = FastAPI(title="Triforce Healthcare Agent", version="0.1.0", lifespan=lifespan)
@@ -165,6 +168,8 @@ Document:
         classification = "unknown"
         latency_ms = 0
 
+    await db.log_inference("healthcare-agent", CLASSIFY_MODEL, "classification", latency_ms)
+
     return models.ClassifyResponse(
         classification=models.DocumentType(classification),
         confidence=0.85,
@@ -207,6 +212,8 @@ Clinical text:
         entities = []
         latency_ms = 0
 
+    await db.log_inference("healthcare-agent", CLASSIFY_MODEL, "ner", latency_ms)
+
     return models.ExtractEntitiesResponse(
         entities=entities,
         model=CLASSIFY_MODEL,
@@ -229,6 +236,8 @@ Patient record:
         response = "Summary unavailable."
         latency_ms = 0
 
+    await db.log_inference("healthcare-agent", SUMMARIZE_MODEL, "summarization", latency_ms)
+
     return models.SummarizeResponse(
         summary=response.strip(),
         model=SUMMARIZE_MODEL,
@@ -236,6 +245,11 @@ Patient record:
         inference_ms=latency_ms,
     )
 
+
+
+@app.get("/api/v1/stats")
+async def inference_stats():
+    return await db.get_inference_stats()
 
 
 if __name__ == "__main__":
