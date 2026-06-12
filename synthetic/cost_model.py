@@ -150,16 +150,72 @@ MODELS = {
 
 INFRA_COSTS = {
     "xeon6_node": {
-        "description": "Intel Xeon 6 server (2-socket, 128 cores)",
+        "description": "Intel Xeon 6 server (2-socket, 128 cores, AMX)",
         "annual_cost": 15_000,
         "models_served": 6,
         "note": "Runs granite-8b, codellama-7b, embeddings, guard, docling",
     },
     "gaudi3_node": {
-        "description": "Intel Gaudi 3 server (8x accelerators)",
+        "description": "Intel Gaudi 3 server (8x accelerators) — SUNSETTING",
         "annual_cost": 65_000,
         "models_served": 4,
         "note": "Runs deepseek-14b, qwen3-14b, llama-scout-17b, phi-4 (SUNSETTING)",
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# GPU Cloud Pricing — real market rates (mid-2026)
+# Sources: Spheron, Thunder Compute, getdeploying.com, GridStackHub
+# ═══════════════════════════════════════════════════════════════════════
+
+GPU_CLOUD_COSTS = {
+    "nvidia_h100_hyperscaler": {
+        "description": "NVIDIA H100 SXM (AWS/GCP on-demand)",
+        "hourly_per_gpu": 3.50,
+        "note": "AWS ~$3.90, GCP ~$3.00. Using $3.50 avg.",
+    },
+    "nvidia_h100_neocloud": {
+        "description": "NVIDIA H100 SXM (Lambda/Spheron/CoreWeave)",
+        "hourly_per_gpu": 2.50,
+        "note": "Neo-cloud: $2.01-$3.44/hr. Using $2.50 avg.",
+    },
+    "nvidia_a100_cloud": {
+        "description": "NVIDIA A100 80GB (cloud on-demand)",
+        "hourly_per_gpu": 1.50,
+        "note": "Sub-$1 on marketplace, $3-4 on hyperscalers. Using $1.50 mid-market.",
+    },
+    "amd_mi300x_cloud": {
+        "description": "AMD MI300X 192GB HBM3 (cloud on-demand)",
+        "hourly_per_gpu": 2.00,
+        "note": "TensorWave $1.71, Thunder $1.85, CoreWeave $2.50. Using $2.00 avg.",
+    },
+}
+
+# Self-hosted GPU hardware costs (purchase price + hosting)
+GPU_SELFHOSTED_COSTS = {
+    "nvidia_h100_server": {
+        "description": "NVIDIA H100 8-GPU server (self-hosted)",
+        "purchase_price": 250_000,
+        "annual_hosting": 36_000,  # power + cooling + rack + network
+        "amortize_years": 3,
+        "gpus": 8,
+        "note": "Dell/SuperMicro 8xH100. ~$250K purchase + $3K/mo hosting.",
+    },
+    "nvidia_a100_server": {
+        "description": "NVIDIA A100 8-GPU server (self-hosted)",
+        "purchase_price": 120_000,
+        "annual_hosting": 24_000,
+        "amortize_years": 3,
+        "gpus": 8,
+        "note": "Previous gen. Widely available refurbished.",
+    },
+    "amd_mi300x_server": {
+        "description": "AMD MI300X 8-GPU server (self-hosted)",
+        "purchase_price": 160_000,
+        "annual_hosting": 30_000,
+        "amortize_years": 3,
+        "gpus": 8,
+        "note": "OEM config (Dell/HPE). 192GB HBM3 per GPU.",
     },
 }
 
@@ -269,6 +325,40 @@ async def main():
     print(f"  {'Intel Gaudi 3 (1 node, 4 models) [EOL]':<40} ${gaudi_annual:>13,}  {'+$' + f'{gaudi_annual - xeon_annual:,}':>13}")
     print(f"  {'Vertex AI cheapest (gpt-oss-20b)':<40} ${cheapest_vertex:>13,.0f}  {'+$' + f'{cheapest_vertex - xeon_annual:,.0f}':>13}")
     print(f"  {'Vertex AI capable (claude-opus-4-6)':<40} ${most_capable_vertex:>13,.0f}  {'+$' + f'{most_capable_vertex - xeon_annual:,.0f}':>13}")
+
+    # ── GPU hardware comparison ─────────────────────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  GPU HARDWARE COMPARISON — Self-hosted vs Xeon 6")
+    print(f"  (Running same open-weight models: granite-8b, deepseek-14b, etc.)")
+    print(f"{'─' * 90}")
+
+    print(f"\n  {'Option':<45} {'Annual Cost':>12}  {'vs Xeon 6':>14}")
+    print(f"  {'─' * 45} {'─' * 12}  {'─' * 14}")
+    print(f"  {'Intel Xeon 6 (1 node, 6 models, no GPU)':<45} ${xeon_annual:>11,}  {'baseline':>14}")
+
+    for key, gpu in GPU_SELFHOSTED_COSTS.items():
+        annual = (gpu["purchase_price"] / gpu["amortize_years"]) + gpu["annual_hosting"]
+        diff = annual - xeon_annual
+        print(f"  {gpu['description'][:45]:<45} ${annual:>11,.0f}  {'+$' + f'{diff:,.0f}':>14}")
+
+    print(f"\n  Note: GPU servers run the SAME open-weight models (granite, deepseek, qwen).")
+    print(f"  Xeon 6 handles sub-8B models at comparable quality. GPU needed only for 14B+.")
+
+    # ── GPU cloud rental comparison ───────────────────────────────────
+    print(f"\n{'─' * 90}")
+    print(f"  GPU CLOUD RENTAL — Running inference 24/7 for 1 month")
+    print(f"{'─' * 90}")
+
+    hours_per_month = 730
+    print(f"\n  {'Provider':<45} {'$/hr':>8}  {'$/month':>12}  {'$/year':>12}  {'vs Xeon 6':>14}")
+    print(f"  {'─' * 45} {'─' * 8}  {'─' * 12}  {'─' * 12}  {'─' * 14}")
+    print(f"  {'Intel Xeon 6 (self-hosted, amortized)':<45} {'$0.00':>8}  {'$0':>12}  ${xeon_annual:>11,}  {'baseline':>14}")
+
+    for key, gpu in GPU_CLOUD_COSTS.items():
+        monthly = gpu["hourly_per_gpu"] * hours_per_month
+        annual = monthly * 12
+        diff = annual - xeon_annual
+        print(f"  {gpu['description'][:45]:<45} ${gpu['hourly_per_gpu']:>6.2f}  ${monthly:>11,.0f}  ${annual:>11,.0f}  {'+$' + f'{diff:,.0f}':>14}")
 
     # ── Crossover analysis ───────────────────────────────────────────
     print(f"\n{'─' * 90}")
