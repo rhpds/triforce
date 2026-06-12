@@ -1,0 +1,218 @@
+stages:
+  stage_0_contracts:
+    description: "All API contracts defined and parseable"
+    threshold: 100
+    criteria:
+      openapi_healthcare_valid:
+        description: "Healthcare agent OpenAPI spec validates against 3.1"
+        points: 10
+        required: true
+      openapi_finserv_valid:
+        description: "FinServ agent OpenAPI spec validates against 3.1"
+        points: 10
+        required: true
+      openapi_orchestrator_valid:
+        description: "Orchestrator OpenAPI spec validates against 3.1"
+        points: 10
+        required: true
+      openapi_a2a_valid:
+        description: "A2A protocol OpenAPI spec validates against 3.1"
+        points: 10
+        required: true
+      asyncapi_healthcare_valid:
+        description: "Healthcare AsyncAPI spec validates against 3.0"
+        points: 10
+        required: true
+      asyncapi_finserv_valid:
+        description: "FinServ AsyncAPI spec validates against 3.0"
+        points: 10
+        required: true
+      asyncapi_orchestrator_valid:
+        description: "Orchestrator AsyncAPI spec validates against 3.0"
+        points: 10
+        required: true
+      mcp_fhir_tools_valid:
+        description: "FHIR MCP tool schemas validate"
+        points: 10
+        required: true
+      mcp_risk_tools_valid:
+        description: "Risk MCP tool schemas validate"
+        points: 10
+        required: true
+      mcp_platform_tools_valid:
+        description: "Platform MCP tool schemas validate"
+        points: 10
+        required: true
+
+  stage_1_infrastructure:
+    description: "All containers build and services start"
+    threshold: 90
+    criteria:
+      healthcare_container_builds:
+        description: "Python healthcare agent container builds successfully"
+        points: 15
+        required: true
+      finserv_container_builds:
+        description: "Quarkus finserv agent container builds successfully"
+        points: 15
+        required: true
+      orchestrator_container_builds:
+        description: "Go orchestrator container builds successfully"
+        points: 15
+        required: true
+      compose_stack_starts:
+        description: "Full docker-compose stack starts with all health checks passing"
+        points: 15
+        required: true
+      postgres_migrations_apply:
+        description: "PostgreSQL migrations apply cleanly and schema is correct"
+        points: 10
+        required: true
+      kafka_topics_created:
+        description: "All Kafka topics created with correct configuration"
+        points: 10
+        required: true
+      a2a_stub_responds:
+        description: "A2A stub server responds to agent card requests"
+        points: 10
+        required: false
+      mcp_stub_responds:
+        description: "MCP gateway stub responds to tools/list"
+        points: 10
+        required: false
+
+  stage_2_unit:
+    description: "Per-service business logic passes"
+    threshold: 90
+    criteria:
+      healthcare_classify:
+        description: "Clinical document classification returns valid categories"
+        points: 15
+        required: true
+      healthcare_ner:
+        description: "Medical NER extracts entities with correct types"
+        points: 15
+        required: true
+      healthcare_summarize:
+        description: "Patient record summarization produces coherent output"
+        points: 10
+        required: true
+      finserv_fraud_score:
+        description: "Fraud scoring returns valid risk levels and signals"
+        points: 15
+        required: true
+      finserv_compliance:
+        description: "Compliance checking evaluates regulatory rules correctly"
+        points: 15
+        required: true
+      finserv_risk_assess:
+        description: "Risk assessment aggregates factors into valid scores"
+        points: 10
+        required: true
+      orchestrator_workflow:
+        description: "Workflow engine coordinates multi-step task sequences"
+        points: 15
+        required: true
+      orchestrator_discovery:
+        description: "Agent discovery fetches and parses A2A agent cards"
+        points: 15
+        required: true
+
+  stage_3_contracts_compliance:
+    description: "Services comply with their defined contracts"
+    threshold: 90
+    criteria:
+      healthcare_openapi_compliance:
+        description: "Healthcare agent responses match OpenAPI schema exactly"
+        points: 15
+        required: true
+      finserv_openapi_compliance:
+        description: "FinServ agent responses match OpenAPI schema exactly"
+        points: 15
+        required: true
+      orchestrator_openapi_compliance:
+        description: "Orchestrator responses match OpenAPI schema exactly"
+        points: 15
+        required: true
+      kafka_schema_compliance:
+        description: "All Kafka messages match their AsyncAPI schemas"
+        points: 15
+        required: true
+      a2a_protocol_compliance:
+        description: "All agents respond correctly to A2A JSON-RPC calls"
+        points: 15
+        required: true
+      mcp_tool_compliance:
+        description: "MCP tool responses match declared output schemas"
+        points: 10
+        required: false
+      agent_card_compliance:
+        description: "Agent cards include all required A2A fields"
+        points: 15
+        required: true
+
+  stage_4_integration:
+    description: "Cross-service communication works end-to-end"
+    threshold: 85
+    criteria:
+      a2a_agent_discovery:
+        description: "Orchestrator discovers healthcare and finserv agents via A2A protocol"
+        points: 15
+        required: true
+      kafka_healthcare_flow:
+        description: "Synthetic patient → healthcare agent → analysis result via Kafka"
+        points: 15
+        required: true
+      kafka_finserv_flow:
+        description: "Synthetic transaction → finserv agent → fraud score via Kafka"
+        points: 15
+        required: true
+      multi_agent_workflow:
+        description: "Orchestrator coordinates a workflow touching both agents"
+        points: 20
+        required: true
+      postgres_shared_state:
+        description: "Agents read/write shared state via PostgreSQL"
+        points: 10
+        required: false
+      vllm_sr_routing:
+        description: "vLLM Semantic Router classifies requests to correct agent"
+        points: 10
+        required: false
+      kv_cache_metrics:
+        description: "KV cache hit rate tracked in inference log"
+        points: 10
+        required: false
+
+  stage_5_scale:
+    description: "System handles synthetic load at scale"
+    threshold: 80
+    criteria:
+      kafka_throughput:
+        description: "Kafka pipeline sustains 100+ events/sec through full flow"
+        points: 15
+        required: false
+      concurrent_agents:
+        description: "Multiple agent replicas handle concurrent requests correctly"
+        points: 15
+        required: false
+      xeon_inference_latency:
+        description: "Xeon 6 CPU inference p95 latency < 2s for classification tasks"
+        points: 20
+        required: true
+      synthetic_healthcare_batch:
+        description: "Process 1000 synthetic patient records end-to-end"
+        points: 15
+        required: false
+      synthetic_finserv_batch:
+        description: "Process 1000 synthetic transactions end-to-end"
+        points: 15
+        required: false
+      cost_savings_report:
+        description: "Platform generates accurate CPU vs GPU cost comparison report"
+        points: 10
+        required: false
+      kv_cache_benefit:
+        description: "KV cache demonstrates measurable latency reduction on repeat patterns"
+        points: 10
+        required: false

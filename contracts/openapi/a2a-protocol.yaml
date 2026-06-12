@@ -1,0 +1,310 @@
+openapi: 3.1.0
+info:
+  title: A2A Protocol Contract
+  description: >
+    Shared contract for the Agent-to-Agent (A2A) protocol used by all Triforce agents.
+    Based on the A2A specification v0.2.6. All agents must implement these endpoints
+    to be discoverable and invokable by the Kagenti platform (or local stubs).
+  version: 0.2.6
+  license:
+    name: Apache-2.0
+
+paths:
+  /.well-known/agent-card.json:
+    get:
+      operationId: getAgentCard
+      summary: Agent discovery — returns agent metadata, capabilities, and skills
+      description: >
+        Every A2A agent MUST serve this endpoint. The Kagenti AgentCard controller
+        polls this endpoint to create/update AgentCard CRDs. In local dev, the
+        agent_card_registry stub polls it instead.
+      responses:
+        "200":
+          description: Agent card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentCard"
+
+  /a2a:
+    post:
+      operationId: handleJsonRpc
+      summary: A2A JSON-RPC 2.0 endpoint for task execution
+      description: >
+        Accepts JSON-RPC 2.0 requests for task management. Supported methods:
+        tasks/send (create+execute), tasks/get (status), tasks/cancel.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonRpcRequest"
+      responses:
+        "200":
+          description: JSON-RPC response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonRpcResponse"
+
+components:
+  schemas:
+    AgentCard:
+      type: object
+      required:
+        - name
+        - description
+        - version
+        - url
+        - protocolVersion
+        - capabilities
+        - defaultInputModes
+        - defaultOutputModes
+        - skills
+      properties:
+        name:
+          type: string
+          description: Human-readable agent name
+        description:
+          type: string
+          description: What this agent does
+        version:
+          type: string
+          description: Agent version (semver)
+        url:
+          type: string
+          format: uri
+          description: Base URL of the agent
+        protocolVersion:
+          type: string
+          description: A2A protocol version (e.g., "0.2.6")
+        provider:
+          type: string
+          description: Organization providing the agent
+        documentationUrl:
+          type: string
+          format: uri
+        capabilities:
+          $ref: "#/components/schemas/AgentCapabilities"
+        authentication:
+          $ref: "#/components/schemas/AgentAuthentication"
+        defaultInputModes:
+          type: array
+          items:
+            type: string
+            enum: [text, image, audio, video]
+          minItems: 1
+        defaultOutputModes:
+          type: array
+          items:
+            type: string
+            enum: [text, image, audio, video]
+          minItems: 1
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentSkill"
+          minItems: 1
+
+    AgentCapabilities:
+      type: object
+      properties:
+        streaming:
+          type: boolean
+          default: false
+        pushNotifications:
+          type: boolean
+          default: false
+        stateTransitionHistory:
+          type: boolean
+          default: true
+
+    AgentAuthentication:
+      type: object
+      properties:
+        schemes:
+          type: array
+          items:
+            type: string
+            enum: [Bearer, Basic, SPIFFE]
+
+    AgentSkill:
+      type: object
+      required: [id, name, description]
+      properties:
+        id:
+          type: string
+          description: Unique skill identifier
+        name:
+          type: string
+          description: Human-readable skill name
+        description:
+          type: string
+          description: What this skill does
+        tags:
+          type: array
+          items:
+            type: string
+        examples:
+          type: array
+          items:
+            type: string
+          description: Example prompts that trigger this skill
+        inputModes:
+          type: array
+          items:
+            type: string
+        outputModes:
+          type: array
+          items:
+            type: string
+
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, id, method]
+      properties:
+        jsonrpc:
+          type: string
+          const: "2.0"
+        id:
+          type: string
+          description: Unique request ID
+        method:
+          type: string
+          enum:
+            - tasks/send
+            - tasks/get
+            - tasks/cancel
+        params:
+          oneOf:
+            - $ref: "#/components/schemas/TaskSendParams"
+            - $ref: "#/components/schemas/TaskGetParams"
+            - $ref: "#/components/schemas/TaskCancelParams"
+
+    TaskSendParams:
+      type: object
+      required: [id, message]
+      properties:
+        id:
+          type: string
+          description: Task ID (client-generated or server-generated)
+        message:
+          $ref: "#/components/schemas/Message"
+
+    TaskGetParams:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+
+    TaskCancelParams:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+
+    Message:
+      type: object
+      required: [messageId, kind, role, parts]
+      properties:
+        messageId:
+          type: string
+        kind:
+          type: string
+          const: message
+        role:
+          type: string
+          enum: [user, agent]
+        parts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Part"
+          minItems: 1
+
+    Part:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          enum: [text, data]
+        text:
+          type: string
+          description: Text content (when kind=text)
+        data:
+          type: object
+          description: Structured data (when kind=data)
+
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc:
+          type: string
+          const: "2.0"
+        id:
+          type: string
+        result:
+          $ref: "#/components/schemas/Task"
+        error:
+          $ref: "#/components/schemas/JsonRpcError"
+
+    JsonRpcError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+
+    Task:
+      type: object
+      required: [id, status, kind]
+      properties:
+        id:
+          type: string
+        contextId:
+          type: string
+          description: Groups related tasks in a conversation
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        artifacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artifact"
+        kind:
+          type: string
+          const: task
+
+    TaskStatus:
+      type: object
+      required: [state]
+      properties:
+        state:
+          type: string
+          enum: [pending, running, completed, failed]
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          description: Human-readable status message
+
+    Artifact:
+      type: object
+      required: [artifactId, parts]
+      properties:
+        artifactId:
+          type: string
+        parts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Part"
+        metadata:
+          type: object
+          additionalProperties: true

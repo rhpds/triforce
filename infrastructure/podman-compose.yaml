@@ -1,0 +1,145 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: triforce
+      POSTGRES_USER: triforce
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U triforce -d triforce"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redpanda:
+    image: docker.io/redpandadata/redpanda:v24.3.1
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --smp 1
+      - --memory 512M
+      - --mode dev-container
+      - --default-log-level=warn
+    ports:
+      - "127.0.0.1:19092:19092"
+      - "127.0.0.1:18082:18082"
+      - "127.0.0.1:18081:18081"
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redpanda-console:
+    image: docker.io/redpandadata/console:v2.8.1
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+    ports:
+      - "127.0.0.1:8888:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml && /app/console'
+
+  healthcare-agent:
+    build:
+      context: ../services/healthcare-agent
+      dockerfile: Containerfile
+    environment:
+      LITELLM_API_BASE: ${LITELLM_API_BASE}
+      LITELLM_API_KEY: ${LITELLM_API_KEY}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: triforce
+      POSTGRES_USER: triforce
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only}
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      SERVICE_PORT: "8081"
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  finserv-agent:
+    build:
+      context: ../services/finserv-agent
+      dockerfile: Containerfile
+    environment:
+      LITELLM_API_BASE: ${LITELLM_API_BASE}
+      LITELLM_API_KEY: ${LITELLM_API_KEY}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: triforce
+      POSTGRES_USER: triforce
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only}
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      QUARKUS_HTTP_PORT: 8082
+    ports:
+      - "127.0.0.1:8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  orchestrator:
+    build:
+      context: ../services/orchestrator
+      dockerfile: Containerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: triforce
+      POSTGRES_USER: triforce
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only}
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      HEALTHCARE_AGENT_URL: http://healthcare-agent:8081
+      FINSERV_AGENT_URL: http://finserv-agent:8082
+      SERVICE_PORT: "8083"
+    ports:
+      - "127.0.0.1:8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:

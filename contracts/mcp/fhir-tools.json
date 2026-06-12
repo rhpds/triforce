@@ -1,0 +1,150 @@
+{
+  "name": "healthcare-tools",
+  "description": "MCP tools for healthcare agent — FHIR data, clinical coding, drug interactions",
+  "tools": [
+    {
+      "name": "fhir_patient_lookup",
+      "description": "Look up a synthetic patient record by ID. Returns demographics, conditions, medications, and recent encounters.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["patient_id"],
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Patient identifier"
+          },
+          "include_history": {
+            "type": "boolean",
+            "default": true,
+            "description": "Include encounter history"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["patient_id", "name", "age", "gender", "conditions", "medications"],
+        "properties": {
+          "patient_id": { "type": "string" },
+          "name": { "type": "string" },
+          "age": { "type": "integer" },
+          "gender": { "type": "string" },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "string" },
+                "display": { "type": "string" },
+                "onset_date": { "type": "string" }
+              }
+            }
+          },
+          "medications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "dosage": { "type": "string" },
+                "frequency": { "type": "string" }
+              }
+            }
+          },
+          "encounters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": { "type": "string" },
+                "type": { "type": "string" },
+                "department": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "clinical_code_search",
+      "description": "Search ICD-10 and CPT codes by keyword or code prefix. Returns matching codes with descriptions.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search term or code prefix (e.g., 'diabetes' or 'E11')"
+          },
+          "code_system": {
+            "type": "string",
+            "enum": ["icd10", "cpt", "snomed"],
+            "default": "icd10"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["results"],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "display"],
+              "properties": {
+                "code": { "type": "string" },
+                "display": { "type": "string" },
+                "category": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "drug_interaction_check",
+      "description": "Check for drug-drug interactions between a list of medications.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["medications"],
+        "properties": {
+          "medications": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 2,
+            "description": "List of medication names to check for interactions"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["interactions"],
+        "properties": {
+          "interactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["drug_a", "drug_b", "severity", "description"],
+              "properties": {
+                "drug_a": { "type": "string" },
+                "drug_b": { "type": "string" },
+                "severity": {
+                  "type": "string",
+                  "enum": ["minor", "moderate", "major", "contraindicated"]
+                },
+                "description": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

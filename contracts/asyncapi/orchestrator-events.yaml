@@ -1,0 +1,117 @@
+asyncapi: 3.0.0
+info:
+  title: Triforce Orchestrator Events
+  description: Kafka event schemas for workflow orchestration and synthetic load control
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+
+defaultContentType: application/json
+
+channels:
+  orchestratorWorkflows:
+    address: orchestrator.workflows
+    messages:
+      WorkflowEvent:
+        $ref: "#/components/messages/WorkflowEvent"
+    description: Workflow state transition events
+
+  orchestratorSyntheticTrigger:
+    address: orchestrator.synthetic.trigger
+    messages:
+      SyntheticTrigger:
+        $ref: "#/components/messages/SyntheticTrigger"
+    description: Commands to start/stop synthetic data generation
+
+operations:
+  produceWorkflowEvents:
+    action: send
+    channel:
+      $ref: "#/channels/orchestratorWorkflows"
+    summary: Orchestrator publishes workflow state changes
+
+  consumeWorkflowEvents:
+    action: receive
+    channel:
+      $ref: "#/channels/orchestratorWorkflows"
+    summary: Orchestrator consumes workflow events for state tracking
+
+  consumeSyntheticTriggers:
+    action: receive
+    channel:
+      $ref: "#/channels/orchestratorSyntheticTrigger"
+    summary: Orchestrator consumes synthetic load control commands
+
+components:
+  messages:
+    WorkflowEvent:
+      name: WorkflowEvent
+      contentType: application/json
+      payload:
+        type: object
+        required: [workflow_id, workflow_type, event_type, timestamp]
+        properties:
+          workflow_id:
+            type: string
+            format: uuid
+          workflow_type:
+            type: string
+            enum:
+              - patient_financial_risk
+              - cross_vertical_analysis
+              - batch_classification
+              - compliance_sweep
+          event_type:
+            type: string
+            enum:
+              - started
+              - step_completed
+              - step_failed
+              - completed
+              - failed
+          step:
+            type: object
+            properties:
+              agent:
+                type: string
+              skill:
+                type: string
+              status:
+                type: string
+              inference_ms:
+                type: integer
+          agents_involved:
+            type: array
+            items:
+              type: string
+          result:
+            type: object
+            additionalProperties: true
+          error:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+
+    SyntheticTrigger:
+      name: SyntheticTrigger
+      contentType: application/json
+      payload:
+        type: object
+        required: [action, target]
+        properties:
+          action:
+            type: string
+            enum: [start, stop]
+          target:
+            type: string
+            enum: [healthcare, finserv, both]
+          rate_per_second:
+            type: number
+            minimum: 0.1
+            maximum: 1000
+            default: 10
+          duration_seconds:
+            type: integer
+            minimum: 1
+            maximum: 3600

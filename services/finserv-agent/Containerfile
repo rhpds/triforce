@@ -1,0 +1,22 @@
+FROM registry.access.redhat.com/ubi9/openjdk-21:latest AS builder
+
+USER root
+WORKDIR /build
+COPY pom.xml .
+COPY src src
+
+RUN mvn package -DskipTests -Dquarkus.package.jar.type=uber-jar
+
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:latest
+
+COPY --from=builder /build/target/*-runner.jar /deployments/app.jar
+
+ENV JAVA_APP_JAR="/deployments/app.jar"
+
+USER 185
+EXPOSE 8082
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
+    CMD curl -f http://localhost:8082/health || exit 1
+
+ENTRYPOINT ["java", "-jar", "/deployments/app.jar"]

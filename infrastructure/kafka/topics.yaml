@@ -1,0 +1,63 @@
+topics:
+  - name: healthcare.patients.synthetic
+    partitions: 3
+    replication_factor: 1
+    config:
+      retention.ms: "86400000"  # 24 hours
+      cleanup.policy: delete
+
+  - name: healthcare.analysis.results
+    partitions: 3
+    replication_factor: 1
+    config:
+      retention.ms: "172800000"  # 48 hours
+      cleanup.policy: delete
+
+  - name: healthcare.alerts
+    partitions: 1
+    replication_factor: 1
+    config:
+      retention.ms: "604800000"  # 7 days
+      cleanup.policy: delete
+
+  - name: finserv.transactions.synthetic
+    partitions: 6
+    replication_factor: 1
+    config:
+      retention.ms: "86400000"
+      cleanup.policy: delete
+
+  - name: finserv.fraud.scores
+    partitions: 3
+    replication_factor: 1
+    config:
+      retention.ms: "172800000"
+      cleanup.policy: delete
+
+  - name: finserv.compliance.decisions
+    partitions: 3
+    replication_factor: 1
+    config:
+      retention.ms: "604800000"
+      cleanup.policy: delete
+
+  - name: finserv.alerts
+    partitions: 1
+    replication_factor: 1
+    config:
+      retention.ms: "604800000"
+      cleanup.policy: delete
+
+  - name: orchestrator.workflows
+    partitions: 3
+    replication_factor: 1
+    config:
+      retention.ms: "172800000"
+      cleanup.policy: delete
+
+  - name: orchestrator.synthetic.trigger
+    partitions: 1
+    replication_factor: 1
+    config:
+      retention.ms: "3600000"  # 1 hour
+      cleanup.policy: delete

@@ -1,0 +1,367 @@
+openapi: 3.1.0
+info:
+  title: Triforce Orchestrator API
+  description: >
+    Workflow coordination service that discovers agents via A2A protocol,
+    orchestrates multi-agent workflows, routes Kafka events, and generates
+    synthetic workloads for scale testing. Built in Go. No inference — coordination only.
+  version: 0.1.0
+  contact:
+    name: Jonathan Kershaw
+    email: jkershaw@redhat.com
+  license:
+    name: Apache-2.0
+
+servers:
+  - url: http://localhost:8083
+    description: Local development
+
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Service health check
+      tags: [infrastructure]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/agents:
+    get:
+      operationId: listAgents
+      summary: List all discovered agents and their status
+      tags: [discovery]
+      responses:
+        "200":
+          description: List of discovered agents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentListResponse"
+
+  /api/v1/workflows:
+    post:
+      operationId: startWorkflow
+      summary: Start a multi-agent workflow
+      tags: [workflows]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartWorkflowRequest"
+      responses:
+        "202":
+          description: Workflow accepted and started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResponse"
+    get:
+      operationId: listWorkflows
+      summary: List workflow runs with optional filters
+      tags: [workflows]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, running, completed, failed]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of workflow runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkflowResponse"
+
+  /api/v1/workflows/{workflow_id}:
+    get:
+      operationId: getWorkflow
+      summary: Get workflow status and results
+      tags: [workflows]
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Workflow details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResponse"
+        "404":
+          description: Workflow not found
+
+  /api/v1/synthetic/start:
+    post:
+      operationId: startSyntheticLoad
+      summary: Start synthetic data generation for scale testing
+      tags: [synthetic]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyntheticLoadRequest"
+      responses:
+        "202":
+          description: Synthetic load generation started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyntheticLoadResponse"
+
+  /api/v1/synthetic/stop:
+    post:
+      operationId: stopSyntheticLoad
+      summary: Stop synthetic data generation
+      tags: [synthetic]
+      responses:
+        "200":
+          description: Synthetic load stopped
+
+  /api/v1/metrics:
+    get:
+      operationId: getMetrics
+      summary: Aggregated metrics across all agents
+      tags: [observability]
+      responses:
+        "200":
+          description: Platform metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformMetrics"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        service:
+          type: string
+          const: orchestrator
+        version:
+          type: string
+        dependencies:
+          type: object
+          properties:
+            postgres:
+              type: string
+              enum: [up, down]
+            kafka:
+              type: string
+              enum: [up, down]
+            healthcare_agent:
+              type: string
+              enum: [up, down, unknown]
+            finserv_agent:
+              type: string
+              enum: [up, down, unknown]
+
+    AgentListResponse:
+      type: object
+      required: [agents]
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscoveredAgent"
+
+    DiscoveredAgent:
+      type: object
+      required: [name, url, status, skills]
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [active, inactive, error]
+        last_heartbeat:
+          type: string
+          format: date-time
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+
+    StartWorkflowRequest:
+      type: object
+      required: [workflow_type, input]
+      properties:
+        workflow_type:
+          type: string
+          enum:
+            - patient_financial_risk
+            - cross_vertical_analysis
+            - batch_classification
+            - compliance_sweep
+        input:
+          type: object
+          additionalProperties: true
+          description: Workflow-specific input payload
+
+    WorkflowResponse:
+      type: object
+      required: [id, workflow_type, status, started_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        workflow_type:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        input:
+          type: object
+        output:
+          type: object
+        agents_involved:
+          type: array
+          items:
+            type: string
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowStep"
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        duration_ms:
+          type: integer
+
+    WorkflowStep:
+      type: object
+      required: [agent, skill, status]
+      properties:
+        agent:
+          type: string
+        skill:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed, skipped]
+        input:
+          type: object
+        output:
+          type: object
+        inference_ms:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+
+    SyntheticLoadRequest:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          enum: [healthcare, finserv, both]
+        rate_per_second:
+          type: number
+          minimum: 0.1
+          maximum: 1000
+          default: 10
+        duration_seconds:
+          type: integer
+          minimum: 1
+          maximum: 3600
+          default: 60
+
+    SyntheticLoadResponse:
+      type: object
+      required: [id, status, target, rate_per_second]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [running, stopped]
+        target:
+          type: string
+        rate_per_second:
+          type: number
+        events_sent:
+          type: integer
+
+    PlatformMetrics:
+      type: object
+      required: [agents, inference, kafka]
+      properties:
+        agents:
+          type: object
+          properties:
+            total:
+              type: integer
+            active:
+              type: integer
+            workflows_completed:
+              type: integer
+            workflows_failed:
+              type: integer
+        inference:
+          type: object
+          properties:
+            total_requests:
+              type: integer
+            avg_latency_ms:
+              type: number
+            p95_latency_ms:
+              type: number
+            cpu_requests:
+              type: integer
+            gpu_requests:
+              type: integer
+            cost_saved_vs_gpu:
+              type: number
+            kv_cache_hit_rate:
+              type: number
+              minimum: 0
+              maximum: 1
+        kafka:
+          type: object
+          properties:
+            messages_produced:
+              type: integer
+            messages_consumed:
+              type: integer
+            consumer_lag:
+              type: integer

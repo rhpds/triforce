@@ -1,0 +1,158 @@
+asyncapi: 3.0.0
+info:
+  title: Triforce Healthcare Events
+  description: Kafka event schemas for healthcare agent synthetic data pipeline
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+
+defaultContentType: application/json
+
+channels:
+  healthcarePatientsSynthetic:
+    address: healthcare.patients.synthetic
+    messages:
+      PatientRecord:
+        $ref: "#/components/messages/PatientRecord"
+    description: Synthetic patient records generated for scale testing
+
+  healthcareAnalysisResults:
+    address: healthcare.analysis.results
+    messages:
+      AnalysisResult:
+        $ref: "#/components/messages/AnalysisResult"
+    description: NLP analysis results from healthcare agent
+
+  healthcareAlerts:
+    address: healthcare.alerts
+    messages:
+      Alert:
+        $ref: "#/components/messages/Alert"
+    description: Flagged conditions and anomalies requiring attention
+
+operations:
+  consumePatientRecords:
+    action: receive
+    channel:
+      $ref: "#/channels/healthcarePatientsSynthetic"
+    summary: Healthcare agent consumes synthetic patient records from Kafka
+
+  produceAnalysisResults:
+    action: send
+    channel:
+      $ref: "#/channels/healthcareAnalysisResults"
+    summary: Healthcare agent publishes NLP analysis results
+
+  produceAlerts:
+    action: send
+    channel:
+      $ref: "#/channels/healthcareAlerts"
+    summary: Healthcare agent publishes clinical alerts
+
+components:
+  messages:
+    PatientRecord:
+      name: PatientRecord
+      contentType: application/json
+      payload:
+        type: object
+        required: [patient_id, record_type, text, generated_at]
+        properties:
+          patient_id:
+            type: string
+            format: uuid
+          record_type:
+            type: string
+            enum:
+              - discharge_summary
+              - progress_note
+              - lab_report
+              - radiology_report
+              - surgical_note
+          text:
+            type: string
+            minLength: 50
+            maxLength: 50000
+          metadata:
+            type: object
+            properties:
+              age:
+                type: integer
+                minimum: 0
+                maximum: 120
+              gender:
+                type: string
+                enum: [M, F, X]
+              department:
+                type: string
+          generated_at:
+            type: string
+            format: date-time
+
+    AnalysisResult:
+      name: AnalysisResult
+      contentType: application/json
+      payload:
+        type: object
+        required: [patient_id, analysis_type, result, model, accelerator, inference_ms, processed_at]
+        properties:
+          patient_id:
+            type: string
+            format: uuid
+          analysis_type:
+            type: string
+            enum: [classification, ner, summarization]
+          result:
+            type: object
+            additionalProperties: true
+          model:
+            type: string
+          accelerator:
+            type: string
+            enum: [cpu, gpu]
+          inference_ms:
+            type: integer
+            minimum: 0
+          kv_cache_hit:
+            type: boolean
+          processed_at:
+            type: string
+            format: date-time
+
+    Alert:
+      name: Alert
+      contentType: application/json
+      payload:
+        type: object
+        required: [alert_id, patient_id, severity, type, description, created_at]
+        properties:
+          alert_id:
+            type: string
+            format: uuid
+          patient_id:
+            type: string
+            format: uuid
+          severity:
+            type: string
+            enum: [info, warning, critical]
+          type:
+            type: string
+            enum:
+              - drug_interaction
+              - abnormal_lab
+              - critical_condition
+              - missing_followup
+          description:
+            type: string
+          entities:
+            type: array
+            items:
+              type: object
+              properties:
+                text:
+                  type: string
+                type:
+                  type: string
+          created_at:
+            type: string
+            format: date-time

@@ -1,0 +1,17 @@
+.env
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+node_modules/
+target/
+*.class
+*.jar
+.DS_Store
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,456 @@
+openapi: 3.1.0
+info:
+  title: Triforce Financial Services Agent API
+  description: >
+    Fraud detection and regulatory compliance agent for financial transactions.
+    Runs inference on Intel Xeon 6 via MAAS/LiteLLM. Built with Quarkus.
+  version: 0.1.0
+  contact:
+    name: Jonathan Kershaw
+    email: jkershaw@redhat.com
+  license:
+    name: Apache-2.0
+
+servers:
+  - url: http://localhost:8082
+    description: Local development
+
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Service health check
+      tags: [infrastructure]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /a2a:
+    post:
+      operationId: a2aTaskSend
+      summary: A2A JSON-RPC endpoint for agent-to-agent communication
+      tags: [a2a]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonRpcRequest"
+      responses:
+        "200":
+          description: A2A task response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonRpcResponse"
+
+  /.well-known/agent-card.json:
+    get:
+      operationId: getAgentCard
+      summary: A2A agent discovery endpoint
+      tags: [a2a]
+      responses:
+        "200":
+          description: Agent card metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentCard"
+
+  /api/v1/score-transaction:
+    post:
+      operationId: scoreTransaction
+      summary: Score a financial transaction for fraud risk
+      tags: [fraud]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScoreTransactionRequest"
+      responses:
+        "200":
+          description: Fraud risk score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoreTransactionResponse"
+
+  /api/v1/check-compliance:
+    post:
+      operationId: checkCompliance
+      summary: Check a transaction against regulatory rules
+      tags: [compliance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckComplianceRequest"
+      responses:
+        "200":
+          description: Compliance check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckComplianceResponse"
+
+  /api/v1/assess-risk:
+    post:
+      operationId: assessRisk
+      summary: Aggregate risk assessment for a customer
+      tags: [risk]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessRiskRequest"
+      responses:
+        "200":
+          description: Risk assessment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessRiskResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        service:
+          type: string
+          const: finserv-agent
+        version:
+          type: string
+        dependencies:
+          type: object
+          properties:
+            postgres:
+              type: string
+              enum: [up, down]
+            kafka:
+              type: string
+              enum: [up, down]
+            litellm:
+              type: string
+              enum: [up, down]
+
+    ScoreTransactionRequest:
+      type: object
+      required: [transaction]
+      properties:
+        transaction:
+          $ref: "#/components/schemas/Transaction"
+
+    Transaction:
+      type: object
+      required: [id, amount, currency, sender, receiver, timestamp]
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: "^[A-Z]{3}$"
+        sender:
+          $ref: "#/components/schemas/Party"
+        receiver:
+          $ref: "#/components/schemas/Party"
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [wire, ach, card, crypto, internal]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Party:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        account_type:
+          type: string
+          enum: [individual, business, government]
+
+    ScoreTransactionResponse:
+      type: object
+      required: [transaction_id, risk_score, risk_level, signals, model, inference_ms]
+      properties:
+        transaction_id:
+          type: string
+          format: uuid
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/FraudSignal"
+        recommendation:
+          type: string
+          enum: [approve, review, hold, block]
+        model:
+          type: string
+        accelerator:
+          type: string
+          enum: [cpu, gpu]
+          default: cpu
+        inference_ms:
+          type: integer
+          minimum: 0
+
+    FraudSignal:
+      type: object
+      required: [type, severity, description]
+      properties:
+        type:
+          type: string
+          enum:
+            - unusual_amount
+            - velocity_spike
+            - geographic_anomaly
+            - new_recipient
+            - pattern_deviation
+            - sanctioned_entity
+            - round_amount
+            - off_hours
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        description:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    CheckComplianceRequest:
+      type: object
+      required: [transaction]
+      properties:
+        transaction:
+          $ref: "#/components/schemas/Transaction"
+        regulations:
+          type: array
+          items:
+            type: string
+            enum: [aml, kyc, ofac, pci_dss, gdpr, sox]
+          description: Specific regulations to check (default all)
+
+    CheckComplianceResponse:
+      type: object
+      required: [transaction_id, compliant, checks, model, inference_ms]
+      properties:
+        transaction_id:
+          type: string
+          format: uuid
+        compliant:
+          type: boolean
+        checks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComplianceCheck"
+        model:
+          type: string
+        accelerator:
+          type: string
+          enum: [cpu, gpu]
+          default: cpu
+        inference_ms:
+          type: integer
+          minimum: 0
+
+    ComplianceCheck:
+      type: object
+      required: [regulation, status, details]
+      properties:
+        regulation:
+          type: string
+        status:
+          type: string
+          enum: [pass, fail, review_required]
+        details:
+          type: string
+        rule_id:
+          type: string
+
+    AssessRiskRequest:
+      type: object
+      required: [customer_id]
+      properties:
+        customer_id:
+          type: string
+        include_history:
+          type: boolean
+          default: true
+        lookback_days:
+          type: integer
+          minimum: 1
+          maximum: 365
+          default: 90
+
+    AssessRiskResponse:
+      type: object
+      required: [customer_id, risk_score, risk_level, factors, model, inference_ms]
+      properties:
+        customer_id:
+          type: string
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        factors:
+          type: array
+          items:
+            type: object
+            required: [factor, weight, value]
+            properties:
+              factor:
+                type: string
+              weight:
+                type: number
+              value:
+                type: number
+        transaction_count:
+          type: integer
+        model:
+          type: string
+        accelerator:
+          type: string
+          enum: [cpu, gpu]
+          default: cpu
+        inference_ms:
+          type: integer
+          minimum: 0
+
+    # A2A Protocol schemas (same structure as healthcare, different agent identity)
+    AgentCard:
+      type: object
+      required: [name, description, version, url, capabilities, skills, protocolVersion]
+      properties:
+        name:
+          type: string
+          const: Financial Services Agent
+        description:
+          type: string
+        version:
+          type: string
+        url:
+          type: string
+          format: uri
+        protocolVersion:
+          type: string
+        capabilities:
+          type: object
+          properties:
+            streaming:
+              type: boolean
+            pushNotifications:
+              type: boolean
+            stateTransitionHistory:
+              type: boolean
+        defaultInputModes:
+          type: array
+          items:
+            type: string
+        defaultOutputModes:
+          type: array
+          items:
+            type: string
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentSkill"
+
+    AgentSkill:
+      type: object
+      required: [id, name, description]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        examples:
+          type: array
+          items:
+            type: string
+
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, id, method, params]
+      properties:
+        jsonrpc:
+          type: string
+          const: "2.0"
+        id:
+          type: string
+        method:
+          type: string
+          enum: [tasks/send, tasks/get, tasks/cancel]
+        params:
+          type: object
+
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id, result]
+      properties:
+        jsonrpc:
+          type: string
+          const: "2.0"
+        id:
+          type: string
+        result:
+          type: object
+          required: [id, status, kind]
+          properties:
+            id:
+              type: string
+            status:
+              type: object
+              required: [state]
+              properties:
+                state:
+                  type: string
+                  enum: [pending, running, completed, failed]
+            artifacts:
+              type: array
+              items:
+                type: object
+            kind:
+              type: string
+              const: task

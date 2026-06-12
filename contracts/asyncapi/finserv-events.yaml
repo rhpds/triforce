@@ -1,0 +1,233 @@
+asyncapi: 3.0.0
+info:
+  title: Triforce Financial Services Events
+  description: Kafka event schemas for finserv agent transaction pipeline
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+
+defaultContentType: application/json
+
+channels:
+  finservTransactionsSynthetic:
+    address: finserv.transactions.synthetic
+    messages:
+      Transaction:
+        $ref: "#/components/messages/Transaction"
+    description: Synthetic transaction stream for scale testing
+
+  finservFraudScores:
+    address: finserv.fraud.scores
+    messages:
+      FraudScore:
+        $ref: "#/components/messages/FraudScore"
+    description: Fraud risk scores per transaction
+
+  finservComplianceDecisions:
+    address: finserv.compliance.decisions
+    messages:
+      ComplianceDecision:
+        $ref: "#/components/messages/ComplianceDecision"
+    description: Regulatory compliance verdicts
+
+  finservAlerts:
+    address: finserv.alerts
+    messages:
+      Alert:
+        $ref: "#/components/messages/Alert"
+    description: High-risk alerts requiring immediate action
+
+operations:
+  consumeTransactions:
+    action: receive
+    channel:
+      $ref: "#/channels/finservTransactionsSynthetic"
+    summary: FinServ agent consumes synthetic transactions from Kafka
+
+  produceFraudScores:
+    action: send
+    channel:
+      $ref: "#/channels/finservFraudScores"
+    summary: FinServ agent publishes fraud scores
+
+  produceComplianceDecisions:
+    action: send
+    channel:
+      $ref: "#/channels/finservComplianceDecisions"
+    summary: FinServ agent publishes compliance decisions
+
+  produceAlerts:
+    action: send
+    channel:
+      $ref: "#/channels/finservAlerts"
+    summary: FinServ agent publishes high-risk alerts
+
+components:
+  messages:
+    Transaction:
+      name: Transaction
+      contentType: application/json
+      payload:
+        type: object
+        required: [id, amount, currency, sender, receiver, timestamp, type]
+        properties:
+          id:
+            type: string
+            format: uuid
+          amount:
+            type: number
+            minimum: 0
+          currency:
+            type: string
+            pattern: "^[A-Z]{3}$"
+          sender:
+            type: object
+            required: [id, name]
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              country:
+                type: string
+                pattern: "^[A-Z]{2}$"
+              account_type:
+                type: string
+                enum: [individual, business, government]
+          receiver:
+            type: object
+            required: [id, name]
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              country:
+                type: string
+                pattern: "^[A-Z]{2}$"
+              account_type:
+                type: string
+                enum: [individual, business, government]
+          timestamp:
+            type: string
+            format: date-time
+          type:
+            type: string
+            enum: [wire, ach, card, crypto, internal]
+          metadata:
+            type: object
+            additionalProperties: true
+
+    FraudScore:
+      name: FraudScore
+      contentType: application/json
+      payload:
+        type: object
+        required: [transaction_id, risk_score, risk_level, signals, model, accelerator, inference_ms, scored_at]
+        properties:
+          transaction_id:
+            type: string
+            format: uuid
+          risk_score:
+            type: number
+            minimum: 0
+            maximum: 100
+          risk_level:
+            type: string
+            enum: [low, medium, high, critical]
+          signals:
+            type: array
+            items:
+              type: object
+              required: [type, severity]
+              properties:
+                type:
+                  type: string
+                severity:
+                  type: string
+                  enum: [info, warning, critical]
+                description:
+                  type: string
+          recommendation:
+            type: string
+            enum: [approve, review, hold, block]
+          model:
+            type: string
+          accelerator:
+            type: string
+            enum: [cpu, gpu]
+          inference_ms:
+            type: integer
+            minimum: 0
+          kv_cache_hit:
+            type: boolean
+          scored_at:
+            type: string
+            format: date-time
+
+    ComplianceDecision:
+      name: ComplianceDecision
+      contentType: application/json
+      payload:
+        type: object
+        required: [transaction_id, compliant, checks, model, accelerator, inference_ms, decided_at]
+        properties:
+          transaction_id:
+            type: string
+            format: uuid
+          compliant:
+            type: boolean
+          checks:
+            type: array
+            items:
+              type: object
+              required: [regulation, status]
+              properties:
+                regulation:
+                  type: string
+                status:
+                  type: string
+                  enum: [pass, fail, review_required]
+                details:
+                  type: string
+          model:
+            type: string
+          accelerator:
+            type: string
+            enum: [cpu, gpu]
+          inference_ms:
+            type: integer
+            minimum: 0
+          decided_at:
+            type: string
+            format: date-time
+
+    Alert:
+      name: Alert
+      contentType: application/json
+      payload:
+        type: object
+        required: [alert_id, transaction_id, severity, type, description, created_at]
+        properties:
+          alert_id:
+            type: string
+            format: uuid
+          transaction_id:
+            type: string
+            format: uuid
+          severity:
+            type: string
+            enum: [info, warning, critical]
+          type:
+            type: string
+            enum:
+              - high_fraud_score
+              - compliance_failure
+              - sanctions_match
+              - velocity_breach
+              - amount_threshold
+          description:
+            type: string
+          created_at:
+            type: string
+            format: date-time
