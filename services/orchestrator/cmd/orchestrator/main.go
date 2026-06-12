@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/triforce/orchestrator/internal/a2a"
 	"github.com/triforce/orchestrator/internal/health"
@@ -72,6 +73,21 @@ func main() {
 		workflows := workflowEngine.List()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(workflows)
+	})
+
+	mux.HandleFunc("/api/v1/workflows/", func(w http.ResponseWriter, r *http.Request) {
+		id := strings.TrimPrefix(r.URL.Path, "/api/v1/workflows/")
+		if id == "" {
+			http.Error(w, "workflow ID required", http.StatusBadRequest)
+			return
+		}
+		wf, ok := workflowEngine.Get(id)
+		if !ok {
+			http.Error(w, "workflow not found", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(wf)
 	})
 
 	mux.HandleFunc("/api/v1/metrics", func(w http.ResponseWriter, r *http.Request) {

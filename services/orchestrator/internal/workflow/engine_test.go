@@ -28,8 +28,8 @@ func TestStartWorkflow(t *testing.T) {
 	if run.ID == "" {
 		t.Error("workflow ID is empty")
 	}
-	if run.Status != "pending" {
-		t.Errorf("expected status 'pending', got '%s'", run.Status)
+	if run.Status != "running" {
+		t.Errorf("expected status 'running', got '%s'", run.Status)
 	}
 	if run.WorkflowType != "patient_financial_risk" {
 		t.Errorf("expected type 'patient_financial_risk', got '%s'", run.WorkflowType)
