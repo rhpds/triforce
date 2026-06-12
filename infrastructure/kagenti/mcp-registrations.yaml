@@ -1,0 +1,70 @@
+---
+# MCP Server Registration — Healthcare FHIR Tools
+apiVersion: mcp.kuadrant.io/v1alpha1
+kind: MCPServerRegistration
+metadata:
+  name: healthcare-fhir-tools
+  namespace: triforce
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: healthcare-agent
+  prefix: healthcare_
+  description: "FHIR patient lookup, clinical code search, drug interaction check"
+
+---
+# MCP Server Registration — FinServ Risk Tools
+apiVersion: mcp.kuadrant.io/v1alpha1
+kind: MCPServerRegistration
+metadata:
+  name: finserv-risk-tools
+  namespace: triforce
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: finserv-agent
+  prefix: finserv_
+  description: "Risk profile lookup, sanctions screening, regulatory rule check"
+
+---
+# MCP Gateway Service (routes to registered tool servers)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-gateway
+  namespace: triforce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-gateway
+  template:
+    metadata:
+      labels:
+        app: mcp-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: triforce/mcp-gateway-stub:latest
+          ports:
+            - containerPort: 8091
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-gateway
+  namespace: triforce
+spec:
+  selector:
+    app: mcp-gateway
+  ports:
+    - port: 8091
+      targetPort: 8091
+      name: http

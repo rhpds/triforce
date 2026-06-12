@@ -1,0 +1,279 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: triforce
+---
+# Healthcare Agent Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-agent
+  namespace: triforce
+  labels:
+    app.kubernetes.io/name: healthcare-agent
+    kagenti.io/type: agent
+    protocol.kagenti.io/a2a: ""
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcare-agent
+  template:
+    metadata:
+      labels:
+        app: healthcare-agent
+        kagenti.io/type: agent
+        protocol.kagenti.io/a2a: ""
+    spec:
+      serviceAccountName: healthcare-agent
+      containers:
+        - name: agent
+          image: triforce/healthcare-agent:latest
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: LITELLM_API_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-base
+            - name: LITELLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-key
+            - name: POSTGRES_HOST
+              value: postgres.triforce.svc.cluster.local
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: triforce
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: postgres-password
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: redpanda.triforce.svc.cluster.local:9092
+            - name: MCP_GATEWAY_URL
+              value: http://mcp-gateway.triforce.svc.cluster.local:8091
+            - name: SERVICE_PORT
+              value: "8081"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthcare-agent
+  namespace: triforce
+spec:
+  selector:
+    app: healthcare-agent
+  ports:
+    - port: 8081
+      targetPort: 8081
+      name: http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: healthcare-agent
+  namespace: triforce
+---
+# AgentRuntime CRD — enrolls healthcare agent in Kagenti
+apiVersion: agent.kagenti.dev/v1alpha1
+kind: AgentRuntime
+metadata:
+  name: healthcare-agent
+  namespace: triforce
+spec:
+  type: agent
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: healthcare-agent
+  trace:
+    endpoint: "mlflow-service.triforce.svc.cluster.local:4318"
+    protocol: http
+    sampling:
+      rate: 1.0
+---
+# FinServ Agent Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finserv-agent
+  namespace: triforce
+  labels:
+    app.kubernetes.io/name: finserv-agent
+    kagenti.io/type: agent
+    protocol.kagenti.io/a2a: ""
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: finserv-agent
+  template:
+    metadata:
+      labels:
+        app: finserv-agent
+        kagenti.io/type: agent
+        protocol.kagenti.io/a2a: ""
+    spec:
+      serviceAccountName: finserv-agent
+      containers:
+        - name: agent
+          image: triforce/finserv-agent:latest
+          ports:
+            - containerPort: 8082
+              name: http
+          env:
+            - name: LITELLM_API_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-base
+            - name: LITELLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-key
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: redpanda.triforce.svc.cluster.local:9092
+            - name: QUARKUS_HTTP_PORT
+              value: "8082"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 768Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+            initialDelaySeconds: 45
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finserv-agent
+  namespace: triforce
+spec:
+  selector:
+    app: finserv-agent
+  ports:
+    - port: 8082
+      targetPort: 8082
+      name: http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: finserv-agent
+  namespace: triforce
+---
+apiVersion: agent.kagenti.dev/v1alpha1
+kind: AgentRuntime
+metadata:
+  name: finserv-agent
+  namespace: triforce
+spec:
+  type: agent
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: finserv-agent
+---
+# Orchestrator Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: triforce
+  labels:
+    app.kubernetes.io/name: orchestrator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: triforce/orchestrator:latest
+          ports:
+            - containerPort: 8083
+              name: http
+          env:
+            - name: HEALTHCARE_AGENT_URL
+              value: http://healthcare-agent.triforce.svc.cluster.local:8081
+            - name: FINSERV_AGENT_URL
+              value: http://finserv-agent.triforce.svc.cluster.local:8082
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: redpanda.triforce.svc.cluster.local:9092
+            - name: SERVICE_PORT
+              value: "8083"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator
+  namespace: triforce
+spec:
+  selector:
+    app: orchestrator
+  ports:
+    - port: 8083
+      targetPort: 8083
+      name: http

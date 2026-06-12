@@ -15,3 +15,4 @@ target/
 .idea/
 .vscode/
 *.iml
+infrastructure/kagenti/secrets.yaml
