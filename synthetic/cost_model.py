@@ -1,14 +1,28 @@
 """Triforce Cost Model — Real pricing from RHDP MAAS infrastructure.
 
 Compares self-hosted Intel Xeon 6 / Gaudi 3 inference (infrastructure cost only)
-against Vertex AI pay-per-token models available through the same MAAS endpoint.
+against GPU hardware, GPU cloud, and Vertex AI pay-per-token models.
 
 Data sources:
-- RHDP MAAS model reference (maas-rhdp.apps.maas.redhatworkshops.io)
+- RHDP MAAS model reference: https://maas-rhdp.apps.maas.redhatworkshops.io
 - Inference telemetry from PostgreSQL inference_log table
 - Intel Xeon 6 / Gaudi 3 hardware specs from partner demo
+- NVIDIA GPU cloud pricing (mid-2026):
+    - Spheron: https://www.spheron.network/blog/gpu-cloud-pricing-comparison-2026/
+    - IntuitionLabs: https://intuitionlabs.ai/articles/h100-rental-prices-cloud-comparison
+    - Thunder Compute: https://www.thundercompute.com/blog/nvidia-h100-pricing
+    - CloudZero: https://www.cloudzero.com/blog/cloud-gpu-pricing-comparison/
+    - getdeploying.com: https://getdeploying.com/gpus/nvidia-h100
+- AMD MI300X pricing (mid-2026):
+    - Thunder Compute: https://www.thundercompute.com/blog/amd-mi300x-pricing
+    - GridStackHub: https://gridstackhub.ai/amd-mi300x-pricing
+    - getdeploying.com: https://getdeploying.com/gpus/amd-mi300x
+    - Fluence: https://www.fluence.network/blog/amd-instinct-mi300x/
+- Vertex AI pricing: https://cloud.google.com/vertex-ai/generative-ai/pricing
+- Anthropic API pricing: https://docs.anthropic.com/en/docs/about-claude/models
 
 Note: Gaudi 3 is being sunset by Intel. Included for historical comparison only.
+Pricing retrieved June 2026. GPU cloud rates fluctuate — verify before presenting.
 """
 
 import asyncio
@@ -94,6 +108,9 @@ MODELS = {
     },
 
     # ── Vertex AI: pay-per-token (real cost) ─────────────────────────
+    # Source: RHDP MAAS model reference page + Google Vertex AI pricing
+    # (cloud.google.com/vertex-ai/generative-ai/pricing)
+    # Anthropic pricing: docs.anthropic.com/en/docs/about-claude/models
     "minimax-m2": {
         "params": "MoE", "hardware": "Vertex AI", "runtime": "Google Cloud",
         "input_per_1m": 0.30, "output_per_1m": 1.20,
@@ -173,21 +190,25 @@ GPU_CLOUD_COSTS = {
         "description": "NVIDIA H100 SXM (AWS/GCP on-demand)",
         "hourly_per_gpu": 3.50,
         "note": "AWS ~$3.90, GCP ~$3.00. Using $3.50 avg.",
+        "source": "Spheron (spheron.network/blog/gpu-cloud-pricing-comparison-2026), IntuitionLabs (intuitionlabs.ai/articles/h100-rental-prices-cloud-comparison)",
     },
     "nvidia_h100_neocloud": {
         "description": "NVIDIA H100 SXM (Lambda/Spheron/CoreWeave)",
         "hourly_per_gpu": 2.50,
         "note": "Neo-cloud: $2.01-$3.44/hr. Using $2.50 avg.",
+        "source": "Spheron H100 PCIe $2.01 on-demand, Lambda $2.49-$3.44 (spheron.network, lambda.com)",
     },
     "nvidia_a100_cloud": {
         "description": "NVIDIA A100 80GB (cloud on-demand)",
         "hourly_per_gpu": 1.50,
         "note": "Sub-$1 on marketplace, $3-4 on hyperscalers. Using $1.50 mid-market.",
+        "source": "Cast AI GPU Price Report 2025 (cast.ai/reports/gpu-price), getdeploying.com/gpus",
     },
     "amd_mi300x_cloud": {
         "description": "AMD MI300X 192GB HBM3 (cloud on-demand)",
         "hourly_per_gpu": 2.00,
         "note": "TensorWave $1.71, Thunder $1.85, CoreWeave $2.50. Using $2.00 avg.",
+        "source": "Thunder Compute (thundercompute.com/blog/amd-mi300x-pricing), GridStackHub (gridstackhub.ai/amd-mi300x-pricing)",
     },
 }
 
@@ -196,10 +217,11 @@ GPU_SELFHOSTED_COSTS = {
     "nvidia_h100_server": {
         "description": "NVIDIA H100 8-GPU server (self-hosted)",
         "purchase_price": 250_000,
-        "annual_hosting": 36_000,  # power + cooling + rack + network
+        "annual_hosting": 36_000,
         "amortize_years": 3,
         "gpus": 8,
         "note": "Dell/SuperMicro 8xH100. ~$250K purchase + $3K/mo hosting.",
+        "source": "Spheron break-even analysis (spheron.network), IntuitionLabs server pricing (intuitionlabs.ai)",
     },
     "nvidia_a100_server": {
         "description": "NVIDIA A100 8-GPU server (self-hosted)",
@@ -208,6 +230,7 @@ GPU_SELFHOSTED_COSTS = {
         "amortize_years": 3,
         "gpus": 8,
         "note": "Previous gen. Widely available refurbished.",
+        "source": "Cast AI GPU Price Report (cast.ai/reports/gpu-price)",
     },
     "amd_mi300x_server": {
         "description": "AMD MI300X 8-GPU server (self-hosted)",
@@ -215,7 +238,8 @@ GPU_SELFHOSTED_COSTS = {
         "annual_hosting": 30_000,
         "amortize_years": 3,
         "gpus": 8,
-        "note": "OEM config (Dell/HPE). 192GB HBM3 per GPU.",
+        "note": "OEM config (Dell/HPE). 192GB HBM3 per GPU. MSRP ~$18K/GPU.",
+        "source": "Fluence MI300X analysis (fluence.network/blog/amd-instinct-mi300x), DeployBase (deploybase.ai/articles/amd-mi300x-price)",
     },
 }
 
