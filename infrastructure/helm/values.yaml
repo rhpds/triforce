@@ -1,0 +1,74 @@
+namespace: triforce
+
+healthcareAgent:
+  image: quay.io/rh-intel-demo/triforce-healthcare-agent:latest
+  replicas: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+finservAgent:
+  image: quay.io/rh-intel-demo/triforce-finserv-agent:latest
+  replicas: 2
+  resources:
+    requests:
+      cpu: 500m
+      memory: 768Mi
+    limits:
+      cpu: "2"
+      memory: 1536Mi
+
+orchestrator:
+  image: quay.io/rh-intel-demo/triforce-orchestrator:latest
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+postgres:
+  enabled: true
+  image: docker.io/pgvector/pgvector:pg15
+  user: triforce
+  database: triforce
+  storage: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+kafka:
+  enabled: true
+  image: docker.io/redpandadata/redpanda:v24.3.1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+
+mcpGateway:
+  enabled: true
+  image: quay.io/rh-intel-demo/triforce-mcp-gateway:latest
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+litellm:
+  apiBase: ""
+  apiKey: ""

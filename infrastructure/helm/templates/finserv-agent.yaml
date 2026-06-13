@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finserv-agent
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: finserv-agent
+    app.kubernetes.io/part-of: triforce
+    kagenti.io/type: agent
+    protocol.kagenti.io/a2a: ""
+spec:
+  replicas: {{ .Values.finservAgent.replicas }}
+  selector:
+    matchLabels:
+      app: finserv-agent
+  template:
+    metadata:
+      labels:
+        app: finserv-agent
+        kagenti.io/type: agent
+        protocol.kagenti.io/a2a: ""
+    spec:
+      serviceAccountName: finserv-agent
+      containers:
+        - name: agent
+          image: {{ .Values.finservAgent.image }}
+          ports:
+            - containerPort: 8082
+              name: http
+          env:
+            - name: LITELLM_API_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-base
+            - name: LITELLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: litellm-api-key
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
+            - name: QUARKUS_HTTP_PORT
+              value: "8082"
+          resources:
+            {{- toYaml .Values.finservAgent.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+            initialDelaySeconds: 45
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: finserv-agent
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finserv-agent
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: finserv-agent
+  ports:
+    - port: 8082
+      targetPort: 8082
+      name: http

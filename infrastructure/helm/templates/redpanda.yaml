@@ -1,0 +1,54 @@
+{{- if .Values.kafka.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: redpanda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      containers:
+        - name: redpanda
+          image: {{ .Values.kafka.image }}
+          command:
+            - redpanda
+            - start
+            - --kafka-addr internal://0.0.0.0:9092
+            - --advertise-kafka-addr internal://redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
+            - --smp 1
+            - --memory 512M
+            - --mode dev-container
+            - --default-log-level=warn
+          ports:
+            - containerPort: 9092
+              name: kafka
+          resources:
+            {{- toYaml .Values.kafka.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["rpk", "cluster", "health"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: redpanda
+  ports:
+    - port: 9092
+      targetPort: 9092
+      name: kafka
+{{- end }}

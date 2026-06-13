@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/part-of: triforce
+spec:
+  replicas: {{ .Values.orchestrator.replicas }}
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: {{ .Values.orchestrator.image }}
+          ports:
+            - containerPort: 8083
+              name: http
+          env:
+            - name: HEALTHCARE_AGENT_URL
+              value: http://healthcare-agent.{{ .Values.namespace }}.svc.cluster.local:8081
+            - name: FINSERV_AGENT_URL
+              value: http://finserv-agent.{{ .Values.namespace }}.svc.cluster.local:8082
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
+            - name: SERVICE_PORT
+              value: "8083"
+          resources:
+            {{- toYaml .Values.orchestrator.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: orchestrator
+  ports:
+    - port: 8083
+      targetPort: 8083
+      name: http

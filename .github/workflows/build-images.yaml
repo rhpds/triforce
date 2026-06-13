@@ -1,0 +1,73 @@
+name: Build Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/**"
+      - "stubs/**"
+
+env:
+  REGISTRY: quay.io/rh-intel-demo
+  PLATFORM: linux/amd64
+
+jobs:
+  healthcare-agent:
+    name: "Build Healthcare Agent"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/healthcare-agent
+          file: services/healthcare-agent/Containerfile
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/triforce-healthcare-agent:latest
+            ${{ env.REGISTRY }}/triforce-healthcare-agent:${{ github.sha }}
+
+  finserv-agent:
+    name: "Build FinServ Agent"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/finserv-agent
+          file: services/finserv-agent/Containerfile
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/triforce-finserv-agent:latest
+            ${{ env.REGISTRY }}/triforce-finserv-agent:${{ github.sha }}
+
+  orchestrator:
+    name: "Build Orchestrator"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/orchestrator
+          file: services/orchestrator/Containerfile
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/triforce-orchestrator:latest
+            ${{ env.REGISTRY }}/triforce-orchestrator:${{ github.sha }}
