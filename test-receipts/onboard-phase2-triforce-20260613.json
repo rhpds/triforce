@@ -1,0 +1,83 @@
+{
+  "type": "onboard-phase2-remediation",
+  "demo_name": "triforce",
+  "timestamp": "2026-06-13T00:00:00Z",
+  "phase": 2,
+  "grade_before": "C",
+  "score_before": 60,
+  "grade_after": "A",
+  "score_after": 8,
+  "findings_before": {
+    "critical": 0,
+    "high": 4,
+    "medium": 6,
+    "low": 4,
+    "total": 14
+  },
+  "findings_after": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 4,
+    "total": 4
+  },
+  "fixes_applied": [
+    {
+      "finding": "Missing runAsNonRoot: healthcare-agent",
+      "file": "infrastructure/kagenti/agent-runtimes.yaml",
+      "cwe": "CWE-250",
+      "fix": "Added securityContext.runAsNonRoot: true + capabilities.drop: [ALL]"
+    },
+    {
+      "finding": "Missing runAsNonRoot: finserv-agent",
+      "file": "infrastructure/kagenti/agent-runtimes.yaml",
+      "cwe": "CWE-250",
+      "fix": "Added securityContext.runAsNonRoot: true + capabilities.drop: [ALL]"
+    },
+    {
+      "finding": "Missing runAsNonRoot: orchestrator",
+      "file": "infrastructure/kagenti/agent-runtimes.yaml",
+      "cwe": "CWE-250",
+      "fix": "Added securityContext.runAsNonRoot: true + capabilities.drop: [ALL]"
+    },
+    {
+      "finding": "Missing runAsNonRoot: mcp-gateway",
+      "file": "infrastructure/kagenti/mcp-registrations.yaml",
+      "cwe": "CWE-250",
+      "fix": "Added securityContext.runAsNonRoot: true + capabilities.drop: [ALL] + resource limits"
+    },
+    {
+      "finding": "Capabilities not dropped (x4)",
+      "file": "infrastructure/kagenti/agent-runtimes.yaml + mcp-registrations.yaml",
+      "cwe": "CWE-250",
+      "fix": "Added capabilities.drop: [ALL] to all containers"
+    },
+    {
+      "finding": "COPY . copies entire context",
+      "file": "services/orchestrator/Containerfile",
+      "cwe": "CWE-538",
+      "fix": "Replaced COPY . with COPY cmd/ cmd/ + COPY internal/ internal/"
+    },
+    {
+      "finding": "No resource limits: mcp-gateway",
+      "file": "infrastructure/kagenti/mcp-registrations.yaml",
+      "cwe": "CWE-400",
+      "fix": "Added limits: cpu 500m, memory 256Mi"
+    },
+    {
+      "finding": "API keys in .claude/settings.local.json",
+      "file": ".gitignore",
+      "cwe": "CWE-798",
+      "fix": "Added .claude/settings.local.json to .gitignore"
+    }
+  ],
+  "remaining_findings": [
+    {"severity": "low", "title": "Using :latest image tag", "count": 4, "note": "Cosmetic — pin versions before production push"}
+  ],
+  "novascan_correction": {
+    "change": "MAAS consumer detection added to NovaScan",
+    "tier_before": "dedicated",
+    "tier_after": "partner",
+    "reason": "Triforce calls LiteLLM via LITELLM_API_BASE — remote inference, not local. NovaScan now detects /v1/chat/completions HTTP client patterns and reclassifies models as MAAS source."
+  }
+}

@@ -16,3 +16,4 @@ target/
 .vscode/
 *.iml
 infrastructure/kagenti/secrets.yaml
+.claude/

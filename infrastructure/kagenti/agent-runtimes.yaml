@@ -27,9 +27,15 @@ spec:
         protocol.kagenti.io/a2a: ""
     spec:
       serviceAccountName: healthcare-agent
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: agent
           image: triforce/healthcare-agent:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           ports:
             - containerPort: 8081
               name: http
@@ -146,9 +152,15 @@ spec:
         protocol.kagenti.io/a2a: ""
     spec:
       serviceAccountName: finserv-agent
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: agent
           image: triforce/finserv-agent:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           ports:
             - containerPort: 8082
               name: http
@@ -236,9 +248,15 @@ spec:
       labels:
         app: orchestrator
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: orchestrator
           image: triforce/orchestrator:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           ports:
             - containerPort: 8083
               name: http
