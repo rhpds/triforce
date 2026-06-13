@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "=== Triforce Pre-Commit Checks ==="
+
+# Block real secrets (not env var references or test values)
+if git diff --cached --diff-filter=ACM -- ':!.githooks/*' | grep -qE 'sk-[a-zA-Z0-9_-]{20,}|BEGIN (RSA |EC )?PRIVATE KEY'; then
+    echo "BLOCKED: Possible secret detected in staged files."
+    echo "Review staged changes and remove secrets before committing."
+    exit 1
+fi
+
+# Python contracts
+echo "[1/6] Contract validation..."
+python3 -m pytest tests/contracts/ -q --tb=no 2>&1 | tail -1
+
+# Healthcare agent
+echo "[2/6] Healthcare agent..."
+cd services/healthcare-agent && python3 -m pytest tests/ -q --tb=no 2>&1 | tail -1 && cd ../..
+
+# FinServ LangGraph
+echo "[3/6] FinServ LangGraph..."
+cd services/finserv-agent/langgraph && python3 -m pytest tests/ -q --tb=no 2>&1 | tail -1 && cd ../../..
+
+# Go orchestrator
+echo "[4/6] Go orchestrator..."
+export PATH="/usr/local/go/bin:$PATH"
+cd services/orchestrator && go test ./... 2>&1 | grep -c "^ok" | xargs echo "  packages passed:" && cd ../..
+
+# Frontend
+echo "[5/6] Frontend tests..."
+cd frontend && npx vitest run 2>&1 | grep "Tests" && cd ..
+
+# Helm lint
+echo "[6/6] Helm lint..."
+helm lint infrastructure/helm/ --set litellm.apiBase=https://test --set litellm.apiKey=test --set postgres.password=test 2>&1 | grep "chart(s) linted"
+
+echo "=== All checks passed ==="
