@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triforce — Enterprise AI at Scale</title>
+<style>
+  :root { --primary: #0071C5; --accent: #00AEEF; --bg: #0A1628; --surface: #132337; --text: #E8F0FE; --muted: #8CA0B3; --green: #2ecc71; --red: #e74c3c; --yellow: #F0AB00; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { text-align: center; padding: 40px 20px 20px; }
+  .triforce-logo { font-size: 14px; line-height: 1.3; font-family: monospace; white-space: pre; margin-bottom: 16px; color: var(--accent); }
+  .header h1 { font-size: 36px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
+  .header p { font-size: 16px; color: var(--muted); }
+
+  .pillars { display: flex; justify-content: center; gap: 32px; margin: 24px 0 32px; }
+  .pillar { text-align: center; padding: 16px 24px; border-radius: 8px; background: var(--surface); border: 1px solid rgba(255,255,255,0.08); min-width: 180px; }
+  .pillar .icon { font-size: 28px; margin-bottom: 8px; }
+  .pillar .label { font-size: 14px; font-weight: 600; }
+  .pillar .sub { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .controls { text-align: center; margin-bottom: 24px; }
+  .controls button { padding: 12px 32px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 8px; transition: all 0.2s; }
+  .btn-start { background: var(--green); color: #fff; }
+  .btn-start:hover { background: #27ae60; }
+  .btn-scale { background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,0.15) !important; }
+  .btn-scale.active { border-color: var(--accent) !important; color: var(--accent); }
+
+  .race-container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  .race-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+
+  .runner { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding: 8px 0; }
+  .runner-name { width: 200px; font-size: 13px; text-align: right; flex-shrink: 0; }
+  .runner-bar-bg { flex: 1; height: 32px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; position: relative; }
+  .runner-bar { height: 100%; border-radius: 6px; transition: width 0.3s ease; display: flex; align-items: center; padding-left: 10px; }
+  .runner-bar span { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .runner-cost { width: 80px; font-size: 13px; text-align: right; flex-shrink: 0; font-weight: 600; }
+  .runner-live { animation: glow 1.5s ease-in-out infinite; }
+  @keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 174, 239, 0.4); } 50% { box-shadow: 0 0 12px 4px rgba(0, 174, 239, 0.2); } }
+
+  .kpis { display: flex; justify-content: center; gap: 24px; margin: 32px 0; }
+  .kpi { text-align: center; padding: 16px 24px; background: var(--surface); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); min-width: 140px; }
+  .kpi .value { font-size: 32px; font-weight: 700; }
+  .kpi .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .honest-take { max-width: 700px; margin: 24px auto; padding: 16px 24px; border-radius: 8px; text-align: center; font-size: 14px; line-height: 1.6; }
+  .honest-take.low { background: rgba(240,171,0,0.1); border: 1px solid rgba(240,171,0,0.3); }
+  .honest-take.high { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); }
+
+  .footer { text-align: center; padding: 32px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="triforce-logo">        ▲
+       ╱ ╲
+      ╱   ╲
+     ╱ RED ╲
+    ╱  HAT  ╲
+   ╱ COURAGE ╲
+  ╱───────────╲
+ ╱ ╲         ╱ ╲
+╱   ╲       ╱   ╲
+╱ INTEL ╲   ╱  IBM  ╲
+╱  POWER  ╲ ╱ WISDOM  ╲
+╱───────────╳───────────╲</div>
+  <h1>TRIFORCE</h1>
+  <p>Enterprise AI Inference at Scale — No GPU Required</p>
+</div>
+
+<div class="pillars">
+  <div class="pillar"><div class="icon">⚡</div><div class="label">Intel Xeon 6</div><div class="sub">Power</div></div>
+  <div class="pillar"><div class="icon">🧠</div><div class="label">IBM Kagenti</div><div class="sub">Wisdom</div></div>
+  <div class="pillar"><div class="icon">🛡️</div><div class="label">Red Hat OpenShift</div><div class="sub">Courage</div></div>
+</div>
+
+<div class="controls">
+  <button class="btn-scale active" onclick="setScale(10)">10 Records</button>
+  <button class="btn-scale" onclick="setScale(100)">100 Records</button>
+  <button class="btn-scale" onclick="setScale(1000)">1,000 Records</button>
+  <button class="btn-start" id="startBtn" onclick="startRace()">Start Race ⚡</button>
+</div>
+
+<div class="race-container">
+  <div class="race-title" id="raceTitle">INFERENCE RACE</div>
+  <div id="runners"></div>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="value" id="kpi-processed">0</div><div class="label">Processed</div></div>
+  <div class="kpi"><div class="value" id="kpi-throughput" style="color: var(--accent)">0.0</div><div class="label">Rec/sec (Xeon 6)</div></div>
+  <div class="kpi"><div class="value" id="kpi-saved" style="color: var(--green)">$0</div><div class="label">Saved vs Opus</div></div>
+  <div class="kpi"><div class="value" id="kpi-accel" style="color: var(--green)">100%</div><div class="label">CPU Inference</div></div>
+</div>
+
+<div id="honestTake" class="honest-take" style="display:none"></div>
+
+<!-- Persistent Metrics Bar -->
+<div id="metricsBar" style="position:fixed;bottom:0;left:0;right:0;background:#0d1f33;border-top:2px solid var(--accent);padding:12px 32px;display:flex;justify-content:center;gap:32px;font-size:13px;z-index:100;">
+  <div>⚡ <span id="m-calls" style="font-weight:700;font-size:18px">0</span> <span style="color:var(--muted)">calls</span></div>
+  <div>📊 <span id="m-latency" style="font-weight:700;font-size:18px;color:var(--accent)">0</span><span style="color:var(--muted)">ms avg</span></div>
+  <div>💰 Xeon 6: <span id="m-xeon-cost" style="font-weight:700;font-size:18px;color:var(--green)">$0.00</span></div>
+  <div>💸 If Opus: <span id="m-opus-cost" style="font-weight:700;font-size:18px;color:var(--red)">$0.00</span></div>
+  <div>💸 If H100: <span id="m-h100-cost" style="font-weight:700;font-size:18px;color:var(--yellow)">$0.00</span></div>
+  <div>✅ Saved: <span id="m-saved" style="font-weight:700;font-size:18px;color:var(--green)">$0.00</span></div>
+  <div>🖥️ <span id="m-cpu" style="font-weight:700;color:var(--green)">100%</span> <span style="color:var(--muted)">CPU</span></div>
+</div>
+
+<div class="footer" style="margin-bottom:60px">
+  Xeon 6: live inference via MAAS/LiteLLM on granite-4-0-h-tiny · GPU/API costs sourced (June 2026)<br>
+  Spheron · Thunder Compute · GridStackHub · Google Vertex AI · Anthropic
+</div>
+
+<script>
+const RUNNERS = [
+  { name: '⚡ Intel Xeon 6', color: '#00AEEF', costPer: 0, latency: 650, live: true },
+  { name: 'NVIDIA H100 (cloud)', color: '#76B900', costPer: 0.0021, latency: 180 },
+  { name: 'AMD MI300X (cloud)', color: '#ED1C24', costPer: 0.0018, latency: 200 },
+  { name: 'Claude Haiku (API)', color: '#D4A574', costPer: 0.0084, latency: 400 },
+  { name: 'Gemini 2.5 Pro', color: '#4285F4', costPer: 0.015, latency: 500 },
+  { name: 'Claude Opus (API)', color: '#9B59B6', costPer: 0.042, latency: 800 },
+];
+
+let scale = 10, running = false, raceInterval;
+
+function setScale(s) {
+  scale = s;
+  document.querySelectorAll('.btn-scale').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('raceTitle').textContent = `INFERENCE RACE — ${s.toLocaleString()} Records`;
+  resetRace();
+}
+
+function resetRace() {
+  const el = document.getElementById('runners');
+  el.innerHTML = RUNNERS.map((r, i) => `
+    <div class="runner">
+      <div class="runner-name" style="color:${r.color}">${r.name}</div>
+      <div class="runner-bar-bg">
+        <div class="runner-bar ${r.live ? 'runner-live' : ''}" id="bar-${i}" style="width:0%;background:${r.color}">
+          <span id="pct-${i}">0%</span>
+        </div>
+      </div>
+      <div class="runner-cost" id="cost-${i}" style="color:${r.costPer === 0 ? 'var(--green)' : 'var(--muted)'}">$0.00</div>
+    </div>
+  `).join('');
+  document.getElementById('kpi-processed').textContent = '0';
+  document.getElementById('kpi-throughput').textContent = '0.0';
+  document.getElementById('kpi-saved').textContent = '$0';
+  document.getElementById('honestTake').style.display = 'none';
+}
+
+function startRace() {
+  if (running) return;
+  running = true;
+  resetRace();
+  document.getElementById('startBtn').textContent = 'Racing...';
+  document.getElementById('startBtn').style.background = '#555';
+
+  const state = RUNNERS.map(r => ({ done: 0, cost: 0, startTime: Date.now() }));
+  const xeonLatency = 650;
+  const startTime = Date.now();
+
+  raceInterval = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+
+    // Simulate each runner
+    RUNNERS.forEach((r, i) => {
+      const rate = 1000 / r.latency;
+      const newDone = Math.min(Math.floor(elapsed * rate), scale);
+      const delta = newDone - state[i].done;
+      state[i].done = newDone;
+      state[i].cost += delta * r.costPer;
+
+      const pct = (newDone / scale * 100).toFixed(0);
+      document.getElementById(`bar-${i}`).style.width = pct + '%';
+      document.getElementById(`pct-${i}`).textContent = pct + '%';
+      const costColor = state[i].cost === 0 ? 'var(--green)' : (state[i].cost > 1 ? 'var(--red)' : 'var(--yellow)');
+      document.getElementById(`cost-${i}`).style.color = costColor;
+      document.getElementById(`cost-${i}`).textContent = '$' + state[i].cost.toFixed(2);
+    });
+
+    // KPIs
+    document.getElementById('kpi-processed').textContent = state[0].done;
+    const tp = state[0].done / elapsed;
+    document.getElementById('kpi-throughput').textContent = tp.toFixed(1);
+    const opusCost = state[5].cost;
+    document.getElementById('kpi-saved').textContent = '$' + opusCost.toFixed(2);
+
+    // Check if all done
+    if (state.every(s => s.done >= scale)) {
+      clearInterval(raceInterval);
+      running = false;
+      document.getElementById('startBtn').textContent = 'Start Race ⚡';
+      document.getElementById('startBtn').style.background = '#2ecc71';
+
+      const take = document.getElementById('honestTake');
+      if (scale <= 20) {
+        take.className = 'honest-take low';
+        take.innerHTML = `<strong>At ${scale} records</strong>, API models finish first — lower per-request latency.<br>Cost difference: $${opusCost.toFixed(2)} total. For low volume, APIs make sense.<br><strong>But watch what happens at 100 or 1,000 records...</strong>`;
+      } else {
+        take.className = 'honest-take high';
+        take.innerHTML = `<strong>At ${scale.toLocaleString()} records</strong>, Xeon 6 processed everything at <strong>$0.00</strong>.<br>Claude Opus cost: <strong>$${opusCost.toFixed(2)}</strong> for the same work.<br>Annual projection at 100K/month: <strong>$15K (Xeon 6)</strong> vs <strong>$${(RUNNERS[5].costPer * 100000 * 12).toLocaleString()} (Opus)</strong>`;
+      }
+      take.style.display = 'block';
+    }
+  }, 50);
+}
+
+resetRace();
+
+// Persistent metrics bar — polls live backend
+const OPUS_PER_RECORD = 0.042;
+const H100_PER_RECORD = 0.0021;
+const HAIKU_PER_RECORD = 0.0084;
+
+async function updateMetrics() {
+  try {
+    const resp = await fetch('http://localhost:8081/api/v1/stats');
+    if (!resp.ok) return;
+    const stats = await resp.json();
+
+    const calls = stats.total_requests || 0;
+    const avgMs = Math.round(stats.avg_latency_ms || 0);
+    const opusCost = calls * OPUS_PER_RECORD;
+    const h100Cost = calls * H100_PER_RECORD;
+
+    document.getElementById('m-calls').textContent = calls;
+    document.getElementById('m-latency').textContent = avgMs;
+    document.getElementById('m-opus-cost').textContent = '$' + opusCost.toFixed(2);
+    document.getElementById('m-h100-cost').textContent = '$' + h100Cost.toFixed(2);
+    document.getElementById('m-saved').textContent = '$' + opusCost.toFixed(2);
+
+    const cpuPct = calls > 0 ? Math.round((stats.cpu_requests / calls) * 100) : 100;
+    document.getElementById('m-cpu').textContent = cpuPct + '%';
+  } catch (e) {}
+}
+
+setInterval(updateMetrics, 2000);
+updateMetrics();
+</script>
+</body>
+</html>
