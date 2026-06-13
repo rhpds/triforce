@@ -19,12 +19,12 @@ The healthcare agent runs a 4-node LangGraph StateGraph:
 
 |Classify
 |Identify document type (discharge summary, lab report, etc.)
-|granite-2b-cpu
+|granite-4-0-h-tiny
 |Xeon 6
 
 |Extract Entities
 |Find conditions, medications, procedures, dosages
-|granite-2b-cpu
+|granite-4-0-h-tiny
 |Xeon 6
 
 |Check Interactions
@@ -69,7 +69,7 @@ Expected response:
 {
   "classification": "discharge_summary",
   "confidence": 0.85,
-  "model": "granite-2b-cpu",
+  "model": "granite-4-0-h-tiny",
   "accelerator": "cpu",
   "inference_ms": 850
 }

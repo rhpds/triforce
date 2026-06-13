@@ -90,7 +90,7 @@ public class TransactionConsumer {
         result.put("transaction_id", txId);
         result.put("compliant", true);
         result.put("checks", checks);
-        result.put("model", "granite-2b-cpu");
+        result.put("model", "granite-4-0-h-tiny");
         result.put("accelerator", "cpu");
         result.put("inference_ms", 0);
         return result;

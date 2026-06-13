@@ -1,0 +1,68 @@
+{
+  "type": "preflight",
+  "demo_name": "triforce",
+  "timestamp": "2026-06-13T00:00:00Z",
+  "mode": "repo",
+  "verdict": "READY",
+  "ready": true,
+  "blockers": [],
+  "warnings": [
+    "NovaScan: 3 models detected with retired/retiring status (codellama-7b-instruct RETIRED, microsoft-phi-4 RETIRED, deepseek-r1-distill-qwen-14b RETIRING)",
+    "NovaScan: 2 false-positive model detections (mcp-tool, sass-embedded) — not real LLM models",
+    "DarkScope: 4 high findings — K8s runAsNonRoot missing on 4 deployments in agent-runtimes.yaml + mcp-registrations.yaml",
+    "DarkScope: 6 medium findings — capabilities not dropped (4), COPY . in orchestrator Containerfile (1), no resource limits on MCP gateway (1)",
+    "DarkScope: 4 low findings — :latest image tags on all 4 Containerfiles"
+  ],
+  "novascan": {
+    "tier": "dedicated",
+    "tier_reasoning": "8 models detected (4 CPU, 4 GPU). Frameworks: langchain, openai. Local inference deployment detected. Est. 16 CPU cores, 28GB memory.",
+    "topology": "namespace",
+    "per_seat": {
+      "cpu_cores": 16,
+      "memory_gb": 28,
+      "storage_gb": 20
+    },
+    "infrastructure": {
+      "databases": ["postgresql"],
+      "message_queues": ["kafka"],
+      "k8s_workloads": 4,
+      "k8s_services": 4,
+      "frontends": 1
+    },
+    "models_detected": [
+      {"name": "granite-2b-cpu", "status": "active", "source": "local", "hardware": ["cpu"]},
+      {"name": "granite-3-2-8b-instruct", "status": "active", "source": "local", "hardware": ["cpu", "gpu"]},
+      {"name": "codellama-7b-instruct", "status": "retired", "replacement": "llama-scout-17b", "source": "maas"},
+      {"name": "nomic-embed-text-v1-5", "status": "active", "source": "maas"},
+      {"name": "deepseek-r1-distill-qwen-14b", "status": "retiring", "replacement": "qwen3-14b", "source": "maas"},
+      {"name": "microsoft-phi-4", "status": "retired", "replacement": "qwen3-14b", "source": "maas"}
+    ],
+    "consolidation_warnings": [
+      "codellama-7b-instruct is RETIRED — replace with llama-scout-17b",
+      "microsoft-phi-4 is RETIRED — replace with qwen3-14b",
+      "deepseek-r1-distill-qwen-14b scheduled for retirement — migrate to qwen3-14b"
+    ],
+    "cost_per_session": 0.047
+  },
+  "darkscope": {
+    "grade": "C",
+    "risk_score": 60,
+    "total_findings": 14,
+    "by_severity": {
+      "critical": 0,
+      "high": 4,
+      "medium": 6,
+      "low": 4
+    },
+    "top_findings": [
+      {"severity": "high", "title": "Missing runAsNonRoot: healthcare-agent", "file": "infrastructure/kagenti/agent-runtimes.yaml", "cwe": "CWE-250"},
+      {"severity": "high", "title": "Missing runAsNonRoot: finserv-agent", "file": "infrastructure/kagenti/agent-runtimes.yaml", "cwe": "CWE-250"},
+      {"severity": "high", "title": "Missing runAsNonRoot: orchestrator", "file": "infrastructure/kagenti/agent-runtimes.yaml", "cwe": "CWE-250"},
+      {"severity": "high", "title": "Missing runAsNonRoot: mcp-gateway", "file": "infrastructure/kagenti/mcp-registrations.yaml", "cwe": "CWE-250"},
+      {"severity": "medium", "title": "COPY . copies entire context", "file": "services/orchestrator/Containerfile", "cwe": "CWE-538"}
+    ]
+  },
+  "llm_analysis": null,
+  "llm_trend": null,
+  "live_checks": null
+}

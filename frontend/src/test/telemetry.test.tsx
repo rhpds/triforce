@@ -12,8 +12,8 @@ describe('F2: TelemetryDashboard', () => {
   }
 
   const mockInferences = [
-    { model: 'granite-2b-cpu', task_type: 'classify', latency_ms: 850, accelerator: 'cpu' },
-    { model: 'granite-2b-cpu', task_type: 'ner', latency_ms: 5200, accelerator: 'cpu' },
+    { model: 'granite-4-0-h-tiny', task_type: 'classify', latency_ms: 850, accelerator: 'cpu' },
+    { model: 'granite-4-0-h-tiny', task_type: 'ner', latency_ms: 5200, accelerator: 'cpu' },
     { model: 'granite-3-2-8b-instruct', task_type: 'summarize', latency_ms: 4400, accelerator: 'cpu' },
   ]
 
@@ -39,6 +39,6 @@ describe('F2: TelemetryDashboard', () => {
   it('shows inference log entries', async () => {
     const { TelemetryDashboard } = await import('../components/TelemetryDashboard')
     render(<TelemetryDashboard stats={mockStats} inferences={mockInferences} />)
-    expect(screen.getAllByText('granite-2b-cpu').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('granite-4-0-h-tiny').length).toBeGreaterThan(0)
   })
 })

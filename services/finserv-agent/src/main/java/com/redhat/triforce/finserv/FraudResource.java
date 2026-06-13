@@ -48,7 +48,7 @@ public class FraudResource {
         result.put("transaction_id", txId);
         result.put("compliant", allPass);
         result.put("checks", checks);
-        result.put("model", "granite-2b-cpu");
+        result.put("model", "granite-4-0-h-tiny");
         result.put("accelerator", "cpu");
         result.put("inference_ms", 0);
         return result;
@@ -71,7 +71,7 @@ public class FraudResource {
             Map.of("factor", "geographic_diversity", "weight", 0.2, "value", 0.3)
         ));
         result.put("transaction_count", 42);
-        result.put("model", "granite-2b-cpu");
+        result.put("model", "granite-4-0-h-tiny");
         result.put("accelerator", "cpu");
         result.put("inference_ms", 0);
         return result;

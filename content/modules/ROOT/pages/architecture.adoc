@@ -36,7 +36,7 @@
 |===
 |Model |Parameters |Hardware |Use Case
 
-|granite-2b-cpu
+|granite-4-0-h-tiny
 |2B
 |Xeon 6
 |Classification, NER
@@ -46,7 +46,7 @@
 |Xeon 6
 |Summarization, reasoning
 
-|phi3-mini-cpu
+|granite-3-2-8b-instruct
 |3.8B
 |Xeon 6
 |Compliance reasoning

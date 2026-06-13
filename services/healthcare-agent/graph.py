@@ -20,7 +20,7 @@ from typing_extensions import TypedDict
 
 LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.maas.redhatworkshops.io")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
-CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "granite-2b-cpu")
+CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "granite-4-0-h-tiny")
 SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "granite-3-2-8b-instruct")
 
 

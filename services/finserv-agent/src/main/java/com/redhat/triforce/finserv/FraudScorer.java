@@ -62,7 +62,7 @@ public class FraudScorer {
         result.put("risk_level", riskLevel);
         result.put("signals", signals);
         result.put("recommendation", recommendation);
-        result.put("model", "granite-2b-cpu");
+        result.put("model", "granite-4-0-h-tiny");
         result.put("accelerator", "cpu");
         result.put("inference_ms", 0);
         return result;
