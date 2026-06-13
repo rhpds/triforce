@@ -8,7 +8,7 @@ on:
       - "stubs/**"
 
 env:
-  REGISTRY: quay.io/rh-intel-demo
+  REGISTRY: quay.io/rh-intel-ibm-demo
   PLATFORM: linux/amd64
 
 jobs:
