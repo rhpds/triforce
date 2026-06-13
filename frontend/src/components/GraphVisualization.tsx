@@ -1,6 +1,6 @@
-interface StepData {
+export interface StepData {
   name: string
-  status: 'idle' | 'running' | 'complete' | 'skipped' | 'error'
+  status: string
   latency_ms: number
   result: string
 }

@@ -1,0 +1,64 @@
+= Cost Analysis
+:navtitle: Cost Analysis
+
+== Learning Objectives
+
+* Compare inference costs across Intel Xeon 6, NVIDIA GPUs, AMD GPUs, and cloud APIs
+* Understand break-even points for self-hosted vs pay-per-token
+* See the real pricing data from RHDP MAAS
+
+== Exercise 1: View Cost Comparison
+
+. Navigate to the *Cost Analysis* page in the frontend
+. Review the horizontal bar chart showing annual costs:
+
+[cols="2,1,1",options="header"]
+|===
+|Platform |Annual Cost |vs Xeon 6
+
+|Intel Xeon 6 (self-hosted)
+|$15,000
+|baseline
+
+|NVIDIA A100 8-GPU server
+|$64,000
+|+$49K
+
+|AMD MI300X 8-GPU server
+|$83,333
+|+$68K
+
+|NVIDIA H100 8-GPU server
+|$119,333
+|+$104K
+|===
+
+== Exercise 2: Run the Cost Model
+
+. Run the cost model script to see full analysis:
++
+[source,bash,role="execute"]
+----
+python3 /opt/triforce/synthetic/cost_model.py
+----
++
+This shows:
+* On-cluster models (Xeon 6 + Gaudi 3) at $0/token
+* Vertex AI models with real per-token pricing
+* Break-even analysis: when self-hosted beats pay-per-token
+* GPU cloud rental rates (H100 $3.50/hr, A100 $1.50/hr, MI300X $2.00/hr)
+
+== The Key Insight
+
+At enterprise volume (>150K records/month), *Xeon 6 self-hosted saves $85K-$489K/year* vs cloud API models like Claude Haiku through Opus.
+
+For low volume (<30K records/month), pay-per-token APIs are actually cheaper — don't buy hardware you won't use.
+
+== Module Summary
+
+* Compared real costs across 4 hardware platforms and 8 API models
+* Understood break-even points for self-hosted vs cloud API
+* Saw that Xeon 6 handles 80% of AI workloads at infrastructure cost only
+
+[.next-nav]
+xref:06-scale-test.adoc[Next: Scale Test →]

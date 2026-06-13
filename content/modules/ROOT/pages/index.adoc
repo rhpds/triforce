@@ -1,0 +1,55 @@
+= Triforce — AI Inference at Scale
+:navtitle: Welcome
+
+== Welcome
+
+Triforce is a multi-agent AI platform that demonstrates enterprise inference across two industry verticals — *Healthcare* and *Financial Services* — using Intel Xeon 6 CPU, IBM Kagenti agent orchestration, and Red Hat OpenShift.
+
+In this lab you will:
+
+* Run a *LangGraph clinical NLP pipeline* that classifies documents, extracts medical entities, checks drug interactions, and generates summaries — entirely on Intel Xeon 6 CPU
+* Score *financial transactions for fraud* using rule-based + LLM reasoning on Xeon 6
+* Execute *cross-agent workflows* where a Go orchestrator dispatches tasks to Python and Java agents via the A2A protocol
+* Explore *real cost comparisons* — Xeon 6 vs NVIDIA H100 vs AMD MI300X vs Claude/Gemini APIs
+* Push *synthetic workloads through Kafka* and measure throughput at scale
+
+== The Triforce
+
+[cols="1,2,3",options="header"]
+|===
+|Pillar |Technology |What It Proves
+
+|*Intel* (Power)
+|Xeon 6 + AMX + OpenVINO via MAAS/LiteLLM
+|CPU inference handles classification, NER, summarization — no GPU needed for 80% of enterprise AI
+
+|*IBM* (Wisdom)
+|Kagenti + A2A + MCP + SPIFFE
+|Agents self-discover, communicate securely, scale horizontally with K8s-native governance
+
+|*Red Hat* (Courage)
+|OpenShift + AMQ Streams + RHOAI
+|Enterprise platform runs polyglot agents, Kafka event streams, and PostgreSQL at production scale
+|===
+
+== Architecture
+
+```
+KAGENTI (A2A + MCP + SPIFFE)
+         │
+    ┌────┼────┐
+    │    │    │
+Healthcare  FinServ  Orchestrator
+(Python)    (Quarkus) (Go)
+    │    │    │
+    └────┼────┘
+         │
+PostgreSQL + Kafka + MAAS/LiteLLM (Xeon 6)
+```
+
+== Duration
+
+This lab takes approximately *90 minutes* to complete.
+
+[.next-nav]
+xref:01-setup.adoc[Next: Accessing Your Environment →]

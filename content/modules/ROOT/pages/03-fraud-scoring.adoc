@@ -1,0 +1,72 @@
+= Financial Transaction Scoring
+:navtitle: Fraud Scoring
+
+== Learning Objectives
+
+* Score financial transactions for fraud using the Quarkus FinServ agent
+* Understand how rule-based signals + LLM reasoning combine for risk assessment
+* See the A2A protocol in action between agents
+
+== Exercise 1: Score a Transaction
+
+. Score a low-risk transaction:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {finserv_url}/api/v1/score-transaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction": {
+      "id": "tx-demo-001",
+      "amount": 50.00,
+      "currency": "USD",
+      "sender": {"id": "c-1", "name": "Alice", "country": "US", "account_type": "individual"},
+      "receiver": {"id": "c-2", "name": "Bob", "country": "US", "account_type": "individual"},
+      "type": "card",
+      "timestamp": "2026-06-12T12:00:00Z"
+    }
+  }' | jq .
+----
++
+Expected: `risk_level: "low"`, `recommendation: "approve"`
+
+. Now score a suspicious transaction:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {finserv_url}/api/v1/score-transaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction": {
+      "id": "tx-demo-002",
+      "amount": 75000.00,
+      "currency": "USD",
+      "sender": {"id": "c-3", "name": "Offshore LLC", "country": "KY", "account_type": "business"},
+      "receiver": {"id": "c-4", "name": "Shell Corp", "country": "PA", "account_type": "business"},
+      "type": "wire",
+      "timestamp": "2026-06-12T03:00:00Z"
+    }
+  }' | jq .
+----
++
+Expected: Higher risk score, signals including `unusual_amount` and `geographic_anomaly`.
+
+== Exercise 2: A2A Agent Discovery
+
+. Discover the FinServ agent via its A2A agent card:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {finserv_url}/.well-known/agent-card.json | jq '{name, version, protocolVersion, skills: [.skills[].id]}'
+----
++
+This is how the orchestrator discovers agents — standard A2A protocol.
+
+== Module Summary
+
+* Scored transactions with rule-based + LLM fraud detection on Xeon 6 CPU
+* Saw sub-5ms latency for rule-based scoring
+* Verified A2A agent card discovery works
+
+[.next-nav]
+xref:04-cross-agent-workflow.adoc[Next: Cross-Agent Workflows →]

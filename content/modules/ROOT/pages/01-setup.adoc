@@ -1,0 +1,83 @@
+= Accessing Your Environment
+:navtitle: Setup
+
+== Learning Objectives
+
+By the end of this module, you'll be able to:
+
+* Log in to the OpenShift cluster
+* Verify all Triforce services are running
+* Access the frontend dashboard
+
+== Exercise 1: Log In to OpenShift
+
+. Open a terminal and log in to the OpenShift cluster:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
+----
+
+. Verify you're in the correct project:
++
+[source,bash,role="execute"]
+----
+oc project triforce
+----
+
+== Exercise 2: Verify Services
+
+. Check that all pods are running:
++
+[source,bash,role="execute"]
+----
+oc get pods -n triforce
+----
++
+Expected output — 5 pods in `Running` status:
++
+[source]
+----
+NAME                                READY   STATUS    RESTARTS
+healthcare-agent-xxxxx              1/1     Running   0
+finserv-agent-xxxxx                 1/1     Running   0
+orchestrator-xxxxx                  1/1     Running   0
+postgres-xxxxx                      1/1     Running   0
+redpanda-xxxxx                      1/1     Running   0
+----
+
+. Check service health endpoints:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/health | jq .
+curl -s {finserv_url}/health | jq .
+curl -s {orchestrator_url}/health | jq .
+----
+
+== Exercise 3: Access the Frontend
+
+. Open the Triforce dashboard in your browser:
++
+[source,subs=attributes+]
+----
+{frontend_url}?theme=intel
+----
+
+. You should see the Dashboard page with the agent topology diagram and platform metrics.
+
+. Try switching themes using the buttons in the top-right corner:
+** *Intel* — Dark theme, inference-focused
+** *Red Hat* — PatternFly 6, platform-focused
+** *IBM* — Clean theme, governance-focused
+
+== Module Summary
+
+You've successfully:
+
+* Logged in to the OpenShift cluster
+* Verified all 5 Triforce services are running and healthy
+* Accessed the frontend dashboard with theme switching
+
+[.next-nav]
+xref:02-inference-pipeline.adoc[Next: Clinical NLP Pipeline →]

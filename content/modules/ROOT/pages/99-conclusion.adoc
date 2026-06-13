@@ -1,0 +1,48 @@
+= Conclusion
+:navtitle: Conclusion
+
+== What You Accomplished
+
+In this lab you:
+
+* Ran a *4-step LangGraph clinical NLP pipeline* on Intel Xeon 6 — classification, NER, drug interaction checking, and summarization with zero GPU
+* Scored *financial transactions for fraud* with rule-based + LLM reasoning in sub-5ms on CPU
+* Executed *cross-agent workflows* spanning Python, Java, and Go agents via the A2A protocol
+* Compared *real costs* across Intel Xeon 6, NVIDIA H100, AMD MI300X, and cloud APIs
+* Pushed *synthetic workloads through Kafka* and measured throughput at scale
+
+== The Triforce Value
+
+[cols="1,3",options="header"]
+|===
+|Pillar |What You Saw
+
+|*Intel* (Power)
+|80% of enterprise AI workloads run on Xeon 6 CPU — classification at 800ms, fraud scoring at 5ms, summarization at 4.5s. No GPU needed.
+
+|*IBM* (Wisdom)
+|LangGraph agents with MCP tool calling, discoverable via A2A protocol. Kagenti-ready CRDs for Kubernetes-native governance.
+
+|*Red Hat* (Courage)
+|3 polyglot services (Python/Java/Go) on OpenShift. Kafka event streaming. PostgreSQL telemetry. Helm deployment. CI/CD pipeline.
+|===
+
+== Key Numbers
+
+* *$15,000/year* — Total infrastructure cost for Xeon 6 self-hosted inference
+* *$489,000/year savings* — vs Claude Opus API at 1M records/month
+* *100% CPU inference* — Every LLM call logged, tracked, audited
+* *246+ tests* — Across Python, Go, Java, and TypeScript
+* *3 demo themes* — Intel, Red Hat, IBM — same app, different stories
+
+== Next Steps
+
+* Explore the frontend with `?theme=redhat` and `?theme=ibm` for different perspectives
+* Deploy to your own OpenShift cluster using the Helm chart
+* Contact your Red Hat or Intel representative for a production engagement
+
+== Resources
+
+* https://github.com/rhpds/triforce[Triforce Repository]
+* https://maas-rhdp.apps.maas.redhatworkshops.io[RHDP MAAS Platform]
+* https://kagenti.github.io/.github/[Kagenti Documentation]

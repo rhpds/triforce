@@ -1,0 +1,95 @@
+= Architecture Overview
+:navtitle: Architecture
+
+== System Architecture
+
+```
+                      ┌──────────────────────────────────┐
+                      │       KAGENTI  (IBM Pillar)       │
+                      │  A2A Protocol · MCP Gateway       │
+                      │  SPIFFE Identity · AgentCards     │
+                      └──────────────┬───────────────────┘
+                                     │
+           ┌─────────────────────────┼─────────────────────────┐
+           │                         │                         │
+┌──────────▼──────────┐  ┌───────────▼───────────┐  ┌─────────▼──────────┐
+│  Healthcare Agent   │  │  FinServ Agent         │  │  Orchestrator      │
+│  (Python/LangGraph) │  │  (Java/Quarkus)        │  │  (Go)              │
+│                     │  │                        │  │                    │
+│  • Clinical NLP     │  │  • Fraud scoring       │  │  • Workflow coord  │
+│  • 4-node graph     │  │  • Compliance check    │  │  • A2A discovery   │
+│  • MCP tools        │  │  • Risk assessment     │  │  • Kafka routing   │
+│  • Kafka consumer   │  │  • Kafka consumer      │  │  • Synthetic gen   │
+└──────────┬──────────┘  └───────────┬───────────┘  └─────────┬──────────┘
+           │                         │                         │
+           └─────────────────────────┼─────────────────────────┘
+                                     │
+                      ┌──────────────▼───────────────────┐
+                      │     Shared Infrastructure         │
+                      │  PostgreSQL + Kafka + MAAS/LiteLLM│
+                      └──────────────────────────────────┘
+```
+
+== Models on MAAS/LiteLLM
+
+[cols="2,1,1,2",options="header"]
+|===
+|Model |Parameters |Hardware |Use Case
+
+|granite-2b-cpu
+|2B
+|Xeon 6
+|Classification, NER
+
+|granite-3-2-8b-instruct
+|8B
+|Xeon 6
+|Summarization, reasoning
+
+|phi3-mini-cpu
+|3.8B
+|Xeon 6
+|Compliance reasoning
+
+|nomic-embed-text-v1-5
+|137M
+|Xeon 6 (OpenVINO)
+|Embeddings
+|===
+
+== Technology Stack
+
+[cols="1,2",options="header"]
+|===
+|Component |Technology
+
+|Healthcare Agent
+|Python 3.11, FastAPI, LangGraph, aiokafka, asyncpg
+
+|FinServ Agent
+|Java 21, Quarkus 3.17, SmallRye Kafka, JDBC PostgreSQL
+
+|Orchestrator
+|Go 1.22+, stdlib HTTP, A2A client
+
+|Database
+|PostgreSQL 15 with pgvector
+
+|Event Streaming
+|Redpanda (Kafka-compatible) / AMQ Streams on OCP
+
+|Inference
+|MAAS/LiteLLM proxy → Intel Xeon 6 + Gaudi 3
+
+|Agent Protocol
+|A2A v0.2.6 (JSON-RPC 2.0)
+
+|Tool Protocol
+|MCP (Model Context Protocol)
+
+|Container Runtime
+|Podman / OpenShift
+
+|Frontend
+|React 19, TypeScript, PatternFly 6, Vite
+|===

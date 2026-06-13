@@ -1,0 +1,108 @@
+= Clinical NLP Pipeline
+:navtitle: Clinical NLP
+
+== Learning Objectives
+
+By the end of this module, you'll be able to:
+
+* Run a multi-step LangGraph inference pipeline on Intel Xeon 6
+* Understand how document classification, NER, drug interaction checking, and summarization work together
+* See every step tracked in PostgreSQL with model, latency, and accelerator
+
+== How It Works
+
+The healthcare agent runs a 4-node LangGraph StateGraph:
+
+[cols="1,2,1,1",options="header"]
+|===
+|Step |What It Does |Model |Hardware
+
+|Classify
+|Identify document type (discharge summary, lab report, etc.)
+|granite-2b-cpu
+|Xeon 6
+
+|Extract Entities
+|Find conditions, medications, procedures, dosages
+|granite-2b-cpu
+|Xeon 6
+
+|Check Interactions
+|Screen medications for drug-drug interactions (MCP tool)
+|MCP Gateway
+|—
+
+|Summarize
+|Generate clinical summary with context from prior steps
+|granite-3-2-8b-instruct
+|Xeon 6
+|===
+
+The *Check Interactions* step is conditional — it only runs when 2+ medications are detected.
+
+== Exercise 1: Run the Pipeline via Frontend
+
+. Navigate to the *Pipeline* page in the frontend
+. The sample text shows a discharge summary with multiple medications
+. Click *Run Pipeline on Xeon 6*
+. Watch the 4 nodes animate as each step completes:
+** Classify should complete in ~800ms
+** Extract Entities in ~5,000ms
+** Check Interactions in ~50ms (MCP tool call)
+** Summarize in ~4,500ms
+
+== Exercise 2: Run via API
+
+. Classify a clinical document:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72yo male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA."}' | jq .
+----
++
+Expected response:
++
+[source,json]
+----
+{
+  "classification": "discharge_summary",
+  "confidence": 0.85,
+  "model": "granite-2b-cpu",
+  "accelerator": "cpu",
+  "inference_ms": 850
+}
+----
+
+. Extract medical entities:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/extract-entities \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient has Type 2 Diabetes on Metformin 500mg and Hypertension on Lisinopril 10mg."}' | jq .
+----
+
+== Exercise 3: Check the Inference Log
+
+. Query PostgreSQL for the inference trace:
++
+[source,bash,role="execute"]
+----
+oc exec deploy/postgres -n triforce -- psql -U triforce -d triforce -c \
+  "SELECT model, task_type, latency_ms, accelerator FROM inference_log ORDER BY created_at DESC LIMIT 10;"
+----
++
+Every LLM call is logged with model, latency, and accelerator type. Notice: *100% CPU, 0% GPU*.
+
+== Module Summary
+
+You've successfully:
+
+* Run a 4-step LangGraph pipeline entirely on Intel Xeon 6 CPU
+* Seen classification (~800ms), NER (~5s), and summarization (~4.5s) latencies
+* Verified every inference call is logged to PostgreSQL
+
+[.next-nav]
+xref:03-fraud-scoring.adoc[Next: Financial Transaction Scoring →]
