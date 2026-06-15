@@ -8,4 +8,4 @@ __meta__:
       cloud_selector:
         purpose: prod
         cloud: cnv-dedicated-shared
-        lab: ai-qs-intel-inference
+        lab: ai-qs-triforce
