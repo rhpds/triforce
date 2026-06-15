@@ -33,6 +33,11 @@ ifdef::user[]
 | FinServ Agent         | {finserv_url}
 | Orchestrator          | {orchestrator_url}
 |===
+
+== Intel Hardware
+All inference runs on *Intel Xeon 6* with AMX acceleration via MAAS/LiteLLM.
+Models: `granite-4-0-h-tiny` (classification, NER) · `granite-3-2-8b-instruct` (summarization).
+No GPU required.
 endif::[]
 
 endif::[]

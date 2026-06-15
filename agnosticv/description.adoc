@@ -11,10 +11,16 @@ Deploys the Triforce multi-agent AI platform on a shared base cluster via the Op
 * *Kafka (Redpanda)* -- Event streaming for synthetic data pipelines and agent communication
 * *LiteLLM Virtual Key* -- Scoped API key for MAAS model access
 
-== Models Available (CPU Path — Xeon 6)
+== Models Available — Intel Xeon 6 CPU Inference
 
-* granite-4-0-h-tiny — classification, NER, fraud scoring
-* granite-3-2-8b-instruct — summarization, reasoning
+[cols="2,1,1,2",options="header"]
+|===
+| Model | Parameters | Hardware | Use Case
+| granite-4-0-h-tiny | sub-3B | Intel Xeon 6 (CPU) | Classification, NER, fraud scoring
+| granite-3-2-8b-instruct | 8B | Intel Xeon 6 (CPU) | Summarization, reasoning
+|===
+
+All inference runs on Intel Xeon 6 with AMX acceleration via MAAS/LiteLLM. No GPU required.
 
 == Partnership Story
 
