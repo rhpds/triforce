@@ -81,11 +81,31 @@ ai_model_requirements:
 
 quickstart_deploy_via_make_repo_url: https://github.com/rhpds/triforce
 quickstart_deploy_via_make_scm_ref: main
-quickstart_deploy_via_make_directory: helm
+quickstart_deploy_via_make_directory: infrastructure/helm
 quickstart_deploy_via_make_params:
   NAMESPACE: user-{{ guid }}-triforce
+  EXTRA_HELM_ARGS: >-
+    --set litellm.apiBase=https://maas-rhdp.apps.maas.redhatworkshops.io
+    --set litellm.apiKey={{ ocp4_workload_litellm_virtual_keys_key }}
+    --set postgres.password={{ common_password }}
 quickstart_deploy_via_make_uninstall_params:
   NAMESPACE: user-{{ guid }}-triforce
+
+ocp4_workload_showroom_content_url: https://github.com/rhpds/triforce
+ocp4_workload_showroom_content_ref: main
+ocp4_workload_showroom_content_dir: content
+ocp4_workload_showroom_user: user-{{ guid }}
+ocp4_workload_showroom_user_password: '{{ common_password }}'
+ocp4_workload_showroom_user_data:
+  user: user-{{ guid }}
+  password: '{{ common_password }}'
+  openshift_api_url: '{{ sandbox_openshift_api_url }}'
+  openshift_console_url: '{{ sandbox_openshift_console_url }}'
+  openshift_cluster_ingress_domain: '{{ sandbox_openshift_ingress_domain }}'
+  frontend_url: https://triforce-user-{{ guid }}-triforce.{{ sandbox_openshift_ingress_domain }}
+  healthcare_url: https://healthcare-agent-user-{{ guid }}-triforce.{{ sandbox_openshift_ingress_domain }}
+  finserv_url: https://finserv-agent-user-{{ guid }}-triforce.{{ sandbox_openshift_ingress_domain }}
+  orchestrator_url: https://orchestrator-user-{{ guid }}-triforce.{{ sandbox_openshift_ingress_domain }}
 
 requester_email: rhdp-{{ guid }}@demo.redhat.com
 catalog_item_name: ai-quickstarts.ai-qs-triforce-tenant.event
@@ -97,7 +117,7 @@ __meta__:
   access_control:
     allow_groups:
     - rhpds-devs-quickstart-ai
-  asset_uuid: TBD-assign-with-tony
+  asset_uuid: TBD  # Assign during PR review — request from Tony Kay
   owners:
     maintainer:
     - name: Jonathan Kershaw
