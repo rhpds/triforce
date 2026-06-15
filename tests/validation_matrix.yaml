@@ -72,12 +72,8 @@ stages:
         description: "All Kafka topics created with correct configuration"
         points: 10
         required: true
-      a2a_stub_responds:
-        description: "A2A stub server responds to agent card requests"
-        points: 10
-        required: false
-      mcp_stub_responds:
-        description: "MCP gateway stub responds to tools/list"
+      mcp_tool_fallbacks:
+        description: "MCP tools return valid data when gateway unavailable"
         points: 10
         required: false
 

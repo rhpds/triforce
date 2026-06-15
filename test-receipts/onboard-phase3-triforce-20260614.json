@@ -1,0 +1,44 @@
+{
+  "type": "onboard-phase3-configure",
+  "demo_name": "triforce",
+  "timestamp": "2026-06-14T00:00:00Z",
+  "phase": 3,
+  "tier": "partner",
+  "topology": "namespace",
+  "resources_per_seat": {
+    "cpu_cores": 8,
+    "memory_gb": 16,
+    "storage_gb": 20
+  },
+  "models_configured": [
+    {"name": "granite-4-0-h-tiny", "purpose": "Classification, NER, fraud scoring", "access": "litemaas"},
+    {"name": "granite-3-2-8b-instruct", "purpose": "Summarization, reasoning", "access": "litemaas"}
+  ],
+  "models_excluded": [
+    {"name": "codellama-7b-instruct", "reason": "retired — not used by triforce services"},
+    {"name": "microsoft-phi-4", "reason": "retired — not used by triforce services"},
+    {"name": "deepseek-r1-distill-qwen-14b", "reason": "retiring — not used by triforce services"},
+    {"name": "nomic-embed-text-v1-5", "reason": "not referenced in service code"},
+    {"name": "mcp-tool", "reason": "false positive — not a model"},
+    {"name": "sass-embedded", "reason": "false positive — npm package, not a model"},
+    {"name": "granite-2b-cpu", "reason": "stale CLAUDE.md reference — services use granite-4-0-h-tiny"}
+  ],
+  "corrections": [
+    "NovaScan generated config included 8 models — reduced to 2 (actual service dependencies)",
+    "CLAUDE.md references granite-2b-cpu and phi3-mini-cpu but services use granite-4-0-h-tiny",
+    "NovaScan false positives: mcp-tool (MCP protocol reference), sass-embedded (npm package)"
+  ],
+  "config_path": "agnosticv/common.yaml",
+  "additional_files": [
+    "agnosticv/dev.yaml",
+    "agnosticv/test.yaml",
+    "agnosticv/prod.yaml",
+    "agnosticv/description.adoc",
+    "agnosticv/info-message-template.adoc",
+    "content/ui-config.yml"
+  ],
+  "claude_md_fix": "Updated model table: granite-2b-cpu → granite-4-0-h-tiny, removed phi3-mini-cpu",
+  "catalog_display_name": "Triforce: Multi-Agent AI on Intel Xeon 6",
+  "catalog_keywords": ["openshift", "intel", "ai", "kagenti", "multi-agent", "a2a"],
+  "showroom_content": "content/modules/ROOT/ (8 pages, 6 lab modules)"
+}

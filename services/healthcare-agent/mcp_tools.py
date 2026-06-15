@@ -1,7 +1,8 @@
 """MCP tool wrappers for the healthcare LangGraph agent.
 
 Wraps MCP gateway calls as LangChain tools that LangGraph nodes can invoke.
-Calls the MCP gateway stub (or real Kagenti MCP Gateway) via HTTP JSON-RPC.
+Calls the Kagenti MCP Gateway via HTTP JSON-RPC when available,
+falls back to built-in synthetic data when gateway is unreachable.
 """
 
 import json

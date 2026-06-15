@@ -122,7 +122,6 @@ services/
   healthcare-agent/  # Python/FastAPI + LangGraph + MCP tools
   finserv-agent/     # Java/Quarkus + LangGraph + Kafka
   orchestrator/      # Go + A2A client + workflow engine
-stubs/               # Kagenti API stubs (A2A, MCP, registry)
 infrastructure/
   podman-compose.yaml  # Local dev stack
   helm/              # Helm chart for OpenShift
