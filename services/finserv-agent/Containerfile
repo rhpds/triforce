@@ -1,13 +1,12 @@
-FROM registry.access.redhat.com/ubi9/openjdk-21:latest AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
-USER root
 WORKDIR /build
 COPY pom.xml .
+RUN mvn dependency:go-offline -q
 COPY src src
+RUN mvn package -DskipTests -Dquarkus.package.jar.type=uber-jar -q
 
-RUN mvn package -DskipTests -Dquarkus.package.jar.type=uber-jar
-
-FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:latest
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.20-2.1719294888
 
 COPY --from=builder /build/target/*-runner.jar /deployments/app.jar
 
