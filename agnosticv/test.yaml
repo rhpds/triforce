@@ -1,0 +1,11 @@
+---
+__meta__:
+  deployer:
+    scm_ref: main
+
+  sandboxes:
+    - kind: OcpSandbox
+      cloud_selector:
+        purpose: test
+        cloud: cnv-dedicated-shared
+        lab: triforce

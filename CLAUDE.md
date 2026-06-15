@@ -56,7 +56,7 @@ make test-all              # All stages sequentially
 - **Quarkus finserv**: JVM mode for dev, native build for containers only
 - **Go orchestrator**: Zero inference — coordination and monitoring only
 - **Kafka**: Redpanda for local dev, AMQ Streams on OpenShift
-- **Kagenti stubs**: `stubs/` implements A2A + MCP protocols for local dev. Same JSON-RPC contracts as real Kagenti — zero agent code changes when deploying to OCP
+- **MCP tools**: Built-in fallback data when MCP gateway is unreachable — no stub server needed
 - **MAAS endpoint**: Reuses `maas-rhdp.apps.maas.redhatworkshops.io` from partner demo
 - **Container builds**: Always `--platform linux/amd64` (OCP clusters are x86)
 
@@ -68,7 +68,6 @@ services/
   healthcare-agent/  # Python/FastAPI — clinical NLP, FHIR tools
   finserv-agent/     # Java/Quarkus — fraud scoring, compliance
   orchestrator/      # Go — workflow coordination, event routing
-stubs/               # Kagenti API stubs for local dev
 infrastructure/      # podman-compose, PostgreSQL, Kafka, Helm
 synthetic/           # Data generators for scale testing
 tests/               # Validation matrix + cross-service tests
@@ -78,9 +77,8 @@ tests/               # Validation matrix + cross-service tests
 
 | Model | Hardware | Use Case |
 |-------|----------|----------|
-| granite-2b-cpu | Xeon 6 | Classification, NER |
+| granite-4-0-h-tiny | Xeon 6 | Classification, NER, fraud scoring |
 | granite-3-2-8b-instruct | Xeon 6 | Summarization, reasoning |
-| phi3-mini-cpu | Xeon 6 | Compliance reasoning |
 
 ## What NOT To Do
 

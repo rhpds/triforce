@@ -4,7 +4,7 @@ info:
   description: >
     Shared contract for the Agent-to-Agent (A2A) protocol used by all Triforce agents.
     Based on the A2A specification v0.2.6. All agents must implement these endpoints
-    to be discoverable and invokable by the Kagenti platform (or local stubs).
+    to be discoverable and invokable by the Kagenti platform.
   version: 0.2.6
   license:
     name: Apache-2.0
@@ -17,7 +17,7 @@ paths:
       description: >
         Every A2A agent MUST serve this endpoint. The Kagenti AgentCard controller
         polls this endpoint to create/update AgentCard CRDs. In local dev, the
-        agent_card_registry stub polls it instead.
+        the orchestrator discovers agents directly.
       responses:
         "200":
           description: Agent card

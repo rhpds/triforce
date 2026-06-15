@@ -1,0 +1,23 @@
+
+Deploys the Triforce multi-agent AI platform on a shared base cluster via the OpenShift Sandbox API. Demonstrates polyglot agentic inference across Intel Xeon 6 CPU backends using Kagenti A2A orchestration with healthcare and financial services industry verticals.
+
+== What Gets Deployed
+
+* *Healthcare Agent* -- Python/FastAPI clinical NLP agent (classification, NER, summarization)
+* *FinServ Agent* -- Java/Quarkus fraud scoring and compliance checking agent
+* *Orchestrator* -- Go workflow coordinator with A2A agent discovery
+* *Frontend Dashboard* -- React telemetry dashboard with inference logging and cost analysis
+* *PostgreSQL* -- Shared state (agent registry, workflow tracking, inference log, audit trail)
+* *Kafka (Redpanda)* -- Event streaming for synthetic data pipelines and agent communication
+* *LiteLLM Virtual Key* -- Scoped API key for MAAS model access
+
+== Models Available (CPU Path — Xeon 6)
+
+* granite-4-0-h-tiny — classification, NER, fraud scoring
+* granite-3-2-8b-instruct — summarization, reasoning
+
+== Partnership Story
+
+* *Intel* (Power): Xeon 6 CPU inference via MAAS/LiteLLM — no GPUs required
+* *IBM* (Wisdom): Kagenti agentic orchestration — A2A protocol, MCP tools, SPIFFE identity
+* *Red Hat* (Courage): OpenShift + AMQ Streams + RHOAI — enterprise platform at scale

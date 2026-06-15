@@ -1,0 +1,13 @@
+---
+ocp4_workload_gitops_bootstrap_health_ignore: true
+
+__meta__:
+  deployer:
+    scm_ref: main
+
+  sandboxes:
+    - kind: OcpSandbox
+      cloud_selector:
+        purpose: dev
+        cloud: cnv-dedicated-shared
+        lab: triforce
