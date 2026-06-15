@@ -1,0 +1,64 @@
+{
+  "type": "onboard-e2e",
+  "demo_name": "triforce",
+  "timestamp": "2026-06-14T00:00:00Z",
+  "commit": "2ab4995",
+  "phases": {
+    "phase1_scan": {
+      "status": "PASS",
+      "novascan": {
+        "tier": "partner",
+        "maas_consumer": true,
+        "local_inference": false,
+        "per_seat": {"cpu_cores": 4, "memory_gb": 8, "storage_gb": 20},
+        "models_active": ["granite-4-0-h-tiny", "granite-3-2-8b-instruct"],
+        "models_retired_in_cost_model": ["codellama-7b-instruct", "microsoft-phi-4", "deepseek-r1-distill-qwen-14b"],
+        "infrastructure": {"postgresql": true, "kafka": true, "k8s_workloads": 4, "frontends": 1}
+      },
+      "darkscope": {
+        "grade": "A",
+        "score": 0,
+        "findings": 0
+      }
+    },
+    "phase2_remediate": {
+      "status": "PASS",
+      "action": "no findings — skipped"
+    },
+    "phase3_configure": {
+      "status": "PASS",
+      "files": [
+        "agnosticv/common.yaml",
+        "agnosticv/dev.yaml",
+        "agnosticv/test.yaml",
+        "agnosticv/prod.yaml",
+        "agnosticv/description.adoc",
+        "agnosticv/info-message-template.adoc"
+      ],
+      "config_valid": true,
+      "models_in_config": ["granite-4-0-h-tiny", "granite-3-2-8b-instruct"],
+      "workloads": 5,
+      "catalog_display_name": "Triforce: Multi-Agent AI on Intel Xeon 6"
+    },
+    "phase4_scaffold": {
+      "status": "PASS",
+      "showroom_content": {
+        "antora_yml": true,
+        "ui_config_yml": true,
+        "nav_adoc": true,
+        "pages": 9
+      }
+    },
+    "phase5_publish": {
+      "status": "PENDING",
+      "mode": "local",
+      "note": "PR to be created tomorrow"
+    }
+  },
+  "verdict": "READY FOR PR",
+  "blockers": [],
+  "warnings": [
+    "NovaScan: granite-4-0-h-tiny shows status 'retiring' — monitor for replacement",
+    "NovaScan: 3 retired/retiring models in synthetic/cost_model.py (cost modeling only, not runtime)"
+  ]
+}
