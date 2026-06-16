@@ -16,8 +16,7 @@ Deploys the Triforce multi-agent AI platform on a shared base cluster via the Op
 [cols="2,1,1,2",options="header"]
 |===
 | Model | Parameters | Hardware | Use Case
-| granite-4-0-h-tiny | sub-3B | Intel Xeon 6 (CPU) | Classification, NER, fraud scoring
-| granite-3-2-8b-instruct | 8B | Intel Xeon 6 (CPU) | Summarization, reasoning
+| granite-2b-cpu | 2B | Intel Xeon 6 (CPU) | Classification, NER, summarization, fraud scoring
 |===
 
 All inference runs on Intel Xeon 6 with AMX acceleration via MAAS/LiteLLM. No GPU required.

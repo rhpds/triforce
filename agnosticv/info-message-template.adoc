@@ -36,7 +36,7 @@ ifdef::user[]
 
 == Intel Hardware
 All inference runs on *Intel Xeon 6* with AMX acceleration via MAAS/LiteLLM.
-Models: `granite-4-0-h-tiny` (classification, NER) · `granite-3-2-8b-instruct` (summarization).
+Model: `granite-2b-cpu` — IBM Granite 2B on Intel Xeon 6 CPU.
 No GPU required.
 endif::[]
 

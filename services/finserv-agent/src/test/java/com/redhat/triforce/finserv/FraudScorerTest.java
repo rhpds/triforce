@@ -54,7 +54,7 @@ class FraudScorerTest {
         Map<String, Object> result = scorer.score(tx);
 
         assertEquals("cpu", result.get("accelerator"));
-        assertEquals("granite-4-0-h-tiny", result.get("model"));
+        assertEquals("granite-2b-cpu", result.get("model"));
     }
 
     @Test

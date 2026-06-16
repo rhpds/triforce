@@ -29,10 +29,10 @@ def mock_graph_fn():
             ],
             "summary": "65yo male with diabetes and hypertension, stable on current medications.",
             "inference_log": [
-                {"node": "classify", "model": "granite-4-0-h-tiny", "latency_ms": 800, "accelerator": "cpu"},
-                {"node": "extract_entities", "model": "granite-4-0-h-tiny", "latency_ms": 5000, "accelerator": "cpu"},
+                {"node": "classify", "model": "granite-2b-cpu", "latency_ms": 800, "accelerator": "cpu"},
+                {"node": "extract_entities", "model": "granite-2b-cpu", "latency_ms": 5000, "accelerator": "cpu"},
                 {"node": "check_interactions", "tool": "drug_interaction_check", "latency_ms": 50},
-                {"node": "summarize", "model": "granite-3-2-8b-instruct", "latency_ms": 2000, "accelerator": "cpu"},
+                {"node": "summarize", "model": "granite-2b-cpu", "latency_ms": 2000, "accelerator": "cpu"},
             ],
         }
     return graph_fn

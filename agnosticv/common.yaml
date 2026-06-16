@@ -53,28 +53,17 @@ ocp4_workload_tenant_namespace_default_limit_range:
 
 ocp4_workload_litellm_virtual_keys_duration: 7d
 ocp4_workload_litellm_virtual_keys_models:
-- granite-4-0-h-tiny
-- granite-3-2-8b-instruct
+- granite-2b-cpu
 
 ai_model_requirements:
   models:
-  - name: granite-4-0-h-tiny
-    purpose: Classification, NER, fraud scoring (both agents)
+  - name: granite-2b-cpu
+    purpose: Classification, NER, summarization, fraud scoring (all agents)
     access_method: litemaas
-    vertex_ai_model_id: granite-4-0-h-tiny
-    estimated_input_tokens_per_request: 750
-    estimated_output_tokens_per_request: 350
-    estimated_requests_per_session: 40
-    estimated_session_duration_hours: 4
-    max_concurrent_users: 1
-    expected_total_users: 4
-  - name: granite-3-2-8b-instruct
-    purpose: Summarization, reasoning (both agents)
-    access_method: litemaas
-    vertex_ai_model_id: granite-3-2-8b-instruct
-    estimated_input_tokens_per_request: 2250
-    estimated_output_tokens_per_request: 1000
-    estimated_requests_per_session: 20
+    vertex_ai_model_id: granite-2b-cpu
+    estimated_input_tokens_per_request: 1000
+    estimated_output_tokens_per_request: 500
+    estimated_requests_per_session: 60
     estimated_session_duration_hours: 4
     max_concurrent_users: 1
     expected_total_users: 4

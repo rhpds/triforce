@@ -243,7 +243,7 @@ async def run_race(scale: int, theme: str = "intel"):
         ))
 
     console.print()
-    console.print("[dim]Xeon 6: live inference via MAAS/LiteLLM on granite-4-0-h-tiny[/]")
+    console.print("[dim]Xeon 6: live inference via MAAS/LiteLLM on granite-2b-cpu[/]")
     console.print("[dim]GPU/API costs: sourced from Spheron, Thunder Compute, GridStackHub, Google Vertex AI (June 2026)[/]")
 
 
