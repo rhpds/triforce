@@ -99,10 +99,10 @@ async def act2_clinical_nlp(theme):
     console.print()
 
     steps = [
-        ("Classify", "granite-4-0-h-tiny"),
-        ("Extract Entities", "granite-4-0-h-tiny"),
+        ("Classify", "granite-2b-cpu"),
+        ("Extract Entities", "granite-2b-cpu"),
         ("Check Interactions", "MCP Tool"),
-        ("Summarize", "granite-3-2-8b-instruct"),
+        ("Summarize", "granite-2b-cpu"),
     ]
 
     try:
@@ -121,13 +121,13 @@ async def act2_clinical_nlp(theme):
         results_table.add_column("Result", width=30)
 
         results_table.add_row(
-            "[green]✓ Classify[/]", "granite-4-0-h-tiny",
+            "[green]✓ Classify[/]", "granite-2b-cpu",
             f"{classify_result['inference_ms']}ms", "[cyan]Xeon 6 CPU[/]",
             classify_result["classification"],
         )
-        results_table.add_row("[green]✓ Extract[/]", "granite-4-0-h-tiny", "~5,000ms", "[cyan]Xeon 6 CPU[/]", "entities extracted")
+        results_table.add_row("[green]✓ Extract[/]", "granite-2b-cpu", "~5,000ms", "[cyan]Xeon 6 CPU[/]", "entities extracted")
         results_table.add_row("[green]✓ Interactions[/]", "MCP Gateway", "~50ms", "[dim]Tool call[/]", "drug check complete")
-        results_table.add_row("[green]✓ Summarize[/]", "granite-3-2-8b-instruct", "~4,500ms", "[cyan]Xeon 6 CPU[/]", "summary generated")
+        results_table.add_row("[green]✓ Summarize[/]", "granite-2b-cpu", "~4,500ms", "[cyan]Xeon 6 CPU[/]", "summary generated")
 
         console.print(results_table)
         console.print(f"\n[bold]Total pipeline: ~{total_ms + 9500}ms — 4 steps, 3 LLM calls, zero GPU[/]")

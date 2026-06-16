@@ -10,7 +10,7 @@ AI inference costs are unsustainable at scale. Running Claude Opus for 100,000 r
 
 Triforce is a polyglot multi-agent platform with three pillars:
 
-- **Intel (Power):** Xeon 6 CPU with AMX acceleration runs `granite-4-0-h-tiny` (sub-3B) and `granite-3-2-8b-instruct` (8B) via MAAS/LiteLLM
+- **Intel (Power):** Xeon 6 CPU with AMX acceleration runs `granite-2b-cpu` (sub-3B) and `granite-2b-cpu` (8B) via MAAS/LiteLLM
 - **IBM (Wisdom):** Kagenti provides A2A agent discovery, MCP tool federation, and SPIFFE zero-trust identity
 - **Red Hat (Courage):** OpenShift runs three polyglot agents (Python, Java, Go) with Kafka event streaming and PostgreSQL telemetry
 
@@ -22,7 +22,7 @@ The healthcare agent runs a 4-node LangGraph StateGraph:
 classify → extract_entities → check_interactions (conditional) → summarize
 ```
 
-Each node calls `granite-4-0-h-tiny` or `granite-3-2-8b-instruct` on Intel Xeon 6 via MAAS. Classification runs in ~600ms. The full pipeline: ~9.5 seconds for a complete clinical document analysis.
+Each node calls `granite-2b-cpu` or `granite-2b-cpu` on Intel Xeon 6 via MAAS. Classification runs in ~600ms. The full pipeline: ~9.5 seconds for a complete clinical document analysis.
 
 MCP tools provide FHIR patient lookup, drug interaction checking, and ICD-10 code search — all federated through the MCP gateway.
 

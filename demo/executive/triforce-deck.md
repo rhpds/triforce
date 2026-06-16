@@ -74,10 +74,10 @@ Three languages. Two verticals. One platform.
 
 | Step | Model | Latency | What It Does |
 |------|-------|---------|-------------|
-| Classify | granite-4-0-h-tiny | ~600ms | Document type identification |
-| Extract | granite-4-0-h-tiny | ~5,000ms | Medical entity recognition |
+| Classify | granite-2b-cpu | ~600ms | Document type identification |
+| Extract | granite-2b-cpu | ~5,000ms | Medical entity recognition |
 | Interactions | MCP Tool | ~50ms | Drug-drug interaction check |
-| Summarize | granite-3-2-8b-instruct | ~4,500ms | Clinical summary |
+| Summarize | granite-2b-cpu | ~4,500ms | Clinical summary |
 
 **Conditional routing:** Drug interaction check only runs when 2+ medications detected.
 

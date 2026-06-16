@@ -150,11 +150,11 @@ async def main():
     print("\n" + "=" * 70)
     print("  RESULTS")
     print("=" * 70)
-    print(f"\n  Healthcare (Intel Xeon 6 / granite-4-0-h-tiny):")
+    print(f"\n  Healthcare (Intel Xeon 6 / granite-2b-cpu):")
     print(f"    Requests:  {hc_stats.total} total, {hc_stats.passed} passed, {hc_stats.failed} failed")
     print(f"    Latency:   avg={hc_stats.avg_ms:.0f}ms, p95={hc_stats.p95_ms:.0f}ms")
 
-    print(f"\n  FinServ (Intel Xeon 6 / granite-4-0-h-tiny):")
+    print(f"\n  FinServ (Intel Xeon 6 / granite-2b-cpu):")
     print(f"    Requests:  {fs_stats.total} total, {fs_stats.passed} passed, {fs_stats.failed} failed")
     print(f"    Latency:   avg={fs_stats.avg_ms:.0f}ms, p95={fs_stats.p95_ms:.0f}ms")
 

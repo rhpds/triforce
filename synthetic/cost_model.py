@@ -41,13 +41,13 @@ MODELS = {
     # ── On-cluster: Intel Xeon 6 CPU (OpenVINO / vLLM) ──────────────
     # Self-hosted on RHDP cluster. No per-token cost.
     # Cost = infrastructure only (amortized hardware + power).
-    "granite-3-2-8b-instruct": {
+    "granite-2b-cpu": {
         "params": "8B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
         "input_per_1m": 0.00, "output_per_1m": 0.00,
         "category": "on-cluster-cpu",
         "note": "Self-hosted on Intel Xeon 6. Infrastructure cost only.",
     },
-    "granite-4-0-h-tiny": {
+    "granite-2b-cpu": {
         "params": "sub-3B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
         "input_per_1m": 0.00, "output_per_1m": 0.00,
         "category": "on-cluster-cpu",

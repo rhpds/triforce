@@ -193,7 +193,7 @@ async def classify_document(req: models.ClassifyRequest):
     return models.ClassifyResponse(
         classification=models.DocumentType(result.get("classification", "unknown")),
         confidence=0.85,
-        model="granite-4-0-h-tiny",
+        model="granite-2b-cpu",
         accelerator="cpu",
         inference_ms=total_ms,
     )
@@ -218,7 +218,7 @@ async def extract_entities(req: models.ExtractEntitiesRequest):
 
     return models.ExtractEntitiesResponse(
         entities=entities,
-        model="granite-4-0-h-tiny",
+        model="granite-2b-cpu",
         accelerator="cpu",
         inference_ms=total_ms,
     )
@@ -231,7 +231,7 @@ async def summarize_record(req: models.SummarizeRequest):
 
     return models.SummarizeResponse(
         summary=result.get("summary", "Summary unavailable."),
-        model="granite-3-2-8b-instruct",
+        model="granite-2b-cpu",
         accelerator="cpu",
         inference_ms=total_ms,
     )

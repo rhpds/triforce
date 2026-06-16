@@ -77,8 +77,8 @@ tests/               # Validation matrix + cross-service tests
 
 | Model | Hardware | Use Case |
 |-------|----------|----------|
-| granite-4-0-h-tiny | Xeon 6 | Classification, NER, fraud scoring |
-| granite-3-2-8b-instruct | Xeon 6 | Summarization, reasoning |
+| granite-2b-cpu | Xeon 6 | Classification, NER, fraud scoring |
+| granite-2b-cpu | Xeon 6 | Summarization, reasoning |
 
 ## What NOT To Do
 

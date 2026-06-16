@@ -36,17 +36,17 @@
 |===
 |Model |Parameters |Hardware |Use Case
 
-|granite-4-0-h-tiny
+|granite-2b-cpu
 |2B
 |Xeon 6
 |Classification, NER
 
-|granite-3-2-8b-instruct
+|granite-2b-cpu
 |8B
 |Xeon 6
 |Summarization, reasoning
 
-|granite-3-2-8b-instruct
+|granite-2b-cpu
 |3.8B
 |Xeon 6
 |Compliance reasoning

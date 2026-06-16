@@ -65,7 +65,7 @@ open demo/executive/dashboard.html
 
 | Metric | Value |
 |--------|-------|
-| Classification latency | ~600ms (granite-4-0-h-tiny, Xeon 6 CPU) |
+| Classification latency | ~600ms (granite-2b-cpu, Xeon 6 CPU) |
 | Fraud scoring latency | ~5ms (rule-based on CPU) |
 | Full LangGraph pipeline | ~9.5s (4 nodes, 3 LLM calls) |
 | Annual infrastructure cost | $15,000 (Xeon 6 self-hosted) |
@@ -77,8 +77,7 @@ open demo/executive/dashboard.html
 
 | Model | Parameters | Hardware | Use Case |
 |-------|-----------|----------|----------|
-| granite-4-0-h-tiny | sub-3B | Xeon 6 CPU | Classification, NER |
-| granite-3-2-8b-instruct | 8B | Xeon 6 CPU | Summarization, reasoning |
+| granite-2b-cpu | 2B | Xeon 6 CPU | Classification, NER, summarization, fraud scoring |
 | nomic-embed-text-v1-5 | 137M | Xeon 6 (OpenVINO) | Embeddings |
 
 ## Demo Assets
