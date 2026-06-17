@@ -63,6 +63,18 @@ async def lifespan(app):
     global kafka_pipeline, healthcare_graph
     await db.init_pool()
 
+    from attestation import get_litellm_api_key, is_running_in_tdx
+    api_key = await get_litellm_api_key()
+    if api_key:
+        from graph import set_api_key
+        set_api_key(api_key)
+
+    in_tdx = await is_running_in_tdx()
+    if in_tdx:
+        logger.info("Running inside TDX Trust Domain — inference data is hardware-encrypted")
+    else:
+        logger.info("Running in standard mode (no TDX)")
+
     from graph import build_graph
     healthcare_graph = await build_graph()
     logger.info("LangGraph healthcare pipeline compiled")

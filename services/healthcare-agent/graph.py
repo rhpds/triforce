@@ -24,6 +24,12 @@ CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "granite-2b-cpu")
 SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "granite-2b-cpu")
 
 
+def set_api_key(key: str):
+    """Set the API key dynamically (used by attestation module)."""
+    global LITELLM_API_KEY
+    LITELLM_API_KEY = key
+
+
 class HealthcareState(TypedDict):
     messages: list
     patient_id: str

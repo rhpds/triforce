@@ -1,0 +1,18 @@
+= Conclusion
+:navtitle: Conclusion
+
+== What You Accomplished
+
+* Deployed a legacy RHEL VM alongside AI agents on one Xeon 6 node
+* Proved VM and containers coexist with shared resources
+* Connected the VM to AI services via Kubernetes networking
+* Saw unified resource management across both workload types
+
+== The Value
+
+* *No separate GPU cluster* — Xeon 6 runs VMs and AI inference
+* *No re-architecture* — Legacy VMs consume AI services via standard networking
+* *One platform* — OpenShift manages VMs and containers together
+* *One Helm chart* — `--set virtualization.enabled=true` adds the VM
+
+Intel Xeon 6. IBM Kagenti. Red Hat OpenShift Virtualization. That's Triforce Virt.

@@ -1,0 +1,17 @@
+site:
+  title: "Triforce Secure: Confidential AI on Intel Xeon 6"
+  url: https://github.com/rhpds/triforce
+  start_page: modules::index.adoc
+
+content:
+  sources:
+    - url: .
+      start_path: content-secure
+
+ui:
+  bundle:
+    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
+    snapshot: true
+
+output:
+  dir: ./www-secure

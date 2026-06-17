@@ -1,0 +1,13 @@
+name: modules
+title: "Triforce Virt — VMs + AI on Intel Xeon 6"
+version: ~
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    user: "{user}"
+    password: "{password}"
+    openshift_api_url: "{openshift_api_url}"
+    openshift_console_url: "{openshift_console_url}"
+    openshift_cluster_ingress_domain: "{openshift_cluster_ingress_domain}"
+    healthcare_url: "https://healthcare-agent-{user}-triforce.{openshift_cluster_ingress_domain}"

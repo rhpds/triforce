@@ -1,0 +1,51 @@
+---
+apiVersion: confidentialcontainers.org/v1beta1
+kind: KbsConfig
+metadata:
+  name: kbsconfig
+  namespace: trustee-operator-system
+spec:
+  kbsConfigMapName: kbs-config
+  kbsAsConfigMapName: as-config
+  kbsRvpsConfigMapName: rvps-config
+  kbsRvpsReferenceValuesMapName: reference-values
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kbs-config
+  namespace: trustee-operator-system
+data:
+  kbs-config.json: |
+    {
+      "insecure_http": true,
+      "sockets": ["0.0.0.0:8080"],
+      "auth_public_key": "/etc/kbs/auth/kbs.pem"
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: as-config
+  namespace: trustee-operator-system
+data:
+  as-config.json: |
+    {
+      "work_dir": "/opt/confidential-containers/attestation-service",
+      "policy_engine": "opa",
+      "attestation_token_broker": "Simple"
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rvps-config
+  namespace: trustee-operator-system
+data:
+  rvps-config.json: |
+    {
+      "store_type": "LocalFs",
+      "store_config": {
+        "file_path": "/opt/confidential-containers/rvps/reference-values"
+      }
+    }

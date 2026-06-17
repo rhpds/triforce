@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY models.py .
 COPY agent.py .
 COPY db.py .
+COPY attestation.py .
 COPY graph.py .
 COPY mcp_tools.py .
 COPY kafka_consumer.py .

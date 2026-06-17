@@ -1,0 +1,29 @@
+= VM Calls AI Agent
+:navtitle: Networking
+
+== Exercise 1: VM Accesses the AI Agent
+
+The VM can reach the healthcare agent via Kubernetes Service networking — same as any pod.
+
+. From the VM console, call the AI agent:
++
+[source,bash,role="execute"]
+----
+virtctl ssh legacy-database -- curl -s http://healthcare-agent:8081/health
+----
+
+. Run classification from inside the VM:
++
+[source,bash,role="execute"]
+----
+virtctl ssh legacy-database -- curl -s -X POST http://healthcare-agent:8081/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Lab results: WBC 12.5, Hemoglobin 10.2"}'
+----
+
+== Key Point
+
+The legacy VM consumes AI services from containerized agents — no code changes, no API gateway, just standard Kubernetes networking. This is how enterprises add AI to existing VM workloads without re-architecting.
+
+[.next-nav]
+xref:05-resource-mgmt.adoc[Next: Resource Management →]

@@ -1,0 +1,41 @@
+= Prove TDX Encryption
+:navtitle: Verify TDX
+
+== Learning Objectives
+
+* Prove that TDX memory encryption is active inside the pod
+* Verify the API key was obtained via attestation
+
+== Exercise 1: Check TDX Inside the Pod
+
+. Exec into the healthcare agent pod:
++
+[source,bash,role="execute"]
+----
+oc exec deploy/healthcare-agent -- dmesg | grep -i tdx
+----
++
+Expected output:
++
+[source]
+----
+Memory Encryption Features active: Intel TDX
+----
+
+. Check the agent startup logs for attestation:
++
+[source,bash,role="execute"]
+----
+oc logs deploy/healthcare-agent | grep -E "TDX|Trust Domain|attested|Trustee"
+----
++
+Expected: "Running inside TDX Trust Domain" and "API key from Trustee KBS (hardware-attested)"
+
+== Exercise 2: What Happens Without TDX
+
+If a pod runs *without* `runtimeClassName: kata-cc`, the CDH agent is not present. The Trustee KBS call fails, and the API key must come from a Kubernetes Secret instead.
+
+This means: *only hardware-attested pods get the inference key*. A compromised cluster admin cannot extract the key from memory.
+
+[.next-nav]
+xref:05-inference.adoc[Next: Run Confidential Inference →]
