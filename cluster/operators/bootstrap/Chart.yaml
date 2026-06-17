@@ -1,0 +1,4 @@
+apiVersion: v2
+name: triforce-operators
+description: Cluster-scoped operators for Triforce Secure + Virt demos
+version: 0.1.0

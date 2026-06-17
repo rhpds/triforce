@@ -1,0 +1,27 @@
+{{- if .Values.trustee.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trustee-operator-system
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: trustee-operator
+  namespace: trustee-operator-system
+spec:
+  targetNamespaces:
+    - trustee-operator-system
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: trustee-operator
+  namespace: trustee-operator-system
+spec:
+  channel: {{ .Values.trustee.channel }}
+  name: trustee-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+{{- end }}

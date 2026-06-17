@@ -72,3 +72,17 @@ mcpGateway:
 litellm:
   apiBase: ""
   apiKey: ""
+
+# Triforce Secure — Confidential Containers (TDX)
+confidential:
+  enabled: false
+  runtimeClassName: kata-cc
+
+# Triforce Virt — OpenShift Virtualization
+virtualization:
+  enabled: false
+  vm:
+    name: legacy-database
+    image: registry.redhat.io/rhel9/rhel-guest-image:latest
+    cores: 4
+    memory: 8Gi
