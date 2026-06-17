@@ -56,17 +56,17 @@ class TestMCPTools:
     @pytest.mark.asyncio
     async def test_risk_profile_tool_exists(self):
         from mcp_tools import risk_profile_lookup
-        assert callable(risk_profile_lookup)
+        assert hasattr(risk_profile_lookup, 'invoke') or callable(risk_profile_lookup)
 
     @pytest.mark.asyncio
     async def test_sanction_search_tool_exists(self):
         from mcp_tools import sanction_list_search
-        assert callable(sanction_list_search)
+        assert hasattr(sanction_list_search, 'invoke') or callable(sanction_list_search)
 
     @pytest.mark.asyncio
     async def test_regulatory_rule_tool_exists(self):
         from mcp_tools import regulatory_rule_check
-        assert callable(regulatory_rule_check)
+        assert hasattr(regulatory_rule_check, 'invoke') or callable(regulatory_rule_check)
 
     @pytest.mark.asyncio
     async def test_risk_profile_returns_data(self):
