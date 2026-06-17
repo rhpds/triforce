@@ -6,7 +6,7 @@ RUN mvn dependency:go-offline -q
 COPY src src
 RUN mvn package -DskipTests -Dquarkus.package.jar.type=uber-jar -q
 
-FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.20-2.1719294888
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:latest
 
 COPY --from=builder /build/target/*-runner.jar /deployments/app.jar
 
