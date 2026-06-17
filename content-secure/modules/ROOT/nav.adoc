@@ -1,0 +1,7 @@
+* xref:index.adoc[Welcome]
+* xref:01-setup.adoc[Verify TDX & Operators]
+* xref:02-attestation.adoc[Trustee Attestation]
+* xref:03-deploy-agents.adoc[Deploy Confidential Agents]
+* xref:04-verify-tdx.adoc[Prove TDX Encryption]
+* xref:05-inference.adoc[Run Confidential Inference]
+* xref:99-conclusion.adoc[Conclusion]

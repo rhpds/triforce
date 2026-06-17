@@ -1,0 +1,32 @@
+= Deploy Legacy VM
+:navtitle: Deploy VM
+
+== Exercise 1: Check the VM
+
+The Helm chart deployed a legacy RHEL 9 VM (`--set virtualization.enabled=true`).
+
+. List virtual machines:
++
+[source,bash,role="execute"]
+----
+oc get vm
+----
+
+. Check the VM instance is running:
++
+[source,bash,role="execute"]
+----
+oc get vmi
+----
+
+. View VM details:
++
+[source,bash,role="execute"]
+----
+oc describe vmi legacy-database
+----
+
+This VM represents a legacy workload — a database, an internal app, or middleware that hasn't been containerized yet.
+
+[.next-nav]
+xref:03-coexistence.adoc[Next: VM + AI Coexistence →]

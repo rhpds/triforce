@@ -1,0 +1,49 @@
+= Trustee Attestation
+:navtitle: Attestation
+
+== Learning Objectives
+
+* Understand how Trustee remote attestation works
+* See how secrets are gated by hardware verification
+
+== How Attestation Works
+
+```
+Pod starts with runtimeClassName: kata-cc
+    │
+    ├── Kata creates VM with TDX memory encryption
+    │
+    ├── Agent calls Trustee KBS: "Give me the API key"
+    │
+    ├── Trustee asks: "Prove you're running in TDX"
+    │   └── Hardware attestation via TDX REPORT
+    │
+    ├── TDX verified → Secret released → Inference works
+    │
+    └── TDX NOT verified → Secret denied → Inference fails
+```
+
+The MAAS API key that controls all inference is *hardware-gated*. No TDX, no key, no inference.
+
+== Exercise 1: Review Trustee Configuration
+
+. Check the KbsConfig:
++
+[source,bash,role="execute"]
+----
+oc get kbsconfig -n trustee-operator-system -o yaml
+----
+
+. Check the Trustee pod is running:
++
+[source,bash,role="execute"]
+----
+oc get pods -n trustee-operator-system
+----
+
+== Module Summary
+
+Trustee attestation ensures secrets are only released to pods running inside verified TDX Trust Domains.
+
+[.next-nav]
+xref:03-deploy-agents.adoc[Next: Deploy Confidential Agents →]

@@ -1,0 +1,28 @@
+= Conclusion
+:navtitle: Conclusion
+
+== What You Accomplished
+
+* Verified Intel TDX is active on Xeon 6 nodes
+* Deployed AI agents inside Confidential Containers (kata-cc runtime)
+* Proved hardware memory encryption is active via `dmesg`
+* Ran inference inside a TDX Trust Domain with unchanged quality
+* Saw that the API key is hardware-gated via Trustee attestation
+
+== The Value
+
+Your AI inference now has:
+
+* *Hardware-encrypted memory* — data never visible to cluster admin
+* *Attestation-gated secrets* — API keys released only to verified TDX enclaves
+* *Zero code changes* — same container, same model, one YAML line added
+* *No performance penalty* — AMX acceleration works inside TDX
+
+== One Line Changes Everything
+
+```yaml
+spec:
+  runtimeClassName: kata-cc
+```
+
+IBM Granite model. Intel Xeon 6 with TDX. Red Hat OpenShift Confidential Containers. That's Triforce Secure.

@@ -1,0 +1,41 @@
+= Triforce Virt — VMs + AI on Intel Xeon 6
+:navtitle: Welcome
+
+== The Problem
+
+Enterprises have hundreds of VMs running databases, legacy apps, and middleware. They want to add AI — but do they need separate infrastructure?
+
+No. Intel Xeon 6 runs both VMs and AI inference on the same server. Red Hat OpenShift Virtualization manages both workloads on one platform.
+
+In this lab you will:
+
+* Deploy a legacy RHEL VM alongside AI agents on the same cluster
+* Prove both workloads run on the same Xeon 6 node
+* Connect the VM to the AI agent via Kubernetes networking
+* Show resource sharing — CPU and memory allocated across both workloads
+
+== The Triforce Virt Story
+
+[cols="1,2,3",options="header"]
+|===
+|Pillar |Technology |What It Proves
+
+|*Intel* (Power)
+|Xeon 6 CPU
+|One server runs VMs AND AI inference — no separate GPU cluster
+
+|*IBM* (Wisdom)
+|Kagenti agent governance
+|AI agents governed alongside legacy VM workloads
+
+|*Red Hat* (Courage)
+|OpenShift Virtualization (KubeVirt)
+|VMs and containers on one platform — unified management
+|===
+
+== Duration
+
+This lab takes approximately *45 minutes* to complete.
+
+[.next-nav]
+xref:01-setup.adoc[Next: Verify OpenShift Virtualization →]

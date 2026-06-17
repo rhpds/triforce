@@ -1,0 +1,46 @@
+= Deploy Confidential Agents
+:navtitle: Deploy Agents
+
+== Learning Objectives
+
+* Deploy Triforce agents with the kata-cc runtime
+* Understand the only change: `runtimeClassName: kata-cc`
+
+== Exercise 1: Deploy with Confidential Containers
+
+. The agents are deployed with `--set confidential.enabled=true`:
++
+[source,bash,role="execute"]
+----
+oc get deploy healthcare-agent -o yaml | grep runtimeClassName
+----
++
+Expected: `runtimeClassName: kata-cc`
+
+. Check the pod is running inside a Kata VM:
++
+[source,bash,role="execute"]
+----
+oc get pods -l app=healthcare-agent -o wide
+----
+
+. Verify the agent is healthy:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/health | jq .
+----
+
+== Key Point
+
+The *only* difference from the standard Triforce AI deployment is one line:
+
+```yaml
+spec:
+  runtimeClassName: kata-cc  # ← This is it
+```
+
+Same container image. Same code. Same model. Now hardware-encrypted.
+
+[.next-nav]
+xref:04-verify-tdx.adoc[Next: Prove TDX Encryption →]

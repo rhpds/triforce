@@ -1,0 +1,58 @@
+= Verify TDX & Operators
+:navtitle: Setup
+
+== Learning Objectives
+
+* Confirm Intel TDX is available on cluster nodes
+* Verify the required operators are installed
+* Understand the Confidential Containers architecture
+
+== Exercise 1: Check Node TDX Capability
+
+. Log in to the cluster:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
+----
+
+. Check for TDX capability on worker nodes:
++
+[source,bash,role="execute"]
+----
+oc get nodes -l node-role.kubernetes.io/compute -o custom-columns='NODE:.metadata.name,GAUDI:.metadata.labels.habana\.ai/device\.count'
+----
++
+Nodes with `device.count=0` are CPU-only — these are the TDX candidates.
+
+== Exercise 2: Verify Operators
+
+. Check that Sandboxed Containers operator is running:
++
+[source,bash,role="execute"]
+----
+oc get csv -n openshift-sandboxed-containers-operator | grep sandboxed
+----
+
+. Check Trustee operator:
++
+[source,bash,role="execute"]
+----
+oc get csv -n trustee-operator-system | grep trustee
+----
+
+. Verify the kata-cc RuntimeClass exists:
++
+[source,bash,role="execute"]
+----
+oc get runtimeclass
+----
++
+Expected: `kata-cc` runtime class available.
+
+== Module Summary
+
+You've confirmed that TDX-capable nodes and the required operators are present on the cluster.
+
+[.next-nav]
+xref:02-attestation.adoc[Next: Trustee Attestation →]

@@ -1,0 +1,7 @@
+* xref:index.adoc[Welcome]
+* xref:01-setup.adoc[Verify OpenShift Virtualization]
+* xref:02-deploy-vm.adoc[Deploy Legacy VM]
+* xref:03-coexistence.adoc[VM + AI Coexistence]
+* xref:04-networking.adoc[VM Calls AI Agent]
+* xref:05-resource-mgmt.adoc[Resource Management]
+* xref:99-conclusion.adoc[Conclusion]

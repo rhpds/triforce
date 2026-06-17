@@ -1,0 +1,26 @@
+= Verify OpenShift Virtualization
+:navtitle: Setup
+
+== Exercise 1: Check the Operator
+
+. Log in and verify OpenShift Virtualization is installed:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
+----
++
+[source,bash,role="execute"]
+----
+oc get csv -n openshift-cnv | grep kubevirt
+----
+
+. Verify the HyperConverged CR is ready:
++
+[source,bash,role="execute"]
+----
+oc get hyperconverged -n openshift-cnv
+----
+
+[.next-nav]
+xref:02-deploy-vm.adoc[Next: Deploy Legacy VM →]
