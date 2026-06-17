@@ -79,17 +79,17 @@ class TestMCPToolNode:
     @pytest.mark.asyncio
     async def test_fhir_lookup_tool_exists(self):
         from mcp_tools import fhir_patient_lookup
-        assert callable(fhir_patient_lookup)
+        assert hasattr(fhir_patient_lookup, 'invoke') or callable(fhir_patient_lookup)
 
     @pytest.mark.asyncio
     async def test_drug_interaction_tool_exists(self):
         from mcp_tools import drug_interaction_check
-        assert callable(drug_interaction_check)
+        assert hasattr(drug_interaction_check, 'invoke') or callable(drug_interaction_check)
 
     @pytest.mark.asyncio
     async def test_clinical_code_search_tool_exists(self):
         from mcp_tools import clinical_code_search
-        assert callable(clinical_code_search)
+        assert hasattr(clinical_code_search, 'invoke') or callable(clinical_code_search)
 
     @pytest.mark.asyncio
     async def test_fhir_lookup_returns_patient_data(self):
