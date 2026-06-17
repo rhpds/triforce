@@ -1,7 +1,7 @@
 namespace: triforce
 
 healthcareAgent:
-  image: quay.io/rh-intel-ibm-demo/triforce-healthcare-agent:latest
+  image: quay.io/redhat-gpte/triforce-healthcare-agent:latest
   replicas: 2
   resources:
     requests:
@@ -12,7 +12,7 @@ healthcareAgent:
       memory: 1Gi
 
 finservAgent:
-  image: quay.io/rh-intel-ibm-demo/triforce-finserv-agent:latest
+  image: quay.io/redhat-gpte/triforce-finserv-agent:latest
   replicas: 2
   resources:
     requests:
@@ -23,7 +23,7 @@ finservAgent:
       memory: 1536Mi
 
 orchestrator:
-  image: quay.io/rh-intel-ibm-demo/triforce-orchestrator:latest
+  image: quay.io/redhat-gpte/triforce-orchestrator:latest
   replicas: 1
   resources:
     requests:
@@ -60,7 +60,7 @@ kafka:
 
 mcpGateway:
   enabled: true
-  image: quay.io/rh-intel-ibm-demo/triforce-mcp-gateway:latest
+  image: quay.io/redhat-gpte/triforce-mcp-gateway:latest
   resources:
     requests:
       cpu: 100m
