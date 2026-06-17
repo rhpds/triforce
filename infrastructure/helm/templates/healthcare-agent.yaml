@@ -21,6 +21,9 @@ spec:
         protocol.kagenti.io/a2a: ""
     spec:
       serviceAccountName: healthcare-agent
+      {{- if .Values.confidential.enabled }}
+      runtimeClassName: {{ .Values.confidential.runtimeClassName }}
+      {{- end }}
       containers:
         - name: agent
           image: {{ .Values.healthcareAgent.image }}

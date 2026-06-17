@@ -1,0 +1,11 @@
+sandboxedContainers:
+  enabled: true
+  channel: stable
+
+trustee:
+  enabled: true
+  channel: stable
+
+openshiftVirtualization:
+  enabled: true
+  channel: stable

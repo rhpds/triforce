@@ -1,0 +1,68 @@
+{{- if .Values.virtualization.enabled }}
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: {{ .Values.virtualization.vm.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.virtualization.vm.name }}
+    app.kubernetes.io/part-of: triforce
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.virtualization.vm.name }}
+        vm-type: legacy-workload
+    spec:
+      domain:
+        cpu:
+          cores: {{ .Values.virtualization.vm.cores }}
+          sockets: 1
+          threads: 1
+        resources:
+          requests:
+            memory: {{ .Values.virtualization.vm.memory }}
+          limits:
+            memory: {{ .Values.virtualization.vm.memory }}
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: {{ .Values.virtualization.vm.image }}
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: triforce
+              password: triforce-demo
+              chpasswd: { expire: false }
+              runcmd:
+                - echo "Triforce Legacy VM — running alongside AI agents on Intel Xeon 6"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.virtualization.vm.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.virtualization.vm.name }}
+  ports:
+    - port: 22
+      targetPort: 22
+      name: ssh
+{{- end }}
