@@ -1,0 +1,26 @@
+
+Deploys the Triforce multi-agent AI platform with Intel TDX Confidential Containers. AI agents run inside hardware-encrypted Trust Domains — the cluster admin cannot see inference data in memory.
+
+== What Gets Deployed
+
+Same as Triforce AI, plus:
+
+* *Confidential Containers* -- Healthcare and FinServ agents run with `runtimeClassName: kata-cc` inside TDX Trust Domains
+* *Hardware Memory Encryption* -- Intel TDX encrypts all inference data in hardware
+* *Remote Attestation* -- Trustee operator verifies genuine Intel TDX before releasing secrets
+
+== Model — Intel Xeon 6 CPU Inference (inside TDX)
+
+[cols="2,1,1,2",options="header"]
+|===
+| Model | Parameters | Hardware | Use Case
+| granite-2b-cpu | 2B | Intel Xeon 6 (CPU + TDX) | Classification, NER, summarization, fraud scoring
+|===
+
+AMX acceleration works inside TDX Trust Domains — no performance degradation.
+
+== Partnership Story
+
+* *Intel* (Power): Xeon 6 CPU inference + TDX hardware encryption
+* *IBM* (Wisdom): Kagenti agent governance with zero-trust identity
+* *Red Hat* (Courage): OpenShift Confidential Containers (Sandboxed Containers 1.12)

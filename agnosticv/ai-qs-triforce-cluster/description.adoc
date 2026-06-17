@@ -1,0 +1,19 @@
+
+Base cluster infrastructure for the Triforce multi-agent AI platform. Provisions OpenShift AI, GitOps, Keycloak SSO, and three additional operators for the Secure and Virt demo variants.
+
+== Operators Deployed
+
+* *OpenShift AI* (RHOAI 2.25) — model serving and AI workloads
+* *OpenShift GitOps* — ArgoCD for operator bootstrap
+* *OpenShift Sandboxed Containers 1.12* — Confidential Containers with Intel TDX
+* *Red Hat build of Trustee 1.1* — Remote attestation for CoCo
+* *Node Feature Discovery* — Auto-detects TDX capability on nodes
+* *OpenShift Virtualization* — VM + container coexistence
+
+== Tenant Items
+
+Three tenant catalog items deploy on top of this base:
+
+* `ai-qs-triforce-tenant` — AI inference demo (granite-2b-cpu on Xeon 6)
+* `ai-qs-triforce-secure-tenant` — Confidential AI demo (CoCo + TDX)
+* `ai-qs-triforce-virt-tenant` — VMs + AI coexistence demo

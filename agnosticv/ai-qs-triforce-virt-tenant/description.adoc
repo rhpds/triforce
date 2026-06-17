@@ -1,0 +1,24 @@
+
+Deploys the Triforce multi-agent AI platform alongside a legacy RHEL virtual machine. Demonstrates VMs and AI containers coexisting on the same Intel Xeon 6 infrastructure.
+
+== What Gets Deployed
+
+Same as Triforce AI, plus:
+
+* *Legacy Database VM* -- RHEL 9 VirtualMachine running alongside AI agents
+* *Shared Infrastructure* -- VM and containers scheduled on the same Xeon 6 nodes
+* *Network Integration* -- VM accessible via Kubernetes Service
+
+== Model — Intel Xeon 6 CPU Inference
+
+[cols="2,1,1,2",options="header"]
+|===
+| Model | Parameters | Hardware | Use Case
+| granite-2b-cpu | 2B | Intel Xeon 6 (CPU) | Classification, NER, summarization, fraud scoring
+|===
+
+== Partnership Story
+
+* *Intel* (Power): Xeon 6 runs both VMs and AI inference — one server, two workloads
+* *IBM* (Wisdom): Kagenti agent governance alongside legacy VM management
+* *Red Hat* (Courage): OpenShift Virtualization — VMs and containers on one platform

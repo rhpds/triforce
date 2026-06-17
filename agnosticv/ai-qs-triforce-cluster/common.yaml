@@ -1,0 +1,159 @@
+---
+# -------------------------------------------------------------------
+# --- Catalog Item: Triforce Base Infra (Cluster)
+# --- Base cluster for Triforce multi-agent AI platform.
+# --- Deploys OpenShift AI, GitOps, Keycloak, and operators for
+# --- Confidential Containers (TDX), Trustee, and OpenShift Virt.
+# --- Designed to be registered with the OpenShift Sandbox API.
+# -------------------------------------------------------------------
+
+#include /includes/agd-v2-mapping.yaml
+#include /includes/catalog-icon-openshift.yaml
+#include /includes/terms-of-service.yaml
+#include /includes/sandbox-api.yaml
+
+#include /includes/access-restriction-admins-only.yaml
+#include /includes/secrets/ocp4_ai_offline_token.yaml
+#include /includes/parameters/purpose.yaml
+
+config: openshift-workloads
+cloud_provider: none
+num_users: 0
+
+clusters:
+  - default:
+      api_url: "{{ openshift_api_url }}"
+      api_token: "{{ openshift_cluster_admin_token }}"
+
+tag: main
+requirements_content:
+  collections:
+    - name: https://github.com/agnosticd/core_workloads.git
+      type: git
+      version: "{{ tag }}"
+    - name: https://github.com/agnosticd/ai_workloads.git
+      type: git
+      version: "{{ tag }}"
+    - name: https://github.com/agnosticd/showroom.git
+      type: git
+      version: v1.6.8
+
+workloads:
+  - agnosticd.core_workloads.ocp4_workload_authentication
+  - agnosticd.ai_workloads.ocp4_workload_openshift_ai
+  - agnosticd.core_workloads.ocp4_workload_openshift_gitops
+  - agnosticd.core_workloads.ocp4_workload_gitops_bootstrap
+  - agnosticd.showroom.ocp4_workload_ocp_console_embed
+  - agnosticd.core_workloads.ocp4_workload_nfd
+
+# ===================================================================
+# Authentication (Keycloak)
+# ===================================================================
+ocp4_workload_authentication_provider: keycloak
+ocp4_workload_authentication_keycloak_channel: stable-v26.4
+
+# ===================================================================
+# OpenShift GitOps
+# ===================================================================
+ocp4_workload_openshift_gitops_channel: latest
+ocp4_workload_openshift_gitops_setup_cluster_admin: true
+ocp4_workload_openshift_gitops_update_route_tls: true
+ocp4_workload_openshift_gitops_rbac_update: true
+ocp4_workload_openshift_gitops_rbac_policy: |
+  g, system:cluster-admins, role:admin
+  g, admin, role:admin
+ocp4_workload_openshift_gitops_rbac_scopes: '[name,groups]'
+
+# ===================================================================
+# OpenShift AI
+# ===================================================================
+ocp4_workload_openshift_ai_channel: stable-2.25
+ocp4_workload_openshift_ai_use_catalog_snapshot: false
+ocp4_workload_openshift_ai_deploy_dsc: true
+ocp4_workload_openshift_ai_dashboard: Managed
+ocp4_workload_openshift_ai_modelmeshserving: Managed
+ocp4_workload_openshift_ai_kserve: Removed
+ocp4_workload_openshift_ai_ray: Removed
+ocp4_workload_openshift_ai_trustyai: Removed
+ocp4_workload_openshift_ai_trainingoperator: Removed
+
+# ===================================================================
+# GitOps Bootstrap — deploys Secure + Virt operators via ArgoCD
+# ===================================================================
+ocp4_workload_gitops_bootstrap_repo_url: https://github.com/rhpds/triforce.git
+ocp4_workload_gitops_bootstrap_repo_revision: main
+ocp4_workload_gitops_bootstrap_repo_path: cluster/operators/bootstrap
+ocp4_workload_gitops_bootstrap_application_name: "triforce-operators"
+ocp4_workload_gitops_bootstrap_helm_values:
+  turn_off_kustomize: true
+
+# ===================================================================
+# NFD
+# ===================================================================
+ocp4_workload_nfd_operator_channel: stable
+
+# -------------------------------------------------------------------
+# Babylon meta
+# -------------------------------------------------------------------
+__meta__:
+  asset_uuid: TBD
+  owners:
+    maintainer:
+      - name: Jonathan Kershaw
+        email: jkershaw@redhat.com
+  catalog:
+    display_name: "Triforce Base Infra (AI + Secure + Virt)"
+    category: Labs
+    namespace: babylon-catalog-{{ stage | default('?') }}
+    keywords:
+      - openshift
+      - intel
+      - ai
+      - tdx
+      - confidential
+      - virtualization
+      - triforce
+    labels:
+      Provider: RHDP
+    reportingLabels:
+      primaryBU: Hybrid_Platforms
+    parameters: []
+
+  components:
+    - name: openshift
+      display_name: OpenShift Cluster
+      item: agd-v2/ocp-cluster-cnv-pools
+      parameter_values:
+        cluster_size: multinode
+        host_ocp4_installer_version: '4.20'
+      propagate_provision_data:
+        - name: openshift_api_ca_cert
+          var: openshift_api_ca_cert
+        - name: openshift_api_url
+          var: openshift_api_url
+        - name: openshift_cluster_admin_token
+          var: openshift_api_key
+        - name: openshift_cluster_admin_token
+          var: openshift_cluster_admin_token
+        - name: sandbox_openshift_api_key
+          var: sandbox_openshift_api_key
+        - name: sandbox_openshift_api_url
+          var: sandbox_openshift_api_url
+
+  deployer:
+    scm_url: https://github.com/agnosticd/agnosticd-v2
+    scm_ref: main
+    execution_environment:
+      image: quay.io/agnosticd/ee-multicloud:chained-2026-02-23
+      pull: missing
+    actions:
+      destroy:
+        disable: false
+      start:
+        disable: false
+      status:
+        disable: true
+      stop:
+        disable: false
+      update:
+        disable: true
