@@ -107,6 +107,7 @@ __meta__:
   access_control:
     allow_groups:
     - rhpds-devs-quickstart-ai
+    - email-domain.intel.com
   asset_uuid: 8b348e38-9251-4678-91fc-f3d2dcb14e62
   owners:
     maintainer:
