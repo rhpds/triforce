@@ -38,11 +38,11 @@ export default function App() {
           <div style={{ width: 120, display: 'flex', justifyContent: 'flex-end' }}>
             <img src="/logos/redhat.svg" alt="Red Hat" style={{ height: 22 }} />
           </div>
-          <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
+          <span style={{ color: 'var(--text-disabled)', fontSize: 22, fontWeight: 300 }}>×</span>
           <div style={{ width: 120, display: 'flex', justifyContent: 'center' }}>
             <img src="/logos/intel.png" alt="Intel" style={{ height: 28 }} />
           </div>
-          <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
+          <span style={{ color: 'var(--text-disabled)', fontSize: 22, fontWeight: 300 }}>×</span>
           <div style={{ width: 120, display: 'flex', justifyContent: 'flex-start' }}>
             <img src="/logos/ibm.png" alt="IBM" style={{ height: 22 }} />
           </div>
