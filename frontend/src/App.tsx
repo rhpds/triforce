@@ -9,6 +9,7 @@ import { Act04Efficiency } from './acts/Act04Efficiency'
 import { Act05HonestQuestion } from './acts/Act05HonestQuestion'
 
 export default function App() {
+  const [started, setStarted] = useState(false)
   const [revealed, setRevealed] = useState(1)
 
   const revealNext = () => {
@@ -17,6 +18,38 @@ export default function App() {
       const next = document.getElementById(`act-${revealed + 1}`)
       if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 150)
+  }
+
+  if (!started) {
+    return (
+      <div
+        style={{
+          height: '100vh', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+        }}
+        onClick={() => setStarted(true)}
+      >
+        <motion.div
+          style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 48 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <img src="/logos/redhat.svg" alt="Red Hat" style={{ height: 24 }} />
+          <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
+          <img src="/logos/intel.png" alt="Intel" style={{ height: 24 }} />
+          <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
+          <img src="/logos/ibm.png" alt="IBM" style={{ height: 22 }} />
+        </motion.div>
+        <motion.div
+          style={{ fontSize: 12, color: 'var(--text-disabled)' }}
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ repeat: Infinity, duration: 2.5 }}
+        >
+          click to begin
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -32,19 +65,7 @@ export default function App() {
             <img src="/logos/ibm.png" alt="IBM" style={{ height: 18 }} />
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ fontFamily: "'Red Hat Display', sans-serif", fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>
-            <span style={{ color: 'var(--rh-red)' }}>▲</span> TRIFORCE
-          </div>
-          <div className="demo-header-health">
-            <div className="health-dot alive" />
-            <span style={{ fontSize: 12 }}>
-              <span style={{ color: 'var(--rh-red)' }}>Courage</span> ·{' '}
-              <span style={{ color: 'var(--intel-cyan)' }}>Power</span> ·{' '}
-              <span style={{ color: 'var(--ibm-blue)' }}>Wisdom</span>
-            </span>
-          </div>
-        </div>
+        <div className="health-dot alive" />
       </div>
 
       {/* Content */}
