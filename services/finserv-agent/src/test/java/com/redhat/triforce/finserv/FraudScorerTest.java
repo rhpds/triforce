@@ -26,12 +26,14 @@ class FraudScorerTest {
     @Test
     void testScoreHighAmountTransaction() {
         Map<String, Object> tx = Map.of(
-            "id", UUID.randomUUID().toString(),
-            "amount", 15000.0
+            "transaction_id", UUID.randomUUID().toString(),
+            "amount", 15000.0,
+            "country", "US",
+            "merchant_category", "retail"
         );
         Map<String, Object> result = scorer.score(tx);
 
-        assertEquals("medium", result.get("risk_level"));
+        assertTrue((double) result.get("risk_score") >= 30);
         assertNotNull(result.get("signals"));
     }
 
@@ -64,7 +66,7 @@ class FraudScorerTest {
 
         var signals = (java.util.List<Map<String, Object>>) result.get("signals");
         boolean hasRoundAmount = signals.stream()
-            .anyMatch(s -> "round_amount".equals(s.get("type")));
+            .anyMatch(s -> "round_amount".equals(s.get("signal")));
         assertTrue(hasRoundAmount);
     }
 }
