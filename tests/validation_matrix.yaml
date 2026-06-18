@@ -113,6 +113,18 @@ stages:
         description: "Agent discovery fetches and parses A2A agent cards"
         points: 15
         required: true
+      semantic_router_classifies:
+        description: "Semantic Router classifies simple vs complex requests"
+        points: 15
+        required: true
+      semantic_router_returns_model:
+        description: "Router returns recommended model per complexity tier"
+        points: 10
+        required: true
+      semantic_router_latency:
+        description: "Router classification completes in under 50ms (no LLM call)"
+        points: 10
+        required: false
 
   stage_3_contracts_compliance:
     description: "Services comply with their defined contracts"

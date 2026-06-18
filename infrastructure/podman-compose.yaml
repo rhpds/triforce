@@ -158,5 +158,20 @@ services:
       timeout: 5s
       retries: 3
 
+  semantic-router:
+    build:
+      context: ../services/semantic-router
+      dockerfile: Containerfile
+    ports:
+      - "127.0.0.1:8094:8094"
+    environment:
+      SEMANTIC_ROUTER_PORT: "8094"
+      COMPLEX_MODEL: qwen25-3b-cpu
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 volumes:
   postgres_data:

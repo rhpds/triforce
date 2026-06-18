@@ -1,0 +1,60 @@
+{{- if .Values.semanticRouter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic-router
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: semantic-router
+    app.kubernetes.io/part-of: triforce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semantic-router
+  template:
+    metadata:
+      labels:
+        app: semantic-router
+    spec:
+      {{- if .Values.confidential.enabled }}
+      runtimeClassName: {{ .Values.confidential.runtimeClassName }}
+      {{- end }}
+      containers:
+        - name: router
+          image: {{ .Values.semanticRouter.image }}
+          ports:
+            - containerPort: 8094
+              name: http
+          env:
+            - name: SEMANTIC_ROUTER_PORT
+              value: "8094"
+            - name: COMPLEX_MODEL
+              value: {{ .Values.semanticRouter.complexModel | default "qwen25-3b-cpu" }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8094
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: semantic-router
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: semantic-router
+  ports:
+    - port: 8094
+      targetPort: 8094
+      name: http
+{{- end }}
