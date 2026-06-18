@@ -30,16 +30,22 @@ export default function App() {
         onClick={() => setStarted(true)}
       >
         <motion.div
-          style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 48 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 48 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <img src="/logos/redhat.svg" alt="Red Hat" style={{ height: 24 }} />
+          <div style={{ width: 120, display: 'flex', justifyContent: 'flex-end' }}>
+            <img src="/logos/redhat.svg" alt="Red Hat" style={{ height: 22 }} />
+          </div>
           <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
-          <img src="/logos/intel.png" alt="Intel" style={{ height: 24 }} />
+          <div style={{ width: 120, display: 'flex', justifyContent: 'center' }}>
+            <img src="/logos/intel.png" alt="Intel" style={{ height: 28 }} />
+          </div>
           <span style={{ color: 'var(--text-disabled)', fontSize: 14 }}>×</span>
-          <img src="/logos/ibm.png" alt="IBM" style={{ height: 22 }} />
+          <div style={{ width: 120, display: 'flex', justifyContent: 'flex-start' }}>
+            <img src="/logos/ibm.png" alt="IBM" style={{ height: 22 }} />
+          </div>
         </motion.div>
         <motion.div
           style={{ fontSize: 12, color: 'var(--text-disabled)' }}
