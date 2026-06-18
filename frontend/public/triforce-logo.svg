@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 540" width="600" height="540">
+  <defs>
+    <filter id="glow-red" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- TOP triangle — Red Hat (Courage) — pointing UP -->
+  <polygon points="300,15 185,215 415,215" fill="#EE0000" opacity="0.10"/>
+  <polygon points="300,15 185,215 415,215" fill="none" stroke="#EE0000" stroke-width="2.5" filter="url(#glow-red)"/>
+  <!-- Red Hat logo -->
+  <image href="logos/redhat.svg" x="235" y="60" width="130" height="50" opacity="0.9"/>
+  <text x="300" y="135" text-anchor="middle" fill="#EE0000" font-family="Red Hat Display, sans-serif" font-size="20" font-weight="800" letter-spacing="3">COURAGE</text>
+  <text x="300" y="158" text-anchor="middle" fill="#EE0000" font-family="Red Hat Text, sans-serif" font-size="11" opacity="0.7">OpenShift · Routing · Scale</text>
+
+  <!-- CENTER triangle — inverted (pointing DOWN) — the negative space -->
+  <polygon points="185,215 415,215 300,400" fill="none" stroke="#383838" stroke-width="1.5" opacity="0.3"/>
+  <polygon points="185,215 415,215 300,400" fill="#ffffff" opacity="0.015"/>
+
+  <!-- BOTTOM-LEFT triangle — Intel (Power) — pointing UP -->
+  <polygon points="70,400 185,215 300,400" fill="#00AEEF" opacity="0.08"/>
+  <polygon points="70,400 185,215 300,400" fill="none" stroke="#00AEEF" stroke-width="2.5" filter="url(#glow-cyan)"/>
+  <!-- Intel logo -->
+  <image href="logos/intel.svg" x="130" y="260" width="110" height="45" opacity="0.9"/>
+  <text x="185" y="325" text-anchor="middle" fill="#00AEEF" font-family="Red Hat Display, sans-serif" font-size="20" font-weight="800" letter-spacing="3">POWER</text>
+  <text x="185" y="348" text-anchor="middle" fill="#00AEEF" font-family="Red Hat Text, sans-serif" font-size="11" opacity="0.7">Xeon 6 · AMX · CPU Inference</text>
+
+  <!-- BOTTOM-RIGHT triangle — IBM (Wisdom) — pointing UP -->
+  <polygon points="300,400 415,215 530,400" fill="#0F62FE" opacity="0.08"/>
+  <polygon points="300,400 415,215 530,400" fill="none" stroke="#0F62FE" stroke-width="2.5" filter="url(#glow-blue)"/>
+  <!-- IBM logo -->
+  <image href="logos/ibm.svg" x="365" y="260" width="80" height="40" opacity="0.9"/>
+  <text x="415" y="325" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Display, sans-serif" font-size="20" font-weight="800" letter-spacing="3">WISDOM</text>
+  <text x="415" y="348" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Text, sans-serif" font-size="11" opacity="0.7">Kagenti · Governance · Audit</text>
+
+  <!-- Title -->
+  <text x="300" y="455" text-anchor="middle" fill="#ffffff" font-family="Red Hat Display, sans-serif" font-size="34" font-weight="800" letter-spacing="6">TRIFORCE</text>
+  <text x="300" y="485" text-anchor="middle" fill="#a3a3a3" font-family="Red Hat Text, sans-serif" font-size="12" letter-spacing="2">ENTERPRISE AI INFERENCE AT SCALE</text>
+</svg>

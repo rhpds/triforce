@@ -1,3 +1,7 @@
+import { motion } from 'motion/react'
+
+interface Props { onComplete?: () => void }
+
 const COSTS = [
   { name: 'Intel Xeon 6', annual: 15000, color: 'var(--intel-cyan)', honest: 'baseline' },
   { name: 'gpt-oss-20b (Vertex)', annual: 562, color: 'var(--rh-green)', honest: 'API wins at low volume' },
@@ -10,7 +14,7 @@ const COSTS = [
 
 const MAX = Math.max(...COSTS.map(c => c.annual))
 
-export function Act03Cost() {
+export function Act03Cost({ onComplete }: Props) {
   return (
     <div className="demo-section">
       <h3><span className="section-num">03</span> The Proof: Cost at Scale</h3>
@@ -25,32 +29,53 @@ export function Act03Cost() {
           Annual Cost — 100K records/month (3 LLM calls per record)
         </div>
 
-        {COSTS.map(c => (
-          <div className="cost-row" key={c.name}>
+        {COSTS.map((c, i) => (
+          <motion.div
+            className="cost-row"
+            key={c.name}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.08 }}
+          >
             <div className="cost-label">{c.name}</div>
             <div className="cost-track">
-              <div className="cost-fill" style={{
-                width: `${Math.max((c.annual / MAX) * 100, 3)}%`,
-                background: c.color,
-              }}>
+              <motion.div
+                className="cost-fill"
+                style={{ background: c.color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.max((c.annual / MAX) * 100, 3)}%` }}
+                transition={{ duration: 0.6, delay: 0.3 + i * 0.08 }}
+              >
                 <span>${c.annual.toLocaleString()}/yr</span>
-              </div>
+              </motion.div>
             </div>
             <div className="cost-delta" style={{
               color: c.annual <= 15000 ? 'var(--rh-green)' : c.annual < 30000 ? 'var(--rh-teal)' : 'var(--rh-orange)',
             }}>
               {c.honest}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      <div className="card card-accent-intel" style={{ marginTop: 24 }}>
+      <motion.div
+        className="card card-accent-intel"
+        style={{ marginTop: 24 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.0 }}
+      >
         <strong style={{ color: 'var(--intel-cyan)' }}>The honest take:</strong>
         <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>
           At low volume, APIs win. At enterprise scale (&gt;149K records/month),
           Xeon 6 wins — $0/token, no rate limits, your data stays on your hardware.
         </span>
+      </motion.div>
+
+      <div style={{ textAlign: 'center', marginTop: 24 }}>
+        <button className="btn btn-primary" onClick={onComplete}>
+          See the platform →
+        </button>
       </div>
     </div>
   )

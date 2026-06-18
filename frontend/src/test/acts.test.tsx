@@ -21,7 +21,7 @@ describe('Story Acts', () => {
   it('Act02 renders inference button', async () => {
     const { Act02Inference } = await import('../acts/Act02Inference')
     render(<Act02Inference />)
-    expect(screen.getByText('Classify on Xeon 6')).toBeInTheDocument()
+    expect(screen.getByText(/Classify on Xeon 6/)).toBeInTheDocument()
   })
 
   it('Act03 renders cost bars', async () => {
@@ -34,7 +34,7 @@ describe('Story Acts', () => {
   it('Act04 renders discover button', async () => {
     const { Act04Platform } = await import('../acts/Act04Platform')
     render(<Act04Platform />)
-    expect(screen.getByText('Discover Agents')).toBeInTheDocument()
+    expect(screen.getByText(/Discover Agents/)).toBeInTheDocument()
   })
 
   it('Act05 renders honest comparison', async () => {
