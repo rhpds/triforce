@@ -1,0 +1,349 @@
+/* Triforce — Dark Interface Theme
+   Based on ARE Foundation Red Hat dark palette + Intel colors */
+
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&family=Red+Hat+Mono:wght@400;500;600;700&family=Red+Hat+Text:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Red Hat official palette */
+  --rh-red: #ee0000;
+  --rh-red-hover: #a60000;
+  --rh-red-dim: rgba(238, 0, 0, 0.12);
+  --rh-green: #63993d;
+  --rh-green-dim: rgba(99, 153, 61, 0.12);
+  --rh-orange: #f0561d;
+  --rh-orange-dim: rgba(240, 86, 29, 0.12);
+  --rh-teal: #37a3a3;
+  --rh-teal-dim: rgba(55, 163, 163, 0.12);
+  --rh-purple: #5e40be;
+  --rh-purple-dim: rgba(94, 64, 190, 0.12);
+  --rh-blue: #0066cc;
+  --rh-blue-dim: rgba(0, 102, 204, 0.12);
+
+  /* Intel palette */
+  --intel-cyan: #00AEEF;
+  --intel-blue: #0071C5;
+  --intel-cyan-dim: rgba(0, 174, 239, 0.12);
+
+  /* IBM palette */
+  --ibm-blue: #0F62FE;
+  --ibm-blue-dim: rgba(15, 98, 254, 0.12);
+
+  /* Interface Dark backgrounds */
+  --bg-dark: #151515;
+  --surface-1: #1f1f1f;
+  --surface-2: #292929;
+  --border: #383838;
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #c7c7c7;
+  --text-dim: #a3a3a3;
+  --text-disabled: #707070;
+}
+
+/* Typography */
+body {
+  margin: 0;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Red Hat Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .section-num, .card-title {
+  font-family: 'Red Hat Display', 'Red Hat Text', sans-serif;
+}
+
+code, pre, .mono {
+  font-family: 'Red Hat Mono', 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Section spacing */
+.demo-section {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
+}
+.demo-section:last-child { border-bottom: none; }
+
+/* Header bar */
+.demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.demo-header-title {
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.demo-header-health {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.health-dot.alive { background: var(--rh-green); box-shadow: 0 0 6px var(--rh-green); }
+.health-dot.dead { background: var(--rh-orange); }
+
+/* Section headers */
+.section-num {
+  font-family: 'Red Hat Display', sans-serif;
+  color: var(--rh-red);
+  font-weight: 800;
+  margin-right: 8px;
+}
+
+.section-context {
+  max-width: 700px;
+  color: var(--text-dim);
+  margin: 8px 0 24px;
+  line-height: 1.7;
+}
+
+/* Cards */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 12px 0;
+}
+
+.card-accent-intel { border-left: 3px solid var(--intel-cyan); }
+.card-accent-redhat { border-left: 3px solid var(--rh-red); }
+.card-accent-ibm { border-left: 3px solid var(--ibm-blue); }
+
+/* Step cards */
+.step-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 16px 0;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--rh-red);
+  color: white;
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-right: 12px;
+}
+
+.step-question {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Red Hat Text', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary { background: var(--intel-cyan); color: white; }
+.btn-primary:hover { background: var(--intel-blue); }
+.btn-primary:disabled { background: var(--text-disabled); cursor: default; }
+
+.btn-secondary { background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--text-dim); }
+
+/* Pipeline nodes */
+.pipe-node {
+  min-width: 160px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  text-align: center;
+  position: relative;
+}
+
+.pipe-node.active {
+  border-color: var(--intel-cyan);
+  box-shadow: 0 0 12px rgba(0, 174, 239, 0.3);
+}
+
+.pipe-node.done {
+  border-color: var(--rh-green);
+  background: var(--rh-green-dim);
+}
+
+.pipe-node.error {
+  border-color: var(--rh-orange);
+  background: var(--rh-orange-dim);
+}
+
+.pipe-node-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pipe-node-detail {
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.pipe-node-latency {
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--intel-cyan);
+}
+
+.pipe-connector {
+  width: 40px;
+  height: 2px;
+  background: var(--border);
+  position: relative;
+}
+
+.pipe-connector.done { background: var(--rh-green); }
+
+/* Cost bars */
+.cost-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cost-label {
+  width: 140px;
+  font-size: 13px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.cost-track {
+  flex: 1;
+  height: 28px;
+  background: var(--surface-1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cost-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  transition: width 0.8s ease;
+}
+
+.cost-delta {
+  width: 100px;
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* Metrics bar */
+.metrics-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-1);
+  border-top: 2px solid var(--intel-cyan);
+  padding: 10px 32px;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  font-size: 13px;
+  z-index: 100;
+}
+
+.metrics-bar .metric-value {
+  font-family: 'Red Hat Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Pillar cards */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.pillar-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.pillar-icon { font-size: 32px; margin-bottom: 12px; }
+.pillar-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.pillar-role { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.pillar-answer { font-size: 14px; color: var(--text-secondary); margin-top: 12px; }
+
+/* Triforce logo */
+.triforce-logo {
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: pre;
+  text-align: center;
+  color: var(--intel-cyan);
+  margin: 32px 0;
+}
+
+/* Architecture diagram */
+.arch-diagram {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+/* Scrollable content with metrics bar padding */
+.content-with-metrics {
+  padding-bottom: 60px;
+}
