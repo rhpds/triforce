@@ -31,7 +31,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: agent
-          image: triforce/healthcare-agent:latest
+          image: quay.io/redhat-gpte/triforce-healthcare-agent:latest
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -156,7 +156,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: agent
-          image: triforce/finserv-agent:latest
+          image: quay.io/redhat-gpte/triforce-finserv-agent:latest
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -252,7 +252,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: orchestrator
-          image: triforce/orchestrator:latest
+          image: quay.io/redhat-gpte/triforce-orchestrator:latest
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

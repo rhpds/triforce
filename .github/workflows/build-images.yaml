@@ -8,7 +8,7 @@ on:
       - "stubs/**"
 
 env:
-  REGISTRY: quay.io/rh-intel-ibm-demo
+  REGISTRY: quay.io/redhat-gpte
   PLATFORM: linux/amd64
 
 jobs:
@@ -71,3 +71,23 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/triforce-orchestrator:latest
             ${{ env.REGISTRY }}/triforce-orchestrator:${{ github.sha }}
+
+  mcp-gateway:
+    name: "Build MCP Gateway"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/mcp-gateway
+          file: services/mcp-gateway/Containerfile
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/triforce-mcp-gateway:latest
+            ${{ env.REGISTRY }}/triforce-mcp-gateway:${{ github.sha }}
