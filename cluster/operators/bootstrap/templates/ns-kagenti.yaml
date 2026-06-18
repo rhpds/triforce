@@ -1,0 +1,25 @@
+{{- if .Values.kagenti.enabled | default true }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kagenti
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: kagenti-operator
+  namespace: kagenti
+spec: {}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: kagenti-operator
+  namespace: kagenti
+spec:
+  channel: {{ .Values.kagenti.channel | default "alpha" }}
+  name: kagenti-operator
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+{{- end }}

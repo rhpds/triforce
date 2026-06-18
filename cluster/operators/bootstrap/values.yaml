@@ -9,3 +9,7 @@ trustee:
 openshiftVirtualization:
   enabled: true
   channel: stable
+
+kagenti:
+  enabled: true
+  channel: alpha

@@ -1,0 +1,43 @@
+ifndef::showroom_primary_view_url[]
+Please wait.
+
+When your environment is deployed, access information will be displayed below.
+endif::[]
+
+ifdef::showroom_primary_view_url[]
+
+== Lab Instructions
+
+[cols="1,3"]
+|===
+| Showroom URL | {showroom_primary_view_url}
+|===
+
+ifdef::user[]
+== OpenShift Access Information
+[cols="1,3"]
+|===
+| OpenShift Console URL | {openshift_console_url}
+| OpenShift API         | {openshift_api_url}
+| Username              | {user}
+| Password              | {password}
+| Default Namespace     | {user}-triforce
+| User oc login Command | oc login --insecure-skip-tls-verify=false --username {user} --password {password} {openshift_api_url}
+|===
+
+== Service URLs
+[cols="1,3"]
+|===
+| Frontend Dashboard    | {frontend_url}
+| Healthcare Agent      | {healthcare_url}
+| FinServ Agent         | {finserv_url}
+| Orchestrator          | {orchestrator_url}
+|===
+
+== Intel Hardware
+All inference runs on *Intel Xeon 6* with AMX acceleration via MAAS/LiteLLM.
+Model: `granite-2b-cpu` — IBM Granite 2B on Intel Xeon 6 CPU.
+No GPU required.
+endif::[]
+
+endif::[]

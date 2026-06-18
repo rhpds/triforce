@@ -1,0 +1,25 @@
+
+Deploys the Triforce multi-agent AI platform with full IBM Kagenti governance. Demonstrates agent lifecycle management, SPIFFE zero-trust identity, MCP tool federation, and complete audit trails.
+
+== What Gets Deployed
+
+Same as Triforce AI, plus:
+
+* *AgentRuntime CRDs* -- Healthcare and FinServ agents enrolled in Kagenti
+* *SPIFFE Identity* -- Cryptographic workload identity per agent pod
+* *MCP Gateway* -- Tool federation with governance policies
+* *Audit Dashboard* -- Every inference and tool call logged and queryable
+
+== Model — Intel Xeon 6 CPU Inference
+
+[cols="2,1,1,2",options="header"]
+|===
+| Model | Parameters | Hardware | Use Case
+| granite-2b-cpu | 2B | Intel Xeon 6 (CPU) | Classification, NER, summarization, fraud scoring
+|===
+
+== Partnership Story
+
+* *IBM* (Wisdom): Kagenti — A2A lifecycle, SPIFFE identity, MCP governance, audit trail
+* *Intel* (Power): Xeon 6 CPU inference — the agents being governed
+* *Red Hat* (Courage): OpenShift runs Kagenti operator + agents + governance infrastructure

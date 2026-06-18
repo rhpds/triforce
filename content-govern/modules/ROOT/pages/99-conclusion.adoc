@@ -1,0 +1,19 @@
+= Conclusion
+:navtitle: Conclusion
+
+== What You Accomplished
+
+* Enrolled agents as Kagenti AgentRuntimes
+* Verified A2A auto-discovery of AgentCards
+* Saw SPIFFE zero-trust identity between agents
+* Called tools through the governed MCP Gateway
+* Queried the audit trail for every action
+
+== The Value
+
+* *Agent lifecycle as code* — AgentRuntime CRDs manage agents like Deployments
+* *Zero-trust by default* — SPIFFE identity, no static credentials
+* *Tool governance* — control which agents call which tools
+* *Complete audit* — every inference, every tool call, every workflow logged
+
+IBM Kagenti. Intel Xeon 6. Red Hat OpenShift. That's Triforce Govern.

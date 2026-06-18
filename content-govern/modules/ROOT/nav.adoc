@@ -1,0 +1,7 @@
+* xref:index.adoc[Welcome]
+* xref:01-setup.adoc[Verify Kagenti Operator]
+* xref:02-enroll-agents.adoc[Enroll Agents as AgentRuntimes]
+* xref:03-spiffe.adoc[Zero-Trust Identity (SPIFFE)]
+* xref:04-mcp-federation.adoc[MCP Tool Governance]
+* xref:05-audit-trail.adoc[Audit Trail]
+* xref:99-conclusion.adoc[Conclusion]

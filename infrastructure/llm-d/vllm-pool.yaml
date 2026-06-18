@@ -1,0 +1,71 @@
+---
+# llm-d vLLM pool — multiple instances with EPP monitoring
+# The EPP tracks KV cache state per instance for intelligent routing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triforce-vllm-pool
+  namespace: {{ .Values.namespace | default "triforce" }}
+  labels:
+    app: triforce-vllm-pool
+    llm-d.io/role: inference
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: triforce-vllm-pool
+  template:
+    metadata:
+      labels:
+        app: triforce-vllm-pool
+        llm-d.io/role: inference
+      annotations:
+        llm-d.io/model: granite-2b-cpu
+        llm-d.io/kv-cache-metrics: "true"
+    spec:
+      containers:
+        - name: vllm
+          image: registry.redhat.io/rhai/vllm-openai-rhel9:latest
+          args:
+            - --model=granite-2b-cpu
+            - --port=8000
+            - --dtype=bfloat16
+            - --max-model-len=4096
+            - --enable-prefix-caching
+          ports:
+            - containerPort: 8000
+              name: inference
+            - containerPort: 8001
+              name: metrics
+          env:
+            - name: VLLM_ENABLE_PREFIX_CACHING
+              value: "1"
+          resources:
+            requests:
+              cpu: "16"
+              memory: 16Gi
+            limits:
+              cpu: "32"
+              memory: 32Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triforce-vllm-pool
+  namespace: {{ .Values.namespace | default "triforce" }}
+spec:
+  selector:
+    app: triforce-vllm-pool
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: inference
+    - port: 8001
+      targetPort: 8001
+      name: metrics
