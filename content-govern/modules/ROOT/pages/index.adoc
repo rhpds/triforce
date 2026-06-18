@@ -1,0 +1,42 @@
+= Triforce Govern — AI Agent Governance with Kagenti
+:navtitle: Welcome
+
+== The Problem
+
+When you have multiple AI agents — each calling LLMs, invoking tools, processing sensitive data — who controls them? Who decides which agent can call which tool? How do you audit every decision?
+
+IBM Kagenti answers this: Kubernetes-native agent governance with A2A discovery, MCP tool federation, SPIFFE zero-trust identity, and full audit trails.
+
+In this lab you will:
+
+* Enroll AI agents as Kagenti AgentRuntimes (K8s CRDs)
+* See agents auto-discovered via A2A protocol
+* Verify SPIFFE workload identity between agents
+* Configure MCP tool governance policies
+* Query the audit trail for every inference and tool call
+
+== The Triforce Govern Story
+
+[cols="1,2,3",options="header"]
+|===
+|Pillar |Technology |What It Proves
+
+|*IBM* (Wisdom)
+|Kagenti + A2A + MCP + SPIFFE
+|Enterprise agent governance at scale — lifecycle, identity, audit
+
+|*Intel* (Power)
+|Xeon 6 CPU inference
+|The agents being governed run on Xeon 6
+
+|*Red Hat* (Courage)
+|OpenShift + Kagenti operator
+|K8s-native CRDs manage agent lifecycle like Deployments
+|===
+
+== Duration
+
+This lab takes approximately *60 minutes* to complete.
+
+[.next-nav]
+xref:01-setup.adoc[Next: Verify Kagenti Operator →]

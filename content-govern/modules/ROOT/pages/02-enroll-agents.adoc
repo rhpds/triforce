@@ -1,0 +1,44 @@
+= Enroll Agents as AgentRuntimes
+:navtitle: Enroll Agents
+
+== How It Works
+
+Kagenti manages agents through the *AgentRuntime* CRD. When you enroll a Deployment as an AgentRuntime, Kagenti:
+
+1. Injects SPIFFE identity sidecars
+2. Auto-discovers the agent via `/.well-known/agent-card.json`
+3. Creates an AgentCard resource for the agent
+4. Monitors agent health and lifecycle
+
+== Exercise 1: View AgentRuntimes
+
+. List enrolled agents:
++
+[source,bash,role="execute"]
+----
+oc get agentruntimes
+----
+
+. View the healthcare agent's AgentRuntime:
++
+[source,bash,role="execute"]
+----
+oc describe agentruntime healthcare-agent
+----
+
+== Exercise 2: View Auto-Discovered AgentCards
+
+. The Kagenti controller polls each agent's A2A endpoint and creates AgentCards:
++
+[source,bash,role="execute"]
+----
+oc get agentcards
+----
++
+[source,bash,role="execute"]
+----
+oc get agentcards -o custom-columns='NAME:.metadata.name,AGENT:.spec.name,SYNCED:.status.synced'
+----
+
+[.next-nav]
+xref:03-spiffe.adoc[Next: Zero-Trust Identity →]
