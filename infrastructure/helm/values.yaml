@@ -69,6 +69,11 @@ mcpGateway:
       cpu: 500m
       memory: 256Mi
 
+semanticRouter:
+  enabled: true
+  image: quay.io/rh-intel-ibm-demo/triforce-semantic-router:latest
+  complexModel: qwen25-3b-cpu
+
 litellm:
   apiBase: ""
   apiKey: ""
