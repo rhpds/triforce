@@ -65,20 +65,25 @@ open demo/executive/dashboard.html
 
 | Metric | Value |
 |--------|-------|
-| Classification latency | ~600ms (granite-2b-cpu, Xeon 6 CPU) |
-| Fraud scoring latency | ~5ms (rule-based on CPU) |
-| Full LangGraph pipeline | ~9.5s (4 nodes, 3 LLM calls) |
+| Classification latency | ~615ms (granite-2b-cpu, Xeon 6 CPU) |
+| Fraud scoring latency | ~22ms (rule-based on CPU) |
+| Full LangGraph pipeline | ~8.4s (4 nodes, 3 LLM calls, 3 models) |
+| Semantic Router | <1ms (keyword classification, no LLM) |
 | Annual infrastructure cost | $15,000 (Xeon 6 self-hosted) |
-| Savings vs Claude Opus | $489,000/year at 1M records/month |
-| Test count | 246+ across Python, Go, Java, TypeScript |
+| Break-even vs Claude Haiku | 149K records/month (below this, API is cheaper) |
+| Savings at scale (1M rec/mo) | $85K–$489K/year vs cloud APIs |
+| CPU models available | 3 (granite-2b-cpu, qwen25-3b-cpu, phi3-mini-cpu) |
+| Test count | 258+ across Python, Go, Java, TypeScript |
 | GPU required | Zero |
 
 ## Models (via MAAS/LiteLLM)
 
-| Model | Parameters | Hardware | Use Case |
-|-------|-----------|----------|----------|
-| granite-2b-cpu | 2B | Xeon 6 CPU | Classification, NER, summarization, fraud scoring |
-| nomic-embed-text-v1-5 | 137M | Xeon 6 (OpenVINO) | Embeddings |
+| Model | Parameters | Hardware | Use Case | Avg Latency |
+|-------|-----------|----------|----------|------------|
+| granite-2b-cpu | 2B | Xeon 6 CPU | Classification, NER, fraud scoring | ~615ms |
+| qwen25-3b-cpu | 3B | Xeon 6 CPU | Summarization, analysis | ~700ms |
+| phi3-mini-cpu | 3.8B | Xeon 6 CPU | Complex reasoning, compliance | ~750ms |
+| nomic-embed-text-v1-5 | 137M | Xeon 6 (OpenVINO) | Embeddings | <10ms |
 
 ## Demo Assets
 

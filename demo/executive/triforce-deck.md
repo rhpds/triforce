@@ -113,17 +113,18 @@ Orchestrator → A2A tasks/send → Healthcare Agent
 
 ---
 
-# The Cost Story
+# The Cost Story (Honest)
 
-| Platform | Annual Cost | vs Xeon 6 |
-|----------|-----------|----------|
-| **Intel Xeon 6** | **$15,000** | baseline |
-| NVIDIA A100 server | $64,000 | +$49K |
-| AMD MI300X server | $83,333 | +$68K |
-| NVIDIA H100 server | $119,333 | +$104K |
-| Claude Opus API | $50,400 | +$35K |
+| Platform | Annual Cost | vs Xeon 6 | Honest Take |
+|----------|-----------|----------|-------------|
+| gpt-oss-20b (Vertex) | **$562** | **Cheaper** | API wins at low volume |
+| Claude Haiku (API) | **$10,080** | **Cheaper** | API wins below 149K rec/mo |
+| **Intel Xeon 6** | **$15,000** | **baseline** | Wins at enterprise scale |
+| Claude Opus (API) | $50,400 | +$35K | Only if you need Opus quality |
+| NVIDIA A100 server | $64,000 | +$49K | GPU hardware + hosting |
+| NVIDIA H100 server | $119,333 | +$104K | Top-tier GPU |
 
-**At 1M records/month: saves $85K–$489K/year vs cloud APIs**
+**Below 149K records/month → use the API. Above → self-host on Xeon 6.**
 
 ---
 
