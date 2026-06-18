@@ -62,18 +62,15 @@ def _fallback_tool(tool_name: str, arguments: dict) -> dict:
         }
     if tool_name == "drug_interaction_check":
         meds = arguments.get("medications", [])
-        if len(meds) < 2:
-            return {"interactions": []}
-        return {
-            "interactions": [
-                {
-                    "drug_a": meds[0],
-                    "drug_b": meds[1],
-                    "severity": "moderate",
-                    "description": f"Potential interaction between {meds[0]} and {meds[1]}",
-                }
-            ]
-        }
+        from drug_data import check_interactions_local
+        interactions = check_interactions_local(meds)
+        if not interactions and len(meds) >= 2:
+            interactions = [{
+                "drug_a": meds[0], "drug_b": meds[1],
+                "severity": "minor",
+                "description": f"No known significant interaction between {meds[0]} and {meds[1]}",
+            }]
+        return {"interactions": interactions}
     if tool_name == "clinical_code_search":
         return {
             "results": [
