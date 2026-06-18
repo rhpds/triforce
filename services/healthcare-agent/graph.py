@@ -21,7 +21,9 @@ from typing_extensions import TypedDict
 LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.maas.redhatworkshops.io")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
 CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "granite-2b-cpu")
-SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "granite-2b-cpu")
+NER_MODEL = os.environ.get("NER_MODEL", "granite-2b-cpu")
+SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "qwen25-3b-cpu")
+REASONING_MODEL = os.environ.get("REASONING_MODEL", "phi3-mini-cpu")
 
 
 def set_api_key(key: str):
@@ -99,7 +101,7 @@ async def extract_entities_node(state: HealthcareState) -> dict:
         f"Text:\n{text[:5000]}"
     )
 
-    llm = _get_llm(CLASSIFY_MODEL)
+    llm = _get_llm(NER_MODEL)
     start = time.monotonic()
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
@@ -123,7 +125,7 @@ async def extract_entities_node(state: HealthcareState) -> dict:
         entities = []
         latency_ms = 0
 
-    log_entry = {"node": "extract_entities", "model": CLASSIFY_MODEL, "latency_ms": latency_ms, "accelerator": "cpu"}
+    log_entry = {"node": "extract_entities", "model": NER_MODEL, "latency_ms": latency_ms, "accelerator": "cpu"}
 
     return {
         "entities": entities,
