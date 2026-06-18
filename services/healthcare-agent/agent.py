@@ -249,6 +249,34 @@ async def summarize_record(req: models.SummarizeRequest):
     )
 
 
+@app.post("/api/v1/pipeline")
+async def run_pipeline(req: models.PipelineRequest):
+    result = await run_graph(req.text, patient_id=req.patient_id)
+    inference_log = result.get("inference_log", [])
+    total_ms = sum(e.get("latency_ms", 0) for e in inference_log)
+
+    entities = []
+    for e in result.get("entities", []):
+        entity_type = e.get("type", "condition")
+        valid_types = [t.value for t in models.EntityType]
+        if entity_type in valid_types:
+            entities.append(models.MedicalEntity(
+                text=e["text"],
+                type=models.EntityType(entity_type),
+                start=e.get("start", 0),
+                end=e.get("end", len(e["text"])),
+            ))
+
+    return models.PipelineResponse(
+        classification=result.get("classification", "unknown"),
+        entities=entities,
+        drug_interactions=result.get("drug_interactions", []),
+        summary=result.get("summary", "Summary unavailable."),
+        inference_log=[models.PipelineStepLog(**e) for e in inference_log],
+        total_ms=total_ms,
+    )
+
+
 @app.get("/api/v1/stats")
 async def inference_stats():
     return await db.get_inference_stats()

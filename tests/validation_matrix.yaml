@@ -224,3 +224,32 @@ stages:
         description: "KV cache demonstrates measurable latency reduction on repeat patterns"
         points: 10
         required: false
+
+  stage_6_multinode:
+    description: "Horizontal scaling proves throughput without latency regression"
+    threshold: 80
+    criteria:
+      baseline_1_replica_10:
+        description: "1 replica handles 10 concurrent pipeline requests, records avg latency + throughput"
+        points: 15
+        required: true
+      baseline_1_replica_30:
+        description: "1 replica handles 30 concurrent requests, latency climbs under contention"
+        points: 15
+        required: true
+      scaled_3_replicas_10:
+        description: "3 replicas handle 10 concurrent requests, latency stays flat vs baseline"
+        points: 15
+        required: true
+      scaled_3_replicas_30:
+        description: "3 replicas handle 30 concurrent requests, latency stays within 20% of 10-req baseline"
+        points: 20
+        required: true
+      throughput_scales:
+        description: "3 replicas achieve >= 2.5x throughput of 1 replica at 30 concurrent"
+        points: 20
+        required: true
+      cost_stays_zero:
+        description: "All inference calls report $0 cost regardless of replica count"
+        points: 15
+        required: true

@@ -104,6 +104,28 @@ class SummarizeResponse(BaseModel):
     output_tokens: Optional[int] = None
 
 
+class PipelineStepLog(BaseModel):
+    node: str
+    model: Optional[str] = None
+    tool: Optional[str] = None
+    latency_ms: int = Field(ge=0)
+    accelerator: Optional[str] = "cpu"
+
+
+class PipelineRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=50000)
+    patient_id: Optional[str] = None
+
+
+class PipelineResponse(BaseModel):
+    classification: str
+    entities: list[MedicalEntity]
+    drug_interactions: list[dict]
+    summary: str
+    inference_log: list[PipelineStepLog]
+    total_ms: int = Field(ge=0)
+
+
 # A2A Protocol models
 
 class AgentCapabilities(BaseModel):

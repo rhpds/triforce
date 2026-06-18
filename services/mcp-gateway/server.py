@@ -118,16 +118,29 @@ def execute_tool(tool_name: str, arguments: dict) -> dict:
         meds = arguments.get("medications", [])
         if len(meds) < 2:
             return {"interactions": []}
-        return {
-            "interactions": [
-                {
-                    "drug_a": meds[0],
-                    "drug_b": meds[1],
-                    "severity": "moderate",
-                    "description": f"Potential interaction between {meds[0]} and {meds[1]}. Monitor renal function.",
-                }
-            ]
+        known_raw = {
+            ("aspirin", "clopidogrel"): ("moderate", "Dual antiplatelet therapy increases bleeding risk. Monitor for GI bleeding and bruising."),
+            ("aspirin", "lisinopril"): ("moderate", "NSAIDs may reduce antihypertensive effect of ACE inhibitors. Monitor blood pressure."),
+            ("metformin", "lisinopril"): ("minor", "ACE inhibitors may enhance hypoglycemic effect of metformin. Monitor blood glucose."),
+            ("metformin", "atorvastatin"): ("minor", "No clinically significant interaction. Both commonly co-prescribed safely."),
+            ("warfarin", "aspirin"): ("major", "Increased risk of bleeding. Both drugs affect hemostasis through different mechanisms."),
+            ("warfarin", "metformin"): ("moderate", "Metformin may enhance anticoagulant effect. Monitor INR."),
+            ("warfarin", "atorvastatin"): ("moderate", "Statins may alter warfarin metabolism. Monitor INR."),
+            ("metformin", "furosemide"): ("moderate", "Furosemide may increase metformin levels. Monitor renal function."),
         }
+        known = {tuple(sorted(k)): v for k, v in known_raw.items()}
+        interactions = []
+        meds_lower = [m.lower().strip() for m in meds]
+        for i in range(len(meds_lower)):
+            for j in range(i + 1, len(meds_lower)):
+                pair = tuple(sorted([meds_lower[i], meds_lower[j]]))
+                if pair in known:
+                    sev, desc = known[pair]
+                    interactions.append({
+                        "drug_a": meds[i], "drug_b": meds[j],
+                        "severity": sev, "description": desc,
+                    })
+        return {"interactions": interactions}
 
     if tool_name == "risk_profile_lookup":
         return {

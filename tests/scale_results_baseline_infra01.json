@@ -1,0 +1,20 @@
+{
+  "baseline_5": {
+    "concurrency": 5,
+    "completed": 5,
+    "failed": 0,
+    "avg_latency_ms": 11578.320291600001,
+    "p95_latency_ms": 16139.330084000001,
+    "wall_clock_ms": 16139.925958,
+    "throughput_per_min": 18.587445864415535
+  },
+  "baseline_10": {
+    "concurrency": 10,
+    "completed": 10,
+    "failed": 0,
+    "avg_latency_ms": 18492.902779099997,
+    "p95_latency_ms": 28989.586208,
+    "wall_clock_ms": 28990.425791999995,
+    "throughput_per_min": 20.69648801659105
+  }
+}

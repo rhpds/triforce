@@ -2,50 +2,59 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
 describe('Story Acts', () => {
-  it('Act00 renders three questions', async () => {
+  it('Act00 renders triforce intro', async () => {
     const { Act00Story } = await import('../acts/Act00Story')
     render(<Act00Story />)
-    expect(screen.getByText(/Can I afford AI at scale/)).toBeInTheDocument()
-    expect(screen.getByText(/Can I run it on hardware I own/)).toBeInTheDocument()
-    expect(screen.getByText(/Can I trust it with my data/)).toBeInTheDocument()
+    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
   })
 
-  it('Act01 renders architecture', async () => {
+  it('Act01 renders architecture with click-through layers', async () => {
     const { Act01Architecture } = await import('../acts/Act01Architecture')
     render(<Act01Architecture />)
-    expect(screen.getByText('Semantic Router')).toBeInTheDocument()
-    expect(screen.getByText('Healthcare')).toBeInTheDocument()
-    expect(screen.getByText('FinServ')).toBeInTheDocument()
+    expect(screen.getByText(/Start: Intelligent Routing/)).toBeInTheDocument()
+    expect(screen.getByText(/Architecture/)).toBeInTheDocument()
   })
 
-  it('Act02 renders inference button', async () => {
+  it('Act02 renders pipeline button and nodes', async () => {
     const { Act02Inference } = await import('../acts/Act02Inference')
     render(<Act02Inference />)
-    expect(screen.getByText(/Classify on Xeon 6/)).toBeInTheDocument()
+    expect(screen.getByText(/Run Pipeline on Xeon 6/)).toBeInTheDocument()
+    expect(screen.getByText('Classify')).toBeInTheDocument()
+    expect(screen.getByText('Extract Entities')).toBeInTheDocument()
+    expect(screen.getByText('Summarize')).toBeInTheDocument()
   })
 
-  it('Act03 renders cost bars', async () => {
+  it('Act03 renders cost scale selector', async () => {
     const { Act03Cost } = await import('../acts/Act03Cost')
     render(<Act03Cost />)
-    expect(screen.getByText('Intel Xeon 6')).toBeInTheDocument()
-    expect(screen.getByText('Claude Opus')).toBeInTheDocument()
+    expect(screen.getByText(/Start at 10K records/)).toBeInTheDocument()
+    expect(screen.getByText(/Cost at Scale/)).toBeInTheDocument()
   })
 
-  it('Act04 renders discover button', async () => {
-    const { Act04Platform } = await import('../acts/Act04Platform')
-    render(<Act04Platform />)
-    expect(screen.getByText(/Discover Agents/)).toBeInTheDocument()
+  it('Act04 renders scale test buttons', async () => {
+    const { Act04Scale } = await import('../acts/Act04Scale')
+    render(<Act04Scale />)
+    expect(screen.getByText(/Scale & Tradeoffs/)).toBeInTheDocument()
+    expect(screen.getByText(/Run 10 records/)).toBeInTheDocument()
   })
 
-  it('Act05 renders honest comparison', async () => {
+  it('Act05 renders efficiency mechanisms', async () => {
+    const { Act04Efficiency } = await import('../acts/Act04Efficiency')
+    render(<Act04Efficiency />)
+    expect(screen.getByText(/The Efficiency Stack/)).toBeInTheDocument()
+    expect(screen.getByText(/Show the first layer/)).toBeInTheDocument()
+  })
+
+  it('Act06 renders punchline', async () => {
     const { Act05HonestQuestion } = await import('../acts/Act05HonestQuestion')
     render(<Act05HonestQuestion />)
-    expect(screen.getByText(/fast enough at 1\/10th the cost/)).toBeInTheDocument()
+    expect(screen.getByText(/The Punchline/)).toBeInTheDocument()
+    expect(screen.getByText(/fast enough at \$0/)).toBeInTheDocument()
   })
 
   it('App renders header', async () => {
     const { default: App } = await import('../App')
     render(<App />)
-    expect(screen.getByText('TRIFORCE')).toBeInTheDocument()
+    expect(screen.getAllByText('TRIFORCE').length).toBeGreaterThan(0)
   })
 })

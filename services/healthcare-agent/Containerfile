@@ -11,6 +11,7 @@ COPY db.py .
 COPY attestation.py .
 COPY graph.py .
 COPY mcp_tools.py .
+COPY drug_data.py .
 COPY kafka_consumer.py .
 
 USER 1001

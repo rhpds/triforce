@@ -43,13 +43,13 @@ class HealthcareState(TypedDict):
     inference_log: list
 
 
-def _get_llm(model: str = None) -> ChatOpenAI:
+def _get_llm(model: str = None, max_tokens: int = 1024) -> ChatOpenAI:
     return ChatOpenAI(
         model=model or CLASSIFY_MODEL,
         base_url=f"{LITELLM_API_BASE}/v1",
         api_key=LITELLM_API_KEY or "no-key",
         temperature=0.1,
-        max_tokens=512,
+        max_tokens=max_tokens,
     )
 
 
@@ -64,7 +64,7 @@ async def classify_node(state: HealthcareState) -> dict:
         f"Document:\n{text[:5000]}"
     )
 
-    llm = _get_llm(CLASSIFY_MODEL)
+    llm = _get_llm(CLASSIFY_MODEL, max_tokens=64)
     start = time.monotonic()
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
@@ -90,15 +90,47 @@ async def classify_node(state: HealthcareState) -> dict:
     }
 
 
+def _extract_json_array(text: str) -> list:
+    """Extract a JSON array from model output, handling truncation and extra text."""
+    text = text.strip()
+    start_idx = text.find("[")
+    if start_idx == -1:
+        return []
+    end_idx = text.rfind("]")
+    if end_idx != -1 and end_idx > start_idx:
+        try:
+            result = json.loads(text[start_idx:end_idx + 1])
+            if isinstance(result, list):
+                return result
+        except json.JSONDecodeError:
+            pass
+    fragment = text[start_idx:]
+    for trim in ["},", "}", '"', ",", " "]:
+        pos = fragment.rfind(trim)
+        if pos > 0:
+            attempt = fragment[:pos + len(trim)].rstrip(",").rstrip() + "]"
+            try:
+                result = json.loads(attempt)
+                if isinstance(result, list):
+                    return result
+            except json.JSONDecodeError:
+                continue
+    return []
+
+
 async def extract_entities_node(state: HealthcareState) -> dict:
     """Extract medical entities (conditions, medications, procedures) via NER."""
     text = state["text"]
     prompt = (
-        "Extract medical entities from this clinical text. "
-        "For each entity provide: text, type (condition, medication, procedure, "
-        "lab_test, anatomy, dosage), start offset, end offset.\n"
-        "Respond as a JSON array.\n\n"
-        f"Text:\n{text[:5000]}"
+        "Extract medical entities from this clinical text.\n"
+        "Return ONLY a JSON array. List ALL medications first, then conditions, then procedures.\n"
+        "Each object: text, type. Valid types: medication, condition, procedure.\n\n"
+        "Example:\n"
+        'Input: "Patient has Hypertension, takes Metformin 500mg and Aspirin."\n'
+        'Output: [{"text":"Metformin","type":"medication"},{"text":"Aspirin","type":"medication"},'
+        '{"text":"Hypertension","type":"condition"}]\n\n'
+        f"Input: \"{text[:2000]}\"\n"
+        "Output: "
     )
 
     llm = _get_llm(NER_MODEL)
@@ -106,20 +138,21 @@ async def extract_entities_node(state: HealthcareState) -> dict:
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         latency_ms = int((time.monotonic() - start) * 1000)
-        try:
-            raw = json.loads(response.content)
-        except json.JSONDecodeError:
-            raw = []
+        raw = _extract_json_array(response.content)
         entities = []
         valid_types = ["condition", "medication", "procedure", "lab_test", "anatomy", "dosage"]
+        seen = set()
         for e in raw:
             if isinstance(e, dict) and "text" in e and "type" in e:
-                if e["type"].lower() in valid_types:
+                etype = e["type"].lower()
+                etext = e["text"].strip()
+                if etype in valid_types and etext and etext not in seen:
+                    seen.add(etext)
                     entities.append({
-                        "text": e["text"],
-                        "type": e["type"].lower(),
+                        "text": etext,
+                        "type": etype,
                         "start": e.get("start", 0),
-                        "end": e.get("end", len(e["text"])),
+                        "end": e.get("end", len(etext)),
                     })
     except Exception:
         entities = []

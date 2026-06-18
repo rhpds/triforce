@@ -347,3 +347,8 @@ code, pre, .mono {
 .content-with-metrics {
   padding-bottom: 60px;
 }
+
+/* Scroll anchors offset for sticky header */
+[id^="act-"] {
+  scroll-margin-top: 70px;
+}

@@ -16,8 +16,10 @@ public class FraudResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> scoreTransaction(Map<String, Object> request) {
-        Map<String, Object> transaction = (Map<String, Object>) request.getOrDefault("transaction", Map.of());
-        return fraudScorer.score(transaction);
+        if (request.containsKey("transaction")) {
+            return fraudScorer.score((Map<String, Object>) request.get("transaction"));
+        }
+        return fraudScorer.score(request);
     }
 
     @POST
