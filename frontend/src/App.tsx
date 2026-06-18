@@ -1,29 +1,55 @@
-import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
-import { TriforceLayout } from './components/TriforceLayout'
-import { Dashboard } from './pages/Dashboard'
-import { InferencePipeline } from './pages/InferencePipeline'
-import { CostAnalysis } from './pages/CostAnalysis'
-import { WorkflowRunner } from './pages/WorkflowRunner'
-import { KafkaMonitor } from './pages/KafkaMonitor'
-import { AgentDiscovery } from './pages/AgentDiscovery'
-import { InferenceLog } from './pages/InferenceLog'
+import { Act00Story } from './acts/Act00Story'
+import { Act01Architecture } from './acts/Act01Architecture'
+import { Act02Inference } from './acts/Act02Inference'
+import { Act03Cost } from './acts/Act03Cost'
+import { Act04Platform } from './acts/Act04Platform'
+import { Act05HonestQuestion } from './acts/Act05HonestQuestion'
 
 export default function App() {
-  const [params] = useSearchParams()
-  const theme = params.get('theme') || 'intel'
-
   return (
-    <TriforceLayout themeName={theme}>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/pipeline" element={<InferencePipeline />} />
-        <Route path="/cost" element={<CostAnalysis />} />
-        <Route path="/workflow" element={<WorkflowRunner />} />
-        <Route path="/kafka" element={<KafkaMonitor />} />
-        <Route path="/agents" element={<AgentDiscovery />} />
-        <Route path="/log" element={<InferenceLog />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </TriforceLayout>
+    <div>
+      {/* Header */}
+      <div className="demo-header">
+        <div className="demo-header-title">
+          <span style={{ color: 'var(--intel-cyan)', marginRight: 8 }}>▲</span>
+          TRIFORCE
+          <span style={{ color: 'var(--text-dim)', fontWeight: 400, fontSize: 13, marginLeft: 12 }}>
+            Power · Wisdom · Courage
+          </span>
+        </div>
+        <div className="demo-header-health">
+          <div className="health-dot alive" />
+          <span>Intel Xeon 6 · granite-2b-cpu</span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }} className="content-with-metrics">
+        <Act00Story />
+        <Act01Architecture />
+        <Act02Inference />
+        <Act03Cost />
+        <Act04Platform />
+        <Act05HonestQuestion />
+
+        {/* Footer / Elixir */}
+        <div className="demo-section" style={{ textAlign: 'center', padding: '64px 0' }}>
+          <div style={{ fontSize: 18, color: 'var(--text-dim)', marginBottom: 16 }}>
+            80% of enterprise AI doesn't need a GPU.
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>
+            That 80% runs today on the CPUs you already own.
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 24 }}>
+            <span style={{ color: 'var(--intel-cyan)' }}>Power</span> ·{' '}
+            <span style={{ color: 'var(--ibm-blue)' }}>Wisdom</span> ·{' '}
+            <span style={{ color: 'var(--rh-red)' }}>Courage</span>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-disabled)', marginTop: 8 }}>
+            github.com/rhpds/triforce
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
