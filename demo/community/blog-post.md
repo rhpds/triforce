@@ -73,14 +73,58 @@ Or open the executive dashboard:
 open demo/executive/dashboard.html
 ```
 
-## What's Next
+## Red Hat Intelligent Routing: Semantic Router + llm-d
 
-- Deploy to OpenShift via Helm: `helm install triforce infrastructure/helm/`
-- Scale with Kagenti: `kubectl apply -f infrastructure/kagenti/`
-- Run the full demo: `python3 demo/engineer/triforce_demo.py`
+Triforce uses two layers of Red Hat AI routing intelligence:
+
+**Semantic Router** classifies each request as SIMPLE or COMPLEX and routes to the right model. Simple queries go to `granite-2b-cpu` (fast, cheap). Complex reasoning queries go to `qwen25-3b-cpu` (deeper). The router runs on CPU — keyword-based classification in under 1ms, no LLM call required.
+
+**llm-d** distributes inference across multiple vLLM instances. The Endpoint Picker (EPP) monitors KV cache state per instance and routes each request to the instance with the warmest cache — 90% cache hit rate, 63% faster P95 latency. This is Red Hat's open source distributed inference platform, included in Red Hat OpenShift AI.
+
+## Triforce Secure: Confidential AI with Intel TDX
+
+Add one line to your deployment and your AI inference is hardware-encrypted:
+
+```yaml
+spec:
+  runtimeClassName: kata-cc
+```
+
+Intel TDX encrypts all memory inside a Trust Domain. The cluster admin cannot read inference data. The API key is only released to pods that pass TDX hardware attestation via Red Hat's Trustee operator. Same model, same latency, zero code changes.
+
+## Triforce Virt: VMs + AI on One Server
+
+OpenShift Virtualization runs legacy VMs alongside AI containers on the same Xeon 6 node. The legacy database VM consumes AI services via standard Kubernetes networking — no separate GPU cluster, no re-architecture. One Helm flag: `--set virtualization.enabled=true`.
+
+## Triforce Govern: Agent Governance with Kagenti
+
+IBM Kagenti provides Kubernetes-native agent governance:
+- **AgentRuntime CRDs** manage agent lifecycle like Deployments
+- **SPIFFE identity** provides zero-trust agent-to-agent authentication
+- **MCP Gateway** federates tools with access policies
+- **Audit trail** logs every inference, every tool call, every workflow
+
+## Four Demos, One Platform
+
+| Demo | Helm Flag | Story |
+|------|-----------|-------|
+| AI | default | Multi-agent inference + routing, no GPU |
+| Secure | `confidential.enabled=true` | Hardware-encrypted AI |
+| Virt | `virtualization.enabled=true` | VMs + AI coexistence |
+| Govern | `governance.enabled=true` | Agent governance at scale |
+
+## Try It Yourself
+
+```bash
+git clone https://github.com/rhpds/triforce
+cd triforce
+cp .env.example .env  # Add LITELLM_API_KEY
+make up
+python3 demo/engineer/triforce_demo.py
+```
 
 ---
 
-*Built by Jonathan Kershaw (Red Hat). 246 tests across Python, Go, Java, and TypeScript. Apache 2.0.*
+*Built by Jonathan Kershaw (Red Hat). 258+ tests across Python, Go, Java, and TypeScript. Apache 2.0.*
 
 *GitHub: [rhpds/triforce](https://github.com/rhpds/triforce)*
