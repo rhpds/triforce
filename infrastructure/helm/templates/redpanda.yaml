@@ -19,15 +19,15 @@ spec:
       containers:
         - name: redpanda
           image: {{ .Values.kafka.image }}
-          command:
-            - redpanda
-            - start
-            - --kafka-addr internal://0.0.0.0:9092
-            - --advertise-kafka-addr internal://redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
-            - --smp 1
-            - --memory 512M
-            - --mode dev-container
-            - --default-log-level=warn
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              rpk redpanda start \
+                --mode dev-container \
+                --smp 1 \
+                --memory 512M \
+                --default-log-level=warn \
+                --overprovisioned
           ports:
             - containerPort: 9092
               name: kafka

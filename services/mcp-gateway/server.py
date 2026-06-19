@@ -19,7 +19,7 @@ from fastapi import FastAPI
 
 app = FastAPI(title="Triforce MCP Gateway", version="0.1.0")
 
-SERVICE_PORT = int(os.environ.get("MCP_GATEWAY_PORT", "8091"))
+SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "8091"))
 CONTRACTS_DIR = pathlib.Path(os.environ.get("CONTRACTS_DIR", str(pathlib.Path(__file__).parent.parent.parent / "contracts" / "mcp")))
 
 # Tool registry — loaded from contract schemas + synthetic implementations

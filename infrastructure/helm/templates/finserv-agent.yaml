@@ -41,6 +41,18 @@ spec:
                 secretKeyRef:
                   name: triforce-secrets
                   key: litellm-api-key
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: jdbc:postgresql://postgres.{{ .Values.namespace }}.svc.cluster.local:5432/{{ .Values.postgres.database }}
+            - name: QUARKUS_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: postgres-user
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: triforce-secrets
+                  key: postgres-password
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
             - name: QUARKUS_HTTP_PORT
