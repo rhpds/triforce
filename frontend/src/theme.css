@@ -343,12 +343,44 @@ code, pre, .mono {
   overflow-x: auto;
 }
 
-/* Scrollable content with metrics bar padding */
-.content-with-metrics {
-  padding-bottom: 60px;
+/* Page layout — each act fills the viewport */
+.page-container {
+  min-height: calc(100vh - 52px);
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 32px;
+  overflow-y: auto;
 }
 
-/* Scroll anchors offset for sticky header */
-[id^="act-"] {
-  scroll-margin-top: 70px;
+/* Progress indicator */
+.progress-bar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.3s;
+}
+
+.progress-dot.active {
+  background: var(--intel-cyan);
+  box-shadow: 0 0 6px var(--intel-cyan);
+}
+
+.progress-dot.done {
+  background: var(--rh-green);
+}
+
+.progress-label {
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 11px;
+  color: var(--text-disabled);
+  margin-left: 8px;
 }

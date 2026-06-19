@@ -1,6 +1,8 @@
 import { motion } from 'motion/react'
 
-export function Act05HonestQuestion() {
+interface Props { onComplete?: () => void }
+
+export function Act05HonestQuestion({ onComplete }: Props) {
   const metrics = [
     { label: 'Clinical Pipeline', value: '4 nodes · 3 models', detail: 'classify → NER → interactions → summarize', color: 'var(--intel-cyan)' },
     { label: 'Entities Extracted', value: '8', detail: '5 medications, 2 conditions, 1 procedure', color: 'var(--rh-teal)' },
@@ -107,6 +109,19 @@ export function Act05HonestQuestion() {
           </strong>
         </p>
       </motion.div>
+
+      {onComplete && (
+        <motion.div
+          style={{ textAlign: 'center', marginTop: 32 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+        >
+          <button className="btn btn-primary" onClick={onComplete}>
+            What's next →
+          </button>
+        </motion.div>
+      )}
     </div>
   )
 }
