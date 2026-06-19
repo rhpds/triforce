@@ -16,7 +16,37 @@ spec:
       labels:
         app: frontend
     spec:
+      serviceAccountName: frontend-oauth
       containers:
+        - name: oauth-proxy
+          image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.14
+          ports:
+            - containerPort: 4180
+              name: proxy
+          args:
+            - --https-address=:4180
+            - --http-address=
+            - --provider=openshift
+            - --openshift-service-account=frontend-oauth
+            - --upstream=http://localhost:8080
+            - --tls-cert=/etc/tls/private/tls.crt
+            - --tls-key=/etc/tls/private/tls.key
+            - --cookie-secret-file=/etc/oauth-proxy/session_secret
+            - --cookie-expire=8h0m0s
+            - --email-domain=*
+            - --pass-basic-auth=false
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls/private
+            - name: cookie-secret
+              mountPath: /etc/oauth-proxy
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
         - name: frontend
           image: {{ .Values.frontend.image | default "quay.io/redhat-gpte/triforce-frontend:latest" }}
           imagePullPolicy: Always
@@ -42,19 +72,36 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 30
+      volumes:
+        - name: tls
+          secret:
+            secretName: frontend-tls
+        - name: cookie-secret
+          secret:
+            secretName: frontend-oauth-proxy-cookie
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-oauth
+  namespace: {{ .Values.namespace }}
+  annotations:
+    serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"triforce"}}'
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend
   namespace: {{ .Values.namespace }}
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: frontend-tls
 spec:
   selector:
     app: frontend
   ports:
-    - port: 8080
-      targetPort: 8080
-      name: http
+    - port: 4180
+      targetPort: 4180
+      name: proxy
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -68,7 +115,7 @@ spec:
     kind: Service
     name: frontend
   port:
-    targetPort: http
+    targetPort: proxy
   tls:
-    termination: edge
+    termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
