@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Act00Story } from './acts/Act00Story'
 import { Act01Architecture } from './acts/Act01Architecture'
@@ -7,8 +7,17 @@ import { Act03Cost } from './acts/Act03Cost'
 import { Act04Scale } from './acts/Act04Scale'
 import { Act04Efficiency } from './acts/Act04Efficiency'
 import { Act05HonestQuestion } from './acts/Act05HonestQuestion'
+import { Act00SecureStory } from './acts/secure/Act00SecureStory'
+import { Act01TdxArchitecture } from './acts/secure/Act01TdxArchitecture'
+import { Act02Attestation } from './acts/secure/Act02Attestation'
+import { Act03OneLine } from './acts/secure/Act03OneLine'
+import { Act04ConfidentialInference } from './acts/secure/Act04ConfidentialInference'
+import { Act05SecureTradeoff } from './acts/secure/Act05SecureTradeoff'
+import { Act06SecurePunchline } from './acts/secure/Act06SecurePunchline'
 
-const ACTS = [
+type ActEntry = { id: string; label: string; component: React.ComponentType<{ onComplete?: () => void }> }
+
+const BASE_ACTS: ActEntry[] = [
   { id: 'story', label: '00', component: Act00Story },
   { id: 'arch', label: '01', component: Act01Architecture },
   { id: 'proof', label: '02', component: Act02Inference },
@@ -18,39 +27,77 @@ const ACTS = [
   { id: 'punchline', label: '06', component: Act05HonestQuestion },
 ]
 
-function Footer() {
+const SECURE_ACTS: ActEntry[] = [
+  { id: 'secure-story', label: '00', component: Act00SecureStory },
+  { id: 'secure-arch', label: '01', component: Act01TdxArchitecture },
+  { id: 'secure-attest', label: '02', component: Act02Attestation },
+  { id: 'secure-oneline', label: '03', component: Act03OneLine },
+  { id: 'secure-infer', label: '04', component: Act04ConfidentialInference },
+  { id: 'secure-tradeoff', label: '05', component: Act05SecureTradeoff },
+  { id: 'secure-punch', label: '06', component: Act06SecurePunchline },
+]
+
+const VARIANT_TEASERS = {
+  base: [
+    { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
+    { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
+    { title: 'Triforce Govern', question: 'Can I govern agents at enterprise scale?', tech: 'Kagenti · SPIFFE identity · MCP Gateway · Agent audit trails', color: 'var(--ibm-blue)', param: 'govern' },
+  ],
+  secure: [
+    { title: 'Triforce AI', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
+    { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
+    { title: 'Triforce Govern', question: 'Can I govern agents at enterprise scale?', tech: 'Kagenti · SPIFFE identity · MCP Gateway · Agent audit trails', color: 'var(--ibm-blue)', param: 'govern' },
+  ],
+}
+
+const VARIANT_HEADLINES = {
+  base: { line1: '80% of enterprise AI doesn\'t need a GPU.', line2: 'That 80% runs today on the CPUs you already own.' },
+  secure: { line1: 'AI processes your most sensitive data.', line2: 'Now that data is hardware-encrypted in silicon.' },
+}
+
+function Footer({ variant }: { variant: string }) {
+  const teasers = VARIANT_TEASERS[variant as keyof typeof VARIANT_TEASERS] || VARIANT_TEASERS.base
+  const headlines = VARIANT_HEADLINES[variant as keyof typeof VARIANT_HEADLINES] || VARIANT_HEADLINES.base
+
   return (
     <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-      <div style={{ fontSize: 18, color: 'var(--text-dim)', marginBottom: 12 }}>
-        80% of enterprise AI doesn't need a GPU.
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 32 }}>
-        That 80% runs today on the CPUs you already own.
-      </div>
+      <div style={{ fontSize: 18, color: 'var(--text-dim)', marginBottom: 12 }}>{headlines.line1}</div>
+      <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 32 }}>{headlines.line2}</div>
 
       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 16 }}>
         But the story doesn't end here.
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, textAlign: 'left', marginBottom: 32, maxWidth: 800, margin: '0 auto 32px' }}>
-        {[
-          { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)' },
-          { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)' },
-          { title: 'Triforce Govern', question: 'Can I govern agents at enterprise scale?', tech: 'Kagenti · SPIFFE identity · MCP Gateway · Agent audit trails', color: 'var(--ibm-blue)' },
-        ].map((story, i) => (
+        {teasers.map((story, i) => (
           <motion.div
             key={story.title}
             className="card"
-            style={{ borderLeft: `3px solid ${story.color}`, padding: '20px', cursor: 'default' }}
+            style={{
+              borderLeft: `3px solid ${story.color}`, padding: '20px',
+              cursor: story.param !== undefined ? 'pointer' : 'default',
+            }}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 + i * 0.15 }}
+            onClick={() => {
+              if (story.param !== undefined) {
+                const url = story.param ? `?demo=${story.param}` : '/'
+                window.location.href = url
+              }
+            }}
           >
             <div style={{ fontSize: 14, fontWeight: 700, color: story.color, marginBottom: 8 }}>{story.title}</div>
             <div style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.5 }}>{story.question}</div>
             <div style={{ fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: 10 }}>{story.tech}</div>
-            <div style={{ fontSize: 10, padding: '2px 10px', borderRadius: 4, display: 'inline-block', background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-disabled)', fontWeight: 600 }}>
-              COMING SOON
+            <div style={{
+              fontSize: 10, padding: '2px 10px', borderRadius: 4, display: 'inline-block',
+              background: story.param === 'secure' || story.param === '' ? 'var(--rh-green-dim)' : 'var(--surface-2)',
+              border: `1px solid ${story.param === 'secure' || story.param === '' ? 'var(--rh-green)' : 'var(--border)'}`,
+              color: story.param === 'secure' || story.param === '' ? 'var(--rh-green)' : 'var(--text-disabled)',
+              fontWeight: 600,
+            }}>
+              {story.param === 'secure' || story.param === '' ? 'VIEW DEMO' : 'COMING SOON'}
             </div>
           </motion.div>
         ))}
@@ -68,12 +115,20 @@ function Footer() {
   )
 }
 
+function getVariant(): string {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('demo') || 'base'
+}
+
 export default function App() {
+  const variant = useMemo(getVariant, [])
+  const acts = variant === 'secure' ? SECURE_ACTS : BASE_ACTS
+
   const [started, setStarted] = useState(false)
   const [currentAct, setCurrentAct] = useState(0)
   const [showFooter, setShowFooter] = useState(false)
 
-  const totalActs = ACTS.length
+  const totalActs = acts.length
 
   const advanceAct = () => {
     if (currentAct < totalActs - 1) {
@@ -123,7 +178,7 @@ export default function App() {
     )
   }
 
-  const CurrentComponent = showFooter ? null : ACTS[currentAct].component
+  const CurrentComponent = showFooter ? null : acts[currentAct].component
 
   return (
     <div>
@@ -139,8 +194,18 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {variant !== 'base' && (
+            <span style={{
+              fontSize: 10, padding: '2px 8px', borderRadius: 4,
+              background: variant === 'secure' ? 'var(--intel-cyan-dim)' : 'var(--surface-2)',
+              color: variant === 'secure' ? 'var(--intel-cyan)' : 'var(--text-dim)',
+              fontWeight: 600, textTransform: 'uppercase',
+            }}>
+              {variant}
+            </span>
+          )}
           <div className="progress-bar">
-            {ACTS.map((act, i) => (
+            {acts.map((act, i) => (
               <div
                 key={act.id}
                 className={`progress-dot ${i === currentAct && !showFooter ? 'active' : i < currentAct || showFooter ? 'done' : ''}`}
@@ -149,7 +214,7 @@ export default function App() {
             ))}
           </div>
           <span className="progress-label">
-            {showFooter ? 'complete' : `${ACTS[currentAct].label} / ${ACTS[totalActs - 1].label}`}
+            {showFooter ? 'complete' : `${acts[currentAct].label} / ${acts[totalActs - 1].label}`}
           </span>
           <div className="health-dot alive" />
         </div>
@@ -166,11 +231,11 @@ export default function App() {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.4 }}
           >
-            <Footer />
+            <Footer variant={variant} />
           </motion.div>
         ) : CurrentComponent ? (
           <motion.div
-            key={ACTS[currentAct].id}
+            key={acts[currentAct].id}
             className="page-container"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}

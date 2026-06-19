@@ -58,3 +58,52 @@ describe('Story Acts', () => {
     expect(screen.getByText(/click to begin/)).toBeInTheDocument()
   })
 })
+
+describe('Secure Acts', () => {
+  it('Act00 Secure renders triforce intro', async () => {
+    const { Act00SecureStory } = await import('../acts/secure/Act00SecureStory')
+    render(<Act00SecureStory />)
+    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+  })
+
+  it('Act01 TDX renders architecture layers', async () => {
+    const { Act01TdxArchitecture } = await import('../acts/secure/Act01TdxArchitecture')
+    render(<Act01TdxArchitecture />)
+    expect(screen.getByText(/How TDX Protects/)).toBeInTheDocument()
+    expect(screen.getByText(/Start: The Vulnerability/)).toBeInTheDocument()
+  })
+
+  it('Act02 Attestation renders flow buttons', async () => {
+    const { Act02Attestation } = await import('../acts/secure/Act02Attestation')
+    render(<Act02Attestation />)
+    expect(screen.getByText(/Run with TDX/)).toBeInTheDocument()
+    expect(screen.getByText(/Run without TDX/)).toBeInTheDocument()
+  })
+
+  it('Act03 OneLine renders YAML comparison', async () => {
+    const { Act03OneLine } = await import('../acts/secure/Act03OneLine')
+    render(<Act03OneLine />)
+    expect(screen.getByText(/One Line Changes Everything/)).toBeInTheDocument()
+    expect(screen.getByText(/Standard Deploy/)).toBeInTheDocument()
+    expect(screen.getByText(/Confidential Deploy/)).toBeInTheDocument()
+  })
+
+  it('Act04 Confidential renders pipeline button', async () => {
+    const { Act04ConfidentialInference } = await import('../acts/secure/Act04ConfidentialInference')
+    render(<Act04ConfidentialInference />)
+    expect(screen.getByText(/Run Confidential Pipeline/)).toBeInTheDocument()
+  })
+
+  it('Act05 Secure tradeoff renders comparison', async () => {
+    const { Act05SecureTradeoff } = await import('../acts/secure/Act05SecureTradeoff')
+    render(<Act05SecureTradeoff />)
+    expect(screen.getByText(/The Honest Tradeoff/)).toBeInTheDocument()
+    expect(screen.getByText(/AES-256 encrypted/)).toBeInTheDocument()
+  })
+
+  it('Act06 Secure punchline renders', async () => {
+    const { Act06SecurePunchline } = await import('../acts/secure/Act06SecurePunchline')
+    render(<Act06SecurePunchline />)
+    expect(screen.getAllByText(/runtimeClassName: kata-cc/).length).toBeGreaterThan(0)
+  })
+})
