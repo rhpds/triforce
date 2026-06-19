@@ -5,14 +5,13 @@ import { PipelineAnimation, type PipelineNode } from '../../components/PipelineA
 interface Props { onComplete?: () => void }
 
 const ATTEST_NODES: PipelineNode[] = [
-  { id: 'boot', label: 'Pod Starts', model: 'Kata VM + TDX', status: 'pending' },
-  { id: 'cdh', label: 'CDH Agent', model: 'Contact KBS', status: 'pending' },
-  { id: 'quote', label: 'vTPM Quote', model: 'Hardware attestation', status: 'pending' },
+  { id: 'boot', label: 'Kata VM Boots', model: 'TDX Trust Domain', status: 'pending' },
+  { id: 'attest', label: 'Hardware Attestation', model: 'vTPM quote → Trustee', status: 'pending' },
   { id: 'verify', label: 'Trustee Verifies', model: 'Check TD state', status: 'pending', conditional: true },
   { id: 'secrets', label: 'Secrets Released', model: 'API key granted', status: 'pending' },
 ]
 
-const STEP_DELAYS = [0, 800, 1600, 2400, 3200]
+const STEP_DELAYS = [0, 1000, 2000, 3000]
 
 export function Act02Attestation({ onComplete }: Props) {
   const [nodes, setNodes] = useState<PipelineNode[]>(ATTEST_NODES)
@@ -23,7 +22,7 @@ export function Act02Attestation({ onComplete }: Props) {
 
   const activateNode = useCallback((idx: number) => {
     setNodes(prev => prev.map((n, i) => {
-      if (i < idx) return { ...n, status: 'done' as const, latencyMs: [50, 120, 200, 350, 10][i] }
+      if (i < idx) return { ...n, status: 'done' as const, latencyMs: [50, 320, 350, 10][i] }
       if (i === idx) return { ...n, status: 'active' as const }
       return n
     }))
@@ -37,24 +36,24 @@ export function Act02Attestation({ onComplete }: Props) {
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
 
-    const steps = succeed ? 5 : 4
+    const steps = succeed ? 4 : 3
     STEP_DELAYS.slice(0, steps).forEach((delay, idx) => {
       const timer = setTimeout(() => activateNode(idx), delay)
       timersRef.current.push(timer)
     })
 
-    const finishDelay = succeed ? 4000 : 3200
+    const finishDelay = succeed ? 4000 : 3000
     const finish = setTimeout(() => {
       if (succeed) {
         setNodes(prev => prev.map((n, i) => ({
           ...n,
           status: 'done' as const,
-          latencyMs: [50, 120, 200, 350, 10][i],
+          latencyMs: [50, 320, 350, 10][i],
         })))
       } else {
         setNodes(prev => prev.map((n, i) => {
-          if (i < 3) return { ...n, status: 'done' as const, latencyMs: [50, 120, 200][i] }
-          if (i === 3) return { ...n, status: 'skipped' as const, detail: 'DENIED — no TDX' }
+          if (i < 2) return { ...n, status: 'done' as const, latencyMs: [50, 320][i] }
+          if (i === 2) return { ...n, status: 'skipped' as const, detail: 'DENIED — no TDX' }
           return { ...n, status: 'skipped' as const, detail: 'blocked' }
         }))
         setDenied(true)

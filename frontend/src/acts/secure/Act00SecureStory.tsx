@@ -9,7 +9,9 @@ export function Act00SecureStory({ onComplete }: Props) {
 
   return (
     <div className="demo-section">
-      <TriforceIntro onComplete={() => setIntroComplete(true)} />
+      {!introComplete && (
+        <TriforceIntro onComplete={() => setIntroComplete(true)} />
+      )}
 
       <AnimatePresence>
         {introComplete && (
