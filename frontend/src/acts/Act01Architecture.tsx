@@ -189,7 +189,7 @@ export function Act01Architecture({ onComplete }: Props) {
         the customer challenge first — then the platform layer that solves it.
       </div>
 
-      <div className="arch-diagram">
+      <div className={revealed > 0 ? 'arch-diagram' : ''}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
           {LAYERS.map((layer, i) => (
             <AnimatePresence key={layer.id}>
