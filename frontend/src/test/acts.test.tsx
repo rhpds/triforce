@@ -69,8 +69,8 @@ describe('Secure Acts', () => {
   it('Act01 TDX renders architecture layers', async () => {
     const { Act01TdxArchitecture } = await import('../acts/secure/Act01TdxArchitecture')
     render(<Act01TdxArchitecture />)
-    expect(screen.getByText(/How TDX Protects/)).toBeInTheDocument()
-    expect(screen.getByText(/Start: The Vulnerability/)).toBeInTheDocument()
+    expect(screen.getByText(/The Security Stack/)).toBeInTheDocument()
+    expect(screen.getByText(/Start: Intel Xeon 6/)).toBeInTheDocument()
   })
 
   it('Act02 Attestation renders flow buttons', async () => {
