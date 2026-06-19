@@ -19,6 +19,7 @@ spec:
       containers:
         - name: frontend
           image: {{ .Values.frontend.image | default "quay.io/redhat-gpte/triforce-frontend:latest" }}
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
