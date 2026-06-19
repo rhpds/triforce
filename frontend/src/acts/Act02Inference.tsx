@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../components/PipelineAnimation'
+import { useDemoMetrics } from '../DemoContext'
 
 interface Props { onComplete?: () => void }
 
@@ -47,6 +48,7 @@ const FRAUD_TRANSACTIONS = [
 ]
 
 export function Act02Inference({ onComplete }: Props) {
+  const { setPipeline } = useDemoMetrics()
   const [nodes, setNodes] = useState<PipelineNode[]>(INITIAL_NODES)
   const [result, setResult] = useState<PipelineResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -117,6 +119,16 @@ export function Act02Inference({ onComplete }: Props) {
       reconcileWithResult(data)
       setResult(data)
       setHealthcareDone(true)
+      const log = data.inference_log || []
+      setPipeline({
+        classifyMs: log.find(e => e.node === 'classify')?.latency_ms || 0,
+        nerMs: log.find(e => e.node === 'extract_entities')?.latency_ms || 0,
+        interactionsMs: log.find(e => e.node === 'check_interactions')?.latency_ms || 0,
+        summarizeMs: log.find(e => e.node === 'summarize')?.latency_ms || 0,
+        totalMs: data.total_ms,
+        entities: data.entities?.length || 0,
+        interactions: data.drug_interactions?.length || 0,
+      })
     } catch {
       timersRef.current.forEach(clearTimeout)
       setNodes(INITIAL_NODES)
