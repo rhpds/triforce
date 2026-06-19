@@ -21,6 +21,13 @@ import { Act03LegacyMeetsAI } from './acts/virt/Act03LegacyMeetsAI'
 import { Act04MigrationPath } from './acts/virt/Act04MigrationPath'
 import { Act05VirtTradeoff } from './acts/virt/Act05VirtTradeoff'
 import { Act06VirtPunchline } from './acts/virt/Act06VirtPunchline'
+import { Act00GovernStory } from './acts/govern/Act00GovernStory'
+import { Act01GovernArchitecture } from './acts/govern/Act01GovernArchitecture'
+import { Act02AgentDiscovery } from './acts/govern/Act02AgentDiscovery'
+import { Act03Identity } from './acts/govern/Act03Identity'
+import { Act04ToolGovernance } from './acts/govern/Act04ToolGovernance'
+import { Act05AuditTrail } from './acts/govern/Act05AuditTrail'
+import { Act06GovernPunchline } from './acts/govern/Act06GovernPunchline'
 
 type ActEntry = { id: string; label: string; component: React.ComponentType<{ onComplete?: () => void }> }
 
@@ -54,6 +61,16 @@ const VIRT_ACTS: ActEntry[] = [
   { id: 'virt-punch', label: '06', component: Act06VirtPunchline },
 ]
 
+const GOVERN_ACTS: ActEntry[] = [
+  { id: 'govern-story', label: '00', component: Act00GovernStory },
+  { id: 'govern-arch', label: '01', component: Act01GovernArchitecture },
+  { id: 'govern-discovery', label: '02', component: Act02AgentDiscovery },
+  { id: 'govern-identity', label: '03', component: Act03Identity },
+  { id: 'govern-tools', label: '04', component: Act04ToolGovernance },
+  { id: 'govern-audit', label: '05', component: Act05AuditTrail },
+  { id: 'govern-punch', label: '06', component: Act06GovernPunchline },
+]
+
 const VARIANT_TEASERS = {
   base: [
     { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
@@ -70,12 +87,18 @@ const VARIANT_TEASERS = {
     { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
     { title: 'Triforce Govern', question: 'Can I govern agents at enterprise scale?', tech: 'Kagenti · SPIFFE identity · MCP Gateway · Agent audit trails', color: 'var(--ibm-blue)', param: 'govern' },
   ],
+  govern: [
+    { title: 'Triforce AI', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
+    { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
+    { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
+  ],
 }
 
 const VARIANT_HEADLINES = {
   base: { line1: '80% of enterprise AI doesn\'t need a GPU.', line2: 'That 80% runs today on the CPUs you already own.' },
   secure: { line1: 'AI processes your most sensitive data.', line2: 'Now that data is hardware-encrypted in silicon.' },
   virt: { line1: 'You have hundreds of VMs you can\'t containerize overnight.', line2: 'AI runs alongside them today — on the same hardware.' },
+  govern: { line1: 'AI agents are deploying faster than governance can keep up.', line2: 'Now every agent is registered, verified, controlled, and audited.' },
 }
 
 function Footer({ variant }: { variant: string }) {
@@ -115,12 +138,12 @@ function Footer({ variant }: { variant: string }) {
             <div style={{ fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: 10 }}>{story.tech}</div>
             <div style={{
               fontSize: 10, padding: '2px 10px', borderRadius: 4, display: 'inline-block',
-              background: story.param === 'secure' || story.param === 'virt' || story.param === '' ? 'var(--rh-green-dim)' : 'var(--surface-2)',
-              border: `1px solid ${story.param === 'secure' || story.param === 'virt' || story.param === '' ? 'var(--rh-green)' : 'var(--border)'}`,
-              color: story.param === 'secure' || story.param === 'virt' || story.param === '' ? 'var(--rh-green)' : 'var(--text-disabled)',
+              background: 'var(--rh-green-dim)',
+              border: '1px solid var(--rh-green)',
+              color: 'var(--rh-green)',
               fontWeight: 600,
             }}>
-              {story.param === 'secure' || story.param === 'virt' || story.param === '' ? 'VIEW DEMO' : 'COMING SOON'}
+              VIEW DEMO
             </div>
           </motion.div>
         ))}
@@ -145,7 +168,7 @@ function getVariant(): string {
 
 export default function App() {
   const variant = useMemo(getVariant, [])
-  const acts = variant === 'secure' ? SECURE_ACTS : variant === 'virt' ? VIRT_ACTS : BASE_ACTS
+  const acts = variant === 'secure' ? SECURE_ACTS : variant === 'virt' ? VIRT_ACTS : variant === 'govern' ? GOVERN_ACTS : BASE_ACTS
 
   const [started, setStarted] = useState(false)
   const [currentAct, setCurrentAct] = useState(0)
@@ -220,8 +243,8 @@ export default function App() {
           {variant !== 'base' && (
             <span style={{
               fontSize: 10, padding: '2px 8px', borderRadius: 4,
-              background: variant === 'secure' ? 'var(--intel-cyan-dim)' : variant === 'virt' ? 'var(--rh-red-dim)' : 'var(--surface-2)',
-              color: variant === 'secure' ? 'var(--intel-cyan)' : variant === 'virt' ? 'var(--rh-red)' : 'var(--text-dim)',
+              background: variant === 'secure' ? 'var(--intel-cyan-dim)' : variant === 'virt' ? 'var(--rh-red-dim)' : variant === 'govern' ? 'var(--ibm-blue-dim)' : 'var(--surface-2)',
+              color: variant === 'secure' ? 'var(--intel-cyan)' : variant === 'virt' ? 'var(--rh-red)' : variant === 'govern' ? 'var(--ibm-blue)' : 'var(--text-dim)',
               fontWeight: 600, textTransform: 'uppercase',
             }}>
               {variant}

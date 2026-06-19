@@ -154,3 +154,49 @@ describe('Virt Acts', () => {
     expect(screen.getByText(/virtualization.enabled=true/)).toBeInTheDocument()
   })
 })
+
+describe('Govern Acts', () => {
+  it('Act00 Govern renders intro', async () => {
+    const { Act00GovernStory } = await import('../acts/govern/Act00GovernStory')
+    render(<Act00GovernStory />)
+    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+  })
+
+  it('Act01 Govern renders governance stack', async () => {
+    const { Act01GovernArchitecture } = await import('../acts/govern/Act01GovernArchitecture')
+    render(<Act01GovernArchitecture />)
+    expect(screen.getByText(/The Governance Stack/)).toBeInTheDocument()
+    expect(screen.getByText(/Start: Agent Registry/)).toBeInTheDocument()
+  })
+
+  it('Act02 Govern renders discovery button', async () => {
+    const { Act02AgentDiscovery } = await import('../acts/govern/Act02AgentDiscovery')
+    render(<Act02AgentDiscovery />)
+    expect(screen.getByText(/Discover Agents/)).toBeInTheDocument()
+  })
+
+  it('Act03 Govern renders identity', async () => {
+    const { Act03Identity } = await import('../acts/govern/Act03Identity')
+    render(<Act03Identity />)
+    expect(screen.getByText(/Zero-Trust Identity/)).toBeInTheDocument()
+  })
+
+  it('Act04 Govern renders tool governance', async () => {
+    const { Act04ToolGovernance } = await import('../acts/govern/Act04ToolGovernance')
+    render(<Act04ToolGovernance />)
+    expect(screen.getByText(/Tool Governance/)).toBeInTheDocument()
+    expect(screen.getByText(/Query MCP Gateway/)).toBeInTheDocument()
+  })
+
+  it('Act05 Govern renders audit trail', async () => {
+    const { Act05AuditTrail } = await import('../acts/govern/Act05AuditTrail')
+    render(<Act05AuditTrail />)
+    expect(screen.getByText(/The Audit Trail/)).toBeInTheDocument()
+  })
+
+  it('Act06 Govern punchline renders', async () => {
+    const { Act06GovernPunchline } = await import('../acts/govern/Act06GovernPunchline')
+    render(<Act06GovernPunchline />)
+    expect(screen.getByText(/governance.enabled=true/)).toBeInTheDocument()
+  })
+})
