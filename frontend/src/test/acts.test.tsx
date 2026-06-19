@@ -73,11 +73,11 @@ describe('Secure Acts', () => {
     expect(screen.getByText(/Start: Intel Xeon 6/)).toBeInTheDocument()
   })
 
-  it('Act02 Attestation renders flow buttons', async () => {
+  it('Act02 Attestation renders handshake steps', async () => {
     const { Act02Attestation } = await import('../acts/secure/Act02Attestation')
     render(<Act02Attestation />)
-    expect(screen.getByText(/Run with TDX/)).toBeInTheDocument()
-    expect(screen.getByText(/Run without TDX/)).toBeInTheDocument()
+    expect(screen.getByText(/Attestation Handshake/)).toBeInTheDocument()
+    expect(screen.getByText(/Start: Pod Starts/)).toBeInTheDocument()
   })
 
   it('Act03 OneLine renders YAML comparison', async () => {
