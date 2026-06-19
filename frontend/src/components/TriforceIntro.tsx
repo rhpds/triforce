@@ -74,14 +74,14 @@ export function TriforceIntro({ onComplete }: Props) {
 
         {TRIANGLES.map((t, i) => (
           <g key={t.id}>
-            {/* Triangle shape */}
+            {/* Triangle shape — draws slowly, each triangle staggers by 1.2s */}
             <motion.polygon
               points={t.points}
               fill={t.color}
               opacity={0.1}
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.1 }}
-              transition={{ delay: i * 0.3, duration: 0.6 }}
+              transition={{ delay: i * 1.2, duration: 1.0 }}
             />
             <motion.polygon
               points={t.points}
@@ -91,10 +91,10 @@ export function TriforceIntro({ onComplete }: Props) {
               filter={`url(#glow-${t.id})`}
               initial={{ opacity: 0, pathLength: 0 }}
               animate={{ opacity: 1, pathLength: 1 }}
-              transition={{ delay: i * 0.3, duration: 0.8 }}
+              transition={{ delay: i * 1.2, duration: 1.8, ease: 'easeInOut' }}
             />
 
-            {/* Logo — centered at triangle centroid */}
+            {/* Logo — fades in after its triangle finishes drawing */}
             <motion.image
               href={t.logo}
               x={t.logoCX - t.logoW / 2}
@@ -103,7 +103,7 @@ export function TriforceIntro({ onComplete }: Props) {
               height={t.logoH}
               initial={{ opacity: 0 }}
               animate={{ opacity: stage === 'logos' ? 0.9 : 0 }}
-              transition={{ delay: stage === 'logos' ? i * 0.3 + 0.4 : 0, duration: 0.5 }}
+              transition={{ delay: stage === 'logos' ? i * 1.2 + 1.5 : 0, duration: 0.8 }}
             />
 
             {/* Text — centered at triangle centroid */}
