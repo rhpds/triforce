@@ -107,3 +107,50 @@ describe('Secure Acts', () => {
     expect(screen.getAllByText(/runtimeClassName: kata-cc/).length).toBeGreaterThan(0)
   })
 })
+
+describe('Virt Acts', () => {
+  it('Act00 Virt renders intro', async () => {
+    const { Act00VirtStory } = await import('../acts/virt/Act00VirtStory')
+    render(<Act00VirtStory />)
+    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+  })
+
+  it('Act01 Virt renders coexistence stack', async () => {
+    const { Act01VirtArchitecture } = await import('../acts/virt/Act01VirtArchitecture')
+    render(<Act01VirtArchitecture />)
+    expect(screen.getByText(/The Coexistence Stack/)).toBeInTheDocument()
+    expect(screen.getByText(/Start: Intel Xeon 6/)).toBeInTheDocument()
+  })
+
+  it('Act02 Virt renders one server', async () => {
+    const { Act02OneServer } = await import('../acts/virt/Act02OneServer')
+    render(<Act02OneServer />)
+    expect(screen.getByText(/One Server, Two Worlds/)).toBeInTheDocument()
+    expect(screen.getByText(/Add the legacy VM/)).toBeInTheDocument()
+  })
+
+  it('Act03 Virt renders legacy meets AI', async () => {
+    const { Act03LegacyMeetsAI } = await import('../acts/virt/Act03LegacyMeetsAI')
+    render(<Act03LegacyMeetsAI />)
+    expect(screen.getByText(/Legacy Meets AI/)).toBeInTheDocument()
+    expect(screen.getByText(/Simulate VM/)).toBeInTheDocument()
+  })
+
+  it('Act04 Virt renders migration path', async () => {
+    const { Act04MigrationPath } = await import('../acts/virt/Act04MigrationPath')
+    render(<Act04MigrationPath />)
+    expect(screen.getByText(/The Migration Path/)).toBeInTheDocument()
+  })
+
+  it('Act05 Virt renders tradeoff', async () => {
+    const { Act05VirtTradeoff } = await import('../acts/virt/Act05VirtTradeoff')
+    render(<Act05VirtTradeoff />)
+    expect(screen.getByText(/The Honest Tradeoff/)).toBeInTheDocument()
+  })
+
+  it('Act06 Virt punchline renders', async () => {
+    const { Act06VirtPunchline } = await import('../acts/virt/Act06VirtPunchline')
+    render(<Act06VirtPunchline />)
+    expect(screen.getByText(/virtualization.enabled=true/)).toBeInTheDocument()
+  })
+})
