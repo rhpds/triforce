@@ -24,6 +24,8 @@ const STATUS_STYLES: Record<NodeStatus, { border: string; bg: string; labelColor
 }
 
 export function PipelineAnimation({ nodes }: Props) {
+  const nodeWidth = nodes.length > 4 ? 120 : 150
+  const nodePad = nodes.length > 4 ? '10px 12px' : '14px 18px'
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'wrap', padding: '16px 0' }}>
       {nodes.map((node, i) => {
@@ -32,8 +34,8 @@ export function PipelineAnimation({ nodes }: Props) {
           <div key={node.id} style={{ display: 'flex', alignItems: 'center' }}>
             <motion.div
               style={{
-                minWidth: 150,
-                padding: '14px 18px',
+                minWidth: nodeWidth,
+                padding: nodePad,
                 borderRadius: 10,
                 border: `2px solid ${style.border}`,
                 background: style.bg,
