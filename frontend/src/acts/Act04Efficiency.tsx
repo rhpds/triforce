@@ -453,7 +453,7 @@ function ModelOptVisual() {
   )
 }
 
-const VISUALS: Record<string, () => JSX.Element> = {
+const VISUALS: Record<string, () => React.ReactElement> = {
   router: RouterVisual,
   modelopt: ModelOptVisual,
   pipeline: PipelineVisual,

@@ -265,7 +265,7 @@ export function Act02Inference({ onComplete }: Props) {
             <div className="step-question">Java · Quarkus · Score transactions for fraud risk in real time</div>
 
             <div style={{ marginTop: 12 }}>
-              {FRAUD_TRANSACTIONS.map((tx, i) => (
+              {FRAUD_TRANSACTIONS.map((tx) => (
                 <div key={tx.id} style={{
                   padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8,
                   fontSize: 13, marginBottom: 6, display: 'flex', justifyContent: 'space-between',

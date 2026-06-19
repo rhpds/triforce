@@ -1,5 +1,8 @@
 namespace: triforce
 
+frontend:
+  image: quay.io/redhat-gpte/triforce-frontend:latest
+
 healthcareAgent:
   image: quay.io/redhat-gpte/triforce-healthcare-agent:latest
   replicas: 2

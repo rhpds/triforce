@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 
 interface Props { onComplete?: () => void }
 
-const STANDARD = [
+const STANDARD: Array<{ line: string; dim: boolean; highlight?: boolean }> = [
   { line: 'apiVersion: apps/v1', dim: true },
   { line: 'kind: Deployment', dim: true },
   { line: 'metadata:', dim: true },
