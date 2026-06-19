@@ -74,7 +74,7 @@ mcpGateway:
 
 semanticRouter:
   enabled: true
-  image: quay.io/rh-intel-ibm-demo/triforce-semantic-router:latest
+  image: quay.io/redhat-gpte/triforce-semantic-router:latest
   complexModel: qwen25-3b-cpu
 
 litellm:

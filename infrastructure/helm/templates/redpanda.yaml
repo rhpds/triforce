@@ -47,6 +47,9 @@ spec:
           ports:
             - containerPort: 9092
               name: kafka
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/redpanda/data
           resources:
             {{- toYaml .Values.kafka.resources | nindent 12 }}
           readinessProbe:
@@ -54,6 +57,9 @@ spec:
               command: ["rpk", "cluster", "health"]
             initialDelaySeconds: 10
             periodSeconds: 10
+      volumes:
+        - name: data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
