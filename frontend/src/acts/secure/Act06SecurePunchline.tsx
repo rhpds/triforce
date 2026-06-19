@@ -1,13 +1,22 @@
 import { motion } from 'motion/react'
+import { useDemoMetrics } from '../../DemoContext'
 
 interface Props { onComplete?: () => void }
 
+function fmt(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
+
 export function Act06SecurePunchline({ onComplete }: Props) {
+  const { pipeline } = useDemoMetrics()
+  const p = pipeline
+
   const metrics = [
     { label: 'Memory Encryption', value: 'AES-256', detail: 'Hardware keys in silicon', color: 'var(--intel-cyan)' },
     { label: 'Attestation', value: 'vTPM + KBS', detail: 'No TDX = no secrets', color: 'var(--rh-green)' },
+    { label: 'Pipeline Latency', value: p ? fmt(p.totalMs) : '—', detail: p?.source === 'cached' ? 'from previous run' : p ? 'live on Xeon 6' : 'run pipeline first', color: 'var(--intel-cyan)' },
     { label: 'Code Changes', value: '0', detail: 'Same image, same code', color: 'var(--rh-green)' },
-    { label: 'AMX Performance', value: 'Preserved', detail: 'AI acceleration inside TD', color: 'var(--intel-cyan)' },
     { label: 'Deploy Change', value: '1 line', detail: 'runtimeClassName: kata-cc', color: 'var(--rh-red)' },
   ]
 

@@ -1,13 +1,22 @@
 import { motion } from 'motion/react'
+import { useDemoMetrics } from '../../DemoContext'
 
 interface Props { onComplete?: () => void }
 
+function fmt(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
+
 export function Act06VirtPunchline({ onComplete }: Props) {
+  const { pipeline } = useDemoMetrics()
+  const p = pipeline
+
   const metrics = [
     { label: 'Servers', value: '1', detail: 'Intel Xeon 6', color: 'var(--intel-cyan)' },
     { label: 'Workload Types', value: '2', detail: 'VMs + containers', color: 'var(--rh-red)' },
+    { label: 'Classify Latency', value: p ? fmt(p.classifyMs) : '—', detail: p?.source === 'cached' ? 'from previous run' : p ? 'VM → Agent on Xeon 6' : 'run classify first', color: 'var(--intel-cyan)' },
     { label: 'New Hardware', value: '0', detail: 'same nodes', color: 'var(--rh-green)' },
-    { label: 'VM Migration', value: 'None', detail: 'VMs don\'t move', color: 'var(--rh-green)' },
     { label: 'Deploy Command', value: '1', detail: 'helm install', color: 'var(--rh-red)' },
   ]
 

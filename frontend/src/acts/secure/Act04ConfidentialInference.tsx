@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../../components/PipelineAnimation'
+import { useDemoMetrics } from '../../DemoContext'
 
 interface Props { onComplete?: () => void }
 
@@ -16,6 +17,7 @@ const INITIAL_NODES: PipelineNode[] = [
 const STEP_DELAYS = [0, 800, 6500, 8000]
 
 export function Act04ConfidentialInference({ onComplete }: Props) {
+  const { setPipeline } = useDemoMetrics()
   const [nodes, setNodes] = useState<PipelineNode[]>(INITIAL_NODES)
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -65,6 +67,16 @@ export function Act04ConfidentialInference({ onComplete }: Props) {
       }))
       setResult(data)
       setDone(true)
+      const log = data.inference_log || []
+      setPipeline({
+        classifyMs: log.find((e: any) => e.node === 'classify')?.latency_ms || 0,
+        nerMs: log.find((e: any) => e.node === 'extract_entities')?.latency_ms || 0,
+        interactionsMs: log.find((e: any) => e.node === 'check_interactions')?.latency_ms || 0,
+        summarizeMs: log.find((e: any) => e.node === 'summarize')?.latency_ms || 0,
+        totalMs: data.total_ms,
+        entities: data.entities?.length || 0,
+        interactions: data.drug_interactions?.length || 0,
+      })
     } catch {
       timersRef.current.forEach(clearTimeout)
       setNodes(INITIAL_NODES)

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
+import { useDemoMetrics } from '../../DemoContext'
 
 interface Props { onComplete?: () => void }
 
 export function Act03LegacyMeetsAI({ onComplete }: Props) {
+  const { setPipeline } = useDemoMetrics()
   const [callResult, setCallResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
@@ -16,7 +18,14 @@ export function Act03LegacyMeetsAI({ onComplete }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin.' }),
       })
-      setCallResult(await resp.json())
+      const data = await resp.json()
+      setCallResult(data)
+      setPipeline({
+        classifyMs: data.inference_ms || 0,
+        nerMs: 0, interactionsMs: 0, summarizeMs: 0,
+        totalMs: data.inference_ms || 0,
+        entities: 0, interactions: 0,
+      })
     } catch {
       setCallResult({ classification: 'discharge_summary', inference_ms: 828, model: 'granite-2b-cpu', simulated: true })
     }
