@@ -225,7 +225,40 @@ stages:
         points: 10
         required: false
 
-  stage_6_multinode:
+  stage_6_frontend_accuracy:
+    description: "All displayed numbers come from live API calls, not hardcoded values"
+    threshold: 80
+    criteria:
+      act02_pipeline_live:
+        description: "Act 02 pipeline latency comes from real /api/v1/pipeline response"
+        points: 20
+        required: true
+      act05_pipeline_visual_live:
+        description: "Act 05 pipeline visual shows latency from Act 02 run via DemoContext"
+        points: 15
+        required: true
+      act05_mcp_vs_llm_live:
+        description: "Act 05 MCP vs LLM comparison shows real interaction check + NER latency"
+        points: 15
+        required: true
+      act06_punchline_live:
+        description: "Act 06 punchline table shows per-node latency from Act 02 run"
+        points: 20
+        required: true
+      act02_fraud_live:
+        description: "Act 02 fraud scoring shows real risk level, score, and signals"
+        points: 15
+        required: true
+      secure_act05_numbers:
+        description: "Secure Act 05 tradeoff numbers are marked as projected until TDX is live"
+        points: 10
+        required: false
+      no_hardcoded_latency:
+        description: "No hardcoded ms/s values displayed as if they were live measurements"
+        points: 15
+        required: true
+
+  stage_7_multinode:
     description: "Horizontal scaling proves throughput without latency regression"
     threshold: 80
     criteria:

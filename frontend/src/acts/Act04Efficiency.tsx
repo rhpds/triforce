@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useDemoMetrics } from '../DemoContext'
 
 interface Props { onComplete?: () => void }
+
+function fmt(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
 
 const MECHANISMS = [
   {
@@ -154,11 +160,13 @@ function RouterVisual() {
 }
 
 function PipelineVisual() {
+  const { pipeline } = useDemoMetrics()
+  const p = pipeline
   const steps = [
-    { name: 'Classify', time: '828ms', color: 'var(--rh-green)', skip: false },
-    { name: 'Extract NER', time: '4,296ms', color: 'var(--intel-cyan)', skip: false },
+    { name: 'Classify', time: p ? fmt(p.classifyMs) : '—', color: 'var(--rh-green)', skip: false },
+    { name: 'Extract NER', time: p ? fmt(p.nerMs) : '—', color: 'var(--intel-cyan)', skip: false },
     { name: 'Check Interactions', time: 'conditional', color: 'var(--rh-orange)', skip: true },
-    { name: 'Summarize', time: '4,567ms', color: 'var(--rh-green)', skip: false },
+    { name: 'Summarize', time: p ? fmt(p.summarizeMs) : '—', color: 'var(--rh-green)', skip: false },
   ]
   const D = 0.8
   return (
@@ -204,6 +212,9 @@ function PipelineVisual() {
 
 function ToolsVisual() {
   const D = 0.7
+  const { pipeline } = useDemoMetrics()
+  const mcpTime = pipeline ? fmt(pipeline.interactionsMs) : '—'
+  const llmTime = pipeline ? fmt(pipeline.nerMs) : '—'
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
       <motion.div style={{ padding: '8px 16px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 12 }}
@@ -221,7 +232,7 @@ function ToolsVisual() {
           <motion.div className="mono" style={{ marginTop: 6 }}
             initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: D + 0.5, type: 'spring', stiffness: 300 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--rh-green)' }}>16ms</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--rh-green)' }}>{mcpTime}</span>
           </motion.div>
         </motion.div>
 
@@ -238,7 +249,7 @@ function ToolsVisual() {
           </div>
           <motion.div className="mono" style={{ marginTop: 6 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.6 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--rh-orange)' }}>~4,000ms</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--rh-orange)' }}>{llmTime}</span>
           </motion.div>
         </motion.div>
       </div>
