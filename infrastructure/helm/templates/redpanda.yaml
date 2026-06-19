@@ -22,12 +22,28 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
-              rpk redpanda start \
-                --mode dev-container \
-                --smp 1 \
-                --memory 512M \
-                --default-log-level=warn \
-                --overprovisioned
+              cat > /tmp/redpanda.yaml << 'EOF'
+              redpanda:
+                data_directory: /var/lib/redpanda/data
+                seed_servers: []
+                rpc_server:
+                  address: "0.0.0.0"
+                  port: 33145
+                advertised_rpc_api:
+                  address: "redpanda.{{ .Values.namespace }}.svc.cluster.local"
+                  port: 33145
+                kafka_api:
+                  - address: "0.0.0.0"
+                    port: 9092
+                advertised_kafka_api:
+                  - address: "redpanda.{{ .Values.namespace }}.svc.cluster.local"
+                    port: 9092
+                admin:
+                  address: "0.0.0.0"
+                  port: 9644
+                developer_mode: true
+              EOF
+              exec redpanda --redpanda-cfg /tmp/redpanda.yaml --smp 1 --memory 256M --default-log-level=warn
           ports:
             - containerPort: 9092
               name: kafka
