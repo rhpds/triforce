@@ -1,0 +1,79 @@
+{
+  "name": "platform-tools",
+  "description": "MCP tools for orchestrator — metrics, workflow state, agent discovery",
+  "tools": [
+    {
+      "name": "get_agent_status",
+      "description": "Get the current status of a registered agent including health and last heartbeat.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["agent_name"],
+        "properties": {
+          "agent_name": {
+            "type": "string",
+            "description": "Name of the agent to check"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["agent_name", "status"],
+        "properties": {
+          "agent_name": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "inactive", "error"] },
+          "url": { "type": "string" },
+          "last_heartbeat": { "type": "string", "format": "date-time" },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_inference_stats",
+      "description": "Get inference statistics for a model or agent over a time window.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent_name": {
+            "type": "string",
+            "description": "Filter by agent name (optional)"
+          },
+          "model": {
+            "type": "string",
+            "description": "Filter by model name (optional)"
+          },
+          "window_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1440,
+            "default": 60
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["total_requests", "avg_latency_ms"],
+        "properties": {
+          "total_requests": { "type": "integer" },
+          "avg_latency_ms": { "type": "number" },
+          "p95_latency_ms": { "type": "number" },
+          "p99_latency_ms": { "type": "number" },
+          "cpu_requests": { "type": "integer" },
+          "gpu_requests": { "type": "integer" },
+          "total_input_tokens": { "type": "integer" },
+          "total_output_tokens": { "type": "integer" },
+          "kv_cache_hit_rate": { "type": "number" },
+          "estimated_cost_savings": { "type": "number" }
+        }
+      }
+    }
+  ]
+}

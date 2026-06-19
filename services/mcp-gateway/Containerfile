@@ -6,6 +6,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY server.py .
+COPY contracts/ /app/contracts/mcp/
+
+ENV CONTRACTS_DIR=/app/contracts/mcp
 
 USER 1001
 EXPOSE 8091
