@@ -19,20 +19,25 @@ echo "[2/6] Healthcare agent..."
 cd services/healthcare-agent && python3 -m pytest tests/ -q --tb=no 2>&1 | tail -1 && cd ../..
 
 # FinServ LangGraph
-echo "[3/6] FinServ LangGraph..."
+echo "[3/7] FinServ LangGraph..."
 cd services/finserv-agent/langgraph && python3 -m pytest tests/ -q --tb=no 2>&1 | tail -1 && cd ../../..
 
+# FinServ Java/Quarkus (runs with timeout — full suite in CI)
+echo "[4/7] FinServ Quarkus..."
+export PATH="$HOME/.sdkman/candidates/maven/current/bin:$HOME/.sdkman/candidates/java/current/bin:$PATH"
+timeout 60 bash -c '(cd services/finserv-agent && mvn test -q 2>&1 | grep -E "Tests run:|BUILD" | tail -1)' || echo "  (skipped — timeout, will run in CI)"
+
 # Go orchestrator
-echo "[4/6] Go orchestrator..."
+echo "[5/7] Go orchestrator..."
 export PATH="/usr/local/go/bin:$PATH"
 cd services/orchestrator && go test ./... 2>&1 | grep -c "^ok" | xargs echo "  packages passed:" && cd ../..
 
 # Frontend
-echo "[5/6] Frontend tests..."
+echo "[6/7] Frontend tests..."
 cd frontend && npx vitest run 2>&1 | grep "Tests" && cd ..
 
 # Helm lint
-echo "[6/6] Helm lint..."
+echo "[7/7] Helm lint..."
 helm lint infrastructure/helm/ --set litellm.apiBase=https://test --set litellm.apiKey=test --set postgres.password=test 2>&1 | grep "chart(s) linted"
 
 echo "=== All checks passed ==="
