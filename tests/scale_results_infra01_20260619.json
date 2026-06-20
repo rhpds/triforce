@@ -1,0 +1,20 @@
+{
+  "infra01-full_5": {
+    "concurrency": 5,
+    "completed": 5,
+    "failed": 0,
+    "avg_latency_ms": 8603.1515916,
+    "p95_latency_ms": 12731.102208,
+    "wall_clock_ms": 12731.572125,
+    "throughput_per_min": 23.563468600308465
+  },
+  "infra01-full_10": {
+    "concurrency": 10,
+    "completed": 10,
+    "failed": 0,
+    "avg_latency_ms": 15171.5971792,
+    "p95_latency_ms": 24167.175375,
+    "wall_clock_ms": 24169.553541999998,
+    "throughput_per_min": 24.82462073440314
+  }
+}
