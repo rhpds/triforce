@@ -25,7 +25,15 @@ cd services/finserv-agent/langgraph && python3 -m pytest tests/ -q --tb=no 2>&1 
 # FinServ Java/Quarkus (runs with timeout — full suite in CI)
 echo "[4/7] FinServ Quarkus..."
 export PATH="$HOME/.sdkman/candidates/maven/current/bin:$HOME/.sdkman/candidates/java/current/bin:$PATH"
-timeout 60 bash -c '(cd services/finserv-agent && mvn test -q 2>&1 | grep -E "Tests run:|BUILD" | tail -1)' || echo "  (skipped — timeout, will run in CI)"
+if command -v mvn &>/dev/null || [ -f "$HOME/.sdkman/candidates/maven/current/bin/mvn" ]; then
+  (cd services/finserv-agent && mvn test -q 2>&1 | grep -E "Tests run:|BUILD" | tail -1) &
+  MVN_PID=$!
+  sleep 60 && kill $MVN_PID 2>/dev/null &
+  TIMER_PID=$!
+  wait $MVN_PID 2>/dev/null && kill $TIMER_PID 2>/dev/null || echo "  (timed out — will run in CI)"
+else
+  echo "  (mvn not found — will run in CI)"
+fi
 
 # Go orchestrator
 echo "[5/7] Go orchestrator..."
