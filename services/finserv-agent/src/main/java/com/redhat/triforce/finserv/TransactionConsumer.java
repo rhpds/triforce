@@ -49,7 +49,8 @@ public class TransactionConsumer {
             fraudResult.put("scored_at", Instant.now().toString());
             fraudScoresEmitter.send(mapper.writeValueAsString(fraudResult));
 
-            Map<String, Object> complianceResult = runComplianceCheck(transaction);
+            String modelUsed = (String) fraudResult.getOrDefault("model", "unknown");
+            Map<String, Object> complianceResult = runComplianceCheck(transaction, modelUsed);
             complianceResult.put("decided_at", Instant.now().toString());
             complianceEmitter.send(mapper.writeValueAsString(complianceResult));
 
@@ -73,7 +74,7 @@ public class TransactionConsumer {
         }
     }
 
-    private Map<String, Object> runComplianceCheck(Map<String, Object> transaction) {
+    private Map<String, Object> runComplianceCheck(Map<String, Object> transaction, String modelUsed) {
         String txId = (String) transaction.getOrDefault("id", UUID.randomUUID().toString());
         List<String> regulations = List.of("aml", "kyc", "ofac");
 
@@ -82,7 +83,7 @@ public class TransactionConsumer {
             checks.add(Map.of(
                 "regulation", reg,
                 "status", "pass",
-                "details", "Automated check passed for " + reg.toUpperCase()
+                "details", "Rule-based check for " + reg.toUpperCase()
             ));
         }
 
@@ -90,7 +91,7 @@ public class TransactionConsumer {
         result.put("transaction_id", txId);
         result.put("compliant", true);
         result.put("checks", checks);
-        result.put("model", "granite-2b-cpu");
+        result.put("model", modelUsed);
         result.put("accelerator", "cpu");
         result.put("inference_ms", 0);
         return result;

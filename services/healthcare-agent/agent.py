@@ -197,6 +197,14 @@ async def a2a_endpoint(request: models.JsonRpcRequest):
 
 # --- Clinical NLP Endpoints (graph-powered) ---
 
+def _model_for_node(result: dict, node: str) -> str:
+    """Extract the actual model used for a pipeline node from inference_log."""
+    return next(
+        (e.get("model", "unknown") for e in result.get("inference_log", []) if e.get("node") == node),
+        "unknown",
+    )
+
+
 @app.post("/api/v1/classify")
 async def classify_document(req: models.ClassifyRequest):
     result = await run_graph(req.text)
@@ -205,7 +213,7 @@ async def classify_document(req: models.ClassifyRequest):
     return models.ClassifyResponse(
         classification=models.DocumentType(result.get("classification", "unknown")),
         confidence=0.85,
-        model="granite-2b-cpu",
+        model=_model_for_node(result, "classify"),
         accelerator="cpu",
         inference_ms=total_ms,
     )
@@ -230,7 +238,7 @@ async def extract_entities(req: models.ExtractEntitiesRequest):
 
     return models.ExtractEntitiesResponse(
         entities=entities,
-        model="granite-2b-cpu",
+        model=_model_for_node(result, "extract_entities"),
         accelerator="cpu",
         inference_ms=total_ms,
     )
@@ -243,7 +251,7 @@ async def summarize_record(req: models.SummarizeRequest):
 
     return models.SummarizeResponse(
         summary=result.get("summary", "Summary unavailable."),
-        model="granite-2b-cpu",
+        model=_model_for_node(result, "summarize"),
         accelerator="cpu",
         inference_ms=total_ms,
     )

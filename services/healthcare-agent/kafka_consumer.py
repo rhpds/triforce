@@ -83,6 +83,13 @@ class HealthcareKafkaPipeline:
         except Exception as e:
             logger.error("Failed to process patient %s: %s", patient_id, e)
 
+    def _model_for_node(self, inference_log: list, node: str) -> str:
+        """Extract actual model name from inference_log for a given node."""
+        return next(
+            (e.get("model", "unknown") for e in inference_log if e.get("node") == node),
+            "unknown",
+        )
+
     async def _publish_graph_results(self, patient_id: str, record_type: str, result: dict):
         """Publish results from a full LangGraph execution."""
         now = datetime.now(timezone.utc).isoformat()
@@ -93,7 +100,7 @@ class HealthcareKafkaPipeline:
             "patient_id": patient_id,
             "analysis_type": "classification",
             "result": {"classification": result.get("classification", "unknown")},
-            "model": "granite-2b-cpu",
+            "model": self._model_for_node(inference_log, "classify"),
             "accelerator": "cpu",
             "inference_ms": classify_ms,
             "kv_cache_hit": False,
@@ -109,7 +116,7 @@ class HealthcareKafkaPipeline:
                 "entities": [{"text": e.get("text"), "type": e.get("type")} for e in entities],
                 "count": len(entities),
             },
-            "model": "granite-2b-cpu",
+            "model": self._model_for_node(inference_log, "extract_entities"),
             "accelerator": "cpu",
             "inference_ms": ner_ms,
             "kv_cache_hit": False,
@@ -136,7 +143,7 @@ class HealthcareKafkaPipeline:
                 "patient_id": patient_id,
                 "analysis_type": "summarization",
                 "result": {"summary": summary[:500]},
-                "model": "granite-2b-cpu",
+                "model": self._model_for_node(inference_log, "summarize"),
                 "accelerator": "cpu",
                 "inference_ms": summ_ms,
                 "kv_cache_hit": False,

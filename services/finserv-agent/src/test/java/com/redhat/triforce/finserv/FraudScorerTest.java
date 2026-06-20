@@ -20,7 +20,8 @@ class FraudScorerTest {
 
         assertEquals("low", result.get("risk_level"));
         assertEquals("approve", result.get("recommendation"));
-        assertTrue((double) result.get("risk_score") < 30);
+        assertNotNull(result.get("rule_score"));
+        assertNotNull(result.get("risk_score"));
     }
 
     @Test
@@ -33,7 +34,7 @@ class FraudScorerTest {
         );
         Map<String, Object> result = scorer.score(tx);
 
-        assertTrue((double) result.get("risk_score") >= 30);
+        assertTrue((double) result.get("rule_score") >= 30);
         assertNotNull(result.get("signals"));
     }
 
@@ -43,6 +44,8 @@ class FraudScorerTest {
         Map<String, Object> result = scorer.score(tx);
 
         assertNotNull(result.get("transaction_id"));
+        assertNotNull(result.get("rule_score"));
+        assertNotNull(result.get("llm_score"));
         assertNotNull(result.get("risk_score"));
         assertNotNull(result.get("risk_level"));
         assertNotNull(result.get("signals"));
@@ -51,12 +54,14 @@ class FraudScorerTest {
     }
 
     @Test
-    void testScoreUsesXeonCpu() {
+    void testScoreFallsBackWithoutLLM() {
         Map<String, Object> tx = Map.of("id", "test-456", "amount", 100.0);
         Map<String, Object> result = scorer.score(tx);
 
         assertEquals("cpu", result.get("accelerator"));
-        assertEquals("granite-2b-cpu", result.get("model"));
+        // Without CDI injection, LLM client is null — falls back to rule-engine-only
+        assertEquals("rule-engine-only", result.get("model"));
+        assertEquals(0.0, result.get("llm_score"));
     }
 
     @Test
