@@ -1,0 +1,39 @@
+= Explore: Conditional Pipeline
+:navtitle: Conditional Pipeline
+
+*Time: ~10 minutes* · *Role: AI Engineer, Platform Architect*
+
+== What You'll Learn
+
+The pipeline adapts per record. If a patient has fewer than 2 medications, the drug interaction check is skipped — no inference call, no latency, no cost.
+
+== Exercise: Single Medication (Step Skipped)
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "PROGRESS NOTE: 45-year-old female with Hypertension on Amlodipine 10mg."}' \
+  | jq '{entities: [.entities[].text], drug_interactions, steps: [.inference_log[].node], total_ms}'
+----
+
+Notice: `check_interactions` should be absent from the steps — the pipeline skipped it.
+
+== Exercise: Multiple Medications (Step Fires)
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: Patient on Aspirin 81mg, Clopidogrel 75mg, Metformin 1000mg, and Lisinopril 10mg."}' \
+  | jq '{entities: [.entities[].text], interactions: .drug_interactions | length, steps: [.inference_log[].node], total_ms}'
+----
+
+With 4+ medications, `check_interactions` fires and finds real drug interactions from the FDA database.
+
+== The Takeaway
+
+On average, ~25% of records have fewer than 2 medications. The conditional pipeline saves an inference call on every one of those records — free performance at zero engineering cost.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

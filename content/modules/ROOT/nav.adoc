@@ -1,11 +1,19 @@
+.Required
 * xref:index.adoc[Welcome]
-* xref:01-setup.adoc[Accessing Your Environment]
+* xref:01-setup.adoc[Setup]
 * xref:02-inference-pipeline.adoc[Clinical NLP Pipeline]
-* xref:03-fraud-scoring.adoc[Financial Transaction Scoring]
-* xref:04-cross-agent-workflow.adoc[Cross-Agent Workflows]
-* xref:05-cost-analysis.adoc[Cost Analysis]
-* xref:06-scale-test.adoc[Scale Test]
-* xref:07-efficiency-stack.adoc[Efficiency Stack]
+* xref:03-fraud-scoring.adoc[Fraud Scoring]
+
+.Choose Your Path
+* xref:explore-model-selection.adoc[Model Selection]
+* xref:explore-conditional-pipeline.adoc[Conditional Pipeline]
+* xref:explore-mcp-tools.adoc[MCP Tools vs LLM]
+* xref:explore-cost-analysis.adoc[Cost at Scale]
+* xref:explore-scale-test.adoc[Scale Test]
+* xref:explore-model-optimization.adoc[Model Optimization]
+* xref:explore-batch-processing.adoc[Batch Processing]
+
+.Wrap Up
 * xref:99-conclusion.adoc[Conclusion]
 
 .Reference

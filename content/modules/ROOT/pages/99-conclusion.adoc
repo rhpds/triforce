@@ -3,31 +3,23 @@
 
 == What You Accomplished
 
-In this lab you:
+=== Required Modules (everyone)
 
-* Ran a *4-step LangGraph clinical NLP pipeline* on Intel Xeon 6 — classification, NER, drug interaction checking, and summarization with zero GPU
-* Scored *financial transactions for fraud* with real LLM inference + rule-based signals — seeing both `rule_score` and `llm_score` in every response
-* Executed *cross-agent workflows* spanning Python, Java, and Go agents via the A2A protocol
-* Compared *real costs* across Intel Xeon 6, NVIDIA H100, AMD MI300X, and cloud APIs at four volume tiers
-* Ran a *live scale test* with concurrent requests — watched latency climb while cost stayed flat
-* Explored the *efficiency stack* — seven engineering levers that reduce latency on the same $0 hardware
-* Verified every number was *real* — model names from inference logs, latency from actual measurements
+* ✅ *Setup* — verified 10 pods, accessed the demo via Red Hat SSO
+* ✅ *Clinical NLP Pipeline* — ran 4-step LangGraph pipeline on Xeon 6 with real model provenance
+* ✅ *Fraud Scoring* — saw real LLM inference + rule signals on the same transaction
 
-== The Triforce Value
+=== Exploration Modules (your choice)
 
-[cols="1,3",options="header"]
-|===
-| Pillar | What You Saw
+Which did you explore?
 
-| *Intel* (Power)
-| 80% of enterprise AI workloads run on Xeon 6 CPU. Multiple models (qwen25-3b, granite-2b, phi3-mini) all running inference at $0/token. No GPU needed.
-
-| *IBM* (Wisdom)
-| LangGraph agents with MCP tool federation (8 tools), A2A protocol discovery (auto-registered agents), and PostgreSQL audit trail. Kagenti-ready for K8s-native governance.
-
-| *Red Hat* (Courage)
-| 3 polyglot agents (Python/Java/Go) on OpenShift. vLLM Semantic Router for intelligent model routing. AMQ Streams for batch processing. Full efficiency stack for engineering performance.
-|===
+* ☐ *Model Selection* — different models for different tasks, benchmarked results
+* ☐ *Conditional Pipeline* — skip unnecessary inference steps
+* ☐ *MCP Tools vs LLM* — 15ms data lookup vs 3000ms LLM call
+* ☐ *Cost at Scale* — four volume tiers, break-even analysis
+* ☐ *Scale Test* — concurrent requests, throughput ceiling
+* ☐ *Model Optimization* — FP32 vs INT8 comparison
+* ☐ *Batch Processing* — AMQ Streams / Kafka at volume
 
 == The Honest Answer
 
@@ -35,7 +27,7 @@ GPU inference is faster. But for 80% of enterprise AI — classification, NER, f
 
 *The question is: "is it fast enough at $0?"*
 
-The numbers you saw in this lab were real, from live API calls on Intel Xeon 6 CPU. The efficiency stack showed seven levers to make it faster. The cost stayed at $0 the entire time.
+The numbers you saw were real, from live API calls on Intel Xeon 6 CPU. Every model name came from the actual inference log. Every latency was measured, not hardcoded.
 
 == What's Next
 
