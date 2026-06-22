@@ -1,0 +1,43 @@
+= Explore: Confidential Inference
+:navtitle: Confidential Inference
+
+*Time: ~15 minutes* · *Role: AI Engineer*
+
+== Exercise 1: Run the Pipeline (Encrypted)
+
+The same clinical NLP pipeline — but now every byte is hardware-encrypted in memory:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA."}' | jq '{classification, entities: .entities | length, drug_interactions: .drug_interactions | length, total_ms, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+Same models. Same results. Same latency (within ~8% of standard). But the data never existed in plaintext memory.
+
+== Exercise 2: Check Attestation Log
+
+[source,bash,role="execute"]
+----
+oc logs deploy/healthcare-agent -n triforce | grep -i "trust domain\|attestation\|TDX"
+----
+
+Every startup includes attestation verification before inference begins.
+
+== Exercise 3: Verify the Audit Trail
+
+[source,bash,role="execute"]
+----
+oc exec deploy/postgres -n triforce -- psql -U triforce -d triforce -c \
+  "SELECT model, task_type, latency_ms, accelerator FROM inference_log ORDER BY created_at DESC LIMIT 5;"
+----
+
+Every inference call is logged — model used, latency, accelerator. Full audit trail even inside the Trust Domain.
+
+== The Takeaway
+
+Same pipeline, same quality, same speed — now hardware-encrypted. The patient data that flows through classify → NER → interactions → summarize never exists in plaintext memory. Cost: $0. Code changes: 0.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

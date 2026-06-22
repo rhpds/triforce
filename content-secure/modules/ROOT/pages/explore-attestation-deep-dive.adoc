@@ -1,0 +1,65 @@
+= Explore: Attestation Deep Dive
+:navtitle: Attestation Deep Dive
+
+*Time: ~15 minutes* · *Role: Platform Architect*
+
+== Exercise 1: KBS Configuration
+
+[source,bash,role="execute"]
+----
+oc get kbsconfig -n trustee-operator-system -o yaml
+----
+
+The Key Broker Service config defines:
+
+* Which secrets are available
+* Which attestation policies apply
+* Reference values for hardware verification (RVPS)
+
+== Exercise 2: Attestation Service
+
+[source,bash,role="execute"]
+----
+oc get pods -n trustee-operator-system -l app=attestation-service
+oc logs -l app=attestation-service -n trustee-operator-system --tail=10
+----
+
+The Attestation Service verifies:
+
+* CPU is genuine Intel Xeon 6 with TDX
+* Firmware version matches trusted reference
+* TD configuration is valid
+
+== Exercise 3: What Happens Without TDX
+
+If a pod runs WITHOUT `runtimeClassName: kata-cc`:
+
+* CDH agent is not present (no Kata VM)
+* No attestation quote can be generated
+* Trustee KBS denies the secret request
+* Agent falls back to environment variables (or fails)
+
+Check the attestation module's behavior:
+
+[source,bash,role="execute"]
+----
+oc logs deploy/healthcare-agent -n triforce | grep -i "CDH\|attestation\|standard mode\|TDX"
+----
+
+Standard mode: `"Running in standard mode (no TDX)"` — the agent uses env vars for the API key instead of attested KBS secrets.
+
+== Exercise 4: Secret Policy
+
+[source,bash,role="execute"]
+----
+cat /opt/triforce/infrastructure/secure/secret-policy.yaml 2>/dev/null || echo "Secret policy managed by Trustee operator"
+----
+
+The policy defines which secrets require attestation and which are available without it.
+
+== The Takeaway
+
+Attestation is a gate — hardware proof before secrets release. Without TDX, the gate stays closed. The agent either runs in attested mode (hardware-encrypted, KBS secrets) or standard mode (env vars, no encryption). Both work. Only one is compliant.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

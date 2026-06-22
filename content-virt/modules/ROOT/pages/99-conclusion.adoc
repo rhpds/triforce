@@ -3,16 +3,32 @@
 
 == What You Accomplished
 
-* Deployed a legacy RHEL VM alongside AI agents on one Xeon 6 node
-* Proved VM and containers coexist with shared resources
-* Connected the VM to AI services via Kubernetes networking
-* Saw unified resource management across both workload types
+=== Required Modules
 
-== The Value
+* ✅ *Setup* — verified OpenShift Virtualization operator
+* ✅ *Deploy VM* — saw RHEL 9 VM running alongside AI agents
+* ✅ *Coexistence* — both on same Xeon 6 node at ~5% utilization
 
-* *No separate GPU cluster* — Xeon 6 runs VMs and AI inference
-* *No re-architecture* — Legacy VMs consume AI services via standard networking
-* *One platform* — OpenShift manages VMs and containers together
-* *One Helm chart* — `--set virtualization.enabled=true` adds the VM
+=== Exploration Modules
 
-Intel Xeon 6. IBM Kagenti. Red Hat OpenShift Virtualization. That's Triforce Virt.
+* ☐ *VM Calls AI Agent* — legacy VM consuming AI via K8s networking
+* ☐ *Resource Management* — quotas, priorities, node allocation
+* ☐ *Migration Path* — gradual containerization, one Helm flag
+* ☐ *Coexistence Deep Dive* — node scheduling, resource footprint
+
+== The Honest Answer
+
+VMs and AI on the same server. No forklift migration. No new hardware. No separate GPU cluster. One platform manages both. Cost: $0 incremental — the hardware is already paid for.
+
+`virtualization.enabled=true` — that's the entire change.
+
+== Other Triforce Stories
+
+[cols="1,2",options="header"]
+|===
+| Demo | Question
+
+| *Triforce AI* | Can I afford AI at scale?
+| *Triforce Secure* | Can I trust it with my data?
+| *Triforce Govern* | Can I govern agents at enterprise scale?
+|===

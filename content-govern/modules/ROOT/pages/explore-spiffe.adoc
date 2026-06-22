@@ -1,0 +1,44 @@
+= Explore: Zero-Trust Identity
+:navtitle: SPIFFE Identity
+
+*Time: ~10 minutes* · *Role: Security Architect*
+
+== What You'll Learn
+
+Every agent gets a cryptographic SPIFFE Verifiable Identity Document (SVID). No static API keys between agents. mTLS everywhere.
+
+== Exercise 1: Check SPIFFE IDs
+
+[source,bash,role="execute"]
+----
+oc get pods -n triforce -l kagenti.io/type=agent -o json | jq '.items[] | {name: .metadata.name, spiffe: "spiffe://triforce/agent/\(.metadata.labels.app)"}'
+----
+
+Each agent's identity: `spiffe://triforce/agent/{name}`.
+
+== Exercise 2: Verify Sidecar Injection
+
+[source,bash,role="execute"]
+----
+oc get pods -n triforce -l kagenti.io/type=agent -o jsonpath='{range .items[*]}{.metadata.name}: {range .spec.containers[*]}{.name} {end}{"\n"}{end}'
+----
+
+When Kagenti is fully deployed, each agent pod has a SPIFFE sidecar for certificate management.
+
+== Exercise 3: mTLS Between Agents
+
+When agents communicate, both sides present SVIDs:
+
+```
+Healthcare Agent                    FinServ Agent
+SVID: verified      ←── mTLS ──→   SVID: verified
+```
+
+No shared secrets. No static API keys. The infrastructure guarantees identity.
+
+== The Takeaway
+
+Cryptographic workload identity — issued by SPIRE, managed by sidecars, verified via mTLS. Zero static keys between agents.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

@@ -1,0 +1,44 @@
+= Explore: Migration Path
+:navtitle: Migration Path
+
+*Time: ~10 minutes* · *Role: Technical Decision Maker*
+
+== The Gradual Transition
+
+Not a forklift. AI starts alongside your VMs today.
+
+[cols="1,2",options="header"]
+|===
+| Stage | What Happens
+
+| *Today* | VMs running legacy workloads. Proven. Stable.
+| *Add AI* | Deploy AI agents as containers on same Xeon 6 nodes. VMs don't move.
+| *Connect* | VMs call AI agents via K8s networking. No API gateway needed.
+| *Gradually* | Containerize services when ready, at your own pace.
+| *Eventually* | Full cloud-native. But AI didn't wait — it started on day one.
+|===
+
+== Exercise: See the Helm Deployment
+
+[source,bash,role="execute"]
+----
+helm get values triforce -n triforce | grep -A 3 "virtualization\|healthcare\|finserv"
+----
+
+One Helm chart deploys both the VMs and the AI agents. One command. One namespace. One management plane.
+
+== Exercise: The Single Flag
+
+[source,bash,role="execute"]
+----
+echo "virtualization.enabled: $(helm get values triforce -n triforce -o json | jq '.virtualization.enabled')"
+----
+
+`true` = VM + AI coexistence. `false` = containers only. One flag.
+
+== The Takeaway
+
+AI doesn't wait for migration to finish. It starts alongside your VMs today. Containerize at your own pace. The platform manages both.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

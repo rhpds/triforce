@@ -1,0 +1,62 @@
+= Explore: TDX Overhead Analysis
+:navtitle: Overhead Analysis
+
+*Time: ~10 minutes* · *Role: Performance Engineer*
+
+== The Honest Tradeoff
+
+TDX adds overhead. Here's what changes:
+
+[cols="1,1,1,1",options="header"]
+|===
+| Metric | Standard | Confidential | Delta
+
+| Inference Latency | ~7.8s | ~8.4s | +8%
+| Memory Request | 512Mi | 640Mi | +25%
+| Pod Startup | ~2s | ~5s | +3s (attestation)
+| Code Changes | 0 | 0 | none
+| Data in Memory | Plaintext | AES-256 | hardware protected
+|===
+
+== Exercise: Measure the Delta
+
+Run the pipeline and compare against your base lab numbers:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin."}' \
+  | jq '{total_ms, steps: [.inference_log[] | {node, latency_ms}]}'
+----
+
+Compare `total_ms` to your base lab measurement. The delta is the cost of hardware encryption.
+
+== Engineering Mitigations
+
+Each overhead has engineering levers:
+
+*Latency (+8%):*
+
+* TDX-optimized model quantization (INT8 inside Trust Domain)
+* Pin vCPUs to physical cores — reduce TD context switching
+* Persistent Trust Domains — keep warm between requests
+
+*Memory (+25%):*
+
+* Trimmed guest kernel — strip drivers you don't need
+* Shared base image layers via dm-verity
+* Right-size VM memory to actual model footprint
+
+*Startup (+3s):*
+
+* Pre-warmed VM pools — attestation at pool creation time
+* Cached attestation tokens within trust window
+* Co-locate Trustee KBS on same node
+
+== The Takeaway
+
+8% more latency. 25% more memory. 3 seconds longer startup. In exchange: hardware-encrypted patient data, attested secrets, zero code changes. For regulated industries — data encryption isn't a feature you negotiate. It's a requirement you meet.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

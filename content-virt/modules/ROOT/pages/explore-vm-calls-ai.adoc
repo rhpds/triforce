@@ -1,0 +1,53 @@
+= Explore: VM Calls AI Agent
+:navtitle: VM Calls AI
+
+*Time: ~10 minutes* · *Role: AI Engineer*
+
+== What You'll Learn
+
+The legacy VM calls the AI agent through standard Kubernetes Service DNS. No API gateway. No bridge network. No re-architecture.
+
+== Exercise 1: SSH into the VM
+
+[source,bash,role="execute"]
+----
+virtctl ssh triforce@legacy-database -n triforce
+----
+
+Password: `triforce-demo`
+
+== Exercise 2: Call the Healthcare Agent
+
+From inside the VM:
+
+[source,bash]
+----
+curl -s http://healthcare-agent:8081/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin."}' | python3 -m json.tool
+----
+
+The VM calls the AI agent via K8s Service DNS — `healthcare-agent:8081`. Same networking as any pod.
+
+== Exercise 3: Exit and Verify from Outside
+
+[source,bash]
+----
+exit
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes."}' | jq .model
+----
+
+Same endpoint, same model, same result — whether called from a VM or from outside the cluster.
+
+== The Takeaway
+
+Legacy VMs consume AI services without re-architecture. Standard Kubernetes networking. The VM is inside the cluster because it IS a Kubernetes resource.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

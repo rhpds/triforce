@@ -1,32 +1,34 @@
-= Deploy Legacy VM
+= See the VM Running
 :navtitle: Deploy VM
 
-== Exercise 1: Check the VM
+== Exercise 1: Check the Virtual Machine
 
-The Helm chart deployed a legacy RHEL 9 VM (`--set virtualization.enabled=true`).
-
-. List virtual machines:
-+
 [source,bash,role="execute"]
 ----
-oc get vm
+oc get vm legacy-database -n triforce -o jsonpath='{.status.printableStatus}'
 ----
 
-. Check the VM instance is running:
-+
+The VM is a RHEL 9 guest image running as a KubeVirt VirtualMachine — a Kubernetes CRD.
+
+== Exercise 2: VM Instance Details
+
 [source,bash,role="execute"]
 ----
-oc get vmi
+oc get vmi legacy-database -n triforce -o json | jq '{name: .metadata.name, node: .status.nodeName, phase: .status.phase, cpu: .spec.domain.cpu, memory: .spec.domain.resources}'
 ----
 
-. View VM details:
-+
+4 cores, 8Gi memory — a typical legacy database workload. Running on the same Xeon 6 node as the AI agents.
+
+== Exercise 3: What's on the Same Node
+
 [source,bash,role="execute"]
 ----
-oc describe vmi legacy-database
+NODE=$(oc get vmi legacy-database -n triforce -o jsonpath='{.status.nodeName}')
+echo "Node: $NODE"
+oc get pods -n triforce --field-selector spec.nodeName=$NODE -o wide
 ----
 
-This VM represents a legacy workload — a database, an internal app, or middleware that hasn't been containerized yet.
+VMs and AI agent containers — same node, same CPU, same $0 cost.
 
 [.next-nav]
-xref:03-coexistence.adoc[Next: VM + AI Coexistence →]
+xref:99-conclusion.adoc[Choose your exploration path →]

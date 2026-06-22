@@ -1,0 +1,58 @@
+= Explore: Agent Lifecycle
+:navtitle: Agent Lifecycle
+
+*Time: ~10 minutes* · *Role: K8s Administrator*
+
+== What You'll Learn
+
+AgentRuntime CRDs manage agent lifecycle like Deployments — creation, health monitoring, scaling, and termination. Agents are Kubernetes resources.
+
+== Exercise 1: View AgentRuntime CRDs
+
+[source,bash,role="execute"]
+----
+oc get agentruntime -n triforce -o yaml 2>/dev/null || echo "AgentRuntime CRDs managed by Kagenti operator (not yet deployed in this environment)"
+----
+
+When Kagenti is deployed, each agent is an AgentRuntime resource with:
+
+* Target deployment reference
+* OpenTelemetry tracing endpoint
+* A2A protocol labels
+* Health monitoring configuration
+
+== Exercise 2: Agent Health
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Healthcare ===" && curl -s {healthcare_url}/health | jq .
+echo "=== FinServ ===" && curl -s {finserv_url}/health | jq .
+echo "=== Orchestrator ===" && curl -s {orchestrator_url}/health | jq .
+----
+
+Every agent exposes a health endpoint. Kagenti monitors these and manages agent lifecycle.
+
+== Exercise 3: Scaling Agents
+
+[source,bash,role="execute"]
+----
+oc get deploy -n triforce -l kagenti.io/type=agent -o custom-columns='NAME:.metadata.name,REPLICAS:.spec.replicas,READY:.status.readyReplicas'
+----
+
+Agents scale like any Kubernetes deployment. Kagenti can manage scaling policies per agent type.
+
+== Exercise 4: Labels and Discovery
+
+[source,bash,role="execute"]
+----
+oc get deploy -n triforce -o json | jq '.items[] | select(.metadata.labels["kagenti.io/type"] == "agent") | {name: .metadata.name, labels: .metadata.labels}'
+----
+
+The governance labels (`kagenti.io/type`, `protocol.kagenti.io/a2a`) are what make an agent discoverable and manageable.
+
+== The Takeaway
+
+Agents as K8s resources. Managed like Deployments. Discoverable via labels. Monitored via health endpoints. Scaled via replicas. Kubernetes-native agent lifecycle — same tooling you already know.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

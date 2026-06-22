@@ -1,0 +1,50 @@
+= Explore: Resource Management
+:navtitle: Resource Management
+
+*Time: ~10 minutes* · *Role: Platform Architect, SRE*
+
+== Exercise 1: Pod Resource Usage
+
+[source,bash,role="execute"]
+----
+oc adm top pods -n triforce
+----
+
+CPU and memory across all workloads — VMs and containers side by side.
+
+== Exercise 2: Node-Level Allocation
+
+[source,bash,role="execute"]
+----
+oc adm top nodes
+----
+
+See total cluster utilization. The Xeon 6 nodes handle both workload types.
+
+== Exercise 3: Namespace Resource Quotas
+
+[source,bash,role="execute"]
+----
+oc get resourcequota -n triforce -o yaml | grep -A 5 "hard:\|used:"
+----
+
+Kubernetes manages the balance — resource quotas ensure VMs don't starve AI agents and vice versa.
+
+== Platform Controls
+
+[cols="1,2",options="header"]
+|===
+| Control | What It Does
+
+| Resource quotas | Guarantee VM resources — AI agents get what's left
+| PriorityClass | VMs schedule first, AI agents are best-effort
+| Node affinity | Pin VMs to specific nodes if needed
+| HPA | AI agents scale down under resource pressure
+|===
+
+== The Takeaway
+
+Shared infrastructure means shared resources — but Kubernetes manages the balance. VMs get guaranteed resources. AI agents use what's available. Both run at $0 incremental cost on hardware you already own.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

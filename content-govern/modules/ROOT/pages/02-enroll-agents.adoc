@@ -1,44 +1,33 @@
-= Enroll Agents as AgentRuntimes
-:navtitle: Enroll Agents
+= Agents as K8s Resources
+:navtitle: Agent Discovery
 
-== How It Works
+== Exercise 1: Discover Agents via Orchestrator
 
-Kagenti manages agents through the *AgentRuntime* CRD. When you enroll a Deployment as an AgentRuntime, Kagenti:
-
-1. Injects SPIFFE identity sidecars
-2. Auto-discovers the agent via `/.well-known/agent-card.json`
-3. Creates an AgentCard resource for the agent
-4. Monitors agent health and lifecycle
-
-== Exercise 1: View AgentRuntimes
-
-. List enrolled agents:
-+
-[source,bash,role="execute"]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get agentruntimes
+curl -s {orchestrator_url}/api/v1/agents | jq '.agents[] | {name, url, status, skills: [.skills[].name]}'
 ----
 
-. View the healthcare agent's AgentRuntime:
-+
-[source,bash,role="execute"]
+The orchestrator discovers agents automatically via A2A protocol. No manual wiring.
+
+== Exercise 2: Read an Agent Card
+
+[source,bash,role="execute",subs=attributes+]
 ----
-oc describe agentruntime healthcare-agent
+curl -s {healthcare_url}/.well-known/agent-card.json | jq '{name, description, version, protocolVersion, provider, skills: [.skills[] | {id, name}]}'
 ----
 
-== Exercise 2: View Auto-Discovered AgentCards
+Every agent publishes its capabilities as a standard JSON document. Skills, version, protocol — all discoverable.
 
-. The Kagenti controller polls each agent's A2A endpoint and creates AgentCards:
-+
-[source,bash,role="execute"]
+== Exercise 3: Both Agents
+
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get agentcards
+echo "=== Healthcare ===" && curl -s {healthcare_url}/.well-known/agent-card.json | jq '{name, skills: [.skills[].id]}'
+echo "=== FinServ ===" && curl -s {finserv_url}/.well-known/agent-card.json | jq '{name, skills: [.skills[].id]}'
 ----
-+
-[source,bash,role="execute"]
-----
-oc get agentcards -o custom-columns='NAME:.metadata.name,AGENT:.spec.name,SYNCED:.status.synced'
-----
+
+2 agents, 6 skills, zero manual configuration. When a new agent deploys with the right labels, it's discoverable within seconds.
 
 [.next-nav]
-xref:03-spiffe.adoc[Next: Zero-Trust Identity →]
+xref:99-conclusion.adoc[Choose your exploration path →]

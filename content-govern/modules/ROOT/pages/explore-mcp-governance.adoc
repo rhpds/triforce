@@ -1,0 +1,55 @@
+= Explore: MCP Tool Governance
+:navtitle: MCP Governance
+
+*Time: ~10 minutes* · *Role: Platform Architect*
+
+== What You'll Learn
+
+The MCP Gateway federates tools and enforces access policies. Not every agent should access every tool.
+
+== Exercise 1: List Federated Tools
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
+  | jq '.result.tools[] | {name, description}'
+----
+
+8 tools federated across healthcare and finserv agents.
+
+== Exercise 2: Tool Access Matrix
+
+Which agents can access which tools?
+
+[cols="2,1,1,1",options="header"]
+|===
+| Tool | Healthcare | FinServ | Orchestrator
+
+| drug_interaction_check | ✅ allow | ✅ allow | ✅ allow
+| fhir_patient_lookup | ✅ allow | ❌ deny | ✅ allow
+| score_transaction | ❌ deny | ✅ allow | ✅ allow
+| sanction_list_search | ❌ deny | ⚠️ restricted | ❌ deny
+|===
+
+Policy-as-code — not permission-by-default.
+
+== Exercise 3: Call a Tool
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"2","method":"tools/call","params":{"name":"drug_interaction_check","arguments":{"medications":["Aspirin","Clopidogrel","Metformin"]}}}' \
+  | jq '.result.structuredContent.interactions[] | {drug_a, drug_b, severity}'
+----
+
+Real drug interaction data from FDA / NIH RxNav — via MCP, not an LLM call.
+
+== The Takeaway
+
+8 tools federated. Policy enforced per agent. Healthcare tools open, finserv restricted, sanctions blocked by default. The gateway decides who can call what.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

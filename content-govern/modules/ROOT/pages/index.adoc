@@ -1,42 +1,38 @@
 = Triforce Govern — AI Agent Governance with Kagenti
 :navtitle: Welcome
 
-== The Problem
+== Welcome
 
-When you have multiple AI agents — each calling LLMs, invoking tools, processing sensitive data — who controls them? Who decides which agent can call which tool? How do you audit every decision?
+Teams are deploying AI agents across your organization. Healthcare has one. Finance built another. Operations is building a third. Each team picked their own models, tools, and deployment patterns. Nobody has a complete picture.
 
-IBM Kagenti answers this: Kubernetes-native agent governance with A2A discovery, MCP tool federation, SPIFFE zero-trust identity, and full audit trails.
+*What if agents were governed like any other Kubernetes resource?*
 
-In this lab you will:
+IBM Kagenti makes agents first-class CRDs — registered, discoverable, identity-verified, tool-controlled, and fully audited. Kubernetes-native governance for the agent era.
 
-* Enroll AI agents as Kagenti AgentRuntimes (K8s CRDs)
-* See agents auto-discovered via A2A protocol
-* Verify SPIFFE workload identity between agents
-* Configure MCP tool governance policies
-* Query the audit trail for every inference and tool call
+== What You'll Do
 
-== The Triforce Govern Story
+=== Required (~25 minutes)
 
-[cols="1,2,3",options="header"]
+1. **Verify the governance platform** — Kagenti operator, AgentRuntime CRDs
+2. **See agents as K8s resources** — enrolled, discovered, managed
+3. **Discover agents automatically** — A2A protocol, agent cards, skills
+
+=== Choose Your Path (pick 2-3, ~10-15 min each)
+
+[cols="1,2,1",options="header"]
 |===
-|Pillar |Technology |What It Proves
+| Module | What You'll Explore | Best For
 
-|*IBM* (Wisdom)
-|Kagenti + A2A + MCP + SPIFFE
-|Enterprise agent governance at scale — lifecycle, identity, audit
-
-|*Intel* (Power)
-|Xeon 6 CPU inference
-|The agents being governed run on Xeon 6
-
-|*Red Hat* (Courage)
-|OpenShift + Kagenti operator
-|K8s-native CRDs manage agent lifecycle like Deployments
+| Zero-Trust Identity | SPIFFE SVIDs, mTLS between agents | Security Architect
+| MCP Tool Governance | Tool access matrix, policy enforcement | Platform Architect
+| Audit Trail | PostgreSQL logs, compliance mapping (HIPAA/SOX/GDPR) | Compliance Officer
+| Agent Lifecycle | AgentRuntime CRDs, health monitoring, scaling | K8s Administrator
 |===
 
 == Duration
 
-This lab takes approximately *60 minutes* to complete.
+* **Estimated time:** 60 minutes
+* **Prerequisite:** Triforce base lab (recommended)
 
 [.next-nav]
 xref:01-setup.adoc[Next: Verify Kagenti Operator →]

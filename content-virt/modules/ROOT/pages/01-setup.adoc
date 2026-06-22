@@ -3,24 +3,31 @@
 
 == Exercise 1: Check the Operator
 
-. Log in and verify OpenShift Virtualization is installed:
-+
-[source,bash,role="execute",subs=attributes+]
-----
-oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
-----
-+
 [source,bash,role="execute"]
 ----
-oc get csv -n openshift-cnv | grep kubevirt
+oc get csv -n openshift-cnv | grep -i virt
 ----
 
-. Verify the HyperConverged CR is ready:
-+
+OpenShift Virtualization (CNV) provides KubeVirt — VMs as first-class Kubernetes resources.
+
+== Exercise 2: Verify HyperConverged Resource
+
 [source,bash,role="execute"]
 ----
-oc get hyperconverged -n openshift-cnv
+oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.status.conditions[?(@.type=="Available")].status}'
 ----
+
+Should return `True` — the virtualization platform is ready.
+
+== Exercise 3: See Both Workload Types
+
+[source,bash,role="execute"]
+----
+echo "=== VMs ===" && oc get vm -n triforce
+echo "=== AI Agent Pods ===" && oc get pods -n triforce -l app.kubernetes.io/part-of=triforce
+----
+
+VMs and containers — managed by the same Kubernetes control plane.
 
 [.next-nav]
-xref:02-deploy-vm.adoc[Next: Deploy Legacy VM →]
+xref:02-deploy-vm.adoc[Next: See the VM →]
