@@ -1,0 +1,53 @@
+= Explore: Model Optimization
+:navtitle: Model Optimization
+
+*Time: ~10 minutes* · *Role: ML Engineer, Performance Engineer*
+
+== What You'll Learn
+
+INT8 quantization runs the same model with lower precision — 2-3x faster on Intel AMX instructions. Same accuracy for enterprise tasks. Same $0 cost.
+
+== Exercise: FP32 vs INT8 Comparison
+
+When INT8 models are deployed, run the side-by-side comparison:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline/compare \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril.",
+    "classify_model": "qwen25-3b-int8",
+    "ner_model": "granite-2b-int8",
+    "summarize_model": "qwen25-3b-int8"
+  }' | jq '{baseline_total: .baseline.total_ms, optimized_total: .optimized.total_ms, speedup, delta_ms}'
+----
+
+This runs the pipeline twice on the same document — FP32 baseline then INT8 optimized — and shows the real delta.
+
+== Exercise: Via Frontend
+
+In the Triforce demo, navigate to Act 05 (Efficiency Stack). Click through to mechanism #4 (Model Optimization). Click "Prove it — run FP32 vs INT8 comparison" to see the side-by-side table.
+
+NOTE: If INT8 models are not yet deployed, the comparison will show a fallback message. The baseline still runs.
+
+== The Four Optimization Levers
+
+[cols="1,2,1",options="header"]
+|===
+| Lever | What It Does | Expected Gain
+
+| Quantization (INT8/INT4) | Lower precision, AMX instructions | 2-3x faster
+| Optimized model variants | Models built for CPU inference | AMX-aware kernels
+| Model selection | Right-size model to task complexity | ~5% (measured)
+| Prompt tuning | Shorter prompts, fewer tokens | Variable
+|===
+
+Each lever compounds. All on the same $0/token hardware.
+
+== The Takeaway
+
+Model selection gave us 5% (measured). INT8 quantization is projected at 2-3x. Together with prompt optimization, the 7.8s pipeline could drop to ~2.5s. Same hardware. Same cost. Better engineering.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

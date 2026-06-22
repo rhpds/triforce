@@ -1,0 +1,55 @@
+= Explore: MCP Tools vs LLM
+:navtitle: MCP Tools
+
+*Time: ~10 minutes* · *Role: Platform Architect, Data Engineer*
+
+== What You'll Learn
+
+Not everything needs an LLM. Drug interaction data comes from an FDA database via MCP tool — 15ms vs 3000ms for an LLM call. The MCP Gateway federates 8 tools across agents.
+
+== Exercise: Compare MCP vs LLM Latency
+
+Run the pipeline with multiple medications and check the interaction step:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient on Aspirin 81mg, Clopidogrel 75mg, Metformin 1000mg."}' \
+  | jq '.inference_log[] | {node, model, latency_ms}'
+----
+
+Compare `check_interactions` (model: "mcp-tool", ~15ms) vs the LLM steps (~500-4000ms). Same data, 200x faster.
+
+== Exercise: List All Federated Tools
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
+  | jq '.result.tools[].name'
+----
+
+8 tools federated across healthcare and finserv agents. Each agent accesses tools through the gateway — policy controls who can call what.
+
+== Exercise: Call a Tool Directly
+
+Check drug interactions via the MCP Gateway:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"2","method":"tools/call","params":{"name":"drug_interaction_check","arguments":{"medications":["Aspirin","Clopidogrel","Metformin","Lisinopril"]}}}' \
+  | jq '.result.structuredContent.interactions[] | {drug_a, drug_b, severity}'
+----
+
+Real drug interaction data from curated FDA / NIH RxNav sources.
+
+== The Takeaway
+
+8 tools federated. Drug interaction checks in 15ms instead of 3000ms. Not everything needs inference — some operations are data lookups. The MCP Gateway routes to the right tool.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

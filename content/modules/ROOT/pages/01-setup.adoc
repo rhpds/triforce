@@ -3,15 +3,13 @@
 
 == Learning Objectives
 
-By the end of this module, you'll be able to:
-
 * Log in to the OpenShift cluster
 * Verify all Triforce services are running
-* Access the frontend dashboard
+* Access the demo frontend
 
 == Exercise 1: Log In to OpenShift
 
-. Open a terminal and log in to the OpenShift cluster:
+. Open a terminal and log in:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -34,19 +32,22 @@ oc project triforce
 oc get pods -n triforce
 ----
 +
-Expected output — 5 pods in `Running` status:
+Expected — 10 pods in `Running` status:
 +
 [source]
 ----
-NAME                                READY   STATUS    RESTARTS
-healthcare-agent-xxxxx              1/1     Running   0
-finserv-agent-xxxxx                 1/1     Running   0
-orchestrator-xxxxx                  1/1     Running   0
-postgres-xxxxx                      1/1     Running   0
-redpanda-xxxxx                      1/1     Running   0
+NAME                               READY   STATUS
+healthcare-agent-xxxxx             1/1     Running    (x2 replicas)
+finserv-agent-xxxxx                1/1     Running    (x2 replicas)
+orchestrator-xxxxx                 1/1     Running
+mcp-gateway-xxxxx                  1/1     Running
+semantic-router-xxxxx              1/1     Running
+postgres-xxxxx                     1/1     Running
+redpanda-xxxxx                     1/1     Running
+frontend-xxxxx                     2/2     Running    (app + oauth proxy)
 ----
 
-. Check service health endpoints:
+. Check service health:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -57,27 +58,22 @@ curl -s {orchestrator_url}/health | jq .
 
 == Exercise 3: Access the Frontend
 
-. Open the Triforce dashboard in your browser:
+. Open the Triforce demo in your browser:
 +
 [source,subs=attributes+]
 ----
-{frontend_url}?theme=intel
+{frontend_url}
 ----
 
-. You should see the Dashboard page with the agent topology diagram and platform metrics.
+. You'll authenticate via Red Hat SSO, then see the demo start screen with Red Hat × Intel × IBM logos.
 
-. Try switching themes using the buttons in the top-right corner:
-** *Intel* — Dark theme, inference-focused
-** *Red Hat* — PatternFly 6, platform-focused
-** *IBM* — Clean theme, governance-focused
+. Click to begin — the Triforce intro animates, then Act 00 reveals the story.
 
 == Module Summary
 
-You've successfully:
-
-* Logged in to the OpenShift cluster
-* Verified all 5 Triforce services are running and healthy
-* Accessed the frontend dashboard with theme switching
+* Logged in to OpenShift
+* Verified all 10 Triforce pods are running
+* Accessed the demo frontend via Red Hat SSO
 
 [.next-nav]
-xref:02-inference-pipeline.adoc[Next: Clinical NLP Pipeline →]
+xref:02-inference-pipeline.adoc[Next: Run the Pipeline →]

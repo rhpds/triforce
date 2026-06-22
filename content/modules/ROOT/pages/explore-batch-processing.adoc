@@ -1,0 +1,44 @@
+= Explore: Batch Processing
+:navtitle: Batch Processing
+
+*Time: ~10 minutes* · *Role: Data Engineer, Platform Architect*
+
+== What You'll Learn
+
+AMQ Streams (Kafka) processes thousands of records concurrently. One-at-a-time API calls don't scale — event streaming does.
+
+== Exercise: Check Kafka Topics
+
+[source,bash,role="execute"]
+----
+oc exec deploy/redpanda -n triforce -- rpk topic list
+----
+
+Topics include `healthcare.patients.synthetic`, `healthcare.results`, `finserv.transactions.synthetic`.
+
+== Exercise: Watch the Consumer
+
+The healthcare agent has a Kafka consumer that processes records from the `healthcare.patients.synthetic` topic through the full LangGraph pipeline:
+
+[source,bash,role="execute"]
+----
+oc logs deploy/healthcare-agent -n triforce --tail=5 | grep -i "kafka\|processed"
+----
+
+== Exercise: Check Inference Stats
+
+After records flow through Kafka, check the aggregate stats:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/stats | jq .
+----
+
+This shows total requests, average latency, and model breakdown from the PostgreSQL inference log.
+
+== The Takeaway
+
+Sequential API calls: 1 record at a time, latency × N. Event streaming: N records in parallel, same hardware, same $0. AMQ Streams on OpenShift is the production version of Redpanda in this dev environment.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]
