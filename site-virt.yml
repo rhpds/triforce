@@ -1,5 +1,6 @@
+---
 site:
-  title: "Triforce Virt: VMs + AI on Intel Xeon 6"
+  title: "Triforce Uvirt: VMs + AI"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 
@@ -12,6 +13,12 @@ ui:
   bundle:
     url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
     snapshot: true
+  supplemental_files:
+    - path: ./content/supplemental-ui
+
+antora:
+  extensions:
+    - '@sntke/antora-mermaid-extension'
 
 output:
   dir: ./www-virt

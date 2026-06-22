@@ -1,0 +1,35 @@
+/* Triforce Showroom — custom styles */
+
+/* Left-align images */
+.doc .imageblock {
+  align-items: flex-start;
+}
+
+/* Image borders and shadows */
+.doc .bordershadow .content {
+  border: solid 1px #383838;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+}
+
+/* Wider content area */
+.doc {
+  max-width: none;
+}
+
+/* Video styling */
+video {
+  border: solid 1px #383838;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+}
+
+/* Role tags on explore modules */
+.paragraph .role-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(0, 174, 239, 0.12);
+  color: #00AEEF;
+  margin-right: 4px;
+}
