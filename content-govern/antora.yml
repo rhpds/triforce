@@ -1,14 +1,21 @@
 name: modules
-title: "Triforce Govern — AI Agent Governance with Kagenti"
+title: "Triforce — AI Agent Governance with Kagenti"
 version: ~
 nav:
   - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
+    experimental: true
+    page-pagination: true
+    showroom-collection-version: v1.6.8
+    guid: "{guid}"
     user: "{user}"
     password: "{password}"
     openshift_api_url: "{openshift_api_url}"
     openshift_console_url: "{openshift_console_url}"
     openshift_cluster_ingress_domain: "{openshift_cluster_ingress_domain}"
+    frontend_url: "https://triforce-{user}-triforce.{openshift_cluster_ingress_domain}"
     healthcare_url: "https://healthcare-agent-{user}-triforce.{openshift_cluster_ingress_domain}"
+    finserv_url: "https://finserv-agent-{user}-triforce.{openshift_cluster_ingress_domain}"
     orchestrator_url: "https://orchestrator-{user}-triforce.{openshift_cluster_ingress_domain}"
+    mcp_gateway_url: "https://mcp-gateway-{user}-triforce.{openshift_cluster_ingress_domain}"
