@@ -3,93 +3,123 @@
 
 == System Architecture
 
+The platform has five layers. Each exists because of a real workload problem.
+
 ```
-                      ┌──────────────────────────────────┐
-                      │       KAGENTI  (IBM Pillar)       │
-                      │  A2A Protocol · MCP Gateway       │
-                      │  SPIFFE Identity · AgentCards     │
-                      └──────────────┬───────────────────┘
-                                     │
-           ┌─────────────────────────┼─────────────────────────┐
-           │                         │                         │
-┌──────────▼──────────┐  ┌───────────▼───────────┐  ┌─────────▼──────────┐
-│  Healthcare Agent   │  │  FinServ Agent         │  │  Orchestrator      │
-│  (Python/LangGraph) │  │  (Java/Quarkus)        │  │  (Go)              │
-│                     │  │                        │  │                    │
-│  • Clinical NLP     │  │  • Fraud scoring       │  │  • Workflow coord  │
-│  • 4-node graph     │  │  • Compliance check    │  │  • A2A discovery   │
-│  • MCP tools        │  │  • Risk assessment     │  │  • Kafka routing   │
-│  • Kafka consumer   │  │  • Kafka consumer      │  │  • Synthetic gen   │
-└──────────┬──────────┘  └───────────┬───────────┘  └─────────┬──────────┘
-           │                         │                         │
-           └─────────────────────────┼─────────────────────────┘
-                                     │
-                      ┌──────────────▼───────────────────┐
-                      │     Shared Infrastructure         │
-                      │  PostgreSQL + Kafka + MAAS/LiteLLM│
-                      └──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  vLLM Semantic Router (Red Hat)                              │
+│  Classifies request complexity → routes to right-sized model │
+│  SIMPLE → 3B  ·  MEDIUM → 3B  ·  COMPLEX → 3.8B            │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+     ┌─────────────────────┼─────────────────────┐
+     │                     │                     │
+┌────▼──────────┐  ┌───────▼─────────┐  ┌────────▼─────────┐
+│ Healthcare    │  │ FinServ         │  │ Orchestrator     │
+│ Agent         │  │ Agent           │  │                  │
+│ Python        │  │ Java/Quarkus    │  │ Go               │
+│ LangGraph     │  │ Rules + LLM    │  │ A2A dispatch     │
+│               │  │                 │  │                  │
+│ classify      │  │ fraud scoring   │  │ agent discovery  │
+│ extract NER   │  │ compliance      │  │ workflow coord   │
+│ interactions  │  │ risk assess     │  │ kafka routing    │
+│ summarize     │  │                 │  │                  │
+└───────┬───────┘  └────────┬────────┘  └────────┬─────────┘
+        │                   │                     │
+        └───────────────────┼─────────────────────┘
+                            │
+     ┌──────────────────────┼──────────────────────┐
+     │                      │                      │
+┌────▼──────────┐  ┌────────▼────────┐  ┌──────────▼───────┐
+│ MCP Gateway   │  │ AMQ Streams     │  │ PostgreSQL       │
+│ Tool          │  │ (Kafka)         │  │ Audit log        │
+│ federation    │  │ Event streaming │  │ Inference log    │
+│ 8 tools       │  │ Batch processing│  │ Telemetry        │
+└───────────────┘  └─────────────────┘  └──────────────────┘
+                            │
+              ┌─────────────▼──────────────┐
+              │  MAAS / LiteLLM            │
+              │  Intel Xeon 6 CPU          │
+              │  128 cores · AMX · $0/token │
+              └────────────────────────────┘
 ```
 
-== Models on MAAS/LiteLLM
+== Models on MAAS/LiteLLM (Intel Xeon 6 CPU)
 
-[cols="2,1,1,2",options="header"]
+[cols="2,1,2",options="header"]
 |===
-|Model |Parameters |Hardware |Use Case
+| Model | Parameters | Task in Pipeline
 
-|granite-2b-cpu
-|2B
-|Xeon 6
-|Classification, NER
-
-|granite-2b-cpu
-|8B
-|Xeon 6
-|Summarization, reasoning
-
-|granite-2b-cpu
-|3.8B
-|Xeon 6
-|Compliance reasoning
-
-|nomic-embed-text-v1-5
-|137M
-|Xeon 6 (OpenVINO)
-|Embeddings
+| qwen25-3b-cpu | 3B | Classification, Summarization
+| granite-2b-cpu | 2B | NER / Entity extraction
+| phi3-mini-cpu | 3.8B | Complex reasoning (fraud analysis, compliance)
 |===
+
+All models run on Intel Xeon 6 CPU via MAAS/LiteLLM. No GPU. $0/token.
+
+The vLLM Semantic Router classifies each incoming request by complexity and routes to the right-sized model — simple tasks go to the smallest model, complex reasoning goes to the largest.
+
+== Healthcare Agent Pipeline (LangGraph)
+
+The healthcare agent runs a 4-node pipeline using multiple models:
+
+```
+Classify (qwen25-3b)  →  Extract NER (granite-2b)  →  Check Interactions  →  Summarize (qwen25-3b)
+                                                          │ (conditional)
+                                                          │ skip if <2 meds
+                                                          ▼
+                                                      MCP Tool
+                                                   (FDA database)
+```
+
+* **Classify** — Document type (discharge summary, lab report, etc.)
+* **Extract NER** — Medical entities (medications, conditions, procedures)
+* **Check Interactions** — Drug-drug interactions via MCP tool (database lookup, not LLM)
+* **Summarize** — Clinical summary of the record
+
+The conditional step skips the drug interaction check if fewer than 2 medications are found — no point checking interactions with one drug.
+
+== FinServ Agent (Quarkus + LLM)
+
+The financial services agent combines rule-based signal detection with real LLM risk assessment:
+
+* **Rule signals** — Amount thresholds, high-risk countries, transaction categories (<1ms)
+* **LLM risk assessment** — granite-2b-cpu evaluates fraud probability (~500ms)
+* **Combined score** — 60% rule weight + 40% LLM weight → final risk level
+
+This is NOT a pure rule engine. The LLM call is real, the latency is measured, and the model name in the response comes from the actual inference call.
+
+== MCP Gateway (Tool Federation)
+
+The MCP Gateway federates 8 tools across agents using JSON-RPC 2.0:
+
+* `fhir_patient_lookup` — Patient record retrieval
+* `drug_interaction_check` — FDA / NIH RxNav drug interaction database
+* `clinical_code_search` — ICD-10 / CPT code search
+* `risk_profile_lookup` — Customer risk profile
+* `regulatory_rule_check` — Compliance rule evaluation
+* `sanction_list_search` — Sanctions screening
+* `get_agent_status` — Agent health monitoring
+* `get_inference_stats` — Inference telemetry
+
+Not every operation needs an LLM. Drug interaction checking is a database lookup (14ms) vs an LLM call (~3s). The MCP Gateway routes to the right tool.
 
 == Technology Stack
 
 [cols="1,2",options="header"]
 |===
-|Component |Technology
+| Component | Technology
 
-|Healthcare Agent
-|Python 3.11, FastAPI, LangGraph, aiokafka, asyncpg
-
-|FinServ Agent
-|Java 21, Quarkus 3.17, SmallRye Kafka, JDBC PostgreSQL
-
-|Orchestrator
-|Go 1.22+, stdlib HTTP, A2A client
-
-|Database
-|PostgreSQL 15 with pgvector
-
-|Event Streaming
-|Redpanda (Kafka-compatible) / AMQ Streams on OCP
-
-|Inference
-|MAAS/LiteLLM proxy → Intel Xeon 6 + Gaudi 3
-
-|Agent Protocol
-|A2A v0.2.6 (JSON-RPC 2.0)
-
-|Tool Protocol
-|MCP (Model Context Protocol)
-
-|Container Runtime
-|Podman / OpenShift
-
-|Frontend
-|React 19, TypeScript, PatternFly 6, Vite
+| Healthcare Agent | Python 3.11, FastAPI, LangGraph, aiokafka, asyncpg
+| FinServ Agent | Java 21, Quarkus 3.17, LiteLLMClient, SmallRye Kafka
+| Orchestrator | Go 1.22+, stdlib HTTP, A2A client
+| Semantic Router | Python, sentence-transformers (all-MiniLM-L6-v2)
+| MCP Gateway | Python, FastAPI, JSON-RPC 2.0
+| Database | PostgreSQL 15
+| Event Streaming | Redpanda (Kafka-compatible) / AMQ Streams on OpenShift
+| Inference | MAAS/LiteLLM proxy → Intel Xeon 6 CPU
+| Agent Protocol | A2A v0.2.6 (JSON-RPC 2.0)
+| Tool Protocol | MCP (Model Context Protocol)
+| Frontend | React 19, TypeScript, Motion, Vite
+| Container Runtime | Podman / OpenShift
 |===
