@@ -61,6 +61,12 @@ spec:
               value: redpanda.{{ .Values.namespace }}.svc.cluster.local:9092
             - name: MCP_GATEWAY_URL
               value: http://mcp-gateway.{{ .Values.namespace }}.svc.cluster.local:8091
+            - name: CLASSIFY_MODEL
+              value: {{ .Values.healthcareAgent.classifyModel | default "qwen25-3b-cpu" }}
+            - name: NER_MODEL
+              value: {{ .Values.healthcareAgent.nerModel | default "qwen25-3b-cpu" }}
+            - name: SUMMARIZE_MODEL
+              value: {{ .Values.healthcareAgent.summarizeModel | default "qwen25-3b-cpu" }}
             - name: SERVICE_PORT
               value: "8081"
           resources:
