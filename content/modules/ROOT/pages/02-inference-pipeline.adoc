@@ -6,50 +6,54 @@
 By the end of this module, you'll be able to:
 
 * Run a multi-step LangGraph inference pipeline on Intel Xeon 6
-* Understand how document classification, NER, drug interaction checking, and summarization work together
-* See every step tracked in PostgreSQL with model, latency, and accelerator
+* Understand how different models are selected per task (model selection optimization)
+* See how the conditional pipeline skips unnecessary inference steps
+* Verify every step is tracked in PostgreSQL with the actual model used and real latency
 
 == How It Works
 
-The healthcare agent runs a 4-node LangGraph StateGraph:
+The healthcare agent runs a 4-node LangGraph StateGraph. Different models handle different tasks — the right model for the right job:
 
-[cols="1,2,1,1",options="header"]
+[cols="1,2,1",options="header"]
 |===
-|Step |What It Does |Model |Hardware
+| Step | What It Does | Model
 
-|Classify
-|Identify document type (discharge summary, lab report, etc.)
-|granite-2b-cpu
-|Xeon 6
+| Classify
+| Identify document type (discharge summary, lab report, etc.)
+| qwen25-3b-cpu (3B)
 
-|Extract Entities
-|Find conditions, medications, procedures, dosages
-|granite-2b-cpu
-|Xeon 6
+| Extract Entities
+| Find conditions, medications, procedures
+| granite-2b-cpu (2B)
 
-|Check Interactions
-|Screen medications for drug-drug interactions (MCP tool)
-|MCP Gateway
-|—
+| Check Interactions
+| Screen medications for drug-drug interactions
+| MCP tool (FDA database — not an LLM call)
 
-|Summarize
-|Generate clinical summary with context from prior steps
-|granite-2b-cpu
-|Xeon 6
+| Summarize
+| Generate clinical summary with context from prior steps
+| qwen25-3b-cpu (3B)
 |===
 
-The *Check Interactions* step is conditional — it only runs when 2+ medications are detected.
+NOTE: The *Check Interactions* step is conditional — it only runs when 2+ medications are detected. If a patient is on one medication, there's nothing to cross-reference. The pipeline skips the step entirely.
+
+NOTE: Drug interaction data comes from a curated FDA / NIH RxNav database via MCP tool — this is a data lookup (~14ms), not an LLM call (~3s). Not everything needs inference.
 
 == Exercise 1: Run the Pipeline via Frontend
 
-. Navigate to the *Pipeline* page in the frontend
-. The sample text shows a discharge summary with multiple medications
+. Navigate to the Triforce demo frontend
+. In *Act 02: The Proof*, find the clinical text sample
 . Click *Run Pipeline on Xeon 6*
-. Watch the 4 nodes animate as each step completes:
-** Classify should complete in ~800ms
-** Extract Entities in ~5,000ms
-** Check Interactions in ~50ms (MCP tool call)
-** Summarize in ~4,500ms
+. Watch each node light up as it processes:
+** *Classify* — the first node activates, shows latency when complete
+** *Extract Entities* — NER extraction, longest inference step
+** *Check Interactions* — conditional: fires if 2+ medications found
+** *Summarize* — generates the clinical summary
+
+[TIP]
+====
+The latency numbers you see are *real* — they come from the actual LLM inference call on Intel Xeon 6 CPU. The model name shown for each step is extracted from the graph's inference log, not hardcoded.
+====
 
 == Exercise 2: Run via API
 
@@ -62,47 +66,57 @@ curl -s -X POST {healthcare_url}/api/v1/classify \
   -d '{"text": "DISCHARGE SUMMARY: 72yo male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA."}' | jq .
 ----
 +
-Expected response:
-+
-[source,json]
-----
-{
-  "classification": "discharge_summary",
-  "confidence": 0.85,
-  "model": "granite-2b-cpu",
-  "accelerator": "cpu",
-  "inference_ms": 850
-}
-----
+Note the `model` field in the response — it shows the actual model used (from the graph's inference log), not a hardcoded value.
 
-. Extract medical entities:
+. Run the full pipeline:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
-curl -s -X POST {healthcare_url}/api/v1/extract-entities \
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
   -H "Content-Type: application/json" \
-  -d '{"text": "Patient has Type 2 Diabetes on Metformin 500mg and Hypertension on Lisinopril 10mg."}' | jq .
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg, Atorvastatin 80mg."}' | jq .
+----
++
+The response includes:
++
+* `classification` — document type
+* `entities` — extracted medical entities with types
+* `drug_interactions` — interactions found via MCP tool
+* `summary` — generated clinical summary
+* `inference_log` — per-step latency and actual model used
+* `total_ms` — end-to-end pipeline time
+
+. Compare the models used per step in `inference_log`:
++
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."}' \
+  | jq '.inference_log[] | {node, model, latency_ms}'
 ----
 
 == Exercise 3: Check the Inference Log
 
-. Query PostgreSQL for the inference trace:
-+
+Every LLM call is logged to PostgreSQL with the actual model, task type, latency, and accelerator.
+
 [source,bash,role="execute"]
 ----
 oc exec deploy/postgres -n triforce -- psql -U triforce -d triforce -c \
   "SELECT model, task_type, latency_ms, accelerator FROM inference_log ORDER BY created_at DESC LIMIT 10;"
 ----
-+
-Every LLM call is logged with model, latency, and accelerator type. Notice: *100% CPU, 0% GPU*.
+
+Notice: *100% CPU, 0% GPU*. Every inference call ran on Intel Xeon 6.
 
 == Module Summary
 
 You've successfully:
 
-* Run a 4-step LangGraph pipeline entirely on Intel Xeon 6 CPU
-* Seen classification (~800ms), NER (~5s), and summarization (~4.5s) latencies
-* Verified every inference call is logged to PostgreSQL
+* Run a 4-step LangGraph pipeline on Intel Xeon 6 CPU
+* Seen how different models handle different tasks (model selection)
+* Verified the conditional pipeline skips unnecessary steps
+* Confirmed drug interaction checking uses MCP data lookup, not LLM inference
+* Checked the PostgreSQL audit trail with real model names and latencies
 
 [.next-nav]
 xref:03-fraud-scoring.adoc[Next: Financial Transaction Scoring →]

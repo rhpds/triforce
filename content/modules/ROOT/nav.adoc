@@ -5,6 +5,7 @@
 * xref:04-cross-agent-workflow.adoc[Cross-Agent Workflows]
 * xref:05-cost-analysis.adoc[Cost Analysis]
 * xref:06-scale-test.adoc[Scale Test]
+* xref:07-efficiency-stack.adoc[Efficiency Stack]
 * xref:99-conclusion.adoc[Conclusion]
 
 .Reference
