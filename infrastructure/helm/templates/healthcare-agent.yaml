@@ -64,7 +64,7 @@ spec:
             - name: CLASSIFY_MODEL
               value: {{ .Values.healthcareAgent.classifyModel | default "qwen25-3b-cpu" }}
             - name: NER_MODEL
-              value: {{ .Values.healthcareAgent.nerModel | default "qwen25-3b-cpu" }}
+              value: {{ .Values.healthcareAgent.nerModel | default "granite-2b-cpu" }}
             - name: SUMMARIZE_MODEL
               value: {{ .Values.healthcareAgent.summarizeModel | default "qwen25-3b-cpu" }}
             - name: SERVICE_PORT
