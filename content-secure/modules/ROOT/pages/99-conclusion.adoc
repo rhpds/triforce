@@ -3,26 +3,32 @@
 
 == What You Accomplished
 
-* Verified Intel TDX is active on Xeon 6 nodes
-* Deployed AI agents inside Confidential Containers (kata-cc runtime)
-* Proved hardware memory encryption is active via `dmesg`
-* Ran inference inside a TDX Trust Domain with unchanged quality
-* Saw that the API key is hardware-gated via Trustee attestation
+=== Required Modules
 
-== The Value
+* ✅ *Setup* — verified TDX nodes, Sandboxed Containers, Trustee operators
+* ✅ *Attestation* — saw the hardware-to-secrets handshake
+* ✅ *Deploy* — one line: `runtimeClassName: kata-cc`
 
-Your AI inference now has:
+=== Exploration Modules
 
-* *Hardware-encrypted memory* — data never visible to cluster admin
-* *Attestation-gated secrets* — API keys released only to verified TDX enclaves
-* *Zero code changes* — same container, same model, one YAML line added
-* *No performance penalty* — AMX acceleration works inside TDX
+* ☐ *Verify TDX Encryption* — dmesg proof, memory encryption status
+* ☐ *Confidential Inference* — same pipeline, now encrypted
+* ☐ *TDX Overhead Analysis* — before/after, engineering mitigations
+* ☐ *Attestation Deep Dive* — KBS config, without-TDX behavior
 
-== One Line Changes Everything
+== The Honest Answer
 
-```yaml
-spec:
-  runtimeClassName: kata-cc
-```
+TDX adds 8% latency, 25% more memory, 3 seconds startup. The engineering path reduces each one. The cost stays at $0/token.
 
-IBM Granite model. Intel Xeon 6 with TDX. Red Hat OpenShift Confidential Containers. That's Triforce Secure.
+For healthcare AI processing PHI, for financial services handling PII — data encryption isn't optional. It's a requirement. And it's one line in the YAML.
+
+== Other Triforce Stories
+
+[cols="1,2",options="header"]
+|===
+| Demo | Question
+
+| *Triforce AI* | Can I afford AI at scale?
+| *Triforce Virt* | Can I run AI alongside my existing VMs?
+| *Triforce Govern* | Can I govern agents at enterprise scale?
+|===

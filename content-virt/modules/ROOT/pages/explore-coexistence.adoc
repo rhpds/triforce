@@ -1,0 +1,44 @@
+= Explore: Coexistence Deep Dive
+:navtitle: Coexistence
+
+*Time: ~10 minutes* · *Role: Infrastructure Engineer*
+
+== Exercise 1: Node Scheduling
+
+[source,bash,role="execute"]
+----
+oc get pods -n triforce -o json | jq '.items[] | {name: .metadata.name, node: .status.hostIP, app: .metadata.labels.app}' | head -30
+----
+
+VMs and containers scheduled by the same Kubernetes scheduler on the same nodes.
+
+== Exercise 2: Compare VM vs Container Resource Requests
+
+[source,bash,role="execute"]
+----
+echo "=== VM ===" && oc get vm legacy-database -n triforce -o json | jq '.spec.template.spec.domain.resources'
+echo "=== Healthcare Agent ===" && oc get deploy healthcare-agent -n triforce -o json | jq '.spec.template.spec.containers[0].resources'
+----
+
+The VM requests 4 cores / 8Gi. The AI agent requests 250m / 512Mi. Both fit comfortably on a 128-core Xeon 6 node.
+
+== Exercise 3: Total Resource Footprint
+
+[source,bash,role="execute"]
+----
+echo "VM: 4 cores, 8Gi"
+echo "Healthcare Agent (x2): 500m, 1Gi"
+echo "FinServ Agent (x2): 1 core, 1.5Gi"
+echo "Orchestrator: 100m, 128Mi"
+echo "MCP Gateway: 100m, 128Mi"
+echo "Total: ~6 cores, ~11Gi on a 128-core / 512Gi node"
+echo "Utilization: ~5% CPU, ~2% memory"
+echo "Remaining: 94% CPU available for other workloads"
+----
+
+== The Takeaway
+
+One Xeon 6 node runs both workload types at 5% utilization. The other 95% is available for more VMs, more AI agents, or other workloads. The hardware is already paid for.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

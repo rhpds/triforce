@@ -1,33 +1,32 @@
 = Verify Kagenti Operator
 :navtitle: Setup
 
-== Exercise 1: Check Kagenti Installation
+== Exercise 1: Check Kagenti CRDs
 
-. Log in and verify the Kagenti operator:
-+
-[source,bash,role="execute",subs=attributes+]
-----
-oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
-----
-+
 [source,bash,role="execute"]
 ----
-oc get csv -n kagenti | grep kagenti
+oc get crd | grep -i kagenti
 ----
 
-. Check the Kagenti controller is running:
-+
+Kagenti provides `agentrimes.kagenti.io` — agents as Kubernetes resources.
+
+== Exercise 2: Verify Agent Labels
+
 [source,bash,role="execute"]
 ----
-oc get pods -n kagenti
+oc get pods -n triforce -l kagenti.io/type=agent -o wide
 ----
 
-. Verify the CRDs are installed:
-+
+Agents with the `kagenti.io/type: agent` label are managed by the governance platform.
+
+== Exercise 3: Check A2A Protocol Labels
+
 [source,bash,role="execute"]
 ----
-oc get crd | grep -E "agentruntime|agentcard"
+oc get pods -n triforce -l protocol.kagenti.io/a2a -o name
 ----
+
+These agents participate in A2A protocol — they publish agent cards and are discoverable.
 
 [.next-nav]
-xref:02-enroll-agents.adoc[Next: Enroll Agents →]
+xref:02-enroll-agents.adoc[Next: See Agents as K8s Resources →]

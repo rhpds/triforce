@@ -1,0 +1,36 @@
+= Explore: Verify TDX Encryption
+:navtitle: Verify TDX
+
+*Time: ~10 minutes* · *Role: Security Engineer*
+
+== Exercise 1: Check TDX Inside the Pod
+
+[source,bash,role="execute"]
+----
+oc exec deploy/healthcare-agent -n triforce -- dmesg 2>/dev/null | grep -i tdx
+----
+
+Inside a TDX Trust Domain, you should see: `tdx: Guest detected`.
+
+== Exercise 2: Memory Encryption Status
+
+[source,bash,role="execute"]
+----
+oc exec deploy/healthcare-agent -n triforce -- cat /sys/kernel/security/tdx/status 2>/dev/null || echo "TDX status not available (standard mode)"
+----
+
+== Exercise 3: Compare Standard vs Confidential Pod
+
+[source,bash,role="execute"]
+----
+oc get pods -n triforce -o json | jq '.items[] | select(.metadata.labels.app == "healthcare-agent") | {name: .metadata.name, runtimeClass: .spec.runtimeClassName}'
+----
+
+Confidential pods show `runtimeClassName: kata-cc`. Standard pods show `null`.
+
+== The Takeaway
+
+TDX is hardware — you can't fake it. The attestation proves the CPU is genuine Intel with TDX enabled. The encryption happens in silicon. No software layer to bypass.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

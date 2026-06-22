@@ -1,43 +1,38 @@
 = Triforce Secure — Confidential AI on Intel Xeon 6
 :navtitle: Welcome
 
-== Why Confidential AI?
+== Welcome
 
-Healthcare records contain PHI. Financial transactions contain PII. When AI inference processes this data, it exists unencrypted in memory — visible to anyone with cluster admin access.
+AI processes your most sensitive data — patient records, financial transactions, clinical notes. During inference, that data sits in memory. Unencrypted. Visible to any cluster administrator.
 
-Intel TDX (Trust Domain Extensions) solves this: hardware-encrypted memory isolation. The CPU encrypts all data in the Trust Domain. Not even the cluster admin or hypervisor can read it.
+*What if inference memory was hardware-encrypted?*
 
-In this lab you will:
+Intel TDX creates a Trust Domain — a hardware-enforced boundary around your AI workload. The CPU encrypts memory in silicon. No software can read the data inside.
 
-* Verify Intel TDX is active on Xeon 6 nodes
-* Configure Trustee for remote attestation
-* Deploy AI agents inside Confidential Containers (kata-cc runtime)
-* Prove memory encryption is active (`dmesg | grep tdx`)
-* Run inference — same granite-2b-cpu model, same quality, hardware-encrypted
-* See that the API key is only released to TDX-attested pods
+== What You'll Do
 
-== The Triforce Secure Story
+=== Required (~30 minutes)
 
-[cols="1,2,3",options="header"]
+1. **Verify the security stack** — TDX, Sandboxed Containers operator, Trustee KBS
+2. **See the attestation handshake** — hardware proves itself before secrets are released
+3. **Deploy with one line** — `runtimeClassName: kata-cc`
+
+=== Choose Your Path (pick 2-3, ~10-15 min each)
+
+[cols="1,2,1",options="header"]
 |===
-|Pillar |Technology |What It Proves
+| Module | What You'll Explore | Best For
 
-|*Intel* (Power)
-|Xeon 6 + TDX + AMX
-|CPU inference with hardware memory encryption — AMX acceleration works inside TDX
-
-|*IBM* (Wisdom)
-|Kagenti + Trustee attestation
-|Secrets released only to verified hardware enclaves
-
-|*Red Hat* (Courage)
-|OpenShift Sandboxed Containers 1.12
-|Enterprise confidential computing with Kata Containers
+| Verify TDX Encryption | dmesg proof, memory encryption status | Security Engineer
+| Confidential Inference | Same pipeline, now encrypted — compare latency | AI Engineer
+| TDX Overhead Analysis | Before/after, engineering mitigations | Performance Engineer
+| Attestation Deep Dive | KBS config, secret policies, without-TDX test | Platform Architect
 |===
 
 == Duration
 
-This lab takes approximately *60 minutes* to complete.
+* **Estimated time:** 60 minutes
+* **Prerequisite:** Triforce base lab (recommended)
 
 [.next-nav]
 xref:01-setup.adoc[Next: Verify TDX & Operators →]

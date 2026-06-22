@@ -1,46 +1,55 @@
-= Deploy Confidential Agents
-:navtitle: Deploy Agents
+= Deploy with One Line
+:navtitle: Deploy
 
-== Learning Objectives
+== The Entire Difference
 
-* Deploy Triforce agents with the kata-cc runtime
-* Understand the only change: `runtimeClassName: kata-cc`
+Standard deployment vs confidential deployment — one line:
 
-== Exercise 1: Deploy with Confidential Containers
-
-. The agents are deployed with `--set confidential.enabled=true`:
-+
-[source,bash,role="execute"]
+[source,yaml]
 ----
-oc get deploy healthcare-agent -o yaml | grep runtimeClassName
-----
-+
-Expected: `runtimeClassName: kata-cc`
-
-. Check the pod is running inside a Kata VM:
-+
-[source,bash,role="execute"]
-----
-oc get pods -l app=healthcare-agent -o wide
-----
-
-. Verify the agent is healthy:
-+
-[source,bash,role="execute",subs=attributes+]
-----
-curl -s {healthcare_url}/health | jq .
-----
-
-== Key Point
-
-The *only* difference from the standard Triforce AI deployment is one line:
-
-```yaml
 spec:
-  runtimeClassName: kata-cc  # ← This is it
-```
+  template:
+    spec:
++     runtimeClassName: kata-cc    # ← this is the only change
+      containers:
+        - name: agent
+          image: triforce/healthcare-agent:latest  # same image
+----
 
-Same container image. Same code. Same model. Now hardware-encrypted.
+Same container image. Same application code. Same AI model. Same API endpoints. Different runtime — hardware-encrypted memory.
+
+== Exercise 1: Verify the Runtime Class
+
+[source,bash,role="execute"]
+----
+oc get deploy healthcare-agent -n triforce -o jsonpath='{.spec.template.spec.runtimeClassName}'
+----
+
+If confidential is enabled, this returns `kata-cc`. If standard, it's empty.
+
+== Exercise 2: Compare the Deployment
+
+[source,bash,role="execute"]
+----
+oc get deploy healthcare-agent -n triforce -o yaml | grep -A 2 "runtimeClassName\|image:"
+----
+
+The image is identical. The code is identical. The model is identical. Only the runtime changed.
+
+== Exercise 3: The Helm Toggle
+
+[source,bash,role="execute"]
+----
+helm get values triforce -n triforce | grep -A 2 confidential
+----
+
+`confidential.enabled: true` → Helm injects `runtimeClassName: kata-cc` into all agent deployments.
+
+== Module Summary
+
+* Saw the one-line change: `runtimeClassName: kata-cc`
+* Verified the container image, code, and model are unchanged
+* Understood the Helm toggle
 
 [.next-nav]
-xref:04-verify-tdx.adoc[Next: Prove TDX Encryption →]
+xref:99-conclusion.adoc[Choose your exploration path →]

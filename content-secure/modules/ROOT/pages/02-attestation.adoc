@@ -1,49 +1,54 @@
-= Trustee Attestation
+= Attestation Handshake
 :navtitle: Attestation
 
-== Learning Objectives
+== How It Works
 
-* Understand how Trustee remote attestation works
-* See how secrets are gated by hardware verification
-
-== How Attestation Works
+Before the AI agent gets its API key, the hardware must prove it's genuine:
 
 ```
-Pod starts with runtimeClassName: kata-cc
-    │
-    ├── Kata creates VM with TDX memory encryption
-    │
-    ├── Agent calls Trustee KBS: "Give me the API key"
-    │
-    ├── Trustee asks: "Prove you're running in TDX"
-    │   └── Hardware attestation via TDX REPORT
-    │
-    ├── TDX verified → Secret released → Inference works
-    │
-    └── TDX NOT verified → Secret denied → Inference fails
+Pod starts → Kata VM boots inside TDX Trust Domain
+     → CDH agent contacts Trustee KBS
+     → vTPM generates attestation quote
+     → Trustee verifies hardware state
+     → Secrets released into Trust Domain
 ```
 
-The MAAS API key that controls all inference is *hardware-gated*. No TDX, no key, no inference.
+No TDX = no attestation = no secrets = agent can't start.
 
-== Exercise 1: Review Trustee Configuration
+== Exercise 1: Check Trustee KBS
 
-. Check the KbsConfig:
-+
-[source,bash,role="execute"]
-----
-oc get kbsconfig -n trustee-operator-system -o yaml
-----
-
-. Check the Trustee pod is running:
-+
 [source,bash,role="execute"]
 ----
 oc get pods -n trustee-operator-system
+oc get kbsconfig -n trustee-operator-system -o yaml | head -20
 ----
+
+The KBS holds your API keys. It only releases them after verifying TDX attestation.
+
+== Exercise 2: Check Agent Attestation Status
+
+[source,bash,role="execute"]
+----
+oc logs deploy/healthcare-agent -n triforce | grep -i "tdx\|attestation\|trust domain\|CDH"
+----
+
+If running inside TDX: `"Running inside TDX Trust Domain — inference data is hardware-encrypted"`
+If standard mode: `"Running in standard mode (no TDX)"`
+
+== Exercise 3: Review Secret Policy
+
+[source,bash,role="execute"]
+----
+oc get secret triforce-secrets -n triforce -o json | jq '.data | keys'
+----
+
+These secrets are only accessible to attested workloads when `confidential.enabled=true`.
 
 == Module Summary
 
-Trustee attestation ensures secrets are only released to pods running inside verified TDX Trust Domains.
+* Saw the attestation flow: pod → TDX → Trustee → secrets
+* Verified KBS is running and configured
+* Checked agent attestation status
 
 [.next-nav]
-xref:03-deploy-agents.adoc[Next: Deploy Confidential Agents →]
+xref:03-deploy-agents.adoc[Next: Deploy with One Line →]

@@ -3,17 +3,32 @@
 
 == What You Accomplished
 
-* Enrolled agents as Kagenti AgentRuntimes
-* Verified A2A auto-discovery of AgentCards
-* Saw SPIFFE zero-trust identity between agents
-* Called tools through the governed MCP Gateway
-* Queried the audit trail for every action
+=== Required Modules
 
-== The Value
+* ✅ *Setup* — verified Kagenti CRDs and agent labels
+* ✅ *Agent Discovery* — A2A protocol, agent cards, skills
+* ✅ *Auto-discovery* — 2 agents, 6 skills, zero manual config
 
-* *Agent lifecycle as code* — AgentRuntime CRDs manage agents like Deployments
-* *Zero-trust by default* — SPIFFE identity, no static credentials
-* *Tool governance* — control which agents call which tools
-* *Complete audit* — every inference, every tool call, every workflow logged
+=== Exploration Modules
 
-IBM Kagenti. Intel Xeon 6. Red Hat OpenShift. That's Triforce Govern.
+* ☐ *Zero-Trust Identity* — SPIFFE SVIDs, mTLS between agents
+* ☐ *MCP Tool Governance* — tool access matrix, policy enforcement
+* ☐ *Audit Trail* — PostgreSQL logs, compliance mapping
+* ☐ *Agent Lifecycle* — CRDs, health monitoring, scaling
+
+== The Honest Answer
+
+Agent governance at scale. Every agent registered. Every identity verified. Every tool access controlled. Every decision audited. On Intel Xeon 6. On Red Hat OpenShift. At $0 incremental cost.
+
+`governance.enabled=true` — Kubernetes-native agent governance.
+
+== Other Triforce Stories
+
+[cols="1,2",options="header"]
+|===
+| Demo | Question
+
+| *Triforce AI* | Can I afford AI at scale?
+| *Triforce Secure* | Can I trust it with my data?
+| *Triforce Virt* | Can I run AI alongside my existing VMs?
+|===
