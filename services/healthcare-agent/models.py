@@ -115,6 +115,9 @@ class PipelineStepLog(BaseModel):
 class PipelineRequest(BaseModel):
     text: str = Field(min_length=1, max_length=50000)
     patient_id: Optional[str] = None
+    classify_model: Optional[str] = None
+    ner_model: Optional[str] = None
+    summarize_model: Optional[str] = None
 
 
 class PipelineResponse(BaseModel):
@@ -124,6 +127,13 @@ class PipelineResponse(BaseModel):
     summary: str
     inference_log: list[PipelineStepLog]
     total_ms: int = Field(ge=0)
+
+
+class PipelineCompareResponse(BaseModel):
+    baseline: PipelineResponse
+    optimized: PipelineResponse
+    delta_ms: int
+    speedup: str
 
 
 # A2A Protocol models
