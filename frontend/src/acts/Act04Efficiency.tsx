@@ -435,6 +435,29 @@ function LlmdVisual() {
 }
 
 function ModelOptVisual() {
+  const [compareResult, setCompareResult] = useState<any>(null)
+  const [comparing, setComparing] = useState(false)
+
+  const runCompare = async () => {
+    setComparing(true)
+    try {
+      const resp = await fetch('/healthcare/api/v1/pipeline/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg.',
+          classify_model: 'qwen25-3b-int8',
+          ner_model: 'granite-2b-int8',
+          summarize_model: 'qwen25-3b-int8',
+        }),
+      })
+      setCompareResult(await resp.json())
+    } catch {
+      setCompareResult({ error: 'INT8 models not deployed yet — comparison will be available after optimization' })
+    }
+    setComparing(false)
+  }
+
   const options = [
     { label: 'Quantization', detail: 'INT8 / INT4 precision', gain: '2-3x faster', sub: 'AMX instructions', color: 'var(--intel-cyan)' },
     { label: 'Optimized Variants', detail: 'Models built for CPU', gain: 'AMX-aware kernels', sub: 'Same accuracy', color: 'var(--rh-green)' },
@@ -442,24 +465,79 @@ function ModelOptVisual() {
     { label: 'Prompt Tuning', detail: 'Shorter prompts', gain: 'Fewer tokens in/out', sub: '= faster inference', color: 'var(--rh-teal)' },
   ]
   return (
-    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-      {options.map((o, i) => (
-        <motion.div
-          key={o.label}
-          style={{
-            padding: '12px 16px', borderRadius: 8, background: 'var(--surface-2)',
-            border: `1px solid ${o.color}`, textAlign: 'center', minWidth: 130, flex: '1 1 130px', maxWidth: 170,
-          }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-        >
-          <div style={{ fontSize: 12, fontWeight: 700, color: o.color }}>{o.label}</div>
-          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{o.detail}</div>
-          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 2 }}>{o.sub}</div>
-          <div className="mono" style={{ fontSize: 12, fontWeight: 600, color: 'var(--rh-green)', marginTop: 6 }}>{o.gain}</div>
+    <div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {options.map((o, i) => (
+          <motion.div
+            key={o.label}
+            style={{
+              padding: '12px 16px', borderRadius: 8, background: 'var(--surface-2)',
+              border: `1px solid ${o.color}`, textAlign: 'center', minWidth: 130, flex: '1 1 130px', maxWidth: 170,
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 700, color: o.color }}>{o.label}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{o.detail}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 2 }}>{o.sub}</div>
+            <div className="mono" style={{ fontSize: 12, fontWeight: 600, color: 'var(--rh-green)', marginTop: 6 }}>{o.gain}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <button className="btn btn-secondary" onClick={runCompare} disabled={comparing}
+          style={{ borderColor: 'var(--intel-cyan)' }}>
+          {comparing ? 'Running FP32 vs INT8...' : 'Prove it — run FP32 vs INT8 comparison'}
+        </button>
+      </div>
+
+      {compareResult && !compareResult.error && (
+        <motion.div style={{ marginTop: 16 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-dim)' }}>Step</th>
+                <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-dim)' }}>FP32 (baseline)</th>
+                <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--intel-cyan)' }}>INT8 (optimized)</th>
+                <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--rh-green)' }}>Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {compareResult.baseline.inference_log.map((b: any, i: number) => {
+                const o = compareResult.optimized.inference_log[i]
+                const delta = o ? b.latency_ms - o.latency_ms : 0
+                const pct = o && b.latency_ms > 0 ? Math.round((delta / b.latency_ms) * 100) : 0
+                return (
+                  <tr key={b.node} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '6px 10px' }}>{b.node}</td>
+                    <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--text-dim)' }}>{b.latency_ms}ms</td>
+                    <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--intel-cyan)', fontWeight: 700 }}>{o ? `${o.latency_ms}ms` : '—'}</td>
+                    <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: delta > 0 ? 'var(--rh-green)' : 'var(--rh-orange)', fontWeight: 600 }}>{delta > 0 ? `-${pct}%` : `+${Math.abs(pct)}%`}</td>
+                  </tr>
+                )
+              })}
+              <tr style={{ borderTop: '2px solid var(--border)' }}>
+                <td style={{ padding: '6px 10px', fontWeight: 700 }}>Total</td>
+                <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--text-dim)', fontWeight: 700 }}>{compareResult.baseline.total_ms}ms</td>
+                <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--intel-cyan)', fontWeight: 700 }}>{compareResult.optimized.total_ms}ms</td>
+                <td className="mono" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--rh-green)', fontWeight: 700 }}>{compareResult.speedup} faster</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'center', marginTop: 6 }}>
+            Same document · same hardware · same $0/token · {compareResult.delta_ms}ms saved
+          </div>
         </motion.div>
-      ))}
+      )}
+
+      {compareResult?.error && (
+        <motion.div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: 'var(--text-disabled)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {compareResult.error}
+        </motion.div>
+      )}
     </div>
   )
 }

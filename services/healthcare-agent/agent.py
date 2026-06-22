@@ -257,9 +257,24 @@ async def summarize_record(req: models.SummarizeRequest):
     )
 
 
-@app.post("/api/v1/pipeline")
-async def run_pipeline(req: models.PipelineRequest):
-    result = await run_graph(req.text, patient_id=req.patient_id)
+async def _run_pipeline_with_models(text: str, patient_id: str = None,
+                                     classify_model: str = None, ner_model: str = None,
+                                     summarize_model: str = None) -> models.PipelineResponse:
+    """Run pipeline with optional model overrides."""
+    import graph as g
+    saved = (g.CLASSIFY_MODEL, g.NER_MODEL, g.SUMMARIZE_MODEL)
+    try:
+        if classify_model:
+            g.CLASSIFY_MODEL = classify_model
+        if ner_model:
+            g.NER_MODEL = ner_model
+        if summarize_model:
+            g.SUMMARIZE_MODEL = summarize_model
+
+        result = await run_graph(text, patient_id=patient_id)
+    finally:
+        g.CLASSIFY_MODEL, g.NER_MODEL, g.SUMMARIZE_MODEL = saved
+
     inference_log = result.get("inference_log", [])
     total_ms = sum(e.get("latency_ms", 0) for e in inference_log)
 
@@ -282,6 +297,34 @@ async def run_pipeline(req: models.PipelineRequest):
         summary=result.get("summary", "Summary unavailable."),
         inference_log=[models.PipelineStepLog(**e) for e in inference_log],
         total_ms=total_ms,
+    )
+
+
+@app.post("/api/v1/pipeline")
+async def run_pipeline(req: models.PipelineRequest):
+    return await _run_pipeline_with_models(
+        req.text, req.patient_id,
+        req.classify_model, req.ner_model, req.summarize_model,
+    )
+
+
+@app.post("/api/v1/pipeline/compare")
+async def compare_pipelines(req: models.PipelineRequest):
+    baseline = await _run_pipeline_with_models(req.text, req.patient_id)
+
+    optimized = await _run_pipeline_with_models(
+        req.text, req.patient_id,
+        req.classify_model, req.ner_model, req.summarize_model,
+    )
+
+    delta = baseline.total_ms - optimized.total_ms
+    speedup = f"{baseline.total_ms / optimized.total_ms:.1f}x" if optimized.total_ms > 0 else "N/A"
+
+    return models.PipelineCompareResponse(
+        baseline=baseline,
+        optimized=optimized,
+        delta_ms=delta,
+        speedup=speedup,
     )
 
 
