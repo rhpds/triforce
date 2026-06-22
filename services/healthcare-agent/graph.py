@@ -189,7 +189,7 @@ async def check_interactions_node(state: HealthcareState) -> dict:
         interactions = []
         latency_ms = 0
 
-    log_entry = {"node": "check_interactions", "tool": "drug_interaction_check", "latency_ms": latency_ms}
+    log_entry = {"node": "check_interactions", "model": "mcp-tool", "tool": "drug_interaction_check", "latency_ms": latency_ms}
 
     return {
         "drug_interactions": interactions,
