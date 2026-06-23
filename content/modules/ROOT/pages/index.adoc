@@ -24,7 +24,7 @@ In this 90-minute lab you will:
 3. **Score financial transactions** — real LLM fraud risk assessment combined with rule-based signal detection
 4. **Compare costs at scale** — Xeon 6 vs GPU servers vs cloud APIs across four volume tiers
 5. **Run a live scale test** — concurrent requests, watch latency climb while cost stays flat
-6. **Explore the efficiency stack** — seven engineering levers that reduce latency on the same $0 hardware
+6. **Explore the efficiency stack** — 7 levers you flip today + 1 that compounds with volume, all on the same $0 hardware
 7. **See the punchline** — real numbers from your demo run, honest tradeoffs, and the optimization path
 
 == The Triforce Partnership
@@ -88,7 +88,7 @@ Models used (via MAAS/LiteLLM on Xeon 6):
 | Act 01 — The Problem | Required: Setup
 | Act 02 — Live Pipeline | Required: Clinical NLP Pipeline + Fraud Scoring
 | Act 03 — Architecture | Reference: Architecture Overview
-| Act 04 — Efficiency Stack | Explore: Model Selection, Conditional Pipeline, MCP Tools, Cost, Optimization, Replica Scaling, llm-d
+| Act 04 — Efficiency Stack | Explore: Model Selection, Conditional Pipeline, MCP Tools, Cost, Optimization, Replica Scaling, llm-d, Adaptive Classification
 | Act 05 — Honest Answer | Explore: Scale Test
 |===
 

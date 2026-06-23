@@ -14,6 +14,7 @@
 * xref:explore-batch-processing.adoc[Batch Processing]
 * xref:explore-replica-scaling.adoc[Replica Scaling]
 * xref:explore-llmd-inference.adoc[llm-d Inference]
+* xref:explore-adaptive-classification.adoc[Adaptive Classification]
 
 .Wrap Up
 * xref:99-conclusion.adoc[Conclusion]

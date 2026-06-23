@@ -101,6 +101,19 @@ const MECHANISMS = [
     before: 'One node does everything: prefill + decode + queue',
     after: 'Specialized nodes: prefill node → decode node, SLO-aware routing',
   },
+  {
+    num: 8,
+    group: 'learning',
+    title: 'Adaptive Classification',
+    owner: 'LangGraph · Triforce',
+    what: 'Unlike the 7 levers above, this one isn\'t a switch — it\'s a trajectory. The system caches every LLM classification result. On re-encounter, it returns the cached answer in <1ms. The more records it processes, the fewer LLM calls it needs.',
+    gain: 'Day 1: every classification calls the LLM. Week 2: 60% come from cache. Month 1: 95% deterministic. The system teaches itself what it\'s already seen — and reserves inference capacity for documents it hasn\'t. Only possible at $0/token — cloud APIs give no incentive to cache.',
+    visual: 'adaptive',
+    color: 'var(--rh-green)',
+    status: 'live',
+    before: 'Every record calls the LLM for classification',
+    after: 'Volume-dependent: 95% cached after warmup — cost per record drops with scale',
+  },
 ]
 
 function RouterVisual() {
@@ -542,6 +555,102 @@ function ModelOptVisual() {
   )
 }
 
+function AdaptiveVisual() {
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const D = 0.5
+
+  const fetchStats = async () => {
+    setLoading(true)
+    try {
+      const resp = await fetch('/healthcare/api/v1/adaptive/stats')
+      setStats(await resp.json())
+    } catch {
+      setStats({ error: 'Adaptive classification endpoint not available' })
+    }
+    setLoading(false)
+  }
+
+  const phases = [
+    { label: 'Day 1', llm: 100, cache: 0 },
+    { label: 'Week 2', llm: 40, cache: 60 },
+    { label: 'Month 1+', llm: 5, cache: 95 },
+  ]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 320 }}>
+        {phases.map((p, i) => (
+          <motion.div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: D + i * 0.5, duration: 0.4 }}>
+            <div style={{ width: 60, fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', textAlign: 'right' }}>{p.label}</div>
+            <div style={{ flex: 1, height: 22, borderRadius: 4, overflow: 'hidden', display: 'flex', background: 'var(--surface-1)' }}>
+              <motion.div style={{ height: '100%', background: 'var(--rh-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                initial={{ width: '100%' }} animate={{ width: `${p.llm}%` }}
+                transition={{ delay: D + i * 0.5 + 0.3, duration: 0.6 }}>
+                {p.llm > 15 && <span style={{ fontSize: 10, fontWeight: 700, color: '#fff' }}>LLM {p.llm}%</span>}
+              </motion.div>
+              {p.cache > 0 && (
+                <motion.div style={{ height: '100%', background: 'var(--rh-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  initial={{ width: 0 }} animate={{ width: `${p.cache}%` }}
+                  transition={{ delay: D + i * 0.5 + 0.3, duration: 0.6 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#fff' }}>Cache {p.cache}%</span>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'center', marginTop: 4, lineHeight: 1.6 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.0 }}>
+        Document → SHA-256 → Cache lookup<br/>
+        <span style={{ color: 'var(--rh-green)', fontWeight: 600 }}>Hit → cached classification {'<'}1ms</span>
+        {' · '}
+        <span style={{ color: 'var(--rh-orange)', fontWeight: 600 }}>Miss → LLM → store result</span>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.5 }}>
+        <button className="btn btn-secondary"
+          style={{ borderColor: 'var(--rh-green)', fontSize: 12, padding: '6px 16px' }}
+          onClick={fetchStats} disabled={loading}>
+          {loading ? 'Checking…' : 'Prove it — show live cache stats'}
+        </button>
+      </motion.div>
+
+      {stats && !stats.error && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          style={{ width: '100%', maxWidth: 280 }}>
+          <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['Cache size', stats.cache_size],
+                ['Total lookups', stats.total_lookups],
+                ['Cache hits', stats.cache_hits],
+                ['Hit rate', `${(stats.hit_rate * 100).toFixed(1)}%`],
+                ['LLM reduction', `${stats.llm_reduction_pct}%`],
+              ].map(([label, val]) => (
+                <tr key={String(label)}>
+                  <td style={{ padding: '4px 8px', color: 'var(--text-dim)' }}>{label}</td>
+                  <td className="mono" style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--rh-green)' }}>{val}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
+
+      {stats?.error && (
+        <motion.div style={{ fontSize: 12, color: 'var(--text-disabled)', textAlign: 'center' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {stats.error}
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
 const VISUALS: Record<string, () => React.ReactElement> = {
   router: RouterVisual,
   modelopt: ModelOptVisual,
@@ -550,12 +659,14 @@ const VISUALS: Record<string, () => React.ReactElement> = {
   streams: StreamsVisual,
   replicas: ReplicasVisual,
   llmd: LlmdVisual,
+  adaptive: AdaptiveVisual,
 }
 
 const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
   'per-record': { label: 'Per-Record Efficiency', detail: 'Reduce work per record — do less inference, use the right model' },
   'model': { label: 'Model Optimization', detail: 'Same hardware, better models — four independent levers that compound' },
-  'fleet': { label: 'Fleet-Scale Throughput', detail: 'Scale total output — agent replicas, model replicas, disaggregated inference' },
+  'fleet': { label: 'Fleet-Scale Throughput', detail: 'Scale total output — replicas, disaggregated inference, batch streaming' },
+  'learning': { label: 'Compounding Over Time', detail: 'The first 7 are switches you flip. This one improves the longer it runs.' },
 }
 
 export function Act04Efficiency({ onComplete }: Props) {
@@ -683,7 +794,7 @@ export function Act04Efficiency({ onComplete }: Props) {
             transition={{ delay: 0.3 }}
           >
             <div style={{ fontSize: 13, color: 'var(--rh-green)', fontWeight: 600, marginBottom: 16 }}>
-              7 layers across 3 dimensions. Each compounds. Cost stays at $0/token. Performance is engineered, not purchased.
+              7 levers you flip today. 1 that gets better the longer it runs. Cost stays at $0/token. Performance is engineered, not purchased.
             </div>
             <button className="btn btn-primary" onClick={onComplete}>
               The punchline →

@@ -55,7 +55,26 @@ def _get_llm(model: str = None, max_tokens: int = 1024) -> ChatOpenAI:
 
 async def classify_node(state: HealthcareState) -> dict:
     """Classify the clinical document type."""
+    import adaptive_cache
+
     text = state["text"]
+
+    start = time.monotonic()
+    cached = adaptive_cache.lookup(text)
+    if cached:
+        latency_ms = int((time.monotonic() - start) * 1000)
+        classification = cached["classification"]
+        log_entry = {
+            "node": "classify", "model": "adaptive-cache",
+            "latency_ms": latency_ms, "accelerator": "cpu",
+            "kv_cache_hit": True,
+        }
+        return {
+            "classification": classification,
+            "messages": [AIMessage(content=f"Classification: {classification}")],
+            "inference_log": state.get("inference_log", []) + [log_entry],
+        }
+
     prompt = (
         "Classify this clinical document into exactly one category: "
         "discharge_summary, progress_note, lab_report, radiology_report, "
@@ -81,7 +100,14 @@ async def classify_node(state: HealthcareState) -> dict:
         classification = "unknown"
         latency_ms = 0
 
-    log_entry = {"node": "classify", "model": CLASSIFY_MODEL, "latency_ms": latency_ms, "accelerator": "cpu"}
+    if classification != "unknown":
+        await adaptive_cache.store(text, classification)
+
+    log_entry = {
+        "node": "classify", "model": CLASSIFY_MODEL,
+        "latency_ms": latency_ms, "accelerator": "cpu",
+        "kv_cache_hit": False,
+    }
 
     return {
         "classification": classification,
