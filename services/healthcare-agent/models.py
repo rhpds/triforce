@@ -110,6 +110,7 @@ class PipelineStepLog(BaseModel):
     tool: Optional[str] = None
     latency_ms: int = Field(ge=0)
     accelerator: Optional[str] = "cpu"
+    kv_cache_hit: Optional[bool] = None
 
 
 class PipelineRequest(BaseModel):

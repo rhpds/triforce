@@ -13,6 +13,7 @@ COPY graph.py .
 COPY mcp_tools.py .
 COPY drug_data.py .
 COPY kafka_consumer.py .
+COPY adaptive_cache.py .
 
 USER 1001
 EXPOSE 8081

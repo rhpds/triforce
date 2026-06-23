@@ -63,6 +63,16 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Classification cache — adaptive learning from inference results
+CREATE TABLE IF NOT EXISTS classification_cache (
+    text_hash TEXT PRIMARY KEY,
+    classification TEXT NOT NULL,
+    confidence FLOAT DEFAULT 1.0,
+    hit_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_inference_log_agent_created
     ON inference_log (agent_name, created_at DESC);

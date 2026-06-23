@@ -22,6 +22,7 @@ Which did you explore?
 * ☐ *Batch Processing* — AMQ Streams at volume
 * ☐ *Replica Scaling* — agent and model serving replicas
 * ☐ *llm-d Inference* — disaggregated prefill + decode
+* ☐ *Adaptive Classification* — watch the cache hit rate climb in real time
 
 == The Honest Answer
 

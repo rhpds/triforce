@@ -53,6 +53,7 @@ async def run_graph(text: str, patient_id: str = None) -> dict:
             task_type=entry.get("node", "unknown"),
             latency_ms=entry.get("latency_ms", 0),
             accelerator=entry.get("accelerator", "cpu"),
+            kv_cache_hit=entry.get("kv_cache_hit", False),
         )
 
     return result
@@ -62,6 +63,9 @@ async def run_graph(text: str, patient_id: str = None) -> dict:
 async def lifespan(app):
     global kafka_pipeline, healthcare_graph
     await db.init_pool()
+
+    import adaptive_cache
+    await adaptive_cache.init_cache()
 
     from attestation import get_litellm_api_key, is_running_in_tdx
     api_key = await get_litellm_api_key()
@@ -331,6 +335,12 @@ async def compare_pipelines(req: models.PipelineRequest):
 @app.get("/api/v1/stats")
 async def inference_stats():
     return await db.get_inference_stats()
+
+
+@app.get("/api/v1/adaptive/stats")
+async def adaptive_stats():
+    import adaptive_cache
+    return adaptive_cache.get_stats()
 
 
 if __name__ == "__main__":
