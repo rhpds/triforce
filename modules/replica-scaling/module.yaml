@@ -1,0 +1,15 @@
+name: replica-scaling
+displayName: Agent + Model Replica Scaling
+description: Scale agent pods and model serving replicas independently on existing
+  hardware. 20-30% latency improvement measured.
+audience:
+- Platform Architect
+- SRE
+status: live
+helm:
+  flag: modules.scaling.enabled
+showroom:
+  lab_page: explore-replica-scaling.adoc
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 6

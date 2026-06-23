@@ -1,0 +1,14 @@
+name: scale-testing
+displayName: Scale Testing
+description: Concurrent requests, throughput ceiling, latency under load. Proves the
+  system under pressure.
+audience:
+- Performance Engineer
+- SRE
+status: live
+helm:
+  flag: modules.scaleTesting.enabled
+showroom:
+  lab_page: explore-scale-test.adoc
+frontend:
+  mechanism_group: analysis

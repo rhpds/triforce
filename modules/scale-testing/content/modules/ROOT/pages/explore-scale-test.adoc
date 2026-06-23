@@ -1,0 +1,50 @@
+= Explore: Scale Test
+:navtitle: Scale Test
+
+*Time: ~15 minutes* · *Role: Platform Architect, SRE*
+
+== What You'll Learn
+
+What happens to latency when you fire 10 concurrent requests at a single Xeon 6 node? Cost stays flat — but does throughput?
+
+== Exercise: Run the Scale Test via Frontend
+
+Open the Triforce demo, navigate to Act 04 (Scale & Tradeoffs).
+
+. Click *Run 10 records* — watch the live counter, avg latency, and $0.00 cost
+. Click *Run 30 records* — latency climbs, cost stays flat
+. The table shows the comparison
+
+== Exercise: Run via API
+
+[source,bash,role="execute",subs=attributes+]
+----
+python3 /opt/triforce/tests/scale_test.py {healthcare_url} --label lab --tiers 5,10
+----
+
+This fires 5 then 10 concurrent pipeline requests and reports:
+
+* Completed count
+* Average latency
+* P95 latency
+* Wall clock time
+* Throughput (records/minute)
+* Cost ($0.00)
+
+== Exercise: Check Pod Resource Usage
+
+[source,bash,role="execute"]
+----
+oc adm top pods -n triforce
+----
+
+See CPU and memory usage across all pods during the scale test.
+
+== The Takeaway
+
+Throughput is capped by the model serving layer (MAAS), not the agent pods. Adding agent replicas helps latency (~20-30%), but the real throughput gain comes from model serving replicas and INT8 quantization.
+
+The cost line is flat. The efficiency line is what we engineer.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

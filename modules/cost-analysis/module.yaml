@@ -1,0 +1,14 @@
+name: cost-analysis
+displayName: Cost at Scale
+description: CPU vs GPU vs Cloud API cost comparison across 4 volume tiers. Break-even
+  analysis for enterprise workloads.
+audience:
+- Technical Decision Maker
+- Finance
+status: live
+helm:
+  flag: modules.costAnalysis.enabled
+showroom:
+  lab_page: explore-cost-analysis.adoc
+frontend:
+  mechanism_group: analysis

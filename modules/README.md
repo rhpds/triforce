@@ -19,12 +19,43 @@ modules/
 
 ## Available Modules
 
+### Per-Record Efficiency
 | Module | Focus | Audience | Status |
 |--------|-------|----------|--------|
-| benchmarking | Model × Task × Hardware comparison | Performance Engineer | building |
+| semantic-routing | Embedding-based routing to right-sized model | Platform Architect | live |
+| conditional-pipeline | Skip inference steps not needed per record | ML Engineer | live |
+| mcp-tools | Database lookup (16ms) instead of LLM call (3-8s) | ML Engineer | live |
+
+### Model Optimization
+| Module | Focus | Audience | Status |
+|--------|-------|----------|--------|
+| model-optimization | INT8 quantization, AMX, optimized variants | Performance Engineer | live |
+
+### Fleet-Scale Throughput
+| Module | Focus | Audience | Status |
+|--------|-------|----------|--------|
+| batch-processing | AMQ Streams async event streaming at volume | Data Engineer | live |
+| replica-scaling | Agent + model serving replica scaling | SRE | live |
+| llmd-inference | Disaggregated prefill/decode across nodes | Performance Engineer | roadmap |
+
+### Compounding Over Time
+| Module | Focus | Audience | Status |
+|--------|-------|----------|--------|
+| adaptive-classification | Cache learns from LLM results, compounds with volume | Data Engineer | live |
+
+### Heterogeneous Compute (new)
+| Module | Focus | Audience | Status |
+|--------|-------|----------|--------|
+| benchmarking | Model × Task × Hardware comparison matrix | Performance Engineer | building |
+| heterogeneous-routing | CPU→GPU intelligent routing | Platform Architect | building |
+| multi-model-fusion | Panel+judge for critical decisions | Compliance | building |
 | speculative-decoding | 2-3x speedup via draft model | ML Engineer | planned |
-| heterogeneous-routing | CPU→GPU intelligent routing | Platform Architect | planned |
-| multi-model-fusion | Panel+judge for critical decisions | Compliance, Clinical | planned |
+
+### Analysis
+| Module | Focus | Audience | Status |
+|--------|-------|----------|--------|
+| cost-analysis | CPU vs GPU vs Cloud API cost comparison | Decision Maker | live |
+| scale-testing | Concurrent load testing, throughput ceiling | SRE | live |
 
 ## How Modules are Governed
 

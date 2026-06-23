@@ -1,0 +1,15 @@
+name: batch-processing
+displayName: AMQ Streams Batch Processing
+description: Async event streaming processes thousands of records in parallel. Throughput
+  scales with consumers.
+audience:
+- Data Engineer
+- Platform Architect
+status: live
+helm:
+  flag: kafka.enabled
+showroom:
+  lab_page: explore-batch-processing.adoc
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 5

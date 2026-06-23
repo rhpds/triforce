@@ -1,0 +1,15 @@
+name: mcp-tools
+displayName: MCP Tools (Data, Not LLM)
+description: Drug interactions via MCP database lookup (16ms) instead of LLM call
+  (3-8s). Not everything needs inference.
+audience:
+- ML Engineer
+- Platform Architect
+status: live
+helm:
+  flag: mcpGateway.enabled
+showroom:
+  lab_page: explore-mcp-tools.adoc
+frontend:
+  mechanism_group: per-record
+  mechanism_num: 3
