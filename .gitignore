@@ -16,4 +16,6 @@ target/
 .vscode/
 *.iml
 infrastructure/kagenti/secrets.yaml
+agnosticv/
+test-receipts/
 .claude/
