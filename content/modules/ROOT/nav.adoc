@@ -12,6 +12,8 @@
 * xref:explore-scale-test.adoc[Scale Test]
 * xref:explore-model-optimization.adoc[Model Optimization]
 * xref:explore-batch-processing.adoc[Batch Processing]
+* xref:explore-replica-scaling.adoc[Replica Scaling]
+* xref:explore-llmd-inference.adoc[llm-d Inference]
 
 .Wrap Up
 * xref:99-conclusion.adoc[Conclusion]

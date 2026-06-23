@@ -29,6 +29,18 @@ OpenShift Virtualization runs your VMs as first-class Kubernetes resources. The 
 | Coexistence Deep Dive | Node-level resource sharing, affinity rules | Infrastructure Engineer
 |===
 
+== How This Maps to the Demo
+
+[cols="1,2",options="header"]
+|===
+| Demo Act | Matching Lab Module
+
+| Act 01 — The Problem | Required: Verify OpenShift Virtualization
+| Act 02 — Live Pipeline | Explore: VM Calls AI Agent
+| Act 04 — Efficiency Stack | Explore: Resource Management
+| Act 05 — Honest Answer | Explore: Coexistence Deep Dive
+|===
+
 == Duration
 
 * **Estimated time:** 45 minutes

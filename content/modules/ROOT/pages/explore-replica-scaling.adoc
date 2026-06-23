@@ -1,0 +1,54 @@
+= Explore: Replica Scaling
+:navtitle: Replica Scaling
+
+*Time: ~10 minutes* · *Role: Platform Architect, SRE*
+
+== What You'll Learn
+
+Agent replicas reduce latency. Model serving replicas unlock throughput. Both scale on hardware you already own.
+
+== Exercise 1: Check Current Replica Count
+
+[source,bash,role="execute"]
+----
+oc get deploy -n triforce -o custom-columns='NAME:.metadata.name,REPLICAS:.spec.replicas,READY:.status.readyReplicas'
+----
+
+Healthcare and FinServ agents run 2 replicas by default. The orchestrator runs 1.
+
+== Exercise 2: Scale Up
+
+[source,bash,role="execute"]
+----
+oc scale deploy/healthcare-agent --replicas=3 -n triforce
+oc get pods -l app=healthcare-agent -n triforce -w
+----
+
+Watch the third replica come up. The OpenShift Service load-balances across all replicas automatically.
+
+== Exercise 3: Test the Difference
+
+Run the scale test before and after scaling:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== 2 replicas ===" && curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes."}' | jq .total_ms
+----
+
+Tested on infra01: agent scaling gives ~20-30% latency reduction. But throughput is bottlenecked by the model serving layer (MAAS), not the agents. The real throughput gain comes from scaling the vLLM workers behind the LiteLLM proxy.
+
+== Exercise 4: Scale Back
+
+[source,bash,role="execute"]
+----
+oc scale deploy/healthcare-agent --replicas=2 -n triforce
+----
+
+== The Takeaway
+
+Agent replicas: latency improvement (~20-30%). Model serving replicas: throughput scaling. Both are config changes on existing hardware. No new procurement.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

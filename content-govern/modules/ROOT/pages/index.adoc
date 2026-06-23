@@ -29,6 +29,18 @@ IBM Kagenti makes agents first-class CRDs — registered, discoverable, identity
 | Agent Lifecycle | AgentRuntime CRDs, health monitoring, scaling | K8s Administrator
 |===
 
+== How This Maps to the Demo
+
+[cols="1,2",options="header"]
+|===
+| Demo Act | Matching Lab Module
+
+| Act 01 — The Problem | Required: Verify Kagenti Operator
+| Act 02 — Agent Discovery | Explore: Agent Lifecycle
+| Act 03 — Architecture | Explore: Zero-Trust Identity + MCP Governance
+| Act 05 — Honest Answer | Explore: Audit Trail
+|===
+
 == Duration
 
 * **Estimated time:** 60 minutes

@@ -110,4 +110,4 @@ This is how the orchestrator discovers agents automatically — standard A2A pro
 * Discovered the agent via A2A protocol
 
 [.next-nav]
-xref:04-cross-agent-workflow.adoc[Next: Cross-Agent Workflows →]
+xref:explore-model-selection.adoc[Next: Choose Your Path — Model Selection →]

@@ -19,7 +19,9 @@ Which did you explore?
 * ☐ *Cost at Scale* — four volume tiers, break-even analysis
 * ☐ *Scale Test* — concurrent requests, throughput ceiling
 * ☐ *Model Optimization* — FP32 vs INT8 comparison
-* ☐ *Batch Processing* — AMQ Streams / Kafka at volume
+* ☐ *Batch Processing* — AMQ Streams at volume
+* ☐ *Replica Scaling* — agent and model serving replicas
+* ☐ *llm-d Inference* — disaggregated prefill + decode
 
 == The Honest Answer
 
