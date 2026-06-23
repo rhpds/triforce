@@ -1,0 +1,81 @@
+= Explore: Model Benchmarking
+:navtitle: Model Benchmarking
+
+*Time: ~15 minutes* · *Role: Performance Engineer, ML Engineer*
+
+== What You'll Learn
+
+Not all models perform the same on every task. This module runs the same workload across multiple models on both CPU and GPU hardware, measuring latency, throughput, TTFT (time to first token), and output quality. You decide which model belongs on which hardware for your use case.
+
+== Exercise 1: List Available Models
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/benchmark/models | jq .
+----
+
+This shows all models available on MAAS — CPU and GPU — with their parameter counts and hardware type.
+
+== Exercise 2: Run a Classification Benchmark
+
+Compare 3 models on the same classification task:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "classification",
+    "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril.",
+    "models": ["granite-2b-cpu", "qwen25-3b-cpu", "granite-3-2-8b-instruct"]
+  }' | jq '.results[] | {model, hardware, latency_ms, output}'
+----
+
+All three models should classify correctly. Compare the latency: CPU models at 800-1100ms, GPU model at ~500ms. For classification, CPU is good enough.
+
+== Exercise 3: Run a Summarization Benchmark
+
+Summarization shows the biggest CPU vs GPU difference:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "summarization",
+    "text": "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent. Started on dual antiplatelet therapy.",
+    "models": ["granite-2b-cpu", "qwen25-3b-cpu", "granite-3-2-8b-instruct"]
+  }' | jq '.results[] | {model, hardware, latency_ms, output_tokens}'
+----
+
+GPU summarization is 2-3x faster. The question: is that speed worth the cost for your volume?
+
+== Exercise 4: Run a guidellm Throughput Sweep
+
+For production capacity planning, use guidellm to stress-test a model:
+
+[source,bash,role="execute"]
+----
+guidellm benchmark run \
+  --target "${LITELLM_API_BASE}/v1" \
+  --model granite-2b-cpu \
+  --rate-type concurrent --rate 1,2,4 \
+  --data "kind=synthetic_text,prompt_tokens=200,output_tokens=64" \
+  --max-requests 6 \
+  --output-path /tmp/benchmark-results.json
+----
+
+This shows how latency changes under concurrent load. CPU models saturate quickly — throughput stays flat while latency climbs.
+
+== The Takeaway
+
+Benchmarking reveals three things:
+
+1. **Simple tasks don't need GPU** — classification accuracy is identical on CPU and GPU
+2. **Complex tasks benefit from GPU** — summarization and reasoning are 2-10x faster with better quality
+3. **Throughput scales with model serving, not agents** — adding agent replicas helps latency, but the model server is the ceiling
+
+The right architecture routes simple tasks to CPU ($0) and complex tasks to GPU ($/token). Benchmarks tell you where to draw the line.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

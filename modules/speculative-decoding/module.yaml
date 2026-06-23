@@ -1,0 +1,31 @@
+name: speculative-decoding
+displayName: Speculative Decoding
+description: >
+  Draft model proposes tokens, target model verifies in batch.
+  2-3x speedup on CPU and GPU, lossless quality.
+  Uses vLLM native speculative decoding (EAGLE, n-gram, MTP).
+audience:
+  - ML Engineer
+  - Performance Engineer
+status: planned
+dependencies:
+  tools:
+    - vllm  # requires vLLM instance with --speculative-model flag
+  maas_models:
+    - granite-4-0-h-tiny-cpu     # draft model (CPU)
+    - granite-4-0-h-tiny         # draft model (GPU)
+    - granite-2b-cpu             # target model
+    - qwen25-3b-cpu              # target model
+helm:
+  flag: modules.speculative.enabled
+  values:
+    speculative:
+      enabled: false
+      draftModel: granite-4-0-h-tiny-cpu
+      targetModel: granite-2b-cpu
+showroom:
+  content_dir: modules/speculative-decoding/content
+  nav_entry: "* xref:explore-speculative-decoding.adoc[Speculative Decoding]"
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 9
