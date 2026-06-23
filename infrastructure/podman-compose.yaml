@@ -167,6 +167,8 @@ services:
     environment:
       SEMANTIC_ROUTER_PORT: "8094"
       COMPLEX_MODEL: qwen25-3b-cpu
+      HETEROGENEOUS_ROUTING: "${HETEROGENEOUS_ROUTING:-false}"
+      GPU_COMPLEX_MODEL: "${GPU_COMPLEX_MODEL:-granite-3-2-8b-instruct}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8094/health"]
       interval: 10s

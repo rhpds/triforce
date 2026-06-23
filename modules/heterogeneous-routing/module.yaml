@@ -8,7 +8,7 @@ audience:
   - Platform Architect
   - Technical Decision Maker
   - SRE
-status: planned
+status: building
 dependencies:
   maas_models:
     cpu:
