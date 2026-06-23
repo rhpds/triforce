@@ -1,0 +1,213 @@
+benchmark_rubric:
+  description: >
+    Per-module benchmark matrix. Each module defines which models run on which
+    tasks, with expected baselines and pass criteria. Run via `make test-benchmarks`
+    or the /api/v1/benchmark/run endpoint.
+
+  modules:
+
+    core_pipeline:
+      description: "Base healthcare pipeline — classify → NER → interactions → summarize"
+      benchmarks:
+        classification:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu
+              baseline_ms: 858
+              max_ms: 2000
+              expected_output: discharge_summary
+            - model: qwen25-3b-cpu
+              hardware: cpu
+              baseline_ms: 779
+              max_ms: 2000
+              expected_output: discharge_summary
+            - model: granite-3-2-8b-instruct-cpu
+              hardware: cpu
+              baseline_ms: 1128
+              max_ms: 3000
+              expected_output: discharge_summary
+            - model: granite-3-2-8b-instruct
+              hardware: gpu
+              baseline_ms: 500
+              max_ms: 1500
+              expected_output: discharge_summary
+          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."
+
+        ner:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu
+              baseline_ms: 6248
+              max_ms: 15000
+              min_entities: 5
+            - model: qwen25-3b-cpu
+              hardware: cpu
+              baseline_ms: 7715
+              max_ms: 15000
+              min_entities: 5
+            - model: granite-3-2-8b-instruct
+              hardware: gpu
+              baseline_ms: 5661
+              max_ms: 10000
+              min_entities: 7
+            - model: microsoft-phi-4
+              hardware: gpu
+              baseline_ms: 3809
+              max_ms: 8000
+              min_entities: 8
+          test_text: "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg."
+
+        summarization:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu
+              baseline_ms: 5208
+              max_ms: 12000
+              min_tokens: 50
+            - model: qwen25-3b-cpu
+              hardware: cpu
+              baseline_ms: 5205
+              max_ms: 12000
+              min_tokens: 50
+            - model: gpt-oss-20b
+              hardware: gpu
+              baseline_ms: 1572
+              max_ms: 5000
+              min_tokens: 80
+          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent."
+
+    fraud_scoring:
+      description: "FinServ fraud scoring — rule signals + LLM risk assessment"
+      benchmarks:
+        fraud_risk:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu
+              baseline_ms: 2326
+              max_ms: 5000
+              min_score: 70
+            - model: qwen25-3b-cpu
+              hardware: cpu
+              baseline_ms: 2057
+              max_ms: 5000
+              min_score: 70
+            - model: llama-scout-17b
+              hardware: gpu
+              baseline_ms: 1147
+              max_ms: 3000
+              min_score: 70
+          test_text: "$15,000 wire transfer to Nigeria from a new account opened 3 days ago. Round amount. First international transaction."
+
+    heterogeneous_routing:
+      description: "Semantic router CPU→GPU routing decisions"
+      benchmarks:
+        simple_routes_cpu:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu
+              expected_route: simple
+          test_text: "Classify this clinical document"
+
+        complex_routes_gpu:
+          models:
+            - model: granite-3-2-8b-instruct
+              hardware: gpu
+              expected_route: complex
+          test_text: "Analyze the drug interactions between Warfarin and Aspirin considering renal function and provide a differential diagnosis"
+
+    fusion:
+      description: "Multi-model panel + judge synthesis"
+      benchmarks:
+        panel_consensus:
+          panel_models:
+            - granite-2b-cpu
+            - qwen25-3b-cpu
+            - phi3-mini-cpu
+          judge_model: granite-3-2-8b-instruct-cpu
+          max_panel_ms: 15000
+          max_total_ms: 60000
+          min_panel_responses: 2
+          test_prompt: "Does a pattern of $9,500 transfers to the Cayman Islands indicate AML structuring?"
+
+    speculative_decoding:
+      description: "Draft model + target model — speedup measurement"
+      benchmarks:
+        draft_target_speedup:
+          draft_model: granite-4-0-h-tiny-cpu
+          target_model: granite-2b-cpu
+          expected_speedup: 1.5
+          status: planned
+
+    adaptive_classification:
+      description: "Classification cache — cold vs warm performance"
+      benchmarks:
+        cache_warmup:
+          model: qwen25-3b-cpu
+          cold_baseline_ms: 800
+          warm_max_ms: 5
+          warmup_calls: 3
+          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes."
+
+  measured_baselines:
+    description: "Live MAAS measurements from June 23, 2026"
+    source: "maas-rhdp.apps.maas.redhatworkshops.io"
+    date: "2026-06-23"
+    notes: >
+      CPU models on Intel Xeon 6 via RHDP MAAS.
+      GPU models on NVIDIA via RAC MAAS.
+      Baselines are single-request latency (no concurrency).
+
+    cpu_vs_gpu_comparison:
+      - task: classification
+        cpu_model: qwen25-3b-cpu
+        cpu_ms: 779
+        gpu_model: granite-3-2-8b-instruct
+        gpu_ms: 500
+        speedup: 1.6x
+        quality_diff: none
+
+      - task: ner
+        cpu_model: granite-2b-cpu
+        cpu_ms: 6248
+        gpu_model: microsoft-phi-4
+        gpu_ms: 3809
+        speedup: 1.6x
+        quality_diff: "GPU includes dosages (500mg, 10mg)"
+
+      - task: summarization
+        cpu_model: granite-2b-cpu
+        cpu_ms: 5208
+        gpu_model: gpt-oss-20b
+        gpu_ms: 1572
+        speedup: 3.3x
+        quality_diff: "GPU produces more detailed output (223 vs 176 tokens)"
+
+      - task: compliance_reasoning
+        cpu_model: granite-2b-cpu
+        cpu_ms: 3537
+        gpu_model: microsoft-phi-4
+        gpu_ms: 1692
+        speedup: 2.1x
+        quality_diff: "GPU cites specific AML regulations"
+
+      - task: differential_diagnosis
+        cpu_model: granite-3-2-8b-instruct-cpu
+        cpu_ms: 14817
+        gpu_model: gpt-oss-120b
+        gpu_ms: 1465
+        speedup: 10.1x
+        quality_diff: "GPU (120B) best quality — cites pathogen, references CSF findings"
+
+    throughput_guidellm:
+      granite-2b-cpu:
+        hardware: cpu
+        requests_per_second: 0.23
+        latency_mean_s: 4.33
+        ttft_mean_ms: 4204
+        itl_mean_ms: 1.3
+      granite-3-2-8b-instruct:
+        hardware: gpu
+        requests_per_second: 0.87
+        latency_mean_s: 1.15
+        ttft_mean_ms: 401
+        itl_mean_ms: 24
