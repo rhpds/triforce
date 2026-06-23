@@ -1,0 +1,15 @@
+name: adaptive-classification
+displayName: Adaptive Classification
+description: System learns from its own LLM results. After warmup, most classifications
+  return from cache in <1ms. Compounds with volume.
+audience:
+- Data Engineer
+- ML Engineer
+status: live
+helm:
+  flag: modules.adaptive.enabled
+showroom:
+  lab_page: explore-adaptive-classification.adoc
+frontend:
+  mechanism_group: learning
+  mechanism_num: 8

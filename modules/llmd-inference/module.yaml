@@ -1,0 +1,15 @@
+name: llmd-inference
+displayName: llm-d Disaggregated Inference
+description: SLO-based scheduler separates prefill (compute-heavy) and decode (memory-bound)
+  across specialized nodes.
+audience:
+- Performance Engineer
+- Platform Architect
+status: roadmap
+helm:
+  flag: modules.llmd.enabled
+showroom:
+  lab_page: explore-llmd-inference.adoc
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 7

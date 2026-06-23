@@ -1,0 +1,15 @@
+name: conditional-pipeline
+displayName: Conditional Pipeline
+description: "LangGraph skips inference steps that aren't needed. <2 medications \u2192\
+  \ skip drug interaction check. Adaptive per record."
+audience:
+- ML Engineer
+- Data Engineer
+status: live
+helm:
+  flag: modules.conditional.enabled
+showroom:
+  lab_page: explore-conditional-pipeline.adoc
+frontend:
+  mechanism_group: per-record
+  mechanism_num: 2

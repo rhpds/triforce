@@ -1,0 +1,15 @@
+name: semantic-routing
+displayName: vLLM Semantic Router
+description: "Embedding-based classification routes each request to the right-sized\
+  \ model in <1ms. Simple \u2192 2B, Medium \u2192 3B, Complex \u2192 3.8B."
+audience:
+- Platform Architect
+- ML Engineer
+status: live
+helm:
+  flag: semanticRouter.enabled
+showroom:
+  lab_page: explore-model-selection.adoc
+frontend:
+  mechanism_group: per-record
+  mechanism_num: 1

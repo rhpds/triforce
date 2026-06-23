@@ -1,0 +1,15 @@
+name: model-optimization
+displayName: Model Optimization (INT8/AMX)
+description: Same hardware, better inference. INT8 quantization via AMX, optimized
+  model variants, prompt tuning. Four independent levers.
+audience:
+- ML Engineer
+- Performance Engineer
+status: live
+helm:
+  flag: modules.optimization.enabled
+showroom:
+  lab_page: explore-model-optimization.adoc
+frontend:
+  mechanism_group: model
+  mechanism_num: 4
