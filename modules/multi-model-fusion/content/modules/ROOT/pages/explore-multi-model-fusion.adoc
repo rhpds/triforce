@@ -1,0 +1,62 @@
+= Explore: Multi-Model Fusion
+:navtitle: Multi-Model Fusion
+
+*Time: ~15 minutes* · *Role: Compliance Officer, Clinical Decision Maker*
+
+== What You'll Learn
+
+For critical decisions — compliance checks, diagnostic reasoning, audit-grade outputs — a single model isn't enough. Multi-model fusion sends the same question to 3 models in parallel, then a judge model compares their responses and synthesizes consensus, contradictions, and blind spots.
+
+Cost: ~4x a single call. Value: higher confidence for decisions where being wrong has consequences.
+
+== Exercise 1: Run a Compliance Fusion
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "compliance",
+    "prompt": "A customer in Germany transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000. Does this pattern indicate potential structuring under AML regulations? Explain your reasoning."
+  }' | jq '{status, panel: .panel.models, judge_model: .judge.model, total_ms, synthesis: .judge.synthesis[:300]}'
+----
+
+Three models answer independently. The judge identifies what they agree on, where they differ, and what none of them covered.
+
+== Exercise 2: Compare Single Model vs Fusion
+
+Run the same question through a single model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "compliance_reasoning",
+    "text": "A customer in Germany transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000.",
+    "models": ["granite-2b-cpu"]
+  }' | jq '.results[0] | {model, latency_ms, output: .output[:200]}'
+----
+
+Compare the depth of reasoning: single model gives one perspective. Fusion gives consensus + contradictions + blind spots.
+
+== Exercise 3: Clinical Diagnostic Fusion
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "diagnosis",
+    "prompt": "Patient: 45-year-old female. Symptoms: sudden severe headache, neck stiffness, photophobia, fever 38.9C, altered mental status. Labs: WBC 18,000, CSF elevated protein, low glucose, neutrophilic pleocytosis. What are the top 3 differential diagnoses?"
+  }' | jq '{panel_count: .panel.count, panel_latency_ms: .panel.latency_ms, judge_latency_ms: .judge.latency_ms, total_ms, synthesis: .judge.synthesis[:400]}'
+----
+
+The judge compares the differential diagnoses from each model — do they all agree on bacterial meningitis? Does any model catch a diagnosis the others missed?
+
+== The Takeaway
+
+Single model: one perspective, one set of blind spots. Fusion panel: three perspectives, judge catches contradictions and gaps. The cost is 4x but for compliance decisions and diagnostic reasoning, the cost of being wrong vastly exceeds the cost of 3 extra inference calls. On CPU at $0/token, the extra calls are literally free.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

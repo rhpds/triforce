@@ -366,5 +366,15 @@ async def benchmark_run(req: dict):
     return await benchmark.run_comparison(task, text, models)
 
 
+@app.post("/api/v1/fusion")
+async def fusion_endpoint(req: dict):
+    import fusion
+    prompt = req.get("prompt", "")
+    task = req.get("task", "general")
+    if not prompt:
+        return {"error": "prompt is required"}
+    return await fusion.run_fusion(prompt, task)
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)

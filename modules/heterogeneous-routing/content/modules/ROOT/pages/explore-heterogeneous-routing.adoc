@@ -1,0 +1,72 @@
+= Explore: Heterogeneous Compute Routing
+:navtitle: Heterogeneous Routing
+
+*Time: ~10 minutes* · *Role: Platform Architect, Technical Decision Maker*
+
+== What You'll Learn
+
+The semantic router classifies each request by complexity and routes to the optimal hardware. Simple tasks stay on CPU ($0/token). Complex tasks route to GPU ($/token). The system decides for you — same API, different backends.
+
+== Exercise 1: Check Current Routing Mode
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {semantic_router_url}/health | jq .
+----
+
+When heterogeneous routing is enabled, the health response includes `heterogeneous: true`.
+
+== Exercise 2: Route a Simple Request
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Classify this document: DISCHARGE SUMMARY"}' | jq '{route, model, hardware, confidence, latency_ms}'
+----
+
+Simple classification → CPU model (granite-2b-cpu). Hardware: `cpu`. Cost: $0.
+
+== Exercise 3: Route a Complex Request
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Analyze the drug interactions between Warfarin and Aspirin considering the patients renal function and provide a differential diagnosis"}' | jq '{route, model, hardware, confidence, latency_ms}'
+----
+
+Complex reasoning → GPU model (granite-3-2-8b-instruct). Hardware: `gpu`. Cost: $/token — but only when needed.
+
+== Exercise 4: Compare the Cost Breakdown
+
+Run 10 mixed requests and see how many route to CPU vs GPU:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for prompt in \
+  "Classify this document" \
+  "What type of report is this" \
+  "Summarize the patient record" \
+  "Extract medications from this note" \
+  "Evaluate the cardiovascular risk factors and recommend treatment" \
+  "Label this transaction" \
+  "Provide a differential diagnosis for chest pain with elevated troponin" \
+  "Tag this as compliant or non-compliant" \
+  "Synthesize the lab results with medication contraindications" \
+  "Check if this amount exceeds the threshold"; do
+  result=$(curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$prompt\"}" | jq -r '[.route, .hardware] | @tsv')
+  echo "  $result  ← $prompt"
+done
+----
+
+Typical result: 7-8 requests route to CPU ($0), 2-3 to GPU ($/token). That's 70-80% of your workload running free.
+
+== The Takeaway
+
+The semantic router makes the CPU vs GPU decision in <1ms per request. No code changes needed — the same API call routes to optimal hardware automatically. At scale: 80% of your workload runs at $0, 20% pays for GPU where quality/speed justifies the cost.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

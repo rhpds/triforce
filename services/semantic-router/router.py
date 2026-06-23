@@ -25,6 +25,8 @@ logger = logging.getLogger("semantic-router")
 
 SERVICE_PORT = int(os.environ.get("SEMANTIC_ROUTER_PORT", "8094"))
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+HETEROGENEOUS_ENABLED = os.environ.get("HETEROGENEOUS_ROUTING", "false").lower() == "true"
+GPU_COMPLEX_MODEL = os.environ.get("GPU_COMPLEX_MODEL", "granite-3-2-8b-instruct")
 
 # Route definitions with anchor examples for embedding similarity
 ROUTES = [
@@ -203,6 +205,13 @@ def classify_request(text: str) -> dict:
     if result is None:
         result = _classify_by_keywords(text)
 
+    if HETEROGENEOUS_ENABLED and result["route"] == "complex":
+        result["model"] = GPU_COMPLEX_MODEL
+        result["hardware"] = "gpu"
+    else:
+        result["hardware"] = "cpu"
+
+    result["heterogeneous"] = HETEROGENEOUS_ENABLED
     result["latency_ms"] = int((time.monotonic() - start) * 1000)
     result["word_count"] = len(text.split())
     return result

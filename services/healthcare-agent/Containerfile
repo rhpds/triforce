@@ -15,6 +15,7 @@ COPY drug_data.py .
 COPY kafka_consumer.py .
 COPY adaptive_cache.py .
 COPY benchmark.py .
+COPY fusion.py .
 
 USER 1001
 EXPOSE 8081

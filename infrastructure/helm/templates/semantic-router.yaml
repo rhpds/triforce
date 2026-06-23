@@ -31,6 +31,12 @@ spec:
               value: "8094"
             - name: COMPLEX_MODEL
               value: {{ .Values.semanticRouter.complexModel | default "qwen25-3b-cpu" }}
+            {{- if .Values.modules.heterogeneous.enabled }}
+            - name: HETEROGENEOUS_ROUTING
+              value: "true"
+            - name: GPU_COMPLEX_MODEL
+              value: {{ .Values.semanticRouter.gpuComplexModel | default "granite-3-2-8b-instruct" | quote }}
+            {{- end }}
           resources:
             requests:
               cpu: 250m
