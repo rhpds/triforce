@@ -7,7 +7,7 @@
 
 AMQ Streams (Kafka) processes thousands of records concurrently. One-at-a-time API calls don't scale — event streaming does.
 
-== Exercise: Check Kafka Topics
+== Exercise: Check AMQ Streams Topics
 
 [source,bash,role="execute"]
 ----
@@ -18,7 +18,7 @@ Topics include `healthcare.patients.synthetic`, `healthcare.results`, `finserv.t
 
 == Exercise: Watch the Consumer
 
-The healthcare agent has a Kafka consumer that processes records from the `healthcare.patients.synthetic` topic through the full LangGraph pipeline:
+The healthcare agent has an AMQ Streams consumer that processes records from the `healthcare.patients.synthetic` topic through the full LangGraph pipeline:
 
 [source,bash,role="execute"]
 ----
@@ -27,7 +27,7 @@ oc logs deploy/healthcare-agent -n triforce --tail=5 | grep -i "kafka\|processed
 
 == Exercise: Check Inference Stats
 
-After records flow through Kafka, check the aggregate stats:
+After records flow through AMQ Streams, check the aggregate stats:
 
 [source,bash,role="execute",subs=attributes+]
 ----

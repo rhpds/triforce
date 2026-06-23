@@ -14,7 +14,7 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
   -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA."}' | jq '{classification, entities: .entities | length, drug_interactions: .drug_interactions | length, total_ms, steps: [.inference_log[] | {node, model, latency_ms}]}'
 ----
 
-Same models. Same results. Same latency (within ~8% of standard). But the data never existed in plaintext memory.
+Same models (qwen25-3b-cpu for classification/summarization, granite-2b-cpu for NER). Same results. Same latency (within ~8% of standard). But the data never existed in plaintext memory.
 
 == Exercise 2: Check Attestation Log
 

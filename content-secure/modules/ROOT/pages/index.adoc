@@ -29,6 +29,18 @@ Intel TDX creates a Trust Domain — a hardware-enforced boundary around your AI
 | Attestation Deep Dive | KBS config, secret policies, without-TDX test | Platform Architect
 |===
 
+== How This Maps to the Demo
+
+[cols="1,2",options="header"]
+|===
+| Demo Act | Matching Lab Module
+
+| Act 01 — The Problem | Required: Setup (verify TDX stack)
+| Act 02 — Live Pipeline | Explore: Confidential Inference
+| Act 04 — Efficiency Stack | Explore: TDX Overhead Analysis
+| Act 05 — Honest Answer | Explore: Attestation Deep Dive
+|===
+
 == Duration
 
 * **Estimated time:** 60 minutes

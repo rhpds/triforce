@@ -22,7 +22,7 @@ The platform has five layers. Each exists because of a real workload problem.
 │               │  │                 │  │                  │
 │ classify      │  │ fraud scoring   │  │ agent discovery  │
 │ extract NER   │  │ compliance      │  │ workflow coord   │
-│ interactions  │  │ risk assess     │  │ kafka routing    │
+│ interactions  │  │ risk assess     │  │ event routing    │
 │ summarize     │  │                 │  │                  │
 └───────┬───────┘  └────────┬────────┘  └────────┬─────────┘
         │                   │                     │
@@ -111,7 +111,7 @@ Not every operation needs an LLM. Drug interaction checking is a database lookup
 | Component | Technology
 
 | Healthcare Agent | Python 3.11, FastAPI, LangGraph, aiokafka, asyncpg
-| FinServ Agent | Java 21, Quarkus 3.17, LiteLLMClient, SmallRye Kafka
+| FinServ Agent | Java 21, Quarkus 3.17, LiteLLMClient, SmallRye Reactive Messaging
 | Orchestrator | Go 1.22+, stdlib HTTP, A2A client
 | Semantic Router | Python, sentence-transformers (all-MiniLM-L6-v2)
 | MCP Gateway | Python, FastAPI, JSON-RPC 2.0

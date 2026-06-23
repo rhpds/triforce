@@ -63,7 +63,7 @@ LangGraph   Fraud+LLM  A2A dispatch
      ┌────────┼────────┐
      │        │        │
   MCP Gateway  AMQ Streams  PostgreSQL
-  (tool fed.)  (Kafka)      (audit log)
+  (tool fed.)  (streaming)  (audit log)
               │
      MAAS / LiteLLM → Intel Xeon 6 CPU
 ```
@@ -77,6 +77,19 @@ Models used (via MAAS/LiteLLM on Xeon 6):
 | qwen25-3b-cpu | 3B | Classification, Summarization
 | granite-2b-cpu | 2B | NER / Entity extraction
 | phi3-mini-cpu | 3.8B | Complex reasoning (fraud, compliance)
+|===
+
+== How This Maps to the Demo
+
+[cols="1,2",options="header"]
+|===
+| Demo Act | Matching Lab Module
+
+| Act 01 — The Problem | Required: Setup
+| Act 02 — Live Pipeline | Required: Clinical NLP Pipeline + Fraud Scoring
+| Act 03 — Architecture | Reference: Architecture Overview
+| Act 04 — Efficiency Stack | Explore: Model Selection, Conditional Pipeline, MCP Tools, Cost, Optimization, Replica Scaling, llm-d
+| Act 05 — Honest Answer | Explore: Scale Test
 |===
 
 == Duration
