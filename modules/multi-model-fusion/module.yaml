@@ -1,0 +1,36 @@
+name: multi-model-fusion
+displayName: Multi-Model Fusion
+description: >
+  For critical decisions, send to 3 models in parallel.
+  Judge model synthesizes consensus, contradictions, and blind spots.
+  Compliance, diagnostic reasoning, audit-grade outputs.
+  Cost of being wrong >> cost of 3x inference.
+audience:
+  - Compliance Officer
+  - Clinical Decision Maker
+  - Risk Analyst
+status: planned
+dependencies:
+  maas_models:
+    panel:
+      - granite-2b-cpu
+      - qwen25-3b-cpu
+      - phi3-mini-cpu
+    judge:
+      - granite-3-2-8b-instruct  # GPU preferred for judge
+helm:
+  flag: modules.fusion.enabled
+  values:
+    fusion:
+      enabled: false
+      panelModels:
+        - granite-2b-cpu
+        - qwen25-3b-cpu
+        - phi3-mini-cpu
+      judgeModel: granite-3-2-8b-instruct
+showroom:
+  content_dir: modules/multi-model-fusion/content
+  nav_entry: "* xref:explore-multi-model-fusion.adoc[Multi-Model Fusion]"
+frontend:
+  mechanism_group: learning
+  mechanism_num: 11

@@ -69,6 +69,28 @@ spec:
               value: {{ .Values.healthcareAgent.summarizeModel | default "qwen25-3b-cpu" }}
             - name: SERVICE_PORT
               value: "8081"
+            - name: ADAPTIVE_CLASSIFICATION
+              value: "true"
+            {{- if .Values.modules.heterogeneous.enabled }}
+            - name: GPU_API_BASE
+              value: {{ .Values.modules.heterogeneous.gpuApiBase | quote }}
+            - name: GPU_API_KEY
+              value: {{ .Values.modules.heterogeneous.gpuApiKey | quote }}
+            - name: ROUTING_THRESHOLD
+              value: {{ .Values.modules.heterogeneous.routingThreshold | quote }}
+            {{- end }}
+            {{- if .Values.modules.speculative.enabled }}
+            - name: SPECULATIVE_DRAFT_MODEL
+              value: {{ .Values.modules.speculative.draftModel | quote }}
+            {{- end }}
+            {{- if .Values.modules.fusion.enabled }}
+            - name: FUSION_PANEL_MODELS
+              value: {{ .Values.modules.fusion.panelModels | quote }}
+            - name: FUSION_JUDGE_MODEL
+              value: {{ .Values.modules.fusion.judgeModel | quote }}
+            {{- end }}
+            - name: MODULES_ENABLED
+              value: "{{ if .Values.modules.benchmarking.enabled }}benchmarking,{{ end }}{{ if .Values.modules.speculative.enabled }}speculative,{{ end }}{{ if .Values.modules.heterogeneous.enabled }}heterogeneous,{{ end }}{{ if .Values.modules.fusion.enabled }}fusion,{{ end }}"
           resources:
             {{- toYaml .Values.healthcareAgent.resources | nindent 12 }}
           readinessProbe:

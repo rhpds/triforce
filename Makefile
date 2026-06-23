@@ -1,4 +1,4 @@
-.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-all clean
+.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-frontend test-multinode test-modules test-benchmarks test-workflows test-all test-platform clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -36,7 +36,23 @@ test-integration: ## Stage 4: Cross-service workflow tests (requires podman-comp
 test-scale: ## Stage 5: Synthetic load and throughput tests
 	python3 -m pytest tests/ -v --tb=short -k "stage_5"
 
-test-all: ## Run all test stages sequentially (Stage 0 → 5)
+test-frontend: ## Stage 6: Verify all displayed numbers come from live API calls
+	python3 -m pytest tests/ -v --tb=short -k "stage_6"
+
+test-multinode: ## Stage 7: Horizontal scaling proves throughput without latency regression
+	python3 -m pytest tests/ -v --tb=short -k "stage_7"
+
+test-modules: ## Stage 8: Validate module manifests, Helm flags, and composition
+	python3 -m pytest tests/ -v --tb=short -k "stage_8"
+	helm template infrastructure/helm --set modules.benchmarking.enabled=true --set modules.speculative.enabled=true --set modules.heterogeneous.enabled=true --set modules.fusion.enabled=true > /dev/null
+
+test-benchmarks: ## Stage 9: Model benchmarks produce valid metrics across tasks/hardware
+	python3 -m pytest tests/ -v --tb=short -k "stage_9"
+
+test-workflows: ## Stage 10: End-to-end workflows across all active modules
+	python3 -m pytest tests/ -v --tb=short -k "stage_10"
+
+test-all: ## Run core stages sequentially (Stage 0 → 5)
 	@echo "=== Stage 0: Contract Validation ==="
 	$(MAKE) test-contracts
 	@echo "\n=== Stage 1: Infrastructure ==="
@@ -49,6 +65,26 @@ test-all: ## Run all test stages sequentially (Stage 0 → 5)
 	$(MAKE) test-integration
 	@echo "\n=== Stage 5: Scale ==="
 	$(MAKE) test-scale
+
+test-platform: ## Run ALL stages including modules + benchmarks + workflows (full green light)
+	@echo "=========================================="
+	@echo "  TRIFORCE PLATFORM VALIDATION"
+	@echo "  Stages 0-10 · 90% threshold per stage"
+	@echo "=========================================="
+	$(MAKE) test-all
+	@echo "\n=== Stage 6: Frontend Accuracy ==="
+	$(MAKE) test-frontend
+	@echo "\n=== Stage 7: Multinode ==="
+	$(MAKE) test-multinode
+	@echo "\n=== Stage 8: Modules ==="
+	$(MAKE) test-modules
+	@echo "\n=== Stage 9: Benchmarks ==="
+	$(MAKE) test-benchmarks
+	@echo "\n=== Stage 10: Workflows ==="
+	$(MAKE) test-workflows
+	@echo "\n=========================================="
+	@echo "  PLATFORM GREEN LIGHT: ALL STAGES PASSED"
+	@echo "=========================================="
 
 # --- Build ---
 

@@ -1,0 +1,35 @@
+name: heterogeneous-routing
+displayName: Heterogeneous Compute Routing
+description: >
+  Semantic router classifies task complexity and routes to optimal hardware.
+  Simple tasks → CPU ($0/token). Complex tasks → GPU ($/token).
+  Same API, system decides where to spend compute.
+audience:
+  - Platform Architect
+  - Technical Decision Maker
+  - SRE
+status: planned
+dependencies:
+  maas_models:
+    cpu:
+      - granite-2b-cpu
+      - qwen25-3b-cpu
+    gpu:
+      - granite-3-2-8b-instruct
+      - microsoft-phi-4
+      - gpt-oss-20b
+helm:
+  flag: modules.heterogeneous.enabled
+  values:
+    heterogeneous:
+      enabled: false
+      cpuApiBase: ""   # RHDP MAAS
+      gpuApiBase: ""   # RAC MAAS
+      gpuApiKey: ""
+      routingThreshold: 0.7  # complexity score above this → GPU
+showroom:
+  content_dir: modules/heterogeneous-routing/content
+  nav_entry: "* xref:explore-heterogeneous-routing.adoc[Heterogeneous Routing]"
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 10

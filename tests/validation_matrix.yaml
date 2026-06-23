@@ -286,3 +286,114 @@ stages:
         description: "All inference calls report $0 cost regardless of replica count"
         points: 15
         required: true
+
+  stage_8_modules:
+    description: "Pluggable modules validate independently and compose correctly"
+    threshold: 90
+    criteria:
+      module_manifests_valid:
+        description: "All module.yaml manifests parse and contain required fields (name, helm.flag, dependencies)"
+        points: 10
+        required: true
+      module_helm_flags_default_false:
+        description: "All module Helm flags default to false in values.yaml"
+        points: 10
+        required: true
+      module_helm_template_renders:
+        description: "Helm chart renders cleanly with any combination of modules enabled"
+        points: 15
+        required: true
+      module_env_vars_injected:
+        description: "Enabling a module injects correct env vars into agent deployment"
+        points: 10
+        required: true
+      module_content_exists:
+        description: "Each module has a showroom explore page in content/modules/ROOT/pages/"
+        points: 10
+        required: true
+      adaptive_cache_functional:
+        description: "Adaptive classification cache returns hit on repeated text within same session"
+        points: 15
+        required: true
+      modules_compose_no_conflict:
+        description: "Enabling all modules simultaneously produces no Helm or runtime errors"
+        points: 15
+        required: true
+      module_disabled_no_side_effects:
+        description: "Disabled modules produce zero env vars, zero additional pods, zero errors"
+        points: 15
+        required: true
+
+  stage_9_benchmarks:
+    description: "Model benchmarks produce valid, reproducible metrics across tasks and hardware"
+    threshold: 80
+    criteria:
+      benchmark_models_endpoint:
+        description: "GET /api/v1/benchmark/models returns all available CPU and GPU models"
+        points: 10
+        required: true
+      benchmark_run_classification:
+        description: "Benchmark runner produces valid latency + correctness for classification task"
+        points: 15
+        required: true
+      benchmark_run_ner:
+        description: "Benchmark runner produces valid latency + entity count for NER task"
+        points: 15
+        required: true
+      benchmark_run_summarization:
+        description: "Benchmark runner produces valid latency + token count for summarization task"
+        points: 15
+        required: true
+      benchmark_cpu_vs_gpu:
+        description: "Same model on CPU vs GPU shows measurable latency difference"
+        points: 15
+        required: true
+      benchmark_results_logged:
+        description: "Benchmark results are persisted to PostgreSQL for historical comparison"
+        points: 10
+        required: false
+      guidellm_sweep_completes:
+        description: "guidellm throughput sweep runs against MAAS and produces valid report"
+        points: 10
+        required: false
+      benchmark_reproducible:
+        description: "Running same benchmark twice produces latency within 20% variance"
+        points: 10
+        required: false
+
+  stage_10_workflows:
+    description: "End-to-end workflows validate across all active modules"
+    threshold: 85
+    criteria:
+      workflow_cpu_only_pipeline:
+        description: "Full healthcare pipeline completes on CPU-only models with real provenance"
+        points: 15
+        required: true
+      workflow_fraud_scoring_e2e:
+        description: "Fraud scoring returns rule_score + llm_score + real model + real latency"
+        points: 15
+        required: true
+      workflow_a2a_discovery_both:
+        description: "Orchestrator discovers both healthcare and finserv agents via A2A"
+        points: 10
+        required: true
+      workflow_heterogeneous_routing:
+        description: "When heterogeneous module enabled, simple→CPU and complex→GPU routing verified"
+        points: 15
+        required: false
+      workflow_fusion_panel:
+        description: "When fusion module enabled, 3 models respond + judge synthesizes consensus"
+        points: 15
+        required: false
+      workflow_speculative_speedup:
+        description: "When speculative module enabled, draft+target shows measurable speedup vs target-only"
+        points: 15
+        required: false
+      workflow_adaptive_learning:
+        description: "Adaptive cache hit rate increases after processing 10+ records"
+        points: 10
+        required: true
+      workflow_all_modules_combined:
+        description: "Enable all modules, run full pipeline, all metrics reported correctly"
+        points: 20
+        required: false

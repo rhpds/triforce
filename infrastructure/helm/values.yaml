@@ -81,6 +81,26 @@ litellm:
   apiBase: ""
   apiKey: ""
 
+# ---------------------------------------------------------------
+# Pluggable optimization modules — enabled per city/event
+# ---------------------------------------------------------------
+modules:
+  benchmarking:
+    enabled: false
+  speculative:
+    enabled: false
+    draftModel: granite-4-0-h-tiny-cpu
+    targetModel: granite-2b-cpu
+  heterogeneous:
+    enabled: false
+    gpuApiBase: ""
+    gpuApiKey: ""
+    routingThreshold: 0.7
+  fusion:
+    enabled: false
+    panelModels: "granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu"
+    judgeModel: granite-3-2-8b-instruct
+
 # Triforce Secure — Confidential Containers (TDX)
 confidential:
   enabled: false
