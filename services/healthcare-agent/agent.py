@@ -343,5 +343,28 @@ async def adaptive_stats():
     return adaptive_cache.get_stats()
 
 
+@app.get("/api/v1/modules")
+async def list_modules():
+    enabled = [m.strip() for m in os.environ.get("MODULES_ENABLED", "").split(",") if m.strip()]
+    return {"enabled": enabled, "count": len(enabled)}
+
+
+@app.get("/api/v1/benchmark/models")
+async def benchmark_models():
+    import benchmark
+    return benchmark.list_available_models()
+
+
+@app.post("/api/v1/benchmark/run")
+async def benchmark_run(req: dict):
+    import benchmark
+    task = req.get("task", "classification")
+    text = req.get("text", "")
+    models = req.get("models", ["granite-2b-cpu"])
+    if not text:
+        return {"error": "text is required"}
+    return await benchmark.run_comparison(task, text, models)
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
