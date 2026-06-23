@@ -1,37 +1,39 @@
 name: benchmarking
 displayName: Model Benchmarking
-description: >
-  Compare models across tasks and hardware with real metrics.
-  Runs guidellm sweeps and task-specific quality probes.
-  Shows latency, throughput, TTFT, quality scores side-by-side.
+description: 'Compare models across tasks and hardware with real metrics. Runs guidellm
+  sweeps and task-specific quality probes. Shows latency, throughput, TTFT, quality
+  scores side-by-side.
+
+  '
 audience:
-  - Performance Engineer
-  - ML Engineer
-  - Technical Decision Maker
+- Performance Engineer
+- ML Engineer
+- Technical Decision Maker
 status: building
 dependencies:
   tools:
-    - guidellm
+  - guidellm
   maas_models:
-    - granite-2b-cpu
-    - qwen25-3b-cpu
-    - granite-3-2-8b-instruct-cpu
-    - granite-3-2-8b-instruct    # GPU
-    - microsoft-phi-4             # GPU
+  - granite-2b-cpu
+  - qwen25-3b-cpu
+  - granite-3-2-8b-instruct-cpu
+  - granite-3-2-8b-instruct
+  - microsoft-phi-4
 helm:
   flag: modules.benchmarking.enabled
   values:
     benchmarking:
       enabled: false
       tasks:
-        - classification
-        - ner
-        - summarization
-        - fraud_scoring
-        - compliance_reasoning
+      - classification
+      - ner
+      - summarization
+      - fraud_scoring
+      - compliance_reasoning
 showroom:
   content_dir: modules/benchmarking/content
-  nav_entry: "* xref:explore-benchmarking.adoc[Model Benchmarking]"
+  nav_entry: '* xref:explore-benchmarking.adoc[Model Benchmarking]'
+  lab_page: explore-benchmarking.adoc
 frontend:
   mechanism_group: benchmarking
-  mechanism_num: null  # standalone act, not in efficiency stack
+  mechanism_num: null

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useDemoMetrics } from '../DemoContext'
+import { useModules } from '../ModuleContext'
 
 interface Props { onComplete?: () => void }
 
@@ -12,6 +13,7 @@ function fmt(ms: number): string {
 const MECHANISMS = [
   {
     num: 1,
+    moduleId: 'semantic-routing',
     group: 'per-record',
     title: 'vLLM Semantic Router',
     owner: 'Red Hat · vLLM',
@@ -25,6 +27,7 @@ const MECHANISMS = [
   },
   {
     num: 2,
+    moduleId: 'conditional-pipeline',
     group: 'per-record',
     title: 'Conditional Pipeline',
     owner: 'LangGraph',
@@ -38,6 +41,7 @@ const MECHANISMS = [
   },
   {
     num: 3,
+    moduleId: 'mcp-tools',
     group: 'per-record',
     title: 'MCP Tools (Data, Not LLM)',
     owner: 'Red Hat · MCP Gateway',
@@ -51,6 +55,7 @@ const MECHANISMS = [
   },
   {
     num: 4,
+    moduleId: 'model-optimization',
     group: 'model',
     title: 'Model Optimization',
     owner: 'Intel · AMX',
@@ -64,6 +69,7 @@ const MECHANISMS = [
   },
   {
     num: 5,
+    moduleId: 'batch-processing',
     group: 'fleet',
     title: 'AMQ Streams Batch Processing',
     owner: 'Red Hat',
@@ -77,6 +83,7 @@ const MECHANISMS = [
   },
   {
     num: 6,
+    moduleId: 'replica-scaling',
     group: 'fleet',
     title: 'Agent + Model Replica Scaling',
     owner: 'Red Hat · OpenShift',
@@ -90,6 +97,7 @@ const MECHANISMS = [
   },
   {
     num: 7,
+    moduleId: 'llmd-inference',
     group: 'fleet',
     title: 'llm-d Disaggregated Inference',
     owner: 'Red Hat · llm-d',
@@ -103,6 +111,7 @@ const MECHANISMS = [
   },
   {
     num: 8,
+    moduleId: 'adaptive-classification',
     group: 'learning',
     title: 'Adaptive Classification',
     owner: 'LangGraph · Triforce',
@@ -671,14 +680,19 @@ const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
 
 export function Act04Efficiency({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
+  const { enabled, allModulesMode } = useModules()
+
+  const activeMechanisms = allModulesMode
+    ? MECHANISMS
+    : MECHANISMS.filter(m => enabled.includes(m.moduleId))
 
   const advance = () => {
-    if (revealed < MECHANISMS.length) {
+    if (revealed < activeMechanisms.length) {
       setRevealed(prev => prev + 1)
     }
   }
 
-  const allRevealed = revealed >= MECHANISMS.length
+  const allRevealed = revealed >= activeMechanisms.length
   let lastGroup = ''
 
   return (
@@ -690,7 +704,7 @@ export function Act04Efficiency({ onComplete }: Props) {
         Three scale throughput across the fleet.
       </div>
 
-      {MECHANISMS.map((m, i) => {
+      {activeMechanisms.map((m, i) => {
         const Visual = VISUALS[m.visual]
         const showGroupHeader = m.group !== lastGroup && revealed >= i + 1
         lastGroup = revealed >= i + 1 ? m.group : lastGroup
@@ -785,7 +799,7 @@ export function Act04Efficiency({ onComplete }: Props) {
           <button className="btn btn-secondary" onClick={advance}>
             {revealed === 0
               ? 'Show the first layer →'
-              : `Next: ${MECHANISMS[revealed]?.title} →`}
+              : `Next: ${activeMechanisms[revealed]?.title} →`}
           </button>
         ) : (
           <motion.div
@@ -794,7 +808,7 @@ export function Act04Efficiency({ onComplete }: Props) {
             transition={{ delay: 0.3 }}
           >
             <div style={{ fontSize: 13, color: 'var(--rh-green)', fontWeight: 600, marginBottom: 16 }}>
-              7 levers you flip today. 1 that gets better the longer it runs. Cost stays at $0/token. Performance is engineered, not purchased.
+              {activeMechanisms.length} optimization layers. Each compounds. Cost stays at $0/token. Performance is engineered, not purchased.
             </div>
             <button className="btn btn-primary" onClick={onComplete}>
               The punchline →

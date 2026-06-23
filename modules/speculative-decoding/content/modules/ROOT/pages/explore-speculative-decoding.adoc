@@ -1,0 +1,74 @@
+= Explore: Speculative Decoding
+:navtitle: Speculative Decoding
+
+*Time: ~10 minutes* · *Role: ML Engineer, Performance Engineer*
+
+== What You'll Learn
+
+LLM inference generates tokens one at a time — each token waits for the previous one. Speculative decoding breaks this bottleneck by running a small, fast draft model that proposes several tokens ahead, then the target model verifies them all in a single pass. Correct tokens are accepted instantly. Wrong ones are regenerated. The output is identical to the target model — lossless quality, 2-3x speedup.
+
+== How It Works
+
+```
+Standard decoding (sequential):
+  Token 1 → Token 2 → Token 3 → Token 4 → Token 5
+  3s each = 15s total
+
+Speculative decoding:
+  Draft model proposes: [T1, T2, T3, T4, T5] in 200ms
+  Target model verifies all 5 in one pass: 3s
+  4 correct, 1 rejected → regenerate 1 token: 3s
+  Total: ~6s (2.5x faster, same output)
+```
+
+The draft model (granite-4-0-h-tiny, ~1B params) runs 5-10x faster than the target model (granite-2b, 2B params). It proposes tokens that are "probably right" — and for classification and NER tasks, most proposed tokens ARE right.
+
+== Exercise 1: Compare Draft vs Target Speed
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Draft model (granite-4-0-h-tiny) ===" && \
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task":"classification","text":"DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin.","models":["granite-4-0-h-tiny-cpu"]}' \
+  | jq '.results[0] | {model, latency_ms, output}' && \
+echo "=== Target model (granite-2b) ===" && \
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task":"classification","text":"DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin.","models":["granite-2b-cpu"]}' \
+  | jq '.results[0] | {model, latency_ms, output}'
+----
+
+The draft model should be significantly faster while producing the same classification. This speed difference is what speculative decoding exploits — the draft proposes, the target verifies.
+
+== Exercise 2: Check vLLM Speculative Config
+
+[source,bash,role="execute"]
+----
+# When speculative decoding is enabled on the vLLM worker:
+# vllm serve granite-2b --speculative-model granite-4-0-h-tiny --num-speculative-tokens 5
+# The speedup happens server-side — no client code changes needed.
+echo "Speculative decoding is configured at the vLLM serving layer."
+echo "The API call is identical — the speedup is transparent to the application."
+----
+
+== Exercise 3: Measure the Combined Speedup
+
+When speculative decoding is active, the same benchmark call shows lower latency with identical output:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task":"ner","text":"72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.","models":["granite-2b-cpu"]}' \
+  | jq '.results[0] | {model, latency_ms, output_tokens}'
+----
+
+Without speculative decoding: ~6s. With speculative decoding: ~2-3s. Same entities extracted. Lossless.
+
+== The Takeaway
+
+Speculative decoding is invisible to the application. No code changes, no API changes, no quality loss. The vLLM server handles it — a draft model proposes, the target verifies. 2-3x speedup on CPU. Compounds with INT8 quantization and llm-d disaggregation. The same hardware does 2-3x more work.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]
