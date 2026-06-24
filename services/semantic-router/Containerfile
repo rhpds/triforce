@@ -15,6 +15,7 @@ COPY --from=builder /opt/app-root/lib/python3.11/site-packages /opt/app-root/lib
 COPY --from=builder /opt/app-root/bin /opt/app-root/bin
 
 COPY router.py .
+COPY routes.yaml .
 
 USER 1001
 EXPOSE 8094

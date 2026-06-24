@@ -1,0 +1,10 @@
+{{- if .Values.semanticRouter.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semantic-router-config
+  namespace: {{ .Values.namespace }}
+data:
+  routes.yaml: |
+    {{- .Files.Get "routes.yaml" | nindent 4 }}
+{{- end }}
