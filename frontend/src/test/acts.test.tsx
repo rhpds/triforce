@@ -49,7 +49,7 @@ describe('Story Acts', () => {
     const { Act05HonestQuestion } = await import('../acts/Act05HonestQuestion')
     render(<Act05HonestQuestion />)
     expect(screen.getByText(/The Punchline/)).toBeInTheDocument()
-    expect(screen.getByText(/fast enough at \$0/)).toBeInTheDocument()
+    expect(screen.getByText(/system decides for you/)).toBeInTheDocument()
   })
 
   it('App renders start screen', async () => {

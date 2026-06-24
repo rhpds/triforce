@@ -28,6 +28,10 @@
   --ibm-blue: #0F62FE;
   --ibm-blue-dim: rgba(15, 98, 254, 0.12);
 
+  /* GPU palette */
+  --gpu-amber: #F5A623;
+  --gpu-amber-dim: rgba(245, 166, 35, 0.12);
+
   /* Interface Dark backgrounds */
   --bg-dark: #151515;
   --surface-1: #1f1f1f;

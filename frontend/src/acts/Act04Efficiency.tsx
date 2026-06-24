@@ -123,6 +123,62 @@ const MECHANISMS = [
     before: 'Every record calls the LLM for classification',
     after: 'Volume-dependent: 95% cached after warmup — cost per record drops with scale',
   },
+  {
+    num: 9,
+    moduleId: 'speculative-decoding',
+    group: 'fleet',
+    title: 'Speculative Decoding',
+    owner: 'vLLM · Intel',
+    what: 'A small draft model (1B) proposes tokens ahead. The target model (2-3B) verifies them in a single pass. Correct tokens accepted instantly. Wrong ones regenerated. Output is identical — lossless quality, 2-3x speedup.',
+    gain: 'Works on both CPU and GPU. Compounds with INT8 quantization and llm-d. The same hardware does 2-3x more work with zero quality loss.',
+    visual: 'speculative',
+    color: 'var(--intel-blue)',
+    status: 'planned',
+    before: 'Generate tokens one at a time: each waits for the last',
+    after: 'Draft proposes 5 tokens → target verifies in 1 pass → 2-3x faster',
+  },
+  {
+    num: 10,
+    moduleId: 'heterogeneous-routing',
+    group: 'fleet',
+    title: 'Heterogeneous Compute Routing',
+    owner: 'Red Hat · vLLM',
+    what: 'The semantic router classifies each request by complexity and routes to optimal hardware. Simple → CPU ($0). Complex → GPU ($/token). Same API, different backends. The system decides in <1ms.',
+    gain: 'Classification and NER stay on CPU — no quality difference, $0 cost. Summarization and reasoning route to GPU — 3-10x faster with better output. 80% of workload runs free.',
+    visual: 'heterogeneous',
+    color: 'var(--gpu-amber)',
+    status: 'live',
+    before: 'One hardware tier for everything: CPU or GPU, pick one',
+    after: 'SIMPLE → CPU ($0) · COMPLEX → GPU ($/token) — routed automatically',
+  },
+  {
+    num: 11,
+    moduleId: 'multi-model-fusion',
+    group: 'learning',
+    title: 'Multi-Model Fusion',
+    owner: 'LangGraph · Triforce',
+    what: 'For critical decisions, send the same question to 3 models in parallel. A judge model compares their responses: consensus, contradictions, blind spots. Cost: 4x one call. Value: confidence for decisions with consequences.',
+    gain: 'Single model: one perspective, one set of blind spots. Panel of 3 + judge: consensus validated, contradictions caught, gaps identified. On CPU at $0/token, the extra calls are literally free.',
+    visual: 'fusion',
+    color: 'var(--ibm-blue)',
+    status: 'live',
+    before: 'One model, one answer — hope it\'s right',
+    after: '3 models + judge → consensus synthesis — confidence for critical decisions',
+  },
+  {
+    num: 12,
+    moduleId: 'benchmarking',
+    group: 'analysis',
+    title: 'Model Benchmarking',
+    owner: 'guidellm · Triforce',
+    what: 'Compare any model on any task on any hardware with real metrics. Latency, throughput, TTFT, quality — measured, not estimated. guidellm runs production-grade load sweeps.',
+    gain: 'Every optimization claim is testable. Run the benchmark yourself — the numbers are live from MAAS, not slides.',
+    visual: 'benchmark',
+    color: 'var(--rh-teal)',
+    status: 'live',
+    before: 'Trust vendor benchmarks on different hardware',
+    after: 'Run your own benchmarks on YOUR models, YOUR tasks, YOUR hardware',
+  },
 ]
 
 function RouterVisual() {
@@ -660,6 +716,172 @@ function AdaptiveVisual() {
   )
 }
 
+function SpeculativeVisual() {
+  const D = 0.5
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <motion.div style={{ padding: '10px 16px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', textAlign: 'center' }}
+          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: D }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--intel-blue)' }}>Draft Model</div>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>granite-4-0-h-tiny</div>
+          <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-green)', marginTop: 4 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.5 }}>
+            Proposes 5 tokens → 50ms
+          </motion.div>
+        </motion.div>
+        <motion.div style={{ fontSize: 20, color: 'var(--text-dim)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.8 }}>→</motion.div>
+        <motion.div style={{ padding: '10px 16px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', textAlign: 'center' }}
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: D + 1.0 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--intel-cyan)' }}>Target Model</div>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>granite-2b-cpu</div>
+          <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-green)', marginTop: 4 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.5 }}>
+            Verifies all 5 → 800ms
+          </motion.div>
+        </motion.div>
+      </div>
+      <motion.div style={{ fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.0 }}>
+        4 correct, 1 rejected → regenerate 1 token<br/>
+        <span className="mono" style={{ fontWeight: 700, color: 'var(--rh-green)' }}>Total: ~850ms vs 4s sequential = 4.7x faster</span>
+      </motion.div>
+    </div>
+  )
+}
+
+function HeterogeneousVisual() {
+  const D = 0.5
+  const routes = [
+    { label: 'Classify document', route: 'SIMPLE', hw: 'CPU', model: 'granite-2b', cost: '$0', color: 'var(--intel-cyan)' },
+    { label: 'Extract entities', route: 'SIMPLE', hw: 'CPU', model: 'granite-2b', cost: '$0', color: 'var(--intel-cyan)' },
+    { label: 'Summarize record', route: 'MEDIUM', hw: 'CPU', model: 'qwen25-3b', cost: '$0', color: 'var(--intel-cyan)' },
+    { label: 'Differential diagnosis', route: 'COMPLEX', hw: 'GPU', model: 'gpt-oss-120b', cost: '$/tok', color: 'var(--gpu-amber)' },
+  ]
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 400, margin: '0 auto' }}>
+      {routes.map((r, i) => (
+        <motion.div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
+          initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: D + i * 0.3 }}>
+          <div style={{ width: 140, color: 'var(--text-dim)' }}>{r.label}</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-dim)', width: 50 }}>{r.route}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: r.hw === 'GPU' ? 'var(--gpu-amber-dim)' : 'var(--intel-cyan-dim)', color: r.color }}>{r.hw}</div>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>{r.model}</div>
+          <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: r.hw === 'GPU' ? 'var(--gpu-amber)' : 'var(--rh-green)' }}>{r.cost}</div>
+        </motion.div>
+      ))}
+      <motion.div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.5 }}>
+        3 of 4 tasks → CPU ($0) · 1 task → GPU ($/token)
+      </motion.div>
+    </div>
+  )
+}
+
+function FusionVisual() {
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const D = 0.5
+
+  const fetchStats = async () => {
+    setLoading(true)
+    try {
+      const resp = await fetch('/healthcare/api/v1/fusion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: 'compliance', prompt: 'Is a pattern of $9,500 transfers to Cayman Islands AML structuring?' }),
+      })
+      setStats(await resp.json())
+    } catch {
+      setStats({ error: 'Fusion endpoint not available' })
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', gap: 12 }}>
+        {['granite-2b', 'qwen25-3b', 'phi3-mini'].map((m, i) => (
+          <motion.div key={m} style={{ padding: '8px 12px', borderRadius: 6, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 11, textAlign: 'center' }}
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: D + i * 0.2 }}>
+            <div style={{ fontWeight: 700, color: 'var(--ibm-blue)' }}>{m}</div>
+            <div style={{ color: 'var(--text-dim)', marginTop: 2 }}>answers</div>
+          </motion.div>
+        ))}
+      </div>
+      <motion.div style={{ fontSize: 16, color: 'var(--text-dim)' }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.8 }}>↓</motion.div>
+      <motion.div style={{ padding: '8px 16px', borderRadius: 6, background: 'var(--surface-2)', border: '2px solid var(--ibm-blue)', fontSize: 12, textAlign: 'center' }}
+        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: D + 1.0 }}>
+        <div style={{ fontWeight: 700, color: 'var(--ibm-blue)' }}>Judge (granite-8b)</div>
+        <div style={{ color: 'var(--text-dim)', marginTop: 2 }}>consensus · contradictions · gaps</div>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.5 }}>
+        <button className="btn btn-secondary" style={{ borderColor: 'var(--ibm-blue)', fontSize: 12, padding: '6px 14px' }}
+          onClick={fetchStats} disabled={loading}>
+          {loading ? 'Running fusion...' : 'Prove it — run 3-model panel'}
+        </button>
+      </motion.div>
+
+      {stats && !stats.error && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          style={{ fontSize: 12, textAlign: 'center', color: 'var(--text-dim)' }}>
+          Panel: {stats.panel?.count} models in {stats.panel?.latency_ms}ms · Judge: {stats.judge?.latency_ms}ms · Total: {stats.total_ms}ms
+        </motion.div>
+      )}
+      {stats?.error && (
+        <div style={{ fontSize: 12, color: 'var(--text-disabled)' }}>{stats.error}</div>
+      )}
+    </div>
+  )
+}
+
+function BenchmarkVisual() {
+  const D = 0.5
+  const data = [
+    { task: 'Classification', cpu: '779ms', gpu: '500ms', speedup: '1.6x', verdict: 'CPU fine' },
+    { task: 'NER', cpu: '6.2s', gpu: '3.8s', speedup: '1.6x', verdict: 'GPU better quality' },
+    { task: 'Summarization', cpu: '5.2s', gpu: '1.6s', speedup: '3.3x', verdict: 'GPU wins' },
+    { task: 'Diagnosis', cpu: '14.8s', gpu: '1.5s', speedup: '10.1x', verdict: 'GPU essential' },
+  ]
+  return (
+    <div style={{ maxWidth: 400, margin: '0 auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid var(--border)' }}>
+            <th style={{ textAlign: 'left', padding: '6px 8px', color: 'var(--text-dim)' }}>Task</th>
+            <th style={{ textAlign: 'right', padding: '6px 8px', color: 'var(--intel-cyan)' }}>CPU</th>
+            <th style={{ textAlign: 'right', padding: '6px 8px', color: 'var(--gpu-amber)' }}>GPU</th>
+            <th style={{ textAlign: 'right', padding: '6px 8px', color: 'var(--rh-green)' }}>Δ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d, i) => (
+            <motion.tr key={d.task}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              transition={{ delay: D + i * 0.2 }}
+              style={{ borderBottom: '1px solid var(--border)' }}>
+              <td style={{ padding: '6px 8px', fontWeight: 600 }}>{d.task}</td>
+              <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--intel-cyan)' }}>{d.cpu}</td>
+              <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--gpu-amber)' }}>{d.gpu}</td>
+              <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--rh-green)' }}>{d.speedup}</td>
+            </motion.tr>
+          ))}
+        </tbody>
+      </table>
+      <motion.div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.2 }}>
+        Live MAAS numbers · June 2026
+      </motion.div>
+    </div>
+  )
+}
+
 const VISUALS: Record<string, () => React.ReactElement> = {
   router: RouterVisual,
   modelopt: ModelOptVisual,
@@ -669,13 +891,18 @@ const VISUALS: Record<string, () => React.ReactElement> = {
   replicas: ReplicasVisual,
   llmd: LlmdVisual,
   adaptive: AdaptiveVisual,
+  speculative: SpeculativeVisual,
+  heterogeneous: HeterogeneousVisual,
+  fusion: FusionVisual,
+  benchmark: BenchmarkVisual,
 }
 
 const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
   'per-record': { label: 'Per-Record Efficiency', detail: 'Reduce work per record — do less inference, use the right model' },
   'model': { label: 'Model Optimization', detail: 'Same hardware, better models — four independent levers that compound' },
   'fleet': { label: 'Fleet-Scale Throughput', detail: 'Scale total output — replicas, disaggregated inference, batch streaming' },
-  'learning': { label: 'Compounding Over Time', detail: 'The first 7 are switches you flip. This one improves the longer it runs.' },
+  'learning': { label: 'Compounding Over Time', detail: 'These improve the longer they run — adaptive caching and multi-model consensus.' },
+  'analysis': { label: 'Measure & Validate', detail: 'Every claim is testable. Run the benchmarks yourself.' },
 }
 
 export function Act04Efficiency({ onComplete }: Props) {
