@@ -163,11 +163,11 @@ export function Act02Inference({ onComplete }: Props) {
 
   return (
     <div className="demo-section">
-      <h3><span className="section-num">02</span> The Proof: Inference on Xeon 6</h3>
+      <h3><span className="section-num">02</span> The Proof: Live Inference</h3>
       <div className="section-context">
-        Two verticals. Two languages. Same CPUs. Watch a clinical document flow through
-        a Python/LangGraph pipeline, then score financial transactions with a Java/Quarkus
-        agent — all on Intel Xeon 6, all at $0.
+        Two verticals. Two languages. Real models on real hardware. Watch a clinical document
+        flow through a Python/LangGraph pipeline, then score financial transactions with a
+        Java/Quarkus agent — running on Intel Xeon 6 CPU at $0/token.
       </div>
 
       {/* Step 1: Healthcare Pipeline */}

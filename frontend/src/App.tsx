@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Act00Story } from './acts/Act00Story'
 import { Act01Architecture } from './acts/Act01Architecture'
 import { Act02Inference } from './acts/Act02Inference'
-import { Act03Cost } from './acts/Act03Cost'
+import { Act03Benchmark } from './acts/Act03Benchmark'
 import { Act04Scale } from './acts/Act04Scale'
 import { Act04Efficiency } from './acts/Act04Efficiency'
 import { Act05HonestQuestion } from './acts/Act05HonestQuestion'
@@ -35,7 +35,7 @@ const BASE_ACTS: ActEntry[] = [
   { id: 'story', label: '00', component: Act00Story },
   { id: 'arch', label: '01', component: Act01Architecture },
   { id: 'proof', label: '02', component: Act02Inference },
-  { id: 'cost', label: '03', component: Act03Cost },
+  { id: 'benchmark', label: '03', component: Act03Benchmark },
   { id: 'scale', label: '04', component: Act04Scale },
   { id: 'efficiency', label: '05', component: Act04Efficiency },
   { id: 'punchline', label: '06', component: Act05HonestQuestion },

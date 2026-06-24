@@ -86,9 +86,10 @@ export function Act04Scale({ onComplete }: Props) {
     <div className="demo-section">
       <h3><span className="section-num">04</span> Scale & Tradeoffs</h3>
       <div className="section-context">
-        The cost is flat. But what about throughput? Let's fire real concurrent
-        requests and watch what happens to latency under load. The cost won't
-        move — the efficiency line is what we engineer.
+        The benchmarks showed per-request tradeoffs. Now let's test throughput.
+        Fire concurrent requests and watch latency climb under load on CPU.
+        This is where heterogeneous routing earns its keep — GPU handles the
+        overflow when CPU hits its ceiling.
       </div>
 
       <div className="step-card">
@@ -232,9 +233,11 @@ export function Act04Scale({ onComplete }: Props) {
           transition={{ delay: 0.5 }}
         >
           <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.7 }}>
-            You already know what 50 records looks like — latency climbs higher, cost stays at $0.
+            CPU latency climbs under concurrent load. Cost stays at $0.
             <br />
-            <strong style={{ color: 'var(--intel-cyan)' }}>The cost line is flat. The efficiency line is what we engineer.</strong>
+            <span style={{ color: 'var(--gpu-amber)' }}>GPU would handle this at ~1s latency</span> — but at $/token.
+            <br />
+            <strong style={{ color: 'var(--intel-cyan)' }}>The efficiency stack decides when CPU is enough and when to route to GPU.</strong>
           </div>
           <button className="btn btn-primary" onClick={onComplete}>
             See how we engineer it →

@@ -19,23 +19,23 @@ export function Act05HonestQuestion({ onComplete }: Props) {
     { label: 'Entities Extracted', value: hasLive ? String(p.entities) : '—', detail: hasLive ? 'from live pipeline run' : 'run pipeline in Act 02', color: 'var(--rh-teal)' },
     { label: 'Drug Interactions', value: hasLive ? `${p.interactions} found` : '—', detail: 'curated FDA database via MCP', color: 'var(--rh-orange)' },
     { label: 'Fraud Scored', value: '2 transactions', detail: '1 blocked (CRITICAL), 1 approved (LOW)', color: 'var(--rh-red)' },
-    { label: 'Total Cost', value: '$0.00', detail: 'every call on Xeon 6 CPU', color: 'var(--rh-green)' },
+    { label: 'CPU Cost', value: '$0.00', detail: 'every call on Xeon 6 CPU', color: 'var(--rh-green)' },
   ]
 
   const comparison = [
-    { task: 'Classification', today: hasLive ? fmt(p.classifyMs) : '—', optimized: 'with INT8', cost: '$0.00' },
-    { task: 'NER', today: hasLive ? fmt(p.nerMs) : '—', optimized: 'with INT8', cost: '$0.00' },
-    { task: 'Summarization', today: hasLive ? fmt(p.summarizeMs) : '—', optimized: 'with INT8', cost: '$0.00' },
-    { task: 'Drug Interaction Check', today: hasLive ? fmt(p.interactionsMs) : '—', optimized: 'data lookup', cost: '$0.00' },
-    { task: 'Full Pipeline', today: hasLive ? fmt(p.totalMs) : '—', optimized: 'with INT8', cost: '$0.00' },
+    { task: 'Classification', cpu: hasLive ? fmt(p.classifyMs) : '—', gpu: '~500ms', routing: 'CPU — no quality diff' },
+    { task: 'NER', cpu: hasLive ? fmt(p.nerMs) : '—', gpu: '~3.8s', routing: 'CPU — good enough for batch' },
+    { task: 'Summarization', cpu: hasLive ? fmt(p.summarizeMs) : '—', gpu: '~1.6s', routing: 'GPU — 3.3x faster, better output' },
+    { task: 'Drug Interactions', cpu: hasLive ? fmt(p.interactionsMs) : '—', gpu: 'n/a', routing: 'MCP tool — no LLM needed' },
+    { task: 'Full Pipeline', cpu: hasLive ? fmt(p.totalMs) : '—', gpu: '~3.5s', routing: 'Hybrid — CPU + GPU combined' },
   ]
 
   return (
     <div className="demo-section">
       <h3><span className="section-num">06</span> The Punchline</h3>
       <div className="section-context">
-        You just ran real AI workloads on Intel Xeon 6 CPUs. No GPUs. No cloud API.
-        No per-token charges. Here are the real numbers from this demo run.
+        You just ran real AI workloads. You benchmarked CPU vs GPU. You saw the efficiency stack.
+        Here's the honest answer.
       </div>
 
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>What you just saw</div>
@@ -65,7 +65,7 @@ export function Act05HonestQuestion({ onComplete }: Props) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        Real latency — from this run on Xeon 6
+        The routing decision — CPU vs GPU per task
       </motion.div>
 
       <motion.table
@@ -77,9 +77,9 @@ export function Act05HonestQuestion({ onComplete }: Props) {
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
             <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-dim)', fontWeight: 500 }}>Task</th>
-            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--intel-cyan)', fontWeight: 600 }}>Xeon 6 (this run)</th>
-            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--text-dim)', fontWeight: 500 }}>Optimized</th>
-            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--rh-green)', fontWeight: 600 }}>Cost</th>
+            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--intel-cyan)', fontWeight: 600 }}>CPU (this run)</th>
+            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--gpu-amber)', fontWeight: 600 }}>GPU</th>
+            <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-dim)', fontWeight: 500 }}>Routing Decision</th>
           </tr>
         </thead>
         <tbody>
@@ -92,9 +92,9 @@ export function Act05HonestQuestion({ onComplete }: Props) {
               transition={{ delay: 0.8 + i * 0.08 }}
             >
               <td style={{ padding: '10px 16px' }}>{row.task}</td>
-              <td className="mono" style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--intel-cyan)', fontWeight: 700 }}>{row.today}</td>
-              <td className="mono" style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--text-disabled)' }}>{row.optimized}</td>
-              <td className="mono" style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--rh-green)', fontWeight: 700 }}>{row.cost}</td>
+              <td className="mono" style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--intel-cyan)', fontWeight: 700 }}>{row.cpu}</td>
+              <td className="mono" style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--gpu-amber)', fontWeight: 600 }}>{row.gpu}</td>
+              <td style={{ padding: '10px 16px', fontSize: 12, color: 'var(--text-dim)' }}>{row.routing}</td>
             </motion.tr>
           ))}
         </tbody>
@@ -110,17 +110,17 @@ export function Act05HonestQuestion({ onComplete }: Props) {
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.7 }}>
           {hasLive ? (
             <>
-              This pipeline ran at <strong style={{ color: 'var(--intel-cyan)' }}>{fmt(p.totalMs)}</strong> on Intel Xeon 6.
-              Classification in <strong style={{ color: 'var(--intel-cyan)' }}>{fmt(p.classifyMs)}</strong>.{' '}
+              This pipeline ran at <strong style={{ color: 'var(--intel-cyan)' }}>{fmt(p.totalMs)}</strong> on Intel Xeon 6 CPU.{' '}
               <strong style={{ color: 'var(--rh-green)' }}>Cost: $0.00.</strong><br /><br />
             </>
           ) : null}
           <span style={{ color: 'var(--text-dim)', fontSize: 14 }}>
-            GPU is faster. But for 80% of enterprise AI — classification, NER, fraud scoring,
-            summarization — the question was never "is it the fastest?"
-          </span><br />
+            The question isn't "CPU or GPU." It's: which tasks need which hardware?
+            Classification and NER run fine on CPU at $0. Summarization and reasoning benefit from GPU.
+            The semantic router makes that decision in {'<'}1ms per request.
+          </span><br /><br />
           <strong style={{ color: 'var(--rh-green)', fontSize: 16 }}>
-            The question is: "is it fast enough at $0?"
+            80% of your workload runs at $0. 20% pays for GPU where it matters. The system decides for you.
           </strong>
         </p>
       </motion.div>
