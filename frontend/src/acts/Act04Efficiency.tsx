@@ -125,7 +125,7 @@ const MECHANISMS = [
   },
   {
     num: 9,
-    moduleId: 'speculative-decoding',
+    moduleId: 'speculative',
     group: 'fleet',
     title: 'Speculative Decoding',
     owner: 'vLLM · Intel',
@@ -139,7 +139,7 @@ const MECHANISMS = [
   },
   {
     num: 10,
-    moduleId: 'heterogeneous-routing',
+    moduleId: 'heterogeneous',
     group: 'fleet',
     title: 'Heterogeneous Compute Routing',
     owner: 'Red Hat · vLLM',
@@ -153,7 +153,7 @@ const MECHANISMS = [
   },
   {
     num: 11,
-    moduleId: 'multi-model-fusion',
+    moduleId: 'fusion',
     group: 'learning',
     title: 'Multi-Model Fusion',
     owner: 'LangGraph · Triforce',
@@ -909,9 +909,14 @@ export function Act04Efficiency({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
   const { enabled, allModulesMode } = useModules()
 
+  const CORE_MODULES = new Set([
+    'semantic-routing', 'conditional-pipeline', 'mcp-tools', 'model-optimization',
+    'batch-processing', 'replica-scaling', 'llmd-inference', 'adaptive-classification',
+  ])
+
   const activeMechanisms = allModulesMode
     ? MECHANISMS
-    : MECHANISMS.filter(m => enabled.includes(m.moduleId))
+    : MECHANISMS.filter(m => CORE_MODULES.has(m.moduleId) || enabled.includes(m.moduleId))
 
   const advance = () => {
     if (revealed < activeMechanisms.length) {
