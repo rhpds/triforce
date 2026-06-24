@@ -79,6 +79,19 @@ async def store(text: str, classification: str):
         logger.warning("Failed to persist cache entry: %s", e)
 
 
+async def reset():
+    _cache.clear()
+    _stats["total_lookups"] = 0
+    _stats["cache_hits"] = 0
+    _stats["cache_misses"] = 0
+    if db._pool:
+        try:
+            await db._pool.execute("DELETE FROM classification_cache")
+        except Exception as e:
+            logger.warning("Failed to clear DB cache: %s", e)
+    logger.info("Adaptive cache reset")
+
+
 def get_stats() -> dict:
     total = max(_stats["total_lookups"], 1)
     return {

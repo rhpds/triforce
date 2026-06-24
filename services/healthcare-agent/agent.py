@@ -343,6 +343,13 @@ async def adaptive_stats():
     return adaptive_cache.get_stats()
 
 
+@app.post("/api/v1/adaptive/reset")
+async def adaptive_reset():
+    import adaptive_cache
+    await adaptive_cache.reset()
+    return {"status": "reset", "cache_size": 0}
+
+
 @app.get("/api/v1/modules")
 async def list_modules():
     enabled = [m.strip() for m in os.environ.get("MODULES_ENABLED", "").split(",") if m.strip()]
