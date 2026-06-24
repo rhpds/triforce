@@ -1,0 +1,98 @@
+version: "1.0"
+
+scoring:
+  weights:
+    embedding_max: 0.7
+    embedding_avg: 0.3
+  confidence_cap: 0.99
+  word_count_thresholds:
+    complex: 80
+    medium: 40
+
+embedding:
+  model: "all-MiniLM-L6-v2"
+
+heterogeneous:
+  enabled: false
+  gpu_model: "granite-3.2-8b-instruct"
+  escalation_routes:
+    - complex
+
+routes:
+  - name: simple
+    model: granite-2b-cpu
+    params: "2B"
+    description: "Fast classification, NER, simple Q&A, labeling"
+    anchors:
+      - "Classify this clinical document"
+      - "What type of document is this"
+      - "Label this text"
+      - "Is this a discharge summary or a lab report"
+      - "Score this transaction"
+      - "Check if this is compliant"
+      - "What category does this belong to"
+      - "Tag this record"
+      - "Identify the document type"
+    keywords:
+      - classify
+      - "what type"
+      - "what is"
+      - label
+      - categorize
+      - identify
+      - tag
+      - score
+      - check
+      - "is this"
+
+  - name: medium
+    model: qwen25-3b-cpu
+    params: "3B"
+    description: "Summarization, extraction, structured analysis"
+    anchors:
+      - "Summarize this patient record"
+      - "Extract the key findings from this report"
+      - "List all medications mentioned in this note"
+      - "Generate an overview of this case"
+      - "Describe the patient's condition"
+      - "Write a brief summary of the discharge"
+      - "Compile the lab results into a table"
+      - "Outline the treatment history"
+    keywords:
+      - summarize
+      - extract
+      - list
+      - describe
+      - outline
+      - generate
+      - write
+      - create
+      - compile
+      - overview
+
+  - name: complex
+    model: phi3-mini-cpu
+    params: "3.8B"
+    description: "Multi-step reasoning, differential diagnosis, treatment plans"
+    anchors:
+      - "Analyze the drug interactions between Warfarin and Aspirin considering renal function"
+      - "Provide a differential diagnosis for this presentation"
+      - "Evaluate the risk factors and recommend a treatment plan"
+      - "Cross-reference the lab results with the medication list for contraindications"
+      - "Assess the patient's cardiovascular risk given their comorbidities"
+      - "Synthesize the findings and provide a comprehensive clinical assessment"
+      - "Justify the treatment decision considering the patient's history"
+      - "Compare the efficacy of two treatment approaches for this condition"
+    keywords:
+      - analyze
+      - differential
+      - interaction
+      - contraindication
+      - "risk assessment"
+      - "treatment plan"
+      - "multi-step"
+      - reasoning
+      - evaluate
+      - synthesize
+      - cross-reference
+      - justify
