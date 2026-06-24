@@ -86,6 +86,20 @@ test-platform: ## Run ALL stages including modules + benchmarks + workflows (ful
 	@echo "  PLATFORM GREEN LIGHT: ALL STAGES PASSED"
 	@echo "=========================================="
 
+# --- Deploy ---
+
+generate-nav: ## Generate showroom nav from enabled modules
+	@if [ -n "$(MODULES_ENABLED)" ]; then \
+		MODULES_ENABLED="$(MODULES_ENABLED)" python3 scripts/generate-nav.py; \
+	else \
+		python3 scripts/generate-nav.py; \
+	fi
+
+deploy: generate-nav ## Generate nav + helm deploy (NAMESPACE, MODULES_ENABLED, EXTRA_HELM_ARGS)
+	cd infrastructure/helm && helm upgrade --install triforce . \
+		--namespace $${NAMESPACE:-triforce} \
+		$(EXTRA_HELM_ARGS)
+
 # --- Build ---
 
 build-healthcare: ## Build healthcare agent container
