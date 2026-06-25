@@ -907,11 +907,11 @@ const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
 }
 
 const MODULE_ROUTES: Record<string, string> = {
-  'semantic-routing': '/modules/semantic-routing',
   'adaptive-classification': '/modules/adaptive-cache',
   'benchmarking': '/modules/benchmarking',
   'fusion': '/modules/fusion',
   'heterogeneous': '/modules/heterogeneous',
+  'pipeline': '/modules/pipeline',
 }
 
 export function Act04Efficiency({ onComplete }: Props) {
