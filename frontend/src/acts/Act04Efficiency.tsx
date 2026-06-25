@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useNavigate } from 'react-router-dom'
 import { useDemoMetrics } from '../DemoContext'
 import { useModules } from '../ModuleContext'
 
@@ -905,9 +906,18 @@ const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
   'analysis': { label: 'Measure & Validate', detail: 'Every claim is testable. Run the benchmarks yourself.' },
 }
 
+const MODULE_ROUTES: Record<string, string> = {
+  'semantic-routing': '/modules/semantic-routing',
+  'adaptive-classification': '/modules/adaptive-cache',
+  'benchmarking': '/modules/benchmarking',
+  'fusion': '/modules/fusion',
+  'heterogeneous': '/modules/heterogeneous',
+}
+
 export function Act04Efficiency({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
   const { enabled, allModulesMode } = useModules()
+  const navigate = useNavigate()
 
   const CORE_MODULES = new Set([
     'semantic-routing', 'conditional-pipeline', 'mcp-tools', 'model-optimization',
@@ -1019,6 +1029,17 @@ export function Act04Efficiency({ onComplete }: Props) {
                       {m.after}
                     </div>
                   </motion.div>
+
+                  {MODULE_ROUTES[m.moduleId] && (
+                    <motion.div style={{ textAlign: 'center', marginTop: 12 }}
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                      <button className="btn btn-secondary"
+                        style={{ fontSize: 11, padding: '4px 14px', borderColor: m.color }}
+                        onClick={() => navigate(MODULE_ROUTES[m.moduleId])}>
+                        Deep Dive →
+                      </button>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
