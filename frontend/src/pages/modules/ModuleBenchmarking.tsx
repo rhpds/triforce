@@ -83,7 +83,6 @@ export default function ModuleBenchmarking() {
       title="Model Benchmarking"
       description="Compare models across tasks and hardware with real metrics. Same input, different models, different hardware — latency, quality, and cost side by side."
       status="live"
-      color="var(--rh-teal)"
     >
       <StepCard num={1} title="Select Task">
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

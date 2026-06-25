@@ -6,11 +6,10 @@ interface Props {
   title: string
   description: string
   status?: 'live' | 'tested' | 'roadmap' | 'planned'
-  color?: string
   children: ReactNode
 }
 
-export function ModuleLayout({ title, description, status = 'live', color = 'var(--intel-cyan)', children }: Props) {
+export function ModuleLayout({ title, description, status = 'live', children }: Props) {
   const navigate = useNavigate()
 
   const statusColors = {
