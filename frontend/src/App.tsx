@@ -170,15 +170,31 @@ export default function App() {
   const variant = useMemo(getVariant, [])
   const acts = variant === 'secure' ? SECURE_ACTS : variant === 'virt' ? VIRT_ACTS : variant === 'govern' ? GOVERN_ACTS : BASE_ACTS
 
-  const [started, setStarted] = useState(false)
-  const [currentAct, setCurrentAct] = useState(0)
+  const [started, setStarted] = useState(() => {
+    const saved = sessionStorage.getItem('triforce-started')
+    return saved === 'true'
+  })
+  const [currentAct, setCurrentAct] = useState(() => {
+    const saved = sessionStorage.getItem('triforce-act')
+    return saved ? parseInt(saved, 10) : 0
+  })
   const [showFooter, setShowFooter] = useState(false)
+
+  const updateAct = (act: number) => {
+    setCurrentAct(act)
+    sessionStorage.setItem('triforce-act', String(act))
+  }
+
+  const updateStarted = (val: boolean) => {
+    setStarted(val)
+    sessionStorage.setItem('triforce-started', String(val))
+  }
 
   const totalActs = acts.length
 
   const advanceAct = () => {
     if (currentAct < totalActs - 1) {
-      setCurrentAct(prev => prev + 1)
+      updateAct(currentAct + 1)
       window.scrollTo({ top: 0 })
     } else {
       setShowFooter(true)
@@ -193,7 +209,7 @@ export default function App() {
           height: '100vh', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}
-        onClick={() => setStarted(true)}
+        onClick={() => updateStarted(true)}
       >
         <motion.div
           style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 48 }}
