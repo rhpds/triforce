@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 
 describe('Story Acts', () => {
   it('Act00 renders triforce intro', async () => {
@@ -40,7 +41,7 @@ describe('Story Acts', () => {
 
   it('Act05 renders efficiency mechanisms', async () => {
     const { Act04Efficiency } = await import('../acts/Act04Efficiency')
-    render(<Act04Efficiency />)
+    render(<MemoryRouter><Act04Efficiency /></MemoryRouter>)
     expect(screen.getByText(/The Efficiency Stack/)).toBeInTheDocument()
     expect(screen.getByText(/Show the first layer/)).toBeInTheDocument()
   })
