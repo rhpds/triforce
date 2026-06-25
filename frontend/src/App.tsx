@@ -170,31 +170,23 @@ export default function App() {
   const variant = useMemo(getVariant, [])
   const acts = variant === 'secure' ? SECURE_ACTS : variant === 'virt' ? VIRT_ACTS : variant === 'govern' ? GOVERN_ACTS : BASE_ACTS
 
-  const [started, setStarted] = useState(() => {
-    const saved = sessionStorage.getItem('triforce-started')
-    return saved === 'true'
-  })
-  const [currentAct, setCurrentAct] = useState(() => {
-    const saved = sessionStorage.getItem('triforce-act')
-    return saved ? parseInt(saved, 10) : 0
-  })
+  const [started, setStarted] = useState(false)
+  const [currentAct, setCurrentAct] = useState(0)
   const [showFooter, setShowFooter] = useState(false)
-
-  const updateAct = (act: number) => {
-    setCurrentAct(act)
-    sessionStorage.setItem('triforce-act', String(act))
-  }
-
-  const updateStarted = (val: boolean) => {
-    setStarted(val)
-    sessionStorage.setItem('triforce-started', String(val))
-  }
 
   const totalActs = acts.length
 
+  const goToAct = (i: number) => {
+    if (i >= 0 && i < totalActs) {
+      setCurrentAct(i)
+      setShowFooter(false)
+      window.scrollTo({ top: 0 })
+    }
+  }
+
   const advanceAct = () => {
     if (currentAct < totalActs - 1) {
-      updateAct(currentAct + 1)
+      setCurrentAct(prev => prev + 1)
       window.scrollTo({ top: 0 })
     } else {
       setShowFooter(true)
@@ -209,7 +201,7 @@ export default function App() {
           height: '100vh', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}
-        onClick={() => updateStarted(true)}
+        onClick={() => setStarted(true)}
       >
         <motion.div
           style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 48 }}
@@ -266,16 +258,27 @@ export default function App() {
               {variant}
             </span>
           )}
+          <button
+            onClick={() => goToAct(currentAct - 1)}
+            disabled={currentAct === 0 && !showFooter}
+            style={{ background: 'none', border: 'none', color: currentAct === 0 && !showFooter ? 'var(--text-disabled)' : 'var(--text-primary)', cursor: currentAct === 0 && !showFooter ? 'default' : 'pointer', fontSize: 16, padding: '4px 8px' }}
+          >◀</button>
           <div className="progress-bar">
             {acts.map((act, i) => (
               <div
                 key={act.id}
                 className={`progress-dot ${i === currentAct && !showFooter ? 'active' : i < currentAct || showFooter ? 'done' : ''}`}
                 title={`Act ${act.label}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => goToAct(i)}
               />
             ))}
           </div>
-          <span className="progress-label">
+          <button
+            onClick={() => showFooter ? goToAct(totalActs - 1) : advanceAct()}
+            style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 16, padding: '4px 8px' }}
+          >▶</button>
+          <span className="progress-label" style={{ cursor: 'pointer' }} onClick={() => { setCurrentAct(0); setShowFooter(false); setStarted(false); window.scrollTo({ top: 0 }) }}>
             {showFooter ? 'complete' : `${acts[currentAct].label} / ${acts[totalActs - 1].label}`}
           </span>
           <div className="health-dot alive" />
