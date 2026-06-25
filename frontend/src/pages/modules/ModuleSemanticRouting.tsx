@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { ModuleLayout, StepCard, CpuGpuBadge } from '../../components/ModuleLayout'
+import { ModuleLayout, StepCard } from '../../components/ModuleLayout'
 
 const SAMPLES = [
   { label: 'Simple — Classify', text: 'Classify this clinical document type' },
