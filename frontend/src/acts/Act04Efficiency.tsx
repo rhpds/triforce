@@ -907,11 +907,18 @@ const GROUP_HEADERS: Record<string, { label: string; detail: string }> = {
 }
 
 const MODULE_ROUTES: Record<string, string> = {
+  'semantic-routing': '/modules/semantic-routing',
+  'conditional-pipeline': '/modules/conditional-pipeline',
+  'mcp-tools': '/modules/mcp-tools',
+  'model-optimization': '/modules/model-optimization',
+  'batch-processing': '/modules/batch-processing',
+  'replica-scaling': '/modules/replica-scaling',
+  'llmd-inference': '/modules/llmd-inference',
   'adaptive-classification': '/modules/adaptive-cache',
-  'benchmarking': '/modules/benchmarking',
-  'fusion': '/modules/fusion',
+  'speculative': '/modules/speculative',
   'heterogeneous': '/modules/heterogeneous',
-  'pipeline': '/modules/pipeline',
+  'fusion': '/modules/fusion',
+  'benchmarking': '/modules/benchmarking',
 }
 
 export function Act04Efficiency({ onComplete }: Props) {
