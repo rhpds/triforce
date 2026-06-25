@@ -931,9 +931,9 @@ export function Act04Efficiency({ onComplete }: Props) {
     'batch-processing', 'replica-scaling', 'llmd-inference', 'adaptive-classification',
   ])
 
-  const activeMechanisms = allModulesMode
-    ? MECHANISMS
-    : MECHANISMS.filter(m => CORE_MODULES.has(m.moduleId) || enabled.includes(m.moduleId))
+  const activeMechanisms = MECHANISMS
+  const isModuleEnabled = (moduleId: string) =>
+    allModulesMode || CORE_MODULES.has(moduleId) || enabled.includes(moduleId)
 
   const advance = () => {
     if (revealed < activeMechanisms.length) {
@@ -1037,7 +1037,7 @@ export function Act04Efficiency({ onComplete }: Props) {
                     </div>
                   </motion.div>
 
-                  {MODULE_ROUTES[m.moduleId] && (
+                  {MODULE_ROUTES[m.moduleId] && isModuleEnabled(m.moduleId) && (
                     <motion.div style={{ textAlign: 'center', marginTop: 12 }}
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                       <button className="btn btn-secondary"
@@ -1045,6 +1045,12 @@ export function Act04Efficiency({ onComplete }: Props) {
                         onClick={() => navigate(MODULE_ROUTES[m.moduleId])}>
                         Deep Dive →
                       </button>
+                    </motion.div>
+                  )}
+                  {!isModuleEnabled(m.moduleId) && (
+                    <motion.div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: 'var(--text-disabled)' }}
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                      🔒 Available in other configurations
                     </motion.div>
                   )}
                 </motion.div>

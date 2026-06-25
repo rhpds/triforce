@@ -138,6 +138,27 @@ export default function ModuleAdaptiveCache() {
 
       {runs.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Visual hit rate gauge */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ position: 'relative', width: 120, height: 60, overflow: 'hidden', margin: '0 auto' }}>
+                <div style={{ width: 120, height: 120, borderRadius: '50%', border: '8px solid var(--surface-2)', borderBottomColor: 'transparent', borderRightColor: 'transparent', transform: 'rotate(225deg)', position: 'absolute', top: 0 }} />
+                <motion.div
+                  style={{ width: 120, height: 120, borderRadius: '50%', border: '8px solid var(--rh-green)', borderBottomColor: 'transparent', borderRightColor: 'transparent', position: 'absolute', top: 0 }}
+                  initial={{ rotate: 225 }}
+                  animate={{ rotate: 225 + (stats ? stats.hit_rate * 270 : 0) }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                />
+              </div>
+              <motion.div className="mono" style={{ fontSize: 24, fontWeight: 700, color: 'var(--rh-green)', marginTop: -4 }}
+                key={stats?.hit_rate}
+                initial={{ scale: 1.3 }} animate={{ scale: 1 }}>
+                {stats ? (stats.hit_rate * 100).toFixed(0) : 0}%
+              </motion.div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Cache Hit Rate</div>
+            </div>
+          </div>
+
           <StepCard num={3} title={`Results (${runs.length} runs)`}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>

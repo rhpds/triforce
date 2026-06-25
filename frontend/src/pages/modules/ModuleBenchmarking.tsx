@@ -132,59 +132,71 @@ export default function ModuleBenchmarking() {
         </div>
       </StepCard>
 
-      {results && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <StepCard num={4} title="Results">
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-dim)' }}>Model</th>
-                  <th style={{ textAlign: 'center', padding: '8px', color: 'var(--text-dim)' }}>Hardware</th>
-                  <th style={{ textAlign: 'right', padding: '8px', color: 'var(--text-dim)' }}>Latency</th>
-                  <th style={{ textAlign: 'right', padding: '8px', color: 'var(--text-dim)' }}>Tokens</th>
-                  <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-dim)' }}>Output</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.filter(r => !r.error).map((r, i) => (
-                  <motion.tr key={r.model}
-                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td className="mono" style={{ padding: '10px 8px', fontWeight: 600 }}>{r.model}</td>
-                    <td style={{ padding: '10px 8px', textAlign: 'center' }}><CpuGpuBadge hardware={r.hardware} /></td>
-                    <td className="mono" style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: i === 0 ? 'var(--rh-green)' : 'var(--text-primary)' }}>
-                      {r.latency_ms}ms
-                    </td>
-                    <td className="mono" style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--text-dim)' }}>
-                      {r.output_tokens || '—'}
-                    </td>
-                    <td style={{ padding: '10px 8px', fontSize: 11, color: 'var(--text-dim)', maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {(r.output || '').slice(0, 60)}
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-
-            {results.some(r => r.error) && (
-              <div style={{ marginTop: 8, fontSize: 11, color: 'var(--rh-orange)' }}>
-                {results.filter(r => r.error).map(r => `${r.model}: ${r.error}`).join(' · ')}
+      {results && (() => {
+        const valid = results.filter(r => !r.error)
+        const maxLatency = Math.max(...valid.map(r => r.latency_ms), 1)
+        const winner = valid[0]
+        return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <StepCard num={4} title="The Race">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {valid.map((r, i) => {
+                  const pct = (r.latency_ms / maxLatency) * 100
+                  const isWinner = i === 0
+                  const barColor = r.hardware === 'gpu' ? 'var(--gpu-amber)' : 'var(--intel-cyan)'
+                  return (
+                    <motion.div key={r.model}
+                      initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.15 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 140, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <CpuGpuBadge hardware={r.hardware} />
+                        <span className="mono" style={{ fontSize: 11, fontWeight: 600 }}>{r.model.replace('-cpu', '').replace('granite-', 'g-').replace('microsoft-', '')}</span>
+                      </div>
+                      <div style={{ flex: 1, height: 28, background: 'var(--surface-1)', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                        <motion.div
+                          style={{ height: '100%', borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8 }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 1.2, delay: i * 0.2, ease: 'easeOut' }}>
+                          <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{r.latency_ms}ms</span>
+                        </motion.div>
+                        {isWinner && (
+                          <motion.div style={{ position: 'absolute', right: -30, top: 4, fontSize: 14 }}
+                            initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1.5, type: 'spring' }}>
+                            🏆
+                          </motion.div>
+                        )}
+                      </div>
+                      <div className="mono" style={{ width: 45, fontSize: 11, textAlign: 'right', color: 'var(--text-dim)' }}>
+                        {r.output_tokens || '—'} tok
+                      </div>
+                    </motion.div>
+                  )
+                })}
               </div>
-            )}
-          </StepCard>
 
-          {results.filter(r => !r.error).length >= 2 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-              <StepCard num={5} title="Insight">
-                <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
-                  {getInsight(TASKS[selectedTask].id, results)}
+              {results.some(r => r.error) && (
+                <div style={{ marginTop: 8, fontSize: 11, color: 'var(--rh-orange)' }}>
+                  {results.filter(r => r.error).map(r => `${r.model}: ${r.error}`).join(' · ')}
                 </div>
-              </StepCard>
-            </motion.div>
-          )}
-        </motion.div>
-      )}
+              )}
+            </StepCard>
+
+            {valid.length >= 2 && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}>
+                <StepCard num={5} title="Insight">
+                  <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
+                    {winner && <span>Winner: <span style={{ color: winner.hardware === 'gpu' ? 'var(--gpu-amber)' : 'var(--intel-cyan)' }}>{winner.model}</span> ({winner.hardware.toUpperCase()}) at {winner.latency_ms}ms. </span>}
+                    {getInsight(TASKS[selectedTask].id, results)}
+                  </div>
+                </StepCard>
+              </motion.div>
+            )}
+          </motion.div>
+        )
+      })()}
     </ModuleLayout>
   )
 }
