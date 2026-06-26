@@ -3,6 +3,8 @@
 **Red Hat + Intel + IBM Technical White Paper**
 **Internal Draft — June 2026**
 
+*Data classification: ✓ Measured (live MAAS), ⓘ Reported (infra team), ⊕ Estimated, ◇ Projected. See companion benchmark-data.md for full provenance.*
+
 ## Executive Summary
 
 Enterprise AI inference doesn't need a single compute tier. This paper presents benchmark data from the Triforce platform demonstrating that intelligent workload routing across heterogeneous Intel hardware — Xeon 6 CPU ($0/token) and Intel Gaudi accelerator ($/token) — reduces inference costs by 80% while maintaining quality for the 20% of workloads that benefit from acceleration.
@@ -53,7 +55,7 @@ The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized
 | Agents | Python/LangGraph + Java/Quarkus + Go | Polyglot AI agents via A2A protocol |
 | Tools | MCP Gateway (8 tools, JSON-RPC 2.0) | Database lookups instead of LLM calls |
 | Streaming | AMQ Streams (Kafka) | Batch processing at volume |
-| CPU Serving | vLLM CPU runtime | 5 models on Intel Xeon 6 |
+| CPU Serving | OpenVINO (OptimumIntel) + vLLM CPU | 3 models via OpenVINO, 1 via vLLM, 1 via HF Transformers |
 | Gaudi Serving | vLLM Gaudi runtime (RHOAI + Habana) | 8 models on Intel Gaudi |
 | Proxy | LiteLLM (5 replicas) | Unified OpenAI-compatible API |
 | Platform | Red Hat OpenShift | Container orchestration + KServe |
@@ -71,7 +73,7 @@ The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized
 ## 3. Benchmark Methodology
 
 All measurements taken on production MAAS infrastructure (June 23-26, 2026):
-- **CPU**: Intel Xeon 6 (256 cores/node) via RHDP MAAS, vLLM CPU serving
+- **CPU**: Intel Xeon 6 (256 cores/node) via RHDP MAAS, OpenVINO + vLLM CPU serving
 - **Gaudi**: Intel Gaudi (8 cards/node) via RAC MAAS, vLLM Gaudi serving (`odh-vllm-gaudi-rhel9` + `habanalabs/vllm-installer-2.9.0`)
 - **Protocol**: OpenAI-compatible chat completions API via LiteLLM proxy
 - **Measurement**: Client-side wall-clock latency (includes network overhead)
@@ -114,9 +116,9 @@ All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 | Heterogeneous routing (CPU→Gaudi) | **80% cost savings** vs all-Gaudi | Live |
 | AMQ Streams batch processing | N records parallel vs sequential | Live |
 | Replica scaling | 20-30% latency improvement | Tested |
-| INT8 quantization (OpenVINO) | Projected 2-3x | Pending |
-| Speculative decoding | Projected 2-3x | Pending |
-| llm-d disaggregated inference | Projected 5.6x | Roadmap |
+| INT8 quantization (OpenVINO) | ◇ Projected 2-3x | Pending |
+| Speculative decoding | ◇ Projected 2-3x | Pending |
+| llm-d disaggregated inference | ◇ Projected 5.6x | Roadmap |
 
 ### 4.4 Cost at Scale (1M records/month)
 
@@ -124,7 +126,7 @@ All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 |-----------------|-------------|---------------------|
 | 100% Gaudi | $11,250 | — |
 | 100% CPU | $0 | $11,250 (100%) |
-| **80% CPU / 20% Gaudi** | **$2,250** | **$9,000 (80%)** |
+| **80% CPU / 20% Gaudi** | **⊕ ~$2,250** | **⊕ ~$9,000 (80%)** |
 
 ## 5. Why Intel-Native Heterogeneous Compute
 
@@ -132,7 +134,7 @@ All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 
 The entire Triforce stack runs on Intel hardware:
 - **Xeon 6 CPU**: 128-core processors with AMX instructions for INT8/BF16 acceleration
-- **Intel Gaudi**: Purpose-built AI accelerator with high-bandwidth memory
+- **Intel Gaudi 3**: Latest-generation AI accelerator (Supermicro SYS-822GA-NGR3), purpose-built for AI training and inference with high-bandwidth memory
 - **ONNX Runtime**: Quantized INT8 models with AVX512 for sub-5ms routing
 - **OpenVINO**: Planned backend for INT8 quantized model serving on CPU
 
@@ -177,7 +179,7 @@ Benchmark rubric: `tests/benchmark_rubric.yaml` (per-module pass criteria)
 
 - **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. Projected 2-3x additional CPU speedup.
 - **Speculative decoding** (pending): Draft model (granite-4-0-h-tiny, 1B) proposes tokens for target model (granite-2b, 2B) verification. Projected 2-3x speedup, lossless quality.
-- **vLLM CPU migration** (in progress): Remaining 4 CPU models migrating from FastAPI to vLLM. Expected 38% improvement at 5 concurrent requests.
+- **CPU serving evaluation** (in progress): 3 CPU models currently on OpenVINO (Intel's optimized inference engine), 1 on vLLM CPU, 1 on HuggingFace Transformers. Evaluating whether migration to vLLM CPU improves concurrency without sacrificing OpenVINO's single-request latency advantage. ⓘ vLLM migration of granite-3.2-8b showed -38% improvement at 5 concurrent but +71% single-request overhead.
 - **llm-d disaggregated inference** (roadmap): Separate prefill and decode across specialized CPU/Gaudi pools with SLO-based routing.
 - **vLLM semantic router** (evaluating): Replace Python embedding classifier with Go+Rust router from vllm-project/semantic-router.
 
@@ -185,7 +187,7 @@ Benchmark rubric: `tests/benchmark_rubric.yaml` (per-module pass criteria)
 
 Heterogeneous AI inference on Intel hardware is not a compromise — it's an optimization. The data shows:
 
-- **80% of enterprise AI workloads** run at equivalent quality on Intel Xeon 6 CPU at $0/token
+- **80% of enterprise AI workloads** run at equivalent quality on Intel Xeon 6 CPU at $0 incremental cost per token (on owned infrastructure)
 - **20% of workloads** benefit from Intel Gaudi — faster AND higher quality
 - **The semantic router** makes the CPU vs Gaudi decision in 5ms, automatically, with no code changes
 - **Cost savings**: $9,000/month at 1M records vs all-Gaudi
