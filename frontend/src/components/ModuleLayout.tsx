@@ -13,6 +13,7 @@ export function ModuleLayout({ title, description, status = 'live', children }: 
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const fromAct = searchParams.get('from')
+  const fromRevealed = searchParams.get('r')
 
   const statusColors = {
     live: 'var(--rh-green)',
@@ -42,7 +43,7 @@ export function ModuleLayout({ title, description, status = 'live', children }: 
       {children}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-        <button className="btn btn-secondary" onClick={() => navigate(fromAct ? `/?act=${fromAct}` : '/')} style={{ fontSize: 13 }}>
+        <button className="btn btn-secondary" onClick={() => navigate(fromAct ? `/?act=${fromAct}${fromRevealed ? `&r=${fromRevealed}` : ''}` : '/')} style={{ fontSize: 13 }}>
           ← Back to Demo
         </button>
       </div>
