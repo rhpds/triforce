@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDemoMetrics } from '../DemoContext'
@@ -927,6 +927,15 @@ export function Act04Efficiency({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(initialRevealed)
   const { enabled, allModulesMode } = useModules()
   const navigate = useNavigate()
+  const lastRevealedRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (initialRevealed > 0 && lastRevealedRef.current) {
+      setTimeout(() => {
+        lastRevealedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 300)
+    }
+  }, [])
 
   const CORE_MODULES = new Set([
     'semantic-routing', 'conditional-pipeline', 'mcp-tools', 'model-optimization',
@@ -961,7 +970,7 @@ export function Act04Efficiency({ onComplete }: Props) {
         lastGroup = revealed >= i + 1 ? m.group : lastGroup
 
         return (
-          <div key={m.num}>
+          <div key={m.num} ref={i === revealed - 1 ? lastRevealedRef : undefined}>
             <AnimatePresence>
               {showGroupHeader && (
                 <motion.div
