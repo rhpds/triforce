@@ -1,68 +1,78 @@
-# Heterogeneous AI Inference at Enterprise Scale: CPU-First, GPU Where It Matters
+# Heterogeneous AI Inference at Enterprise Scale on Intel Hardware
 
 **Red Hat + Intel + IBM Technical White Paper**
 **Internal Draft — June 2026**
 
 ## Executive Summary
 
-Enterprise AI inference doesn't need to be all-GPU or all-CPU. This paper presents benchmark data from the Triforce platform demonstrating that intelligent workload routing across heterogeneous compute — Intel Xeon 6 CPU ($0/token) and NVIDIA GPU ($/token) — reduces inference costs by 80% while maintaining quality for the 20% of workloads that benefit from GPU acceleration.
+Enterprise AI inference doesn't need a single compute tier. This paper presents benchmark data from the Triforce platform demonstrating that intelligent workload routing across heterogeneous Intel hardware — Xeon 6 CPU ($0/token) and Intel Gaudi accelerator ($/token) — reduces inference costs by 80% while maintaining quality for the 20% of workloads that benefit from acceleration.
+
+The entire stack is Intel-native. No third-party accelerator dependency.
 
 Key findings:
-- **80% of enterprise AI tasks** (classification, NER, fraud scoring) run at equivalent quality on CPU at $0/token
-- **20% of tasks** (summarization, complex reasoning, differential diagnosis) benefit from GPU — 3-10x faster with higher quality output
-- **Semantic routing** classifies task complexity in 5ms and routes to optimal hardware automatically
+- **80% of enterprise AI tasks** (classification, NER, fraud scoring) run at equivalent quality on Intel Xeon 6 CPU at $0/token
+- **20% of tasks** (summarization, complex reasoning, differential diagnosis) benefit from Intel Gaudi — 2-10x faster with higher quality output
+- **Semantic routing** classifies task complexity in 5ms (ONNX qint8 AVX512) and routes to optimal Intel hardware automatically
 - **Adaptive caching** reduces LLM calls by 80%+ over time, compounding savings
-- **vLLM continuous batching** on CPU handles 64x concurrent load vs serialized FastAPI
+- **vLLM continuous batching** on CPU handles 64x concurrent load vs serialized serving
+- **Full Intel stack**: Xeon 6 CPU + Intel Gaudi accelerator + AMX instructions + ONNX/OpenVINO
 
 ## 1. The Problem
 
 Enterprise AI inference faces a compute dilemma:
 
-| Approach | Cost | Quality | Scale |
-|----------|------|---------|-------|
-| All GPU | $120K per server | Highest | Limited by GPU budget |
-| Cloud API | $0.15-$0.60/M tokens | Varies | Unlimited but expensive |
-| All CPU | $0/token (owned hardware) | Good for 80% of tasks | Limited for complex reasoning |
-
-The assumption that all inference needs GPU is wrong. Our benchmarks show that classification, NER, and fraud scoring — which constitute ~80% of enterprise AI workloads — produce identical results on CPU and GPU. Only summarization, complex reasoning, and frontier diagnosis tasks meaningfully benefit from GPU acceleration.
+| Approach | Cost | Quality | Scale | Vendor Lock-in |
+|----------|------|---------|-------|----------------|
+| All accelerator | $120K per server | Highest | Limited by budget | NVIDIA dependency |
+| Cloud API | $0.15-$0.60/M tokens | Varies | Unlimited but expensive | Cloud vendor |
+| All CPU | $0/token (owned hardware) | Good for 80% of tasks | Limited for complex reasoning | None |
+| **Heterogeneous Intel** | **$0 for 80% + $/token for 20%** | **Optimal per task** | **Scales both tiers** | **Intel-native** |
 
 ## 2. Architecture
 
-The Triforce platform routes inference requests across heterogeneous compute using a signal-driven semantic router:
-
 ```
-Request → Semantic Router (5ms, ONNX on CPU)
+Request → Semantic Router (5ms, ONNX qint8 AVX512 on Xeon 6)
               │
     ┌─────────┼─────────┐
     │         │         │
   SIMPLE    MEDIUM    COMPLEX
     │         │         │
-  CPU Pool  CPU Pool  Accelerator Pool
+  CPU Pool  CPU Pool  Gaudi Pool
   Xeon 6    Xeon 6    Intel Gaudi
-  granite-2b  qwen25-3b  phi-4/gpt-oss-120b
+  granite-2b  qwen25-3b  phi-4 / gpt-oss-120b
   $0/token   $0/token   $/token
 ```
 
-The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized) to classify request complexity via embedding similarity. Routing decisions happen in 5ms with no LLM call — pure vector similarity against pre-computed anchor embeddings.
+The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized) to classify request complexity via embedding similarity. Routing decisions happen in 5ms with no LLM call.
 
 ### Technology Stack
 
 | Layer | Technology | Role |
 |-------|-----------|------|
-| Routing | vLLM Semantic Router (ONNX) | Classify complexity, route to hardware |
-| Agents | Python/LangGraph + Java/Quarkus + Go | Polyglot AI agents |
-| Tools | MCP Gateway (8 tools) | Database lookups vs LLM calls |
+| Routing | ONNX Runtime (qint8 AVX512) | Classify complexity, route to hardware |
+| Agents | Python/LangGraph + Java/Quarkus + Go | Polyglot AI agents via A2A protocol |
+| Tools | MCP Gateway (8 tools, JSON-RPC 2.0) | Database lookups instead of LLM calls |
 | Streaming | AMQ Streams (Kafka) | Batch processing at volume |
-| Inference | MAAS/LiteLLM → vLLM | Model serving (CPU + GPU) |
-| Platform | Red Hat OpenShift | Container orchestration |
+| CPU Serving | vLLM CPU runtime | 5 models on Intel Xeon 6 |
+| Gaudi Serving | vLLM Gaudi runtime (RHOAI + Habana) | 8 models on Intel Gaudi |
+| Proxy | LiteLLM (5 replicas) | Unified OpenAI-compatible API |
+| Platform | Red Hat OpenShift | Container orchestration + KServe |
 | Governance | IBM Kagenti | Agent discovery, identity, audit |
-| Hardware | Intel Xeon 6 (CPU) + Intel Gaudi | Heterogeneous compute |
+| Hardware | **Intel Xeon 6 + Intel Gaudi** | Full Intel heterogeneous compute |
+
+### Infrastructure
+
+| Tier | Nodes | Compute | Memory | Serving |
+|------|-------|---------|--------|---------|
+| CPU | 6× Xeon workers | 1,536 cores total (256/node) | 503Gi/node | vLLM CPU |
+| Gaudi | 3× Gaudi workers | 24 Gaudi cards total (8/node) | 2,015-2,267Gi/node | vLLM Gaudi (RHOAI) |
+| Control | 3× control plane | 384 cores total (128/node) | 528Gi/node | — |
 
 ## 3. Benchmark Methodology
 
 All measurements taken on production MAAS infrastructure (June 23-26, 2026):
-- **CPU**: Intel Xeon 6 via RHDP MAAS, vLLM serving
-- **GPU**: Intel Gaudi via RAC MAAS, vLLM Gaudi serving
+- **CPU**: Intel Xeon 6 (256 cores/node) via RHDP MAAS, vLLM CPU serving
+- **Gaudi**: Intel Gaudi (8 cards/node) via RAC MAAS, vLLM Gaudi serving (`odh-vllm-gaudi-rhel9` + `habanalabs/vllm-installer-2.9.0`)
 - **Protocol**: OpenAI-compatible chat completions API via LiteLLM proxy
 - **Measurement**: Client-side wall-clock latency (includes network overhead)
 - **Workloads**: Clinical NLP (healthcare) and transaction scoring (financial services)
@@ -70,135 +80,122 @@ All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 
 ## 4. Results
 
-### 4.1 Task-Level Latency: CPU vs GPU
+### 4.1 CPU vs Gaudi — Best-in-Class per Task
 
-| Task | CPU Model | CPU Latency | GPU Model | GPU Latency | Speedup | Quality Delta |
-|------|-----------|-------------|-----------|-------------|---------|---------------|
-| Classification | qwen25-3b (3B) | 779ms | granite-8b (8B) | 500ms | 1.6x | None |
-| NER | granite-2b (2B) | 6,248ms | phi-4 (14B) | 3,809ms | 1.6x | GPU includes dosages |
-| Summarization | granite-2b (2B) | 5,208ms | gpt-oss-20b (20B) | 1,572ms | 3.3x | GPU more detailed |
-| Compliance | granite-2b (2B) | 3,537ms | phi-4 (14B) | 1,692ms | 2.1x | GPU cites regulations |
-| Diagnosis | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | 1,465ms | 10.1x | GPU significantly better |
+| Task | Best CPU | CPU Latency | Best Gaudi | Gaudi Latency | Speedup | Quality Delta |
+|------|----------|-------------|------------|---------------|---------|---------------|
+| Classification | phi3-mini (3.8B) | 504ms | llama-scout (17B) | **241ms** | 2.1x | Both correct |
+| NER | granite-2b (2B) | 6,850ms | gpt-oss-20b (20B) | **1,494ms** | 4.6x | Gaudi includes dosages |
+| Summarization | phi3-mini (3.8B) | 2,712ms | gpt-oss-20b (20B) | **1,326ms** | 2.0x | Gaudi 3x more tokens |
+| Compliance | phi3-mini (3.8B) | 1,613ms | gpt-oss-20b (20B) | **1,396ms** | 1.2x | Gaudi cites regulations |
+| Diagnosis | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | **10.1x** | Gaudi cites pathogen |
 
-**Key Insight**: Classification shows no quality difference between CPU and GPU — all models produce the correct answer. The speedup (1.6x) doesn't justify the cost for batch workloads. Conversely, differential diagnosis on the 120B GPU model is both 10x faster AND produces clinically superior output compared to the 8B CPU model.
+**Key Insight**: Classification and compliance show minimal Gaudi advantage — CPU is adequate at $0. Diagnosis shows 10.1x speedup on Gaudi AND clinically superior output. The routing decision should be automatic, not manual.
 
 ### 4.2 Throughput Under Concurrent Load
 
-| Metric | CPU (granite-2b) | GPU (granite-8b) | Ratio |
-|--------|------------------|-------------------|-------|
-| Requests/sec | 0.23 | 0.87 | 3.8x |
-| Mean latency | 4.33s | 1.15s | 3.8x |
-| Time to first token | 4,204ms | 401ms | 10.5x |
-| Concurrent scaling | Flat (bottlenecked) | Linear | GPU wins |
+| Metric | CPU (Xeon 6) | Gaudi | Speedup |
+|--------|-------------|-------|---------|
+| Requests/sec | 0.23 | 0.87 | **3.8x** |
+| Mean latency | 4.33s | 1.15s | **3.8x** |
+| Time to first token | 4,204ms | 401ms | **10.5x** |
+| Concurrent scaling | Flat (bottlenecked) | Linear | Gaudi wins at concurrency |
 
-The CPU throughput ceiling is reached at ~0.23 req/s for the granite-2b model. Under concurrent load (10 requests), CPU latency climbs to 12.9s while throughput stays flat. GPU maintains near-constant latency under concurrency via continuous batching.
-
-### 4.3 vLLM CPU Migration Impact
-
-Migration of granite-3.2-8b-instruct from custom FastAPI to vLLM v0.23.0 CPU backend:
-
-| Metric | Before (FastAPI) | After (vLLM) |
-|--------|-----------------|--------------|
-| Single request | 663ms | 1,134ms (+71%) |
-| 5 concurrent (worst) | 5,500ms | 3,397ms (-38%) |
-| Max concurrency | 1 (serialized) | 64x |
-
-Single-request latency increased due to vLLM scheduling overhead, but the serialization bottleneck was eliminated. The old FastAPI setup used a threading lock — under concurrent load, each user waited in queue. vLLM's continuous batching processes multiple requests in a single forward pass.
-
-### 4.4 Optimization Stack
-
-12 engineering optimizations measured independently:
+### 4.3 Optimization Stack (12 Modules)
 
 | Optimization | Impact | Status |
 |-------------|--------|--------|
-| Semantic routing (ONNX qint8 AVX512) | 3,200ms → 5ms (640x) | Live |
+| Semantic routing (ONNX qint8 AVX512) | 3,200ms → 5ms (**640x**) | Live |
 | Conditional pipeline | 25% fewer LLM calls | Live |
-| MCP tools vs LLM | 16ms vs 3,000ms (187x) | Live |
+| MCP tools vs LLM | 16ms vs 3,000ms (**187x**) | Live |
 | Model selection (right model per task) | 10.2s → 7.8s pipeline (24%) | Live |
 | Adaptive classification cache | 80%+ hit rate after warmup | Live |
 | Multi-model fusion (3+judge) | Higher confidence for critical decisions | Live |
-| Heterogeneous routing (CPU→GPU) | 80% savings vs all-GPU | Live |
-| INT8 quantization | Projected 2-3x (pending) | Pending |
-| Speculative decoding | Projected 2-3x (pending) | Pending |
-| llm-d disaggregated inference | Projected 5.6x (pending) | Roadmap |
+| Heterogeneous routing (CPU→Gaudi) | **80% cost savings** vs all-Gaudi | Live |
+| AMQ Streams batch processing | N records parallel vs sequential | Live |
 | Replica scaling | 20-30% latency improvement | Tested |
-| Batch streaming (AMQ) | N records parallel vs sequential | Live |
+| INT8 quantization (OpenVINO) | Projected 2-3x | Pending |
+| Speculative decoding | Projected 2-3x | Pending |
+| llm-d disaggregated inference | Projected 5.6x | Roadmap |
 
-### 4.5 Cost at Scale
+### 4.4 Cost at Scale (1M records/month)
 
-For 1 million records/month (healthcare pipeline: classify + NER + interactions + summarize):
-
-| Routing Strategy | Monthly Cost | Savings vs All-GPU |
-|-----------------|-------------|-------------------|
-| 100% GPU | $11,250 | — |
+| Routing Strategy | Monthly Cost | Savings vs All-Gaudi |
+|-----------------|-------------|---------------------|
+| 100% Gaudi | $11,250 | — |
 | 100% CPU | $0 | $11,250 (100%) |
-| 80% CPU / 20% GPU (heterogeneous) | $2,250 | $9,000 (80%) |
+| **80% CPU / 20% Gaudi** | **$2,250** | **$9,000 (80%)** |
 
-The heterogeneous approach delivers GPU quality where it matters while saving 80% of inference cost. The semantic router makes this decision automatically — no application code changes required.
+## 5. Why Intel-Native Heterogeneous Compute
 
-## 5. Architecture Decisions
+### The Intel Advantage
 
-### Why not all-CPU?
+The entire Triforce stack runs on Intel hardware:
+- **Xeon 6 CPU**: 128-core processors with AMX instructions for INT8/BF16 acceleration
+- **Intel Gaudi**: Purpose-built AI accelerator with high-bandwidth memory
+- **ONNX Runtime**: Quantized INT8 models with AVX512 for sub-5ms routing
+- **OpenVINO**: Planned backend for INT8 quantized model serving on CPU
 
-CPU handles 80% of enterprise AI tasks adequately. But for the remaining 20%:
-- **Summarization quality** improves measurably on GPU — more detailed, more tokens, better structure
-- **Compliance reasoning** cites specific regulations on GPU models — critical for audit trails
-- **Differential diagnosis** requires frontier-class models (120B) that are impractical on CPU
-- **Time to first token** at 4.2s on CPU vs 401ms on GPU impacts interactive UX
+No NVIDIA dependency. No cloud vendor lock-in. Enterprises deploy on hardware they own or can procure from a single vendor.
 
-### Why not all-GPU?
+### When to Use Each Tier
 
-- **Classification** produces identical results on CPU and GPU — paying for GPU adds cost without value
-- **NER and fraud scoring** are adequate on CPU for batch processing workloads
-- **$0/token on CPU** means 80% of inference volume runs at zero marginal cost
-- **GPU scarcity** — reserving GPU for tasks that need it maximizes GPU ROI
-
-### Why heterogeneous routing?
-
-The semantic router classifies each request in 5ms and routes to the optimal hardware. The application sees one API — the routing is transparent. This means:
-- No code changes to adopt GPU for specific tasks
-- No over-provisioning GPU for simple workloads
-- Automatic scaling of GPU usage based on actual workload complexity
-- Cost predictability — GPU spend is proportional to complex workload volume
+| Workload | Best Tier | Why |
+|----------|-----------|-----|
+| Classification (document type) | CPU | Identical quality, $0/token |
+| NER (entity extraction) | CPU (batch) / Gaudi (real-time) | CPU adequate for batch; Gaudi adds dosage extraction |
+| Fraud scoring | CPU | Rules + LLM combination, CPU handles well |
+| Summarization | Gaudi | 3x more detailed output, 2x faster |
+| Compliance reasoning | Either | CPU is 1.2x slower but correct — volume determines tier |
+| Differential diagnosis | Gaudi | 10.1x faster, clinically superior output |
+| Frontier reasoning (120B) | Gaudi | Models too large for CPU inference |
 
 ## 6. Reproducibility
 
-All benchmarks are reproducible using the Triforce platform:
-
 ```bash
-# Clone and deploy
+# Deploy the platform
 git clone https://github.com/rhpds/triforce.git
 make deploy EXTRA_HELM_ARGS="--set litellm.apiKey=$KEY"
 
-# Run benchmarks
+# Run CPU vs Gaudi benchmark
 curl -X POST /api/v1/benchmark/run \
   -d '{"task":"classification","models":["granite-2b-cpu","granite-3-2-8b-instruct"]}'
 
 # Run throughput sweep
 guidellm benchmark run --target $MAAS_URL/v1 --model granite-2b-cpu \
   --rate-type concurrent --rate 1,2,4
+
+# Run multi-model fusion
+curl -X POST /api/v1/fusion \
+  -d '{"task":"compliance","prompt":"Is this AML structuring?"}'
 ```
 
-The benchmark rubric (`tests/benchmark_rubric.yaml`) defines pass criteria for each task × model × hardware combination. The validation matrix (`tests/validation_matrix.yaml`) gates deployment across 11 stages.
+Validation matrix: `tests/validation_matrix.yaml` (11 stages)
+Benchmark rubric: `tests/benchmark_rubric.yaml` (per-module pass criteria)
 
 ## 7. Future Work
 
-- **Intel Gaudi acceleration** (planned): Gaudi models now confirmed running on RAC MAAS cluster (3 nodes, 24 Gaudi cards). Full Intel stack validated: Xeon 6 CPU + Intel Gaudi accelerator.
-- **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. Projected 2-3x additional speedup.
+- **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. Projected 2-3x additional CPU speedup.
 - **Speculative decoding** (pending): Draft model (granite-4-0-h-tiny, 1B) proposes tokens for target model (granite-2b, 2B) verification. Projected 2-3x speedup, lossless quality.
-- **llm-d disaggregated inference** (roadmap): Separate prefill (compute-heavy) and decode (memory-bound) across specialized CPU/Gaudi/GPU pools with SLO-based routing.
-- **vLLM semantic router integration** (evaluating): Replace Python embedding classifier with production-grade Go+Rust router from vllm-project/semantic-router.
+- **vLLM CPU migration** (in progress): Remaining 4 CPU models migrating from FastAPI to vLLM. Expected 38% improvement at 5 concurrent requests.
+- **llm-d disaggregated inference** (roadmap): Separate prefill and decode across specialized CPU/Gaudi pools with SLO-based routing.
+- **vLLM semantic router** (evaluating): Replace Python embedding classifier with Go+Rust router from vllm-project/semantic-router.
 
 ## 8. Conclusion
 
-Heterogeneous AI inference is not a compromise — it's an optimization. The data shows that 80% of enterprise AI workloads run at equivalent quality on CPU at $0/token. The 20% that benefit from GPU get GPU — automatically, transparently, without code changes.
+Heterogeneous AI inference on Intel hardware is not a compromise — it's an optimization. The data shows:
 
-The cost savings at scale are substantial: $9,000/month at 1M records vs all-GPU. The quality tradeoff is zero for simple tasks and positive for complex tasks (GPU produces better output). The engineering investment is 12 pluggable optimization modules that compound — each independently measurable, each independently deployable.
+- **80% of enterprise AI workloads** run at equivalent quality on Intel Xeon 6 CPU at $0/token
+- **20% of workloads** benefit from Intel Gaudi — faster AND higher quality
+- **The semantic router** makes the CPU vs Gaudi decision in 5ms, automatically, with no code changes
+- **Cost savings**: $9,000/month at 1M records vs all-Gaudi
+- **Full Intel stack**: No third-party accelerator dependency
 
-The question for enterprises isn't "CPU or GPU?" It's "which tasks need which hardware?" The semantic router answers that question in 5ms, every time, automatically.
+The question for enterprises isn't "CPU or accelerator?" It's: which tasks need which Intel hardware? The semantic router answers that question in 5ms, every time, automatically.
 
 ---
 
 **Authors**: Jonathan Kershaw (Red Hat), with contributions from Intel and IBM teams.
 **Platform**: Triforce — github.com/rhpds/triforce
 **Contact**: jkershaw@redhat.com
+**Infrastructure**: RAC MAAS (Intel Xeon 6 + Intel Gaudi) on Red Hat OpenShift
