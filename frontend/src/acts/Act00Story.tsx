@@ -26,7 +26,7 @@ export function Act00Story({ onComplete }: Props) {
             <div className="section-context">
               Every enterprise wants AI. They've seen the demos. They've run the pilots.
               But when the CFO asks "what does it cost at scale?" — the room goes quiet.
-              GPU servers cost $120K. Cloud APIs charge per token. And the models keep growing.
+              Accelerator servers cost $120K. Cloud APIs charge per token. And the models keep growing.
               The question isn't "GPU or no GPU" — it's "which tasks need which hardware?"
             </div>
 

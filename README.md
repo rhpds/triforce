@@ -45,7 +45,7 @@ LangGraph   Rules+LLM  A2A dispatch
   8 tools     streaming    audit + inference log
               │
      MAAS / LiteLLM
-     CPU pool (Xeon 6, $0) + GPU pool (NVIDIA, $/token)
+     CPU pool (Xeon 6, $0) + Gaudi pool (Intel Gaudi, $/token)
 ```
 
 - **Healthcare Agent** — Python/FastAPI + LangGraph 4-node pipeline (classify → NER → drug interactions → summarize) with adaptive classification cache
@@ -65,7 +65,7 @@ LangGraph   Rules+LLM  A2A dispatch
 | phi3-mini-cpu | 3.8B | Complex reasoning | ~1.8s |
 | granite-3-2-8b-instruct-cpu | 8B | Complex reasoning | ~1.1s (classify), 10s (summarize) |
 
-**GPU models (NVIDIA, $/token):**
+**Gaudi models (Intel Gaudi, $/token):**
 | Model | Params | Use Case | Measured Latency |
 |-------|--------|----------|-----------------|
 | granite-3-2-8b-instruct | 8B | Reasoning, NER | 500ms (classify) |

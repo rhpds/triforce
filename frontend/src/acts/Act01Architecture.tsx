@@ -23,7 +23,7 @@ const LAYERS = [
         <div style={{ marginTop: 8, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
           <span className="mono" style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--intel-cyan-dim)', color: 'var(--intel-cyan)' }}>SIMPLE → CPU</span>
           <span className="mono" style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--intel-cyan-dim)', color: 'var(--intel-cyan)' }}>MEDIUM → CPU</span>
-          <span className="mono" style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--gpu-amber-dim)', color: 'var(--gpu-amber)' }}>COMPLEX → GPU</span>
+          <span className="mono" style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--gpu-amber-dim)', color: 'var(--gpu-amber)' }}>COMPLEX → Gaudi</span>
         </div>
       </motion.div>
     ),
@@ -167,7 +167,7 @@ const LAYERS = [
   },
   {
     id: 'gpu',
-    label: 'GPU Pool (NVIDIA)',
+    label: 'Gaudi Pool (Intel)',
     customerQuestion: '"But summarization quality matters. And differential diagnosis needs reasoning power."',
     workload: 'The 20% that needs GPU gets GPU. Summarization: 3.3x faster with more detailed output. Compliance reasoning: cites specific regulations. Frontier diagnosis: gpt-oss-120b in 1.5s. The system routes here only when quality or speed demands it — $/token, not $0, but worth it.',
     color: 'var(--gpu-amber)',
@@ -179,7 +179,7 @@ const LAYERS = [
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="pipe-node-label" style={{ color: 'var(--gpu-amber)' }}>NVIDIA GPU Pool · $/token</div>
+        <div className="pipe-node-label" style={{ color: 'var(--gpu-amber)' }}>Intel Gaudi Pool · $/token</div>
         <div className="pipe-node-detail">Reasoning · Summarization · Frontier tasks</div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
           {[

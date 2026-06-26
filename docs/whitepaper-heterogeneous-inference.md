@@ -38,7 +38,7 @@ Request → Semantic Router (5ms, ONNX on CPU)
   SIMPLE    MEDIUM    COMPLEX
     │         │         │
   CPU Pool  CPU Pool  Accelerator Pool
-  Xeon 6    Xeon 6    NVIDIA GPU / Intel Gaudi
+  Xeon 6    Xeon 6    Intel Gaudi
   granite-2b  qwen25-3b  phi-4/gpt-oss-120b
   $0/token   $0/token   $/token
 ```
@@ -56,13 +56,13 @@ The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized
 | Inference | MAAS/LiteLLM → vLLM | Model serving (CPU + GPU) |
 | Platform | Red Hat OpenShift | Container orchestration |
 | Governance | IBM Kagenti | Agent discovery, identity, audit |
-| Hardware | Intel Xeon 6 (CPU) + NVIDIA GPU + Intel Gaudi (planned) | Heterogeneous compute |
+| Hardware | Intel Xeon 6 (CPU) + Intel Gaudi | Heterogeneous compute |
 
 ## 3. Benchmark Methodology
 
 All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 - **CPU**: Intel Xeon 6 via RHDP MAAS, vLLM serving
-- **GPU**: NVIDIA via RAC MAAS, vLLM serving
+- **GPU**: Intel Gaudi via RAC MAAS, vLLM Gaudi serving
 - **Protocol**: OpenAI-compatible chat completions API via LiteLLM proxy
 - **Measurement**: Client-side wall-clock latency (includes network overhead)
 - **Workloads**: Clinical NLP (healthcare) and transaction scoring (financial services)
@@ -183,7 +183,7 @@ The benchmark rubric (`tests/benchmark_rubric.yaml`) defines pass criteria for e
 
 ## 7. Future Work
 
-- **Intel Gaudi acceleration** (planned): Intel-native AI accelerator as a third compute tier. Keeps the entire heterogeneous stack within the Intel ecosystem (Xeon 6 CPU + Gaudi). Eliminates NVIDIA dependency for enterprise deployments. Pending Gaudi model availability on MAAS.
+- **Intel Gaudi acceleration** (planned): Gaudi models now confirmed running on RAC MAAS cluster (3 nodes, 24 Gaudi cards). Full Intel stack validated: Xeon 6 CPU + Intel Gaudi accelerator.
 - **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. Projected 2-3x additional speedup.
 - **Speculative decoding** (pending): Draft model (granite-4-0-h-tiny, 1B) proposes tokens for target model (granite-2b, 2B) verification. Projected 2-3x speedup, lossless quality.
 - **llm-d disaggregated inference** (roadmap): Separate prefill (compute-heavy) and decode (memory-bound) across specialized CPU/Gaudi/GPU pools with SLO-based routing.

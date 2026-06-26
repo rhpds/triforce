@@ -5,7 +5,7 @@
 | Component | Detail |
 |-----------|--------|
 | **CPU Platform** | Intel Xeon 6 via RHDP MAAS (vLLM serving) |
-| **GPU Platform** | NVIDIA (RAC MAAS, model serving) |
+| **GPU Platform** | Intel Gaudi (RAC MAAS, vLLM Gaudi serving) |
 | **Cluster** | OpenShift 4.20 on infra01 (RHDP shared infrastructure) |
 | **Model Serving** | LiteLLM proxy → vLLM backends |
 | **Benchmark Tool** | guidellm v0.3.1 + custom benchmark endpoints |
@@ -23,14 +23,14 @@
 | granite-3-2-8b-instruct-cpu | 8B | vLLM on Xeon 6 (migrated June 24) |
 | granite-4-0-h-tiny-cpu | ~1B | vLLM on Xeon 6 |
 
-### GPU Models (NVIDIA, $/token)
+### Gaudi Models (Intel Gaudi, $/token)
 | Model | Parameters | Serving |
 |-------|-----------|---------|
-| granite-3-2-8b-instruct | 8B | vLLM on NVIDIA GPU |
-| microsoft-phi-4 | 14B | vLLM on NVIDIA GPU |
-| gpt-oss-20b | 20B | vLLM on NVIDIA GPU |
-| gpt-oss-120b | 120B | vLLM on NVIDIA GPU |
-| llama-scout-17b | 17B | vLLM on NVIDIA GPU |
+| granite-3-2-8b-instruct | 8B | vLLM on Intel Gaudi |
+| microsoft-phi-4 | 14B | vLLM on Intel Gaudi |
+| gpt-oss-20b | 20B | vLLM on Intel Gaudi |
+| gpt-oss-120b | 120B | vLLM on Intel Gaudi |
+| llama-scout-17b | 17B | vLLM on Intel Gaudi |
 
 ### Intel Gaudi Models (planned)
 No Gaudi models available on MAAS as of June 2026. When available, Gaudi provides an Intel-native acceleration tier — keeping the entire heterogeneous stack (Xeon 6 CPU + Gaudi accelerator) within the Intel ecosystem. Ask Ashok about Gaudi model availability on MAAS.
@@ -115,7 +115,7 @@ No Gaudi models available on MAAS as of June 2026. When available, Gaudi provide
 | granite-2b-cpu | CPU | 2B | 8,802ms | Less structured |
 | granite-3-2-8b-instruct-cpu | CPU | 8B | 14,817ms | Adequate |
 
-**Finding:** gpt-oss-120b is fastest AND best quality — counterintuitive but explained by GPU memory bandwidth advantage. The 120B model on GPU (1.5s) outperforms the 8B model on CPU (14.8s) by 10.1x. Frontier reasoning is where GPU is essential.
+**Finding:** gpt-oss-120b is fastest AND best quality — counterintuitive but explained by Gaudi memory bandwidth advantage. The 120B model on GPU (1.5s) outperforms the 8B model on CPU (14.8s) by 10.1x. Frontier reasoning is where GPU is essential.
 
 ## Throughput Benchmarks (guidellm)
 

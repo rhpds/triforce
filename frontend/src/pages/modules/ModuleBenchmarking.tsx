@@ -36,10 +36,10 @@ function getInsight(task: string, results: BenchResult[]): string {
   const gpuBest = gpu[0].latency_ms
   const speedup = (cpuBest / gpuBest).toFixed(1)
 
-  if (task === 'classification') return `All models classify correctly. GPU is ${speedup}x faster but CPU works fine at $0 — no quality difference on this task.`
-  if (task === 'ner') return `GPU is ${speedup}x faster. GPU models also extract dosages (500mg, 10mg) that smaller CPU models miss — quality AND speed improve.`
-  if (task === 'summarization') return `GPU is ${speedup}x faster with more detailed output. For real-time summarization, GPU is worth the cost. For batch, CPU at $0 is fine.`
-  return `GPU is ${speedup}x faster. CPU at $0 handles this task adequately. GPU adds speed and potentially better reasoning — the tradeoff depends on your volume and latency requirements.`
+  if (task === 'classification') return `All models classify correctly. Gaudi is ${speedup}x faster but CPU works fine at $0 — no quality difference on this task.`
+  if (task === 'ner') return `Gaudi is ${speedup}x faster. Gaudi models also extract dosages (500mg, 10mg) that smaller CPU models miss — quality AND speed improve.`
+  if (task === 'summarization') return `Gaudi is ${speedup}x faster with more detailed output. For real-time summarization, Gaudi is worth the cost. For batch, CPU at $0 is fine.`
+  return `Gaudi is ${speedup}x faster. CPU at $0 handles this task adequately. GPU adds speed and potentially better reasoning — the tradeoff depends on your volume and latency requirements.`
 }
 
 export default function ModuleBenchmarking() {

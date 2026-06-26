@@ -38,10 +38,10 @@ function getInsight(task: string, results: BenchmarkResult[]): string {
   const cpuBest = cpuResults[0]
   const gpuBest = gpuResults[0]
   const speedup = (cpuBest.latency_ms / gpuBest.latency_ms).toFixed(1)
-  if (task === 'classification') return `Classification: all models correct. GPU is ${speedup}x faster but CPU is fine at $0.`
-  if (task === 'ner') return `NER: GPU is ${speedup}x faster. GPU models extract dosages (500mg, 10mg) that CPU models miss.`
-  if (task === 'summarization') return `Summarization: GPU is ${speedup}x faster with more detailed output. Worth the cost for real-time use.`
-  return `GPU is ${speedup}x faster. CPU at $0 vs GPU at $/token — the tradeoff depends on your volume.`
+  if (task === 'classification') return `Classification: all models correct. Gaudi is ${speedup}x faster but CPU is fine at $0.`
+  if (task === 'ner') return `NER: Gaudi is ${speedup}x faster. Gaudi models extract dosages (500mg, 10mg) that CPU models miss.`
+  if (task === 'summarization') return `Summarization: Gaudi is ${speedup}x faster with more detailed output. Worth the cost for real-time use.`
+  return `Gaudi is ${speedup}x faster. CPU at $0 vs GPU at $/token — the tradeoff depends on your volume.`
 }
 
 export function Act03Benchmark({ onComplete }: Props) {

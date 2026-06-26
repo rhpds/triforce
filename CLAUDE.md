@@ -76,7 +76,7 @@ make deploy MODULES_ENABLED=benchmarking,fusion \
 - **Go orchestrator**: Zero inference — coordination and monitoring only
 - **Kafka**: Redpanda for local dev, AMQ Streams on OpenShift
 - **MCP tools**: Built-in fallback data when MCP gateway is unreachable
-- **MAAS endpoint**: `maas-rhdp.apps.maas.redhatworkshops.io` (CPU + GPU models)
+- **MAAS endpoint**: `maas-rhdp.apps.maas.redhatworkshops.io` (CPU + Gaudi models)
 - **Container builds**: Always `--platform linux/amd64` (OCP clusters are x86)
 - **Modules**: Each optimization is a pluggable module in `modules/` with manifest, Helm flag, lab content
 - **AgnosticV configs**: NEVER in public repos — private agnosticv repo only
@@ -123,7 +123,7 @@ tests/               # Validation matrix (11 stages) + benchmark rubric
 | phi3-mini-cpu | 3.8B | Complex reasoning |
 | granite-3-2-8b-instruct-cpu | 8B | Complex reasoning |
 
-**GPU (NVIDIA, $/token):**
+**Gaudi (Intel Gaudi, $/token):**
 | Model | Params | Use Case |
 |-------|--------|----------|
 | granite-3-2-8b-instruct | 8B | Reasoning, NER |

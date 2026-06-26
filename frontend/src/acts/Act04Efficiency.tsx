@@ -758,7 +758,7 @@ function HeterogeneousVisual() {
     { label: 'Classify document', route: 'SIMPLE', hw: 'CPU', model: 'granite-2b', cost: '$0', color: 'var(--intel-cyan)' },
     { label: 'Extract entities', route: 'SIMPLE', hw: 'CPU', model: 'granite-2b', cost: '$0', color: 'var(--intel-cyan)' },
     { label: 'Summarize record', route: 'MEDIUM', hw: 'CPU', model: 'qwen25-3b', cost: '$0', color: 'var(--intel-cyan)' },
-    { label: 'Differential diagnosis', route: 'COMPLEX', hw: 'GPU', model: 'gpt-oss-120b', cost: '$/tok', color: 'var(--gpu-amber)' },
+    { label: 'Differential diagnosis', route: 'COMPLEX', hw: 'Gaudi', model: 'gpt-oss-120b', cost: '$/tok', color: 'var(--gpu-amber)' },
   ]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 400, margin: '0 auto' }}>
@@ -768,9 +768,9 @@ function HeterogeneousVisual() {
           transition={{ delay: D + i * 0.3 }}>
           <div style={{ width: 140, color: 'var(--text-dim)' }}>{r.label}</div>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-dim)', width: 50 }}>{r.route}</div>
-          <div style={{ fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: r.hw === 'GPU' ? 'var(--gpu-amber-dim)' : 'var(--intel-cyan-dim)', color: r.color }}>{r.hw}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: r.hw === 'Gaudi' ? 'var(--gpu-amber-dim)' : 'var(--intel-cyan-dim)', color: r.color }}>{r.hw}</div>
           <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>{r.model}</div>
-          <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: r.hw === 'GPU' ? 'var(--gpu-amber)' : 'var(--rh-green)' }}>{r.cost}</div>
+          <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: r.hw === 'Gaudi' ? 'var(--gpu-amber)' : 'var(--rh-green)' }}>{r.cost}</div>
         </motion.div>
       ))}
       <motion.div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}

@@ -3,7 +3,7 @@
 Routes requests to the optimal model based on semantic similarity:
   SIMPLE  → CPU small model (classification, NER)
   MEDIUM  → CPU medium model (summarization, analysis)
-  COMPLEX → CPU large or GPU model (reasoning, diagnosis)
+  COMPLEX → CPU large or Gaudi model (reasoning, diagnosis)
 
 Configuration loaded from routes.yaml (or ConfigMap on K8s).
 Uses sentence-transformers for embedding classification.

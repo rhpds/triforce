@@ -75,7 +75,7 @@ export function CpuGpuBadge({ hardware }: { hardware: string }) {
       background: isGpu ? 'var(--gpu-amber-dim)' : 'var(--intel-cyan-dim)',
       color: isGpu ? 'var(--gpu-amber)' : 'var(--intel-cyan)',
     }}>
-      {hardware.toUpperCase()}
+      {hardware === '''gpu''' ? '''GAUDI''' : '''CPU'''}
     </span>
   )
 }
