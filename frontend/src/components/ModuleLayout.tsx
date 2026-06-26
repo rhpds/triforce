@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { motion } from 'motion/react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 interface Props {
   title: string
@@ -11,8 +11,8 @@ interface Props {
 
 export function ModuleLayout({ title, description, status = 'live', children }: Props) {
   const navigate = useNavigate()
-  const location = useLocation()
-  const canGoBack = location.key !== 'default'
+  const [searchParams] = useSearchParams()
+  const fromAct = searchParams.get('from')
 
   const statusColors = {
     live: 'var(--rh-green)',
@@ -42,7 +42,7 @@ export function ModuleLayout({ title, description, status = 'live', children }: 
       {children}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-        <button className="btn btn-secondary" onClick={() => canGoBack ? navigate(-1) : navigate('/')} style={{ fontSize: 13 }}>
+        <button className="btn btn-secondary" onClick={() => navigate(fromAct ? `/?act=${fromAct}` : '/')} style={{ fontSize: 13 }}>
           ← Back to Demo
         </button>
       </div>
