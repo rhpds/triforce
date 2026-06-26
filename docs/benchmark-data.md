@@ -32,6 +32,9 @@
 | gpt-oss-120b | 120B | vLLM on NVIDIA GPU |
 | llama-scout-17b | 17B | vLLM on NVIDIA GPU |
 
+### Intel Gaudi Models (planned)
+No Gaudi models available on MAAS as of June 2026. When available, Gaudi provides an Intel-native acceleration tier — keeping the entire heterogeneous stack (Xeon 6 CPU + Gaudi accelerator) within the Intel ecosystem. Ask Ashok about Gaudi model availability on MAAS.
+
 ## Task-Level Benchmarks
 
 ### Classification

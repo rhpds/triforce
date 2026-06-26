@@ -37,7 +37,8 @@ Request → Semantic Router (5ms, ONNX on CPU)
     │         │         │
   SIMPLE    MEDIUM    COMPLEX
     │         │         │
-  CPU Pool  CPU Pool  GPU Pool
+  CPU Pool  CPU Pool  Accelerator Pool
+  Xeon 6    Xeon 6    NVIDIA GPU / Intel Gaudi
   granite-2b  qwen25-3b  phi-4/gpt-oss-120b
   $0/token   $0/token   $/token
 ```
@@ -55,7 +56,7 @@ The router uses a quantized BERT model (all-MiniLM-L6-v2, INT8, AVX512-optimized
 | Inference | MAAS/LiteLLM → vLLM | Model serving (CPU + GPU) |
 | Platform | Red Hat OpenShift | Container orchestration |
 | Governance | IBM Kagenti | Agent discovery, identity, audit |
-| Hardware | Intel Xeon 6 (CPU) + NVIDIA (GPU) | Heterogeneous compute |
+| Hardware | Intel Xeon 6 (CPU) + NVIDIA GPU + Intel Gaudi (planned) | Heterogeneous compute |
 
 ## 3. Benchmark Methodology
 
@@ -182,9 +183,10 @@ The benchmark rubric (`tests/benchmark_rubric.yaml`) defines pass criteria for e
 
 ## 7. Future Work
 
+- **Intel Gaudi acceleration** (planned): Intel-native AI accelerator as a third compute tier. Keeps the entire heterogeneous stack within the Intel ecosystem (Xeon 6 CPU + Gaudi). Eliminates NVIDIA dependency for enterprise deployments. Pending Gaudi model availability on MAAS.
 - **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. Projected 2-3x additional speedup.
 - **Speculative decoding** (pending): Draft model (granite-4-0-h-tiny, 1B) proposes tokens for target model (granite-2b, 2B) verification. Projected 2-3x speedup, lossless quality.
-- **llm-d disaggregated inference** (roadmap): Separate prefill (compute-heavy) and decode (memory-bound) across specialized CPU/GPU pools with SLO-based routing.
+- **llm-d disaggregated inference** (roadmap): Separate prefill (compute-heavy) and decode (memory-bound) across specialized CPU/Gaudi/GPU pools with SLO-based routing.
 - **vLLM semantic router integration** (evaluating): Replace Python embedding classifier with production-grade Go+Rust router from vllm-project/semantic-router.
 
 ## 8. Conclusion
