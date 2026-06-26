@@ -74,7 +74,47 @@ export default function ModuleSemanticRouting() {
         </motion.div>
       )}
 
-      <StepCard num={3} title="Try Your Own">
+      {results.length >= 4 && (() => {
+        const simple = results.filter(r => r.result.route === 'simple').length
+        const medium = results.filter(r => r.result.route === 'medium').length
+        const complex = results.filter(r => r.result.route === 'complex').length
+        const cpuCount = results.filter(r => r.result.hardware === 'cpu').length
+        const gpuCount = results.filter(r => r.result.hardware === 'gpu').length
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <StepCard num={3} title="What This Means">
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
+                {[
+                  { label: 'SIMPLE', count: simple, color: 'var(--rh-green)', desc: 'Classification, labeling' },
+                  { label: 'MEDIUM', count: medium, color: 'var(--rh-blue)', desc: 'Summarization, extraction' },
+                  { label: 'COMPLEX', count: complex, color: 'var(--rh-purple)', desc: 'Reasoning, diagnosis' },
+                ].map(s => (
+                  <div key={s.label} className="card" style={{ padding: '12px 16px', textAlign: 'center', borderLeft: `3px solid ${s.color}`, minWidth: 100 }}>
+                    <div className="mono" style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.count}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: s.color }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>{s.desc}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                <span style={{ color: 'var(--intel-cyan)', fontWeight: 700 }}>{cpuCount} CPU ($0)</span>
+                {gpuCount > 0 && <>{' · '}<span style={{ color: 'var(--gpu-amber)', fontWeight: 700 }}>{gpuCount} GPU ($/token)</span></>}
+                {' · '}
+                <span style={{ color: 'var(--rh-green)', fontWeight: 600 }}>
+                  {Math.round(cpuCount / results.length * 100)}% of workload runs free
+                </span>
+              </div>
+              <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7, textAlign: 'center' }}>
+                The router classified {results.length} requests in {'<'}1ms each using pure vector similarity — no LLM call.
+                Simple tasks stay on the smallest, fastest model. Complex tasks route to larger models or GPU.
+                One API, the system decides.
+              </div>
+            </StepCard>
+          </motion.div>
+        )
+      })()}
+
+      <StepCard num={results.length >= 4 ? 4 : 3} title="Try Your Own">
         <div style={{ display: 'flex', gap: 8 }}>
           <input type="text" value={customText} onChange={e => setCustomText(e.target.value)} placeholder="Type any prompt..." onKeyDown={e => e.key === 'Enter' && runCustom()}
             style={{ flex: 1, padding: '8px 12px', fontSize: 13, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface-1)', color: 'var(--text-primary)' }} />
