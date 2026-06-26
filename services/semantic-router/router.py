@@ -86,7 +86,12 @@ def _load_model():
         from sentence_transformers import SentenceTransformer
         logger.info("Loading embedding model: %s", model_name)
         start = time.monotonic()
-        _model = SentenceTransformer(model_name)
+        try:
+            _model = SentenceTransformer(model_name, backend="onnx")
+            logger.info("Using ONNX backend for embedding model")
+        except Exception:
+            _model = SentenceTransformer(model_name)
+            logger.info("ONNX not available, using PyTorch backend")
 
         for route in _routes:
             anchors = route.get("anchors", [])
