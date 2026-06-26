@@ -235,7 +235,7 @@ export function Act04Scale({ onComplete }: Props) {
           <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.7 }}>
             CPU latency climbs under concurrent load. Cost stays at $0.
             <br />
-            <span style={{ color: 'var(--gpu-amber)' }}>GPU would handle this at ~1s latency</span> — but at $/token.
+            <span style={{ color: 'var(--gpu-amber)' }}>Gaudi would handle this at ~1s latency</span> — but at $/token.
             <br />
             <strong style={{ color: 'var(--intel-cyan)' }}>The efficiency stack decides when CPU is enough and when to route to GPU.</strong>
           </div>

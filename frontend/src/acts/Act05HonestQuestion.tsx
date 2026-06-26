@@ -78,7 +78,7 @@ export function Act05HonestQuestion({ onComplete }: Props) {
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
             <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-dim)', fontWeight: 500 }}>Task</th>
             <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--intel-cyan)', fontWeight: 600 }}>CPU (this run)</th>
-            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--gpu-amber)', fontWeight: 600 }}>GPU</th>
+            <th style={{ textAlign: 'right', padding: '10px 16px', color: 'var(--gpu-amber)', fontWeight: 600 }}>Gaudi</th>
             <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-dim)', fontWeight: 500 }}>Routing Decision</th>
           </tr>
         </thead>
