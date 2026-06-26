@@ -170,9 +170,20 @@ export default function App() {
   const variant = useMemo(getVariant, [])
   const acts = variant === 'secure' ? SECURE_ACTS : variant === 'virt' ? VIRT_ACTS : variant === 'govern' ? GOVERN_ACTS : BASE_ACTS
 
-  const [started, setStarted] = useState(false)
-  const [currentAct, setCurrentAct] = useState(0)
+  const [started, setStarted] = useState(() => sessionStorage.getItem('triforce-started') === 'true')
+  const [currentAct, setCurrentActRaw] = useState(() => {
+    const s = sessionStorage.getItem('triforce-act')
+    return s ? parseInt(s, 10) : 0
+  })
   const [showFooter, setShowFooter] = useState(false)
+
+  const setCurrentAct = (val: number | ((prev: number) => number)) => {
+    setCurrentActRaw(prev => {
+      const next = typeof val === 'function' ? val(prev) : val
+      sessionStorage.setItem('triforce-act', String(next))
+      return next
+    })
+  }
 
   const totalActs = acts.length
 
@@ -201,7 +212,7 @@ export default function App() {
           height: '100vh', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}
-        onClick={() => setStarted(true)}
+        onClick={() => { setStarted(true); sessionStorage.setItem('triforce-started', 'true') }}
       >
         <motion.div
           style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 48 }}
@@ -278,7 +289,7 @@ export default function App() {
             onClick={() => showFooter ? goToAct(totalActs - 1) : advanceAct()}
             style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 16, padding: '4px 8px' }}
           >▶</button>
-          <span className="progress-label" style={{ cursor: 'pointer' }} onClick={() => { setCurrentAct(0); setShowFooter(false); setStarted(false); window.scrollTo({ top: 0 }) }}>
+          <span className="progress-label" style={{ cursor: 'pointer' }} onClick={() => { setCurrentAct(0); setShowFooter(false); setStarted(false); sessionStorage.removeItem('triforce-started'); sessionStorage.removeItem('triforce-act'); window.scrollTo({ top: 0 }) }}>
             {showFooter ? 'complete' : `${acts[currentAct].label} / ${acts[totalActs - 1].label}`}
           </span>
           <div className="health-dot alive" />
