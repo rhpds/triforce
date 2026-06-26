@@ -87,11 +87,16 @@ def _load_model():
         logger.info("Loading embedding model: %s", model_name)
         start = time.monotonic()
         try:
-            _model = SentenceTransformer(model_name, backend="onnx")
-            logger.info("Using ONNX backend for embedding model")
-        except Exception:
-            _model = SentenceTransformer(model_name)
-            logger.info("ONNX not available, using PyTorch backend")
+            _model = SentenceTransformer(model_name, backend="onnx",
+                                         model_kwargs={"file_name": "onnx/model_qint8_avx512.onnx"})
+            logger.info("Using ONNX backend (qint8_avx512) for embedding model")
+        except Exception as e1:
+            try:
+                _model = SentenceTransformer(model_name, backend="onnx")
+                logger.info("Using ONNX backend (default) for embedding model")
+            except Exception:
+                _model = SentenceTransformer(model_name)
+                logger.info("ONNX not available, using PyTorch backend")
 
         for route in _routes:
             anchors = route.get("anchors", [])
