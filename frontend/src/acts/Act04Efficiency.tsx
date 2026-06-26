@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDemoMetrics } from '../DemoContext'
 import { useModules } from '../ModuleContext'
 
@@ -922,7 +922,9 @@ const MODULE_ROUTES: Record<string, string> = {
 }
 
 export function Act04Efficiency({ onComplete }: Props) {
-  const [revealed, setRevealed] = useState(0)
+  const [searchParams] = useSearchParams()
+  const initialRevealed = parseInt(searchParams.get('r') || '0', 10)
+  const [revealed, setRevealed] = useState(initialRevealed)
   const { enabled, allModulesMode } = useModules()
   const navigate = useNavigate()
 
@@ -1042,7 +1044,7 @@ export function Act04Efficiency({ onComplete }: Props) {
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                       <button className="btn btn-secondary"
                         style={{ fontSize: 11, padding: '4px 14px', borderColor: m.color }}
-                        onClick={() => navigate(MODULE_ROUTES[m.moduleId] + '?from=5')}>
+                        onClick={() => navigate(MODULE_ROUTES[m.moduleId] + `?from=5&r=${revealed}`)}>
                         Deep Dive →
                       </button>
                     </motion.div>
