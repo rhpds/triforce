@@ -26,6 +26,8 @@ routes:
     anchors:
       - "Classify this clinical document"
       - "What type of document is this"
+      - "What type of report is this"
+      - "What kind of record is this"
       - "Label this text"
       - "Is this a discharge summary or a lab report"
       - "Score this transaction"
@@ -33,6 +35,8 @@ routes:
       - "What category does this belong to"
       - "Tag this record"
       - "Identify the document type"
+      - "Is this a lab report or progress note"
+      - "Categorize this medical record"
     keywords:
       - classify
       - "what type"
