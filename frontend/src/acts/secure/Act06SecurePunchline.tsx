@@ -20,6 +20,14 @@ export function Act06SecurePunchline({ onComplete }: Props) {
     { label: 'Deploy Change', value: '1 line', detail: 'runtimeClassName: kata-cc', color: 'var(--rh-red)' },
   ]
 
+  const sovereignty = [
+    { check: 'Data stays on-premise', detail: 'No cloud API calls. Inference runs on your hardware.', pass: true },
+    { check: 'Models are open-weight', detail: 'IBM Granite, Qwen, Phi — inspectable, auditable, replaceable.', pass: true },
+    { check: 'Hardware is Intel-owned', detail: 'Xeon 6 + Gaudi 3. Single-vendor, no third-party accelerator.', pass: true },
+    { check: 'Memory is hardware-encrypted', detail: 'Intel TDX. Data never exists in plaintext during inference.', pass: true },
+    { check: 'Every inference is audited', detail: 'PostgreSQL inference log + IBM Kagenti agent governance.', pass: true },
+  ]
+
   return (
     <div className="demo-section">
       <h3><span className="section-num">06</span> The Punchline</h3>
@@ -50,18 +58,44 @@ export function Act06SecurePunchline({ onComplete }: Props) {
       </div>
 
       <motion.div
+        style={{ margin: '24px 0' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Digital Sovereignty Scorecard</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {sovereignty.map((s, i) => (
+            <motion.div
+              key={s.check}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, background: 'var(--surface-2)' }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8 + i * 0.1 }}
+            >
+              <span style={{ fontSize: 16, color: 'var(--rh-green)' }}>{s.pass ? '✓' : '✗'}</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{s.check}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{s.detail}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
         className="card"
         style={{ background: 'var(--surface-2)', borderLeft: '3px solid var(--intel-cyan)', textAlign: 'center' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 1.4 }}
       >
         <p style={{ margin: 0, fontSize: 18, lineHeight: 1.7 }}>
           <strong style={{ color: 'var(--intel-cyan)' }}>
             runtimeClassName: kata-cc
           </strong><br />
           <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-            That's it. Hardware-encrypted AI inference. On CPUs you already own.
+            Hardware-encrypted AI inference. On infrastructure you own. With models you control. Every call audited.
           </span>
         </p>
       </motion.div>
