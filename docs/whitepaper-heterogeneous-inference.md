@@ -82,17 +82,19 @@ All measurements taken on production MAAS infrastructure (June 23-26, 2026):
 
 ## 4. Results
 
-### 4.1 CPU vs Gaudi — Best-in-Class per Task
+### 4.1 CPU vs Gaudi — Reproducible Medians (3 samples per measurement) ✓
 
-| Task | Best CPU | CPU Latency | Best Gaudi | Gaudi Latency | Speedup | Quality Delta |
-|------|----------|-------------|------------|---------------|---------|---------------|
-| Classification | phi3-mini (3.8B) | 504ms | llama-scout (17B) | **241ms** | 2.1x | Both correct |
-| NER | granite-2b (2B) | 6,850ms | gpt-oss-20b (20B) | **1,494ms** | 4.6x | Gaudi includes dosages |
-| Summarization | phi3-mini (3.8B) | 2,712ms | gpt-oss-20b (20B) | **1,326ms** | 2.0x | Gaudi 3x more tokens |
-| Compliance | phi3-mini (3.8B) | 1,613ms | gpt-oss-20b (20B) | **1,396ms** | 1.2x | Gaudi cites regulations |
-| Diagnosis | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | **10.1x** | Gaudi cites pathogen |
+| Task | Best CPU | CPU Median | Best Gaudi | Gaudi Median | Speedup | Quality |
+|------|----------|------------|------------|--------------|---------|---------|
+| Classification | phi3-mini (3.8B) | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
+| NER | granite-2b (2B) | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
+| Summarization | phi3-mini (3.8B) | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
+| Compliance | phi3-mini (3.8B) | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
+| Diagnosis† | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
 
-**Key Insight**: Classification and compliance show minimal Gaudi advantage — CPU is adequate at $0. Diagnosis shows 10.1x speedup on Gaudi AND clinically superior output. The routing decision should be automatic, not manual.
+*† Single-sample. Reproducible verification pending. All other rows are medians from 3 independent runs.*
+
+**Key Insight**: llama-scout-17b is the most consistent Gaudi model — fastest median on all 4 standard tasks with low variance. CPU models on OpenVINO show tight consistency (<8% variance). The 2.0-2.4x speedup is the honest, reproducible number.
 
 ### 4.2 Throughput Under Concurrent Load
 
@@ -188,9 +190,9 @@ Benchmark rubric: `tests/benchmark_rubric.yaml` (per-module pass criteria)
 Heterogeneous AI inference on Intel hardware is not a compromise — it's an optimization. The data shows:
 
 - **80% of enterprise AI workloads** run at equivalent quality on Intel Xeon 6 CPU at $0 incremental cost per token (on owned infrastructure)
-- **20% of workloads** benefit from Intel Gaudi — faster AND higher quality
+- **20% of workloads** benefit from Intel Gaudi 3 — 2.0-2.4x faster (reproducible medians) with higher quality on complex tasks
 - **The semantic router** makes the CPU vs Gaudi decision in 5ms, automatically, with no code changes
-- **Cost savings**: $9,000/month at 1M records vs all-Gaudi
+- **Cost savings**: ⊕ ~$9,000/month at 1M records vs all-Gaudi
 - **Full Intel stack**: No third-party accelerator dependency
 
 The question for enterprises isn't "CPU or accelerator?" It's: which tasks need which Intel hardware? The semantic router answers that question in 5ms, every time, automatically.

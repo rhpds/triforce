@@ -131,32 +131,36 @@ All numbers are classified by how they were obtained:
 | microsoft-phi-4 | 14B | 4,746ms | Bacterial meningitis — good reasoning |
 | granite-3-2-8b-instruct | 8B | 7,310ms | Bacterial meningitis — adequate |
 
-### Gaudi Findings
-- **Fastest across tasks**: gpt-oss-20b — 1.3-1.5s on NER, summarization, compliance
-- **Best classifier**: llama-scout-17b at 241ms — 2x faster than any CPU model
-- **Frontier reasoning**: gpt-oss-120b at 1.5s — fastest AND highest quality
-- **Intel Gaudi 3 advantage**: High-bandwidth memory enables large models (20B-120B) at speeds impossible on CPU
+### Gaudi Findings (reproducible medians, 3 samples)
+- **Most consistent model**: llama-scout-17b — fastest median on ALL 4 tasks with low variance
+- **gpt-oss-20b**: Fast in single samples but high variance (unreliable for benchmark claims)
+- **Frontier reasoning**: gpt-oss-120b at 1.5s for diagnosis (single-sample, pending verification)
+- **Intel Gaudi 3 advantage**: Consistent sub-2s on 17B model across all tasks
 
 ---
 
-## CPU vs Gaudi — Best-in-Class Comparison ✓
+## CPU vs Gaudi — Reproducible Medians (3 samples per measurement) ✓
 
-| Task | Best CPU | CPU Latency | Best Gaudi | Gaudi Latency | Speedup | Quality Delta |
-|------|----------|-------------|------------|---------------|---------|---------------|
-| Classification | phi3-mini (3.8B) | 504ms | llama-scout (17B) | **241ms** | 2.1x | Both correct |
-| NER | granite-2b (2B) | 6,850ms | gpt-oss-20b (20B) | **1,494ms** | 4.6x | Gaudi includes dosages |
-| Summarization | phi3-mini (3.8B) | 2,712ms | gpt-oss-20b (20B) | **1,326ms** | 2.0x | Gaudi 3x more detailed |
-| Compliance | phi3-mini (3.8B) | 1,613ms | gpt-oss-20b (20B) | **1,396ms** | 1.2x | Gaudi cites regulations |
-| Diagnosis | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | **10.1x** | Gaudi cites pathogen |
+*Reproducible via `python3 scripts/benchmark-suite.py --samples 3 --gaudi`*
+
+| Task | Best CPU | CPU Median | Best Gaudi | Gaudi Median | Speedup | Quality |
+|------|----------|------------|------------|--------------|---------|---------|
+| Classification | phi3-mini (3.8B) | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
+| NER | granite-2b (2B) | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
+| Summarization | phi3-mini (3.8B) | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
+| Compliance | phi3-mini (3.8B) | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
+| Diagnosis† | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
+
+*† Single-sample. All other rows are medians from 3 independent runs.*
 
 ### When CPU is Sufficient
-- **Classification**: 2x faster on Gaudi but CPU quality is identical — CPU at $0 incremental cost
-- **Compliance**: nearly identical latency — CPU adequate for non-real-time
+- **Classification**: CPU at 372ms vs Gaudi at 188ms — 2x faster on Gaudi but CPU quality is identical
+- **Compliance**: CPU at 1.9s vs Gaudi at 1.3s — 1.5x difference, both correct
 
 ### When Gaudi is the Right Choice
 - **Diagnosis**: 10.1x faster AND clinically superior output
-- **NER at scale**: 4.6x faster with dosage extraction
-- **Real-time summarization**: 2x faster, 3x more detailed output
+- **NER at scale**: 2.4x faster — cumulative savings significant at high volume
+- **Real-time summarization**: 2.3x faster for interactive applications
 
 ---
 
@@ -219,19 +223,19 @@ All numbers are classified by how they were obtained:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│          Heterogeneous Intel Inference Platform           │
-│              Red Hat OpenShift on Bare Metal              │
-│                                                          │
+│          Heterogeneous Intel Inference Platform         │
+│              Red Hat OpenShift on Bare Metal            │
+│                                                         │
 │  ┌────────────────────┐  ┌─────────────────────────┐    │
-│  │   CPU Pool          │  │   Gaudi Pool             │   │
-│  │   Intel Xeon 6      │  │   Intel Gaudi 3          │   │
-│  │                     │  │                          │   │
-│  │   1,536 cores       │  │   24 Gaudi 3 cards       │   │
-│  │                     │  │                          │   │
-│  │   OpenVINO + vLLM   │  │   vLLM Gaudi             │   │
-│  │   $0 incremental    │  │   $/token                │   │
+│  │   CPU Pool         │  │   Gaudi Pool            │    │
+│  │   Intel Xeon 6     │  │   Intel Gaudi 3         │    │
+│  │                    │  │                         │    │
+│  │   1,536 cores      │  │   24 Gaudi 3 cards      │    │
+│  │                    │  │                         │    │
+│  │   OpenVINO + vLLM  │  │   vLLM Gaudi            │    │
+│  │   $0 incremental   │  │   $/token               │    │
 │  └────────────────────┘  └─────────────────────────┘    │
-│                                                          │
+│                                                         │
 │  LiteLLM Proxy → unified API → routes to CPU or Gaudi   │
 │  Full Intel stack — no third-party accelerator dependency│
 └─────────────────────────────────────────────────────────┘

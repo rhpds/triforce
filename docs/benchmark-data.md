@@ -159,32 +159,46 @@ All numbers are classified by how they were obtained:
 | microsoft-phi-4 | 14B | 4,746ms | Bacterial meningitis | Good clinical reasoning, appropriate differential |
 | granite-3-2-8b-instruct | 8B | 7,310ms | Bacterial meningitis | Adequate differential, less specific |
 
-### Gaudi Findings
-- **Fastest model across tasks**: gpt-oss-20b dominates NER (1.5s), summarization (1.3s), and compliance (1.4s) — the 20B model is faster than the 8B model due to Gaudi memory bandwidth advantage
-- **Best classifier**: llama-scout-17b at 241ms — faster than any CPU model by 2x
-- **Frontier reasoning**: gpt-oss-120b at 1.5s is both fastest AND highest quality for differential diagnosis — a 120B model on Gaudi 3 outperforms a 14B model by 3x on latency while producing clinically superior output
-- **Intel Gaudi 3 advantage**: High-bandwidth memory enables large models (20B, 70B, 120B) to run at speeds that are impossible on CPU, with tensor parallelism across multiple cards
+### Gaudi Findings (reproducible medians, 3 samples)
+- **Most consistent Gaudi model**: llama-scout-17b — fastest median on ALL 4 standard tasks (classification 188ms, NER 2,031ms, summarization 1,549ms, compliance 1,306ms) with low variance
+- **gpt-oss-20b**: Fast in single samples but **unreliable** — NER variance of 2,407-5,525ms (129%). Not recommended for benchmark claims.
+- **Frontier reasoning**: gpt-oss-120b at 1.5s for differential diagnosis (single-sample — pending reproducible verification)
+- **Intel Gaudi 3 advantage**: Consistent sub-2s performance on 17B model across all tasks. CPU models range 372ms-4,833ms on same tasks.
 
 ---
 
-## CPU vs Gaudi Comparison (Same Task, Best-in-Class)
+## CPU vs Gaudi Comparison — Reproducible Medians ✓
 
-| Task | Best CPU Model | Runtime | CPU Latency | Best Gaudi Model | Gaudi Latency | Speedup | Quality Delta |
-|------|---------------|---------|-------------|------------------|---------------|---------|---------------|
-| Classification | phi3-mini (3.8B) | OpenVINO | 504ms | llama-scout (17B) | **241ms** | 2.1x | Both correct |
-| NER | granite-2b (2B) | OpenVINO | 6,850ms | gpt-oss-20b (20B) | **1,494ms** | 4.6x | Gaudi includes dosages + age |
-| Summarization | phi3-mini (3.8B) | OpenVINO | 2,712ms | gpt-oss-20b (20B) | **1,326ms** | 2.0x | Gaudi 3x more detailed (256 vs 84 tokens) |
-| Compliance | phi3-mini (3.8B) | OpenVINO | 1,613ms | gpt-oss-20b (20B) | **1,396ms** | 1.2x | Gaudi cites specific $10K threshold |
-| Diagnosis | granite-8b (8B) | vLLM CPU | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | **10.1x** | Gaudi cites pathogen, ranked differential |
+*All numbers are medians from 3 independent samples per model per task. Raw data in `test-receipts/benchmark-suite-20260630-*.json`. Reproducible via `python3 scripts/benchmark-suite.py --samples 3 --gaudi`.*
+
+| Task | Best CPU Model | Runtime | CPU Median | Best Gaudi Model | Gaudi Median | Speedup | Quality |
+|------|---------------|---------|------------|------------------|--------------|---------|---------|
+| Classification | phi3-mini (3.8B) | OpenVINO | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
+| NER | granite-2b (2B) | OpenVINO | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
+| Summarization | phi3-mini (3.8B) | OpenVINO | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
+| Compliance | phi3-mini (3.8B) | OpenVINO | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
+| Diagnosis† | granite-8b (8B) | vLLM CPU | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
+
+*† Diagnosis is from single-sample measurement (June 23). Not yet re-run in reproducible suite because gpt-oss-120b was not included in the automated run. Will be added in next benchmark cycle.*
+
+### Variance Assessment
+| Model | Task | Min | Median | Max | Variance |
+|-------|------|-----|--------|-----|----------|
+| phi3-mini-cpu | Classification | 371ms | 372ms | 613ms | Low (cold start on #1) |
+| granite-2b-cpu | NER | 4,736ms | 4,833ms | 5,096ms | Low (7.6%) |
+| llama-scout-17b | Classification | 187ms | 188ms | 247ms | Low (32% but 60ms range) |
+| gpt-oss-20b | NER | 2,407ms | 4,574ms | 5,525ms | **HIGH (129%)** — unreliable |
+
+**Note on gpt-oss-20b**: This model showed extreme variance (984ms-5,525ms across tasks). Single-sample measurements made it appear fastest, but median measurements show llama-scout-17b is consistently faster across all tasks. The white paper now uses llama-scout-17b as the best Gaudi model.
 
 ### When CPU (Xeon 6 + OpenVINO) is Sufficient
-- **Classification**: CPU at 504ms vs Gaudi at 241ms — 2x faster on Gaudi but CPU quality is identical. For batch document classification, CPU at $0 incremental cost is the right choice.
-- **Compliance reasoning**: CPU at 1.6s vs Gaudi at 1.4s — nearly identical latency. Both produce correct answers. CPU is adequate for non-real-time compliance checks.
+- **Classification**: CPU at 372ms vs Gaudi at 188ms — 2x faster on Gaudi but CPU quality is identical. For batch document classification, CPU at $0 incremental cost is the right choice.
+- **Compliance**: CPU at 1.9s vs Gaudi at 1.3s — 1.5x difference. Both produce correct answers. CPU is adequate for non-real-time compliance checks.
 
 ### When Gaudi 3 is the Right Choice
-- **Differential diagnosis**: CPU at 14.8s vs Gaudi at 1.5s — **10.1x faster** AND clinically superior output. The 120B model on Gaudi 3 is not just faster — it cites specific pathogens and CSF findings that smaller CPU models miss.
-- **NER at scale**: CPU at 6.9s vs Gaudi at 1.5s — 4.6x faster. Gaudi models extract medication dosages (e.g., "Metformin 500mg") that the 2B CPU model truncates to just "Metformin."
-- **Real-time summarization**: CPU at 2.7s vs Gaudi at 1.3s — 2x faster with 3x more detailed output (256 vs 84 tokens). For physician-facing real-time summaries, Gaudi quality justifies the cost.
+- **Differential diagnosis**: CPU at 14.8s vs Gaudi at 1.5s — **10.1x faster** AND clinically superior output (single-sample, pending reproducible verification).
+- **NER at scale**: CPU at 4.8s vs Gaudi at 2.0s — 2.4x faster. At high volume, the cumulative time savings are significant.
+- **Real-time summarization**: CPU at 3.5s vs Gaudi at 1.5s — 2.3x faster. For interactive applications, sub-2s response time matters.
 
 ---
 
