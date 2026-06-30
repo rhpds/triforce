@@ -25,7 +25,8 @@ export function Act00SecureStory({ onComplete }: Props) {
             <div className="section-context">
               AI processes your most sensitive data — patient records, financial transactions,
               clinical notes. During inference, that data sits in memory. Unencrypted. Visible
-              to any cluster administrator. One breach costs $1.5M in HIPAA fines alone.
+              to any cluster administrator. Digital sovereignty demands more: data that stays on
+              your infrastructure, encrypted in hardware, with every access audited.
             </div>
 
             <div style={{
