@@ -96,7 +96,10 @@ export function Act04ToolGovernance({ onComplete }: Props) {
                       <motion.tr key={tool.name} style={{ borderBottom: '1px solid var(--border)' }}
                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
                         <td style={{ padding: '8px 10px' }}>
-                          <div className="mono" style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{tool.name}</div>
+                          <div className="mono" style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                            {tool.name}
+                            {!live && <span style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 4 }}>(simulated)</span>}
+                          </div>
                           <div style={{ fontSize: 10, color: 'var(--text-disabled)' }}>{tool.description}</div>
                         </td>
                         {['healthcare', 'finserv', 'orchestrator'].map(agent => {
