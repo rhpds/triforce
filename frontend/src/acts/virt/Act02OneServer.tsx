@@ -29,7 +29,7 @@ export function Act02OneServer({ onComplete }: Props) {
           background: 'var(--intel-cyan-dim)', textAlign: 'center', marginBottom: 16,
         }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--intel-cyan)' }}>Intel Xeon 6 Node</div>
-          <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>128 cores · 512Gi RAM · Supermicro SYS-222H-TN</div>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>128 cores · 512Gi RAM · Intel Xeon 6 Server</div>
         </motion.div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>

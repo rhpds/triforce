@@ -1,6 +1,11 @@
 = Verify Kagenti Operator
 :navtitle: Setup
 
+[NOTE]
+====
+Kagenti is not installed on all environments. If `oc get crd | grep kagenti` returns empty, the governance features are shown in simulation mode in the frontend demo. Contact IBM for Kagenti operator access.
+====
+
 == Exercise 1: Check Kagenti CRDs
 
 [source,bash,role="execute"]

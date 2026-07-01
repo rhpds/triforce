@@ -72,6 +72,7 @@ export function Act02AgentDiscovery({ onComplete }: Props) {
                     initial={{ scale: 0 }} animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 500, delay: i * 0.3 + 0.2 }} />
                   <strong style={{ fontSize: 14 }}>{a.name}</strong>
+                  {!live && <span style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 4 }}>(simulated)</span>}
                   <span className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>{a.url}</span>
                 </div>
 
