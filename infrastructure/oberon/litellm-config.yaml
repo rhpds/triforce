@@ -1,0 +1,63 @@
+# LiteLLM Proxy Config — Oberon (Intel Lab)
+# Routes 9 model aliases to local OVMS services
+# OVMS uses /v3/ API path, LiteLLM translates to OpenAI-compatible /v1/
+# Aliases match existing MAAS names for zero code changes
+
+model_list:
+  - model_name: granite-350m
+    litellm_params:
+      model: openai/granite-350m
+      api_base: http://ovms-granite-350m.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-4-0-h-tiny-cpu
+    litellm_params:
+      model: openai/granite-4-0-h-tiny-cpu
+      api_base: http://ovms-granite-1b.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-2b-cpu
+    litellm_params:
+      model: openai/granite-2b-cpu
+      api_base: http://ovms-granite-2b.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-2b-int8
+    litellm_params:
+      model: openai/granite-2b-int8
+      api_base: http://ovms-granite-2b-int8.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: qwen25-3b-cpu
+    litellm_params:
+      model: openai/qwen25-3b-cpu
+      api_base: http://ovms-qwen25-3b.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-4.1-3b
+    litellm_params:
+      model: openai/granite-4.1-3b
+      api_base: http://ovms-granite41-3b.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: phi3-mini-cpu
+    litellm_params:
+      model: openai/phi3-mini-cpu
+      api_base: http://ovms-phi3-mini.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-3-2-8b-instruct-cpu
+    litellm_params:
+      model: openai/granite-3-2-8b-instruct-cpu
+      api_base: http://ovms-granite-8b.triforce.svc:8080/v3
+      api_key: unused
+
+  - model_name: granite-4.1-8b
+    litellm_params:
+      model: openai/granite-4.1-8b
+      api_base: http://ovms-granite41-8b.triforce.svc:8080/v3
+      api_key: unused
+
+general_settings:
+  master_key: local-oberon-key
+  drop_params: true

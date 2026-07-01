@@ -1,0 +1,162 @@
+# Model Roster — Intel Lab Cluster (Oberon)
+# Xeon 6767P (128 cores, 256 threads, 503 GiB RAM, AMX BF16/INT8)
+# All models served locally via vLLM — no external MAAS dependency
+
+cluster:
+  name: oberon
+  hardware: Intel Xeon 6767P
+  sockets: 2
+  cores: 128
+  threads: 256
+  memory_gib: 503
+  accelerators:
+    - DSA (Data Streaming Accelerator) x8
+    - IAA (In-Memory Analytics Accelerator) x8
+  instruction_sets:
+    - AMX-BF16
+    - AMX-INT8
+    - AVX-512
+    - AVX-VNNI
+
+models:
+  # --- Existing 5 (match MAAS aliases for zero code changes) ---
+
+  - alias: granite-4-0-h-tiny-cpu
+    huggingface_id: ibm-granite/granite-4.0-h-1b
+    params: 1B
+    architecture: hybrid-ssm
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 4
+    estimated_cpu_cores: 8
+    role: Draft model for speculative decoding
+    triforce_env: DRAFT_MODEL
+    vllm_service: vllm-granite-1b
+
+  - alias: granite-2b-cpu
+    huggingface_id: ibm-granite/granite-3.2-2b-instruct
+    params: 2B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 8
+    estimated_cpu_cores: 16
+    role: NER, fraud scoring, speculative target
+    triforce_env: NER_MODEL, FRAUD_MODEL, TARGET_MODEL
+    vllm_service: vllm-granite-2b
+
+  - alias: qwen25-3b-cpu
+    huggingface_id: Qwen/Qwen2.5-3B-Instruct
+    params: 3B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 12
+    estimated_cpu_cores: 16
+    role: Classification, summarization
+    triforce_env: CLASSIFY_MODEL, SUMMARIZE_MODEL
+    vllm_service: vllm-qwen25-3b
+
+  - alias: phi3-mini-cpu
+    huggingface_id: microsoft/Phi-3-mini-4k-instruct
+    params: 3.8B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 16
+    estimated_cpu_cores: 20
+    role: Complex reasoning
+    triforce_env: REASONING_MODEL
+    vllm_service: vllm-phi3-mini
+
+  - alias: granite-3-2-8b-instruct-cpu
+    huggingface_id: ibm-granite/granite-3.2-8b-instruct
+    params: 8B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 32
+    estimated_cpu_cores: 24
+    role: Fusion judge, complex reasoning
+    triforce_env: FUSION_JUDGE_MODEL
+    vllm_service: vllm-granite-8b
+
+  # --- New 4 (previously pending with Ashok) ---
+
+  - alias: granite-350m
+    huggingface_id: ibm-granite/granite-4.0-350m
+    params: 350M
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 2
+    estimated_cpu_cores: 4
+    role: Ultra-fast classification, semantic router pre-filter
+    triforce_env: FAST_CLASSIFY_MODEL
+    vllm_service: vllm-granite-350m
+
+  - alias: granite-4.1-3b
+    huggingface_id: ibm-granite/granite-4.1-3b
+    params: 3B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 12
+    estimated_cpu_cores: 16
+    role: Next-gen classification, enhanced tool calling
+    triforce_env: NEXTGEN_CLASSIFY_MODEL
+    vllm_service: vllm-granite41-3b
+
+  - alias: granite-4.1-8b
+    huggingface_id: ibm-granite/granite-4.1-8b
+    params: 8B
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 32
+    estimated_cpu_cores: 24
+    role: Next-gen reasoning, simulated GPU tier for heterogeneous routing
+    triforce_env: GPU_COMPLEX_MODEL
+    vllm_service: vllm-granite41-8b
+
+  - alias: granite-2b-int8
+    huggingface_id: ibm-granite/granite-3.2-2b-instruct
+    params: 2B
+    architecture: dense-transformer
+    dtype: int8
+    quantization: AMX-INT8
+    max_model_len: 4096
+    estimated_ram_gib: 4
+    estimated_cpu_cores: 8
+    role: Optimization story — INT8 quantized for AMX acceleration
+    triforce_env: OPTIMIZED_NER_MODEL
+    vllm_service: vllm-granite-2b-int8
+
+# Resource summary
+resource_totals:
+  estimated_ram_gib: 122
+  estimated_cpu_cores: 136
+  cluster_ram_gib: 503
+  cluster_cpu_threads: 256
+  ram_headroom_pct: 75
+  cpu_headroom_pct: 47
+
+# vLLM common config
+vllm_defaults:
+  image: registry.redhat.io/rhai/vllm-openai-rhel9:latest
+  port: 8000
+  metrics_port: 8001
+  enable_prefix_caching: true
+  max_model_len: 4096
+  cache_pvc: huggingface-model-cache
+  cache_mount: /root/.cache/huggingface
+  cache_size_gib: 200
+  storage_class: nfs-storage

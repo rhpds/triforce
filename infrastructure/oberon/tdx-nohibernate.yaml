@@ -1,0 +1,14 @@
+# MachineConfig — Enable Intel TDX on Xeon 6767P
+# Two kernel params needed:
+#   nohibernate    — TDX init fails if hibernation is enabled
+#   kvm_intel.tdx=1 — KVM module has TDX support but defaults to disabled
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-tdx-nohibernate
+spec:
+  kernelArguments:
+    - nohibernate
+    - kvm_intel.tdx=1
