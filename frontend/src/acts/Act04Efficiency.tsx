@@ -525,9 +525,9 @@ function ModelOptVisual() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg.',
-          classify_model: 'qwen25-3b-int8',
+          classify_model: 'granite-2b-cpu',
           ner_model: 'granite-2b-int8',
-          summarize_model: 'qwen25-3b-int8',
+          summarize_model: 'granite-2b-cpu',
         }),
       })
       setCompareResult(await resp.json())
@@ -538,7 +538,7 @@ function ModelOptVisual() {
   }
 
   const options = [
-    { label: 'Quantization', detail: 'INT8 / INT4 precision', gain: '2-3x faster', sub: 'AMX instructions', color: 'var(--intel-cyan)' },
+    { label: 'Quantization', detail: 'INT8 / INT4 precision', gain: '~1.5x faster', sub: 'AMX instructions', color: 'var(--intel-cyan)' },
     { label: 'Optimized Variants', detail: 'Models built for CPU', gain: 'AMX-aware kernels', sub: 'Same accuracy', color: 'var(--rh-green)' },
     { label: 'Model Selection', detail: 'Right-size to task', gain: 'Don\'t over-provision', sub: '2B vs 3B vs 3.8B', color: 'var(--rh-blue)' },
     { label: 'Prompt Tuning', detail: 'Shorter prompts', gain: 'Fewer tokens in/out', sub: '= faster inference', color: 'var(--rh-teal)' },
@@ -568,7 +568,7 @@ function ModelOptVisual() {
       <div style={{ textAlign: 'center', marginTop: 16 }}>
         <button className="btn btn-secondary" onClick={runCompare} disabled={comparing}
           style={{ borderColor: 'var(--intel-cyan)' }}>
-          {comparing ? 'Running FP32 vs INT8...' : 'Prove it — run FP32 vs INT8 comparison'}
+          {comparing ? 'Running INT4 vs INT8...' : 'Prove it — run INT4 vs INT8 comparison'}
         </button>
       </div>
 
@@ -578,7 +578,7 @@ function ModelOptVisual() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
                 <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-dim)' }}>Step</th>
-                <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-dim)' }}>FP32 (baseline)</th>
+                <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-dim)' }}>INT4 (baseline)</th>
                 <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--intel-cyan)' }}>INT8 (optimized)</th>
                 <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--rh-green)' }}>Delta</th>
               </tr>

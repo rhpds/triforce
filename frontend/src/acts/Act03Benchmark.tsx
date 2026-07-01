@@ -10,7 +10,7 @@ const TASKS = [
   { id: 'compliance_reasoning', label: 'Compliance', text: 'A customer transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000.' },
 ]
 
-const MODELS = ['granite-2b-cpu', 'qwen25-3b-cpu', 'granite-3-2-8b-instruct']
+const MODELS = ['granite-2b-cpu', 'qwen25-3b-cpu', 'granite-3-2-8b-instruct-cpu']
 
 interface BenchmarkResult {
   model: string

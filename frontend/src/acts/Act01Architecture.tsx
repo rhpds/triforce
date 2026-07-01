@@ -143,12 +143,12 @@ const LAYERS = [
         transition={{ duration: 0.4 }}
       >
         <div className="pipe-node-label" style={{ color: 'var(--intel-cyan)' }}>Intel Xeon 6 · CPU Pool · $0/token</div>
-        <div className="pipe-node-detail">128 cores · AMX · 5 models · MAAS/LiteLLM</div>
+        <div className="pipe-node-detail">128 cores · AMX · 5 models · LiteLLM</div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
           {[
-            { m: 'granite-2b', task: 'NER · Fraud' },
-            { m: 'qwen25-3b', task: 'Classify · Summarize' },
-            { m: 'granite-8b', task: 'Reasoning' },
+            { m: 'granite-2b-cpu', task: 'NER · Fraud' },
+            { m: 'qwen25-3b-cpu', task: 'Classify · Summarize' },
+            { m: 'granite-8b-cpu', task: 'Reasoning' },
           ].map((model, i) => (
             <motion.div
               key={model.m}
@@ -169,7 +169,7 @@ const LAYERS = [
     id: 'gpu',
     label: 'Gaudi Pool (Intel)',
     customerQuestion: '"But summarization quality matters. And differential diagnosis needs reasoning power."',
-    workload: 'The 20% that needs GPU gets GPU. Summarization: 3.3x faster with more detailed output. Compliance reasoning: cites specific regulations. Frontier diagnosis: gpt-oss-120b in 1.5s. The system routes here only when quality or speed demands it — $/token, not $0, but worth it.',
+    workload: 'The 20% that needs GPU gets GPU. Summarization: 3.3x faster (MAAS baseline) with more detailed output. Compliance reasoning: cites specific regulations. Frontier diagnosis: gpt-oss-120b in 1.5s. The system routes here only when quality or speed demands it — $/token, not $0, but worth it.',
     color: 'var(--gpu-amber)',
     render: () => (
       <motion.div

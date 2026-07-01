@@ -314,8 +314,11 @@ async def run_pipeline(req: models.PipelineRequest):
 
 @app.post("/api/v1/pipeline/compare")
 async def compare_pipelines(req: models.PipelineRequest):
+    import adaptive_cache
+    await adaptive_cache.reset()
     baseline = await _run_pipeline_with_models(req.text, req.patient_id)
 
+    await adaptive_cache.reset()
     optimized = await _run_pipeline_with_models(
         req.text, req.patient_id,
         req.classify_model, req.ner_model, req.summarize_model,

@@ -39,21 +39,15 @@ TASK_PROMPTS = {
     },
 }
 
-CPU_MODELS = [
-    "granite-2b-cpu",
-    "qwen25-3b-cpu",
-    "phi3-mini-cpu",
-    "granite-3-2-8b-instruct-cpu",
-    "granite-4-0-h-tiny-cpu",
-]
+CPU_MODELS = os.environ.get("BENCHMARK_CPU_MODELS",
+    "granite-350m,granite-4-0-h-tiny-cpu,granite-2b-cpu,granite-2b-int8,"
+    "qwen25-3b-cpu,granite-4.1-3b,phi3-mini-cpu,"
+    "granite-3-2-8b-instruct-cpu,granite-4.1-8b"
+).split(",")
 
-GPU_MODELS = [
-    "granite-3-2-8b-instruct",
-    "microsoft-phi-4",
-    "gpt-oss-20b",
-    "gpt-oss-120b",
-    "llama-scout-17b",
-]
+GPU_MODELS = os.environ.get("BENCHMARK_GPU_MODELS",
+    "granite-3-2-8b-instruct,microsoft-phi-4,gpt-oss-20b,gpt-oss-120b"
+).split(",")
 
 
 async def run_single(model: str, task: str, text: str,

@@ -11,9 +11,10 @@ export default function ModuleModelOptimization() {
     try {
       const resp = await fetch('/healthcare/api/v1/pipeline/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg.',
-          classify_model: 'qwen25-3b-int8', ner_model: 'granite-2b-int8', summarize_model: 'qwen25-3b-int8' }) })
+          classify_model: 'granite-2b-int8', ner_model: 'granite-2b-int8', summarize_model: 'granite-2b-int8',
+          baseline_classify_model: 'granite-2b-cpu', baseline_ner_model: 'granite-2b-cpu', baseline_summarize_model: 'granite-2b-cpu' }) })
       setCompareResult(await resp.json())
-    } catch { setCompareResult({ error: 'INT8 models not deployed yet — comparison will be available after optimization' }) }
+    } catch { setCompareResult({ error: 'Backend not reachable — ensure services are running' }) }
     setRunning(false)
   }
 
@@ -22,10 +23,10 @@ export default function ModuleModelOptimization() {
       <StepCard num={1} title="Optimization Levers">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {[
-            { name: 'INT8 Quantization', desc: 'FP32 → INT8 reduces model size 4x. AMX instructions accelerate INT8 math.', status: 'Pending (Ashok)', color: 'var(--intel-cyan)' },
+            { name: 'INT8 Quantization', desc: 'FP32 → INT8 reduces model size 4x. AMX instructions accelerate INT8 math.', status: 'Live', color: 'var(--rh-green)' },
             { name: 'Model Selection', desc: 'Right model per task: 2B for NER, 3B for classification. Don\'t overspend.', status: 'Live', color: 'var(--rh-green)' },
             { name: 'Prompt Tuning', desc: 'Shorter prompts = fewer input tokens = faster inference. Compact JSON output.', status: 'Live', color: 'var(--rh-green)' },
-            { name: 'OMP Threads', desc: 'OMP_NUM_THREADS=32 on Xeon 6 128-core. Optimal thread-to-core ratio.', status: 'Pending (Ashok)', color: 'var(--intel-cyan)' },
+            { name: 'OMP Threads', desc: 'OMP_NUM_THREADS=32 on Xeon 6 128-core. Optimal thread-to-core ratio.', status: 'Live', color: 'var(--rh-green)' },
           ].map(o => (
             <div key={o.name} className="card" style={{ padding: 12, borderLeft: `3px solid ${o.color}` }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{o.name}</div>
