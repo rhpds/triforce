@@ -23,11 +23,11 @@ export function Act05HonestQuestion({ onComplete }: Props) {
   ]
 
   const comparison = [
-    { task: 'Classification', cpu: hasLive ? fmt(p.classifyMs) : '—', gpu: '~500ms', routing: 'CPU — no quality diff' },
-    { task: 'NER', cpu: hasLive ? fmt(p.nerMs) : '—', gpu: '~3.8s', routing: 'CPU — good enough for batch' },
-    { task: 'Summarization', cpu: hasLive ? fmt(p.summarizeMs) : '—', gpu: '~1.6s', routing: 'GPU — 3.3x faster, better output' },
+    { task: 'Classification', cpu: hasLive ? fmt(p.classifyMs) : '—', gpu: '~500ms (MAAS)', routing: 'CPU — no quality diff' },
+    { task: 'NER', cpu: hasLive ? fmt(p.nerMs) : '—', gpu: '~3.8s (MAAS)', routing: 'CPU — good enough for batch' },
+    { task: 'Summarization', cpu: hasLive ? fmt(p.summarizeMs) : '—', gpu: '~1.6s (MAAS)', routing: 'GPU — 3.3x faster (MAAS baseline), better output' },
     { task: 'Drug Interactions', cpu: hasLive ? fmt(p.interactionsMs) : '—', gpu: 'n/a', routing: 'MCP tool — no LLM needed' },
-    { task: 'Full Pipeline', cpu: hasLive ? fmt(p.totalMs) : '—', gpu: '~3.5s', routing: 'Hybrid — CPU + GPU combined' },
+    { task: 'Full Pipeline', cpu: hasLive ? fmt(p.totalMs) : '—', gpu: '~3.5s (MAAS)', routing: 'Hybrid — CPU + GPU combined' },
   ]
 
   return (

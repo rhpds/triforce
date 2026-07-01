@@ -9,14 +9,25 @@ const TASKS = [
   { id: 'compliance_reasoning', label: 'Compliance', text: 'A customer in Germany transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000. The account was opened 6 months ago with minimal initial activity.' },
 ]
 
-const ALL_MODELS = [
+const CPU_MODELS = [
+  { id: 'granite-350m', label: 'granite-350m', hw: 'cpu', params: '350M', checked: false },
+  { id: 'granite-4-0-h-tiny-cpu', label: 'granite-tiny', hw: 'cpu', params: '~1B', checked: false },
   { id: 'granite-2b-cpu', label: 'granite-2b', hw: 'cpu', params: '2B', checked: true },
+  { id: 'granite-2b-int8', label: 'granite-2b-int8', hw: 'cpu', params: '2B', checked: false },
   { id: 'qwen25-3b-cpu', label: 'qwen25-3b', hw: 'cpu', params: '3B', checked: true },
+  { id: 'granite-4.1-3b', label: 'granite-4.1-3b', hw: 'cpu', params: '3B', checked: false },
+  { id: 'phi3-mini-cpu', label: 'phi3-mini', hw: 'cpu', params: '3.8B', checked: false },
   { id: 'granite-3-2-8b-instruct-cpu', label: 'granite-8b', hw: 'cpu', params: '8B', checked: false },
-  { id: 'granite-3-2-8b-instruct', label: 'granite-8b', hw: 'gpu', params: '8B', checked: true },
-  { id: 'microsoft-phi-4', label: 'phi-4', hw: 'gpu', params: '14B', checked: false },
-  { id: 'gpt-oss-20b', label: 'gpt-oss-20b', hw: 'gpu', params: '20B', checked: false },
+  { id: 'granite-4.1-8b', label: 'granite-4.1-8b', hw: 'cpu', params: '8B', checked: false },
 ]
+
+const GPU_MODELS = [
+  { id: 'granite-3-2-8b-instruct', label: 'granite-8b (GPU — available on MAAS)', hw: 'gpu', params: '8B', checked: true },
+  { id: 'microsoft-phi-4', label: 'phi-4 (GPU — available on MAAS)', hw: 'gpu', params: '14B', checked: false },
+  { id: 'gpt-oss-20b', label: 'gpt-oss-20b (GPU — available on MAAS)', hw: 'gpu', params: '20B', checked: false },
+]
+
+const ALL_MODELS = [...CPU_MODELS, ...GPU_MODELS]
 
 interface BenchResult {
   model: string
@@ -101,15 +112,31 @@ export default function ModuleBenchmarking() {
       </StepCard>
 
       <StepCard num={2} title="Select Models">
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--intel-cyan)', marginBottom: 6 }}>CPU (Xeon 6 — $0/token)</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {ALL_MODELS.map(m => (
+          {CPU_MODELS.map(m => (
             <button key={m.id}
               onClick={() => toggleModel(m.id)}
               style={{
                 fontSize: 11, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
-                border: `1px solid ${selectedModels.includes(m.id) ? (m.hw === 'gpu' ? 'var(--gpu-amber)' : 'var(--intel-cyan)') : 'var(--border)'}`,
-                background: selectedModels.includes(m.id) ? (m.hw === 'gpu' ? 'var(--gpu-amber-dim)' : 'var(--intel-cyan-dim)') : 'transparent',
-                color: selectedModels.includes(m.id) ? (m.hw === 'gpu' ? 'var(--gpu-amber)' : 'var(--intel-cyan)') : 'var(--text-dim)',
+                border: `1px solid ${selectedModels.includes(m.id) ? 'var(--intel-cyan)' : 'var(--border)'}`,
+                background: selectedModels.includes(m.id) ? 'var(--intel-cyan-dim)' : 'transparent',
+                color: selectedModels.includes(m.id) ? 'var(--intel-cyan)' : 'var(--text-dim)',
+              }}>
+              <CpuGpuBadge hardware={m.hw} /> {m.label} ({m.params})
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--gpu-amber)', marginTop: 12, marginBottom: 6 }}>GPU (Gaudi — $/token)</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {GPU_MODELS.map(m => (
+            <button key={m.id}
+              onClick={() => toggleModel(m.id)}
+              style={{
+                fontSize: 11, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                border: `1px solid ${selectedModels.includes(m.id) ? 'var(--gpu-amber)' : 'var(--border)'}`,
+                background: selectedModels.includes(m.id) ? 'var(--gpu-amber-dim)' : 'transparent',
+                color: selectedModels.includes(m.id) ? 'var(--gpu-amber)' : 'var(--text-dim)',
               }}>
               <CpuGpuBadge hardware={m.hw} /> {m.label} ({m.params})
             </button>

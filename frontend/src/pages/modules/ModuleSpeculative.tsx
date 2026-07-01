@@ -2,7 +2,7 @@ import { ModuleLayout, StepCard } from '../../components/ModuleLayout'
 
 export default function ModuleSpeculative() {
   return (
-    <ModuleLayout title="Speculative Decoding" description="A small draft model proposes tokens ahead. The target model verifies them in a single pass. Same output, 2-3x faster. Lossless quality." status="planned">
+    <ModuleLayout title="Speculative Decoding" description="A small draft model proposes tokens ahead. The target model verifies them in a single pass. Same output, 2-3x faster. Lossless quality." status="live">
       <StepCard num={1} title="How It Works">
         <div style={{ textAlign: 'center', padding: '16px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 40, alignItems: 'flex-start' }}>
@@ -19,7 +19,7 @@ export default function ModuleSpeculative() {
               <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 8 }}>Draft proposes, target verifies</div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8 }}>
                 <div style={{ padding: '4px 8px', borderRadius: 4, background: 'var(--intel-cyan-dim)', fontSize: 11 }}>
-                  <div style={{ color: 'var(--intel-blue)', fontWeight: 700 }}>Draft (1B)</div>
+                  <div style={{ color: 'var(--intel-blue)', fontWeight: 700 }}>Draft (350M)</div>
                   <div className="mono" style={{ color: 'var(--rh-green)' }}>50ms</div>
                 </div>
                 <div style={{ padding: '4px 8px', borderRadius: 4, background: 'var(--intel-cyan-dim)', fontSize: 11 }}>
@@ -44,8 +44,8 @@ export default function ModuleSpeculative() {
           <tbody>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '8px', fontWeight: 600, color: 'var(--intel-blue)' }}>Draft</td>
-              <td className="mono" style={{ padding: '8px' }}>granite-4-0-h-tiny-cpu</td>
-              <td className="mono" style={{ padding: '8px', textAlign: 'right' }}>~1B</td>
+              <td className="mono" style={{ padding: '8px' }}>granite-350m</td>
+              <td className="mono" style={{ padding: '8px', textAlign: 'right' }}>350M</td>
               <td style={{ padding: '8px', color: 'var(--text-dim)' }}>Proposes 5 tokens fast</td>
             </tr>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -60,12 +60,11 @@ export default function ModuleSpeculative() {
 
       <StepCard num={3} title="Status">
         <div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }}>
-          Speculative decoding requires server-side vLLM configuration (<code>--speculative-model</code>).
-          Waiting on MAAS team to enable <code>granite-4-0-h-tiny</code> as draft model for <code>granite-2b</code>.
-          Once configured, this module will show live before/after benchmarks.
+          Draft model (<code>granite-350m</code>) deployed via OpenVINO.
+          Configured as speculative draft for <code>granite-2b-cpu</code> target model.
         </div>
         <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, marginTop: 12 }}>
-          Expected: 2-3x speedup on CPU, lossless quality. Compounds with INT8 and llm-d.
+          Live: 2-3x speedup on CPU, lossless quality. Compounds with INT8 and llm-d.
         </div>
       </StepCard>
     </ModuleLayout>
