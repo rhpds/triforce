@@ -1,0 +1,576 @@
+# Deployment Validation Matrix — Intel Lab Cluster (Oberon)
+# CDD → TDD → EDD: Write tests RED, deploy until GREEN
+# Each stage gates the next. Run via: make test-deployment
+
+target_cluster:
+  name: oberon
+  hardware: Intel Xeon 6767P
+  ocp_version: "4.22"
+  model_roster: infrastructure/oberon/model_roster.yaml
+
+stages:
+
+  stage_d0_model_contracts:
+    description: "Model serving contracts defined — endpoints, schemas, aliases"
+    threshold: 100
+    criteria:
+      model_roster_defined:
+        description: "9 model aliases mapped to HuggingFace IDs in model_roster.yaml"
+        points: 15
+        required: true
+      vllm_openai_schema:
+        description: "Each vLLM endpoint serves /v1/models and /v1/chat/completions per OpenAI spec"
+        points: 15
+        required: true
+      litellm_routing_config:
+        description: "LiteLLM config maps all 9 aliases to correct vLLM service URLs"
+        points: 15
+        required: true
+      model_alias_consistency:
+        description: "Aliases in model_roster match MAAS names used by Triforce services"
+        points: 15
+        required: true
+      int8_quantization_spec:
+        description: "granite-2b-int8 has quantization method and expected RAM reduction documented"
+        points: 10
+        required: true
+      resource_budget_fits:
+        description: "Total model RAM + CPU fits within cluster capacity with 30% headroom"
+        points: 15
+        required: true
+      hf_model_accessible:
+        description: "All 9 HuggingFace model IDs resolve and are downloadable (Apache 2.0)"
+        points: 15
+        required: true
+
+  stage_d1_model_infrastructure:
+    description: "vLLM pods running, models loaded, health checks passing"
+    threshold: 90
+    criteria:
+      namespace_exists:
+        description: "triforce namespace exists with correct labels"
+        points: 5
+        required: true
+      model_cache_pvc_bound:
+        description: "HuggingFace cache PVC (200Gi, NFS) is bound"
+        points: 10
+        required: true
+      vllm_pod_running_350m:
+        description: "vLLM pod for granite-350m is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_1b:
+        description: "vLLM pod for granite-4.0-h-1b is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_2b:
+        description: "vLLM pod for granite-2b-cpu is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_2b_int8:
+        description: "vLLM pod for granite-2b-int8 is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_qwen3b:
+        description: "vLLM pod for qwen25-3b-cpu is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_granite41_3b:
+        description: "vLLM pod for granite-4.1-3b is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_phi3:
+        description: "vLLM pod for phi3-mini-cpu is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_granite8b:
+        description: "vLLM pod for granite-3-2-8b-instruct-cpu is Running and Ready"
+        points: 10
+        required: true
+      vllm_pod_running_granite41_8b:
+        description: "vLLM pod for granite-4.1-8b is Running and Ready"
+        points: 10
+        required: true
+      cluster_resource_headroom:
+        description: "Total allocated CPU < 70% and RAM < 70% of node capacity"
+        points: 5
+        required: false
+
+  stage_d2_model_validation:
+    description: "Each model responds to inference with valid output"
+    threshold: 90
+    criteria:
+      model_lists_correct:
+        description: "Each vLLM /v1/models returns its expected model name"
+        points: 10
+        required: true
+      granite_350m_responds:
+        description: "granite-350m completes a classification prompt in < 2s"
+        points: 10
+        required: true
+      granite_1b_responds:
+        description: "granite-4.0-h-1b completes a classification prompt in < 3s"
+        points: 10
+        required: true
+      granite_2b_responds:
+        description: "granite-2b-cpu completes NER prompt with >= 3 entities"
+        points: 10
+        required: true
+      granite_2b_int8_responds:
+        description: "granite-2b-int8 completes NER prompt with >= 3 entities"
+        points: 10
+        required: true
+      granite_2b_int8_faster:
+        description: "granite-2b-int8 latency < granite-2b-cpu latency (AMX INT8 speedup)"
+        points: 15
+        required: true
+      qwen_3b_responds:
+        description: "qwen25-3b-cpu completes summarization prompt with >= 50 tokens"
+        points: 10
+        required: true
+      granite41_3b_responds:
+        description: "granite-4.1-3b completes classification prompt correctly"
+        points: 10
+        required: true
+      phi3_responds:
+        description: "phi3-mini-cpu completes reasoning prompt with coherent output"
+        points: 10
+        required: true
+      granite_8b_responds:
+        description: "granite-3-2-8b-instruct-cpu completes judge prompt with synthesis"
+        points: 10
+        required: true
+      granite41_8b_responds:
+        description: "granite-4.1-8b completes reasoning prompt with tool-call format"
+        points: 10
+        required: true
+
+  stage_d3_litellm_proxy:
+    description: "LiteLLM proxy aggregates all models behind single OpenAI-compatible API"
+    threshold: 100
+    criteria:
+      litellm_pod_running:
+        description: "LiteLLM proxy pod is Running and Ready"
+        points: 10
+        required: true
+      litellm_lists_all_models:
+        description: "GET /v1/models returns all 9 model aliases"
+        points: 20
+        required: true
+      litellm_routes_to_correct_vllm:
+        description: "Chat completion for each alias hits the correct vLLM backend"
+        points: 20
+        required: true
+      litellm_alias_matches_maas:
+        description: "Model aliases match existing MAAS names — zero code changes needed"
+        points: 20
+        required: true
+      litellm_health_endpoint:
+        description: "LiteLLM /health returns healthy status"
+        points: 10
+        required: true
+      litellm_new_models_accessible:
+        description: "New aliases (granite-350m, granite-4.1-3b, granite-4.1-8b, granite-2b-int8) respond"
+        points: 20
+        required: true
+
+  stage_d4_app_services:
+    description: "Triforce application services deployed and healthy on local inference"
+    threshold: 90
+    criteria:
+      postgres_running:
+        description: "PostgreSQL pod Running, PVC bound, migrations applied"
+        points: 10
+        required: true
+      redpanda_running:
+        description: "Redpanda pod Running, Kafka API reachable on 9092"
+        points: 10
+        required: true
+      kafka_topics_created:
+        description: "All 7 Kafka topics exist (healthcare.*, finserv.*)"
+        points: 10
+        required: true
+      healthcare_agent_running:
+        description: "Healthcare agent pods (x2) Running, /health returns ok"
+        points: 15
+        required: true
+      finserv_agent_running:
+        description: "FinServ agent pods (x2) Running, /health returns ok"
+        points: 15
+        required: true
+      orchestrator_running:
+        description: "Orchestrator pod Running, /health returns ok"
+        points: 10
+        required: true
+      mcp_gateway_running:
+        description: "MCP Gateway pod Running, /health returns ok with tool count"
+        points: 10
+        required: true
+      semantic_router_running:
+        description: "Semantic Router pod Running, /health returns ok"
+        points: 10
+        required: true
+      frontend_running:
+        description: "Frontend pod Running, route accessible"
+        points: 10
+        required: true
+      agents_use_local_litellm:
+        description: "LITELLM_API_BASE env var points to local proxy, not MAAS"
+        points: 10
+        required: true
+
+  stage_d5_integration:
+    description: "Full pipelines work end-to-end on locally-served models"
+    threshold: 85
+    criteria:
+      healthcare_pipeline_local:
+        description: "POST /api/v1/pipeline returns classify + NER + summarize using local models"
+        points: 20
+        required: true
+      finserv_fraud_local:
+        description: "Fraud scoring returns rule_score + llm_score from local granite-2b"
+        points: 15
+        required: true
+      a2a_discovery:
+        description: "Orchestrator discovers both agents via A2A agent cards"
+        points: 10
+        required: true
+      kafka_event_flow:
+        description: "Events flow through Redpanda: produce -> consume -> result topic"
+        points: 15
+        required: true
+      inference_logged:
+        description: "PostgreSQL inference_log contains entries with model, latency, accelerator=cpu"
+        points: 10
+        required: true
+      mcp_tools_respond:
+        description: "MCP Gateway tools (FHIR, risk, platform) return valid responses"
+        points: 10
+        required: true
+      semantic_routing_works:
+        description: "Semantic router classifies simple->granite-2b, complex->phi3-mini"
+        points: 10
+        required: true
+      frontend_shows_live_data:
+        description: "Frontend displays real latency and model names from local inference"
+        points: 10
+        required: true
+
+  stage_d6_benchmarks:
+    description: "Benchmark rubric validates all 9 models on Xeon 6767P with real baselines"
+    threshold: 80
+    criteria:
+      benchmark_all_9_models:
+        description: "GET /api/v1/benchmark/models returns all 9 local models"
+        points: 10
+        required: true
+      benchmark_classification_all:
+        description: "Classification task runs on all applicable models, latency recorded"
+        points: 15
+        required: true
+      benchmark_ner_all:
+        description: "NER task runs on granite-2b, granite-2b-int8, granite-4.1-3b, granite-4.1-8b"
+        points: 15
+        required: true
+      benchmark_summarization_all:
+        description: "Summarization runs on qwen25-3b, granite-4.1-3b, granite-4.1-8b"
+        points: 15
+        required: true
+      int8_vs_fp32_speedup:
+        description: "granite-2b-int8 shows >= 1.5x speedup vs granite-2b-cpu on same task"
+        points: 20
+        required: true
+      granite41_vs_32_quality:
+        description: "granite-4.1-8b produces >= same quality output as granite-3.2-8b"
+        points: 10
+        required: true
+      granite_350m_ultrafast:
+        description: "granite-350m classification completes in < 500ms"
+        points: 15
+        required: true
+      benchmark_reproducible:
+        description: "Running same benchmark 3x produces latency within 20% variance"
+        points: 10
+        required: false
+      baselines_recorded:
+        description: "All baselines written to benchmark_rubric.yaml under oberon_baselines"
+        points: 10
+        required: true
+
+  stage_d7_modules:
+    description: "All 14 modules work correctly with locally-served models"
+    threshold: 85
+    criteria:
+      # Semantic Routing
+      semantic_routing_3tier:
+        description: "Router classifies simple->granite-2b, medium->qwen25-3b, complex->phi3-mini"
+        points: 10
+        required: true
+
+      # Heterogeneous Routing (simulated GPU)
+      heterogeneous_routing_cpu:
+        description: "Simple tasks route to CPU tier (granite-2b)"
+        points: 10
+        required: true
+      heterogeneous_routing_gpu_sim:
+        description: "Complex tasks route to simulated GPU tier (granite-4.1-8b)"
+        points: 10
+        required: true
+      heterogeneous_latency_diff:
+        description: "Simulated GPU tier shows different latency profile vs CPU tier"
+        points: 5
+        required: false
+
+      # Multi-Model Fusion
+      fusion_panel_local:
+        description: "Fusion panel runs 3 models in parallel, judge synthesizes — all local"
+        points: 10
+        required: true
+      fusion_consensus_quality:
+        description: "Judge output includes consensus, contradictions, and blind_spots fields"
+        points: 5
+        required: true
+
+      # Speculative Decoding
+      speculative_draft_target:
+        description: "Speculative decoding uses granite-350m draft + granite-2b target"
+        points: 10
+        required: true
+      speculative_speedup:
+        description: "Speculative decoding shows measurable speedup vs target-only"
+        points: 10
+        required: true
+
+      # Adaptive Classification
+      adaptive_cache_cold_warm:
+        description: "Adaptive cache: cold ~800ms, warm < 5ms after 3 calls"
+        points: 10
+        required: true
+      adaptive_cache_persists:
+        description: "Cache entries persist in PostgreSQL across agent restarts"
+        points: 5
+        required: false
+
+      # Benchmarking
+      benchmark_module_9_models:
+        description: "Benchmark module compares all 9 models across tasks"
+        points: 10
+        required: true
+      benchmark_hardware_label:
+        description: "All benchmarks report hardware=cpu-xeon6767p (not generic 'cpu')"
+        points: 5
+        required: true
+
+      # Model Optimization
+      model_optimization_int8:
+        description: "INT8 quantized model shows AMX acceleration vs FP32 baseline"
+        points: 10
+        required: true
+
+      # MCP Tools
+      mcp_tools_all_respond:
+        description: "All 8 MCP tools (FHIR, risk, platform) return valid responses"
+        points: 10
+        required: true
+
+      # Conditional Pipeline
+      conditional_pipeline_skip:
+        description: "Pipeline skips drug interaction check when < 2 medications detected"
+        points: 10
+        required: true
+      conditional_pipeline_full:
+        description: "Pipeline runs all nodes when >= 2 medications detected"
+        points: 5
+        required: true
+
+      # Cost Analysis
+      cost_analysis_report:
+        description: "Cost analysis generates CPU vs simulated-GPU comparison across volume tiers"
+        points: 10
+        required: true
+      cost_analysis_cpu_zero:
+        description: "All CPU inference reports $0/token cost"
+        points: 5
+        required: true
+
+      # Batch Processing
+      batch_processing_kafka:
+        description: "Batch of 50 synthetic records flows through Kafka pipeline end-to-end"
+        points: 10
+        required: true
+      batch_processing_throughput:
+        description: "Batch throughput >= 5 records/sec sustained"
+        points: 5
+        required: false
+
+      # Replica Scaling
+      replica_scaling_up:
+        description: "Healthcare agent scales from 2 to 4 replicas, traffic distributes evenly"
+        points: 10
+        required: true
+      replica_scaling_down:
+        description: "Scale back to 2 replicas, no request failures during scale-down"
+        points: 5
+        required: false
+
+      # Scale Testing
+      scale_testing_concurrent:
+        description: "30 concurrent pipeline requests complete without errors"
+        points: 10
+        required: true
+      scale_testing_latency:
+        description: "P95 latency under 30 concurrent < 3x single-request latency"
+        points: 5
+        required: false
+
+      # llm-d Inference
+      llmd_prefix_caching:
+        description: "vLLM prefix caching enabled, KV cache hit rate > 0% on repeated prompts"
+        points: 10
+        required: true
+      llmd_metrics_exposed:
+        description: "vLLM metrics endpoint exposes cache hit rate, queue depth, throughput"
+        points: 5
+        required: true
+
+      # Combined
+      all_14_modules_combined:
+        description: "All 14 modules enabled simultaneously, full pipeline completes without conflicts"
+        points: 15
+        required: true
+
+  stage_d8_secure:
+    description: "Confidential Containers via Intel TDX — Triforce Secure variant"
+    threshold: 85
+    criteria:
+      # TDX Hardware
+      tdx_kernel_initialized:
+        description: "dmesg shows 'virt/tdx: module initialized' (no hibernation failure)"
+        points: 15
+        required: true
+      nohibernate_in_cmdline:
+        description: "Kernel cmdline contains 'nohibernate'"
+        points: 5
+        required: true
+      sgx_devices_present:
+        description: "/dev/sgx_enclave and /dev/sgx_provision exist on node"
+        points: 5
+        required: true
+
+      # Sandboxed Containers Operator
+      sandboxed_operator_installed:
+        description: "OpenShift Sandboxed Containers Operator CSV is Succeeded"
+        points: 10
+        required: true
+      kata_cc_runtime_exists:
+        description: "RuntimeClass 'kata-cc' exists in cluster"
+        points: 15
+        required: true
+      kataconfig_ready:
+        description: "KataConfig CR reports ready status with TDX peer pods"
+        points: 10
+        required: true
+
+      # Confidential Workloads
+      healthcare_agent_cc:
+        description: "Healthcare agent pods run with runtimeClassName: kata-cc"
+        points: 15
+        required: true
+      finserv_agent_cc:
+        description: "FinServ agent pods run with runtimeClassName: kata-cc"
+        points: 15
+        required: true
+      semantic_router_cc:
+        description: "Semantic router pod runs with runtimeClassName: kata-cc"
+        points: 10
+        required: true
+      cc_pods_healthy:
+        description: "All confidential pods pass health checks (inference works inside TEE)"
+        points: 15
+        required: true
+
+      # Attestation & Verification
+      tdx_attestation_available:
+        description: "TDX attestation quote can be generated from within a CC pod"
+        points: 10
+        required: false
+      memory_encrypted:
+        description: "Pod memory is encrypted — cannot be read by host (verified via TDX report)"
+        points: 10
+        required: false
+
+      # Performance Impact
+      cc_latency_overhead:
+        description: "Inference latency in CC pod < 1.5x baseline (non-CC) latency"
+        points: 10
+        required: true
+      cc_vs_baseline_comparison:
+        description: "Benchmark records both CC and non-CC latency for tradeoff analysis"
+        points: 5
+        required: true
+
+  stage_d9_virt:
+    description: "OpenShift Virtualization — legacy VM for Triforce Virt variant"
+    threshold: 80
+    criteria:
+      cnv_operator_installed:
+        description: "OpenShift Virtualization (CNV) operator CSV is Succeeded"
+        points: 15
+        required: true
+      hyperconverged_ready:
+        description: "HyperConverged CR reports available"
+        points: 15
+        required: true
+      legacy_vm_running:
+        description: "legacy-database VM is Running with SSH accessible"
+        points: 20
+        required: true
+      vm_cloud_init:
+        description: "Cloud-init created triforce user on VM"
+        points: 10
+        required: true
+      vm_network_reachable:
+        description: "VM is reachable from agent pods via ClusterIP service"
+        points: 15
+        required: true
+      pipeline_uses_vm:
+        description: "Pipeline queries legacy VM database for patient/transaction data"
+        points: 15
+        required: false
+      cc_on_vm:
+        description: "Legacy VM can run inside TDX-protected domain (CC + Virt combined)"
+        points: 10
+        required: false
+
+  stage_d10_govern:
+    description: "Kagenti agentic governance — Triforce Govern variant"
+    threshold: 80
+    criteria:
+      kagenti_crds_installed:
+        description: "AgentRuntime, AgentTask, AgentPolicy CRDs exist"
+        points: 15
+        required: true
+      spiffe_identity:
+        description: "Agents have SPIFFE identities assigned via Kagenti"
+        points: 15
+        required: true
+      agent_runtime_registered:
+        description: "Healthcare and FinServ agents registered as AgentRuntime CRs"
+        points: 15
+        required: true
+      a2a_via_kagenti:
+        description: "Agent-to-agent communication routed through Kagenti mesh"
+        points: 15
+        required: true
+      policy_enforcement:
+        description: "AgentPolicy blocks unauthorized model access"
+        points: 10
+        required: false
+      tracing_enabled:
+        description: "Kagenti provides distributed tracing across agent workflows"
+        points: 10
+        required: false
+      governance_dashboard:
+        description: "Kagenti dashboard shows agent registry, health, and policy status"
+        points: 10
+        required: false

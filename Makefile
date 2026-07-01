@@ -1,4 +1,4 @@
-.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-frontend test-multinode test-modules test-benchmarks test-workflows test-all test-platform clean
+.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-frontend test-multinode test-modules test-benchmarks test-workflows test-all test-platform test-deployment clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -85,6 +85,72 @@ test-platform: ## Run ALL stages including modules + benchmarks + workflows (ful
 	@echo "\n=========================================="
 	@echo "  PLATFORM GREEN LIGHT: ALL STAGES PASSED"
 	@echo "=========================================="
+
+# --- Deployment Validation (Oberon — Intel Lab) ---
+
+test-deployment: ## Stages D0-D7: Deployment validation for Intel lab cluster (oberon)
+	@echo "=========================================="
+	@echo "  OBERON DEPLOYMENT VALIDATION"
+	@echo "  Stages D0-D7 · CDD → TDD → EDD"
+	@echo "=========================================="
+	@echo "\n=== Stage D0: Model Contracts ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD0"
+	@echo "\n=== Stage D1: Model Infrastructure ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD1"
+	@echo "\n=== Stage D2: Model Validation ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD2"
+	@echo "\n=== Stage D3: LiteLLM Proxy ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD3"
+	@echo "\n=== Stage D4: App Services ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD4"
+	@echo "\n=== Stage D5: Integration ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD5"
+	@echo "\n=== Stage D6: Benchmarks ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD6"
+	@echo "\n=== Stage D7: All 14 Modules ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD7"
+	@echo "\n=== Stage D8: Secure (TDX) ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD8"
+	@echo "\n=== Stage D9: Virt (KubeVirt) ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD9"
+	@echo "\n=== Stage D10: Govern (Kagenti) ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD10"
+	@echo "\n=========================================="
+	@echo "  OBERON DEPLOYMENT: ALL STAGES PASSED"
+	@echo "=========================================="
+
+test-deployment-d0: ## Stage D0 only: Model contracts
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD0"
+
+test-deployment-d1: ## Stage D1 only: Model infrastructure
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD1"
+
+test-deployment-d2: ## Stage D2 only: Model validation
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD2"
+
+test-deployment-d3: ## Stage D3 only: LiteLLM proxy
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD3"
+
+test-deployment-d4: ## Stage D4 only: App services
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD4"
+
+test-deployment-d5: ## Stage D5 only: Integration
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD5"
+
+test-deployment-d6: ## Stage D6 only: Benchmarks
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD6"
+
+test-deployment-d7: ## Stage D7 only: All 14 modules
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD7"
+
+test-deployment-d8: ## Stage D8 only: Secure variant (TDX Confidential Containers)
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD8"
+
+test-deployment-d9: ## Stage D9 only: Virt variant (OpenShift Virtualization)
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD9"
+
+test-deployment-d10: ## Stage D10 only: Govern variant (Kagenti)
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "TestD10"
 
 # --- Deploy ---
 

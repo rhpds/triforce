@@ -1,0 +1,45 @@
+# Helm values override for Intel Lab Cluster (Oberon)
+# Local OVMS model serving via LiteLLM proxy — no MAAS dependency
+# Model assignments based on benchmark results (2026-07-01)
+
+namespace: triforce
+
+litellm:
+  apiBase: "http://litellm.triforce.svc:4000"
+  apiKey: "local-oberon-key"
+
+postgres:
+  password: "REDACTED_PASSWORD"
+
+# Benchmark-optimized model assignments for Xeon 6767P
+healthcareAgent:
+  classifyModel: "granite-4-0-h-tiny-cpu"
+  nerModel: "granite-2b-cpu"
+  summarizeModel: "granite-4.1-8b"
+
+# All 14 modules enabled
+modules:
+  benchmarking:
+    enabled: true
+  speculative:
+    enabled: true
+    draftModel: granite-350m
+    targetModel: granite-2b-cpu
+  heterogeneous:
+    enabled: true
+    gpuApiBase: "http://litellm.triforce.svc:4000"
+    gpuApiKey: "local-oberon-key"
+    routingThreshold: 0.7
+  fusion:
+    enabled: true
+    panelModels: "granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu"
+    judgeModel: granite-3-2-8b-instruct-cpu
+
+# Secure variant (TDX + kata sandboxed containers)
+confidential:
+  enabled: true
+  runtimeClassName: kata
+
+# Virt variant (OpenShift Virtualization)
+virtualization:
+  enabled: true

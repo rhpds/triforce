@@ -211,3 +211,129 @@ benchmark_rubric:
         latency_mean_s: 1.15
         ttft_mean_ms: 401
         itl_mean_ms: 24
+
+    # ---------------------------------------------------------------
+    # Oberon — Intel Lab Cluster (Xeon 6767P, local vLLM)
+    # ---------------------------------------------------------------
+
+    oberon_local:
+      description: "Local Xeon 6767P inference — 9 models via vLLM, no MAAS"
+      source: "oberon.fm2aihpcsed.com (Intel lab)"
+      hardware: "2x Intel Xeon 6767P (128 cores, 256 threads, AMX BF16/INT8)"
+      date: "TBD"
+
+      benchmarks:
+        classification:
+          models:
+            - model: granite-350m
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 500
+              expected_output: discharge_summary
+            - model: granite-4-0-h-tiny-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 1000
+              expected_output: discharge_summary
+            - model: granite-2b-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 2000
+              expected_output: discharge_summary
+            - model: granite-2b-int8
+              hardware: cpu-xeon6767p-amx
+              baseline_ms: TBD
+              max_ms: 1500
+              expected_output: discharge_summary
+            - model: qwen25-3b-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 2000
+              expected_output: discharge_summary
+            - model: granite-4.1-3b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 2000
+              expected_output: discharge_summary
+            - model: phi3-mini-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 2500
+              expected_output: discharge_summary
+            - model: granite-3-2-8b-instruct-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 3000
+              expected_output: discharge_summary
+            - model: granite-4.1-8b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 3000
+              expected_output: discharge_summary
+          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."
+
+        ner:
+          models:
+            - model: granite-2b-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 15000
+              min_entities: 5
+            - model: granite-2b-int8
+              hardware: cpu-xeon6767p-amx
+              baseline_ms: TBD
+              max_ms: 10000
+              min_entities: 5
+            - model: granite-4.1-3b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 15000
+              min_entities: 5
+            - model: granite-4.1-8b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 15000
+              min_entities: 7
+          test_text: "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg."
+
+        summarization:
+          models:
+            - model: qwen25-3b-cpu
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 12000
+              min_tokens: 50
+            - model: granite-4.1-3b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 12000
+              min_tokens: 50
+            - model: granite-4.1-8b
+              hardware: cpu-xeon6767p
+              baseline_ms: TBD
+              max_ms: 15000
+              min_tokens: 80
+          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent."
+
+      optimization_story:
+        description: "Before/after comparisons — the engineering payoff on Xeon 6767P"
+        comparisons:
+          - name: int8_quantization
+            before: { model: granite-2b-cpu, hardware: cpu-xeon6767p }
+            after: { model: granite-2b-int8, hardware: cpu-xeon6767p-amx }
+            expected_speedup: 1.5
+            quality_threshold: "same classification output"
+          - name: next_gen_granite
+            before: { model: granite-3-2-8b-instruct-cpu, hardware: cpu-xeon6767p }
+            after: { model: granite-4.1-8b, hardware: cpu-xeon6767p }
+            expected_quality: "equal or better"
+            notes: "4.1 matches 4.0-H-Small (32B MoE) with 8B dense"
+          - name: ultrafast_router
+            before: { model: qwen25-3b-cpu, task: classification }
+            after: { model: granite-350m, task: classification }
+            expected_speedup: 3.0
+            notes: "350M for router pre-classification"
+          - name: model_ladder
+            models: [granite-350m, granite-4-0-h-tiny-cpu, granite-2b-cpu, qwen25-3b-cpu, phi3-mini-cpu, granite-3-2-8b-instruct-cpu]
+            task: classification
+            notes: "Full latency ladder from 350M to 8B on same hardware"

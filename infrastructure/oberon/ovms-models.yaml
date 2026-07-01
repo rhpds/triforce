@@ -1,0 +1,693 @@
+# OpenVINO Model Server — 9 models on Xeon 6767P
+# INT4 quantized via optimum-intel, served with continuous batching
+# OpenAI-compatible /v3/chat/completions endpoint
+
+# =============================================================================
+# 1. granite-350m (350M INT4) — Ultra-fast classification
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite-350m
+  namespace: triforce
+  labels:
+    app: ovms-granite-350m
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite-350m
+  template:
+    metadata:
+      labels:
+        app: ovms-granite-350m
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-350m
+            - --model_path
+            - /models/ov/granite-350m
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 2Gi
+            limits:
+              cpu: "16"
+              memory: 4Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite-350m
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite-350m
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 2. granite-1b (1B INT4) — Draft model for speculative decoding
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite-1b
+  namespace: triforce
+  labels:
+    app: ovms-granite-1b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite-1b
+  template:
+    metadata:
+      labels:
+        app: ovms-granite-1b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-4-0-h-tiny-cpu
+            - --model_path
+            - /models/ov/granite-1b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 4Gi
+            limits:
+              cpu: "16"
+              memory: 8Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite-1b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite-1b
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 3. granite-2b (2B INT4) — NER, fraud scoring
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite-2b
+  namespace: triforce
+  labels:
+    app: ovms-granite-2b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite-2b
+  template:
+    metadata:
+      labels:
+        app: ovms-granite-2b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-2b-cpu
+            - --model_path
+            - /models/ov/granite-2b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 4Gi
+            limits:
+              cpu: "24"
+              memory: 12Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite-2b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite-2b
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 4. granite-2b-int8 (2B INT8) — Optimization story
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite-2b-int8
+  namespace: triforce
+  labels:
+    app: ovms-granite-2b-int8
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite-2b-int8
+  template:
+    metadata:
+      labels:
+        app: ovms-granite-2b-int8
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-2b-int8
+            - --model_path
+            - /models/ov/granite-2b-int8
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 4Gi
+            limits:
+              cpu: "24"
+              memory: 12Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite-2b-int8
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite-2b-int8
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 5. qwen25-3b (3B INT4) — Classification, summarization
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-qwen25-3b
+  namespace: triforce
+  labels:
+    app: ovms-qwen25-3b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-qwen25-3b
+  template:
+    metadata:
+      labels:
+        app: ovms-qwen25-3b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - qwen25-3b-cpu
+            - --model_path
+            - /models/ov/qwen25-3b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 6Gi
+            limits:
+              cpu: "24"
+              memory: 16Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-qwen25-3b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-qwen25-3b
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 6. granite-4.1-3b (3B INT4) — Next-gen classification
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite41-3b
+  namespace: triforce
+  labels:
+    app: ovms-granite41-3b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite41-3b
+  template:
+    metadata:
+      labels:
+        app: ovms-granite41-3b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-4.1-3b
+            - --model_path
+            - /models/ov/granite-41-3b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 6Gi
+            limits:
+              cpu: "24"
+              memory: 16Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite41-3b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite41-3b
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 7. phi3-mini (3.8B INT4) — Complex reasoning (pre-converted on HF)
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-phi3-mini
+  namespace: triforce
+  labels:
+    app: ovms-phi3-mini
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-phi3-mini
+  template:
+    metadata:
+      labels:
+        app: ovms-phi3-mini
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_repository_path
+            - /models/ovms-repo
+            - --source_model
+            - OpenVINO/Phi-3-mini-4k-instruct-int4-ov
+            - --model_name
+            - phi3-mini-cpu
+            - --task
+            - text_generation
+            - --target_device
+            - CPU
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "4"
+              memory: 8Gi
+            limits:
+              cpu: "24"
+              memory: 16Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 300
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-phi3-mini
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-phi3-mini
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 8. granite-3.2-8b (8B INT4) — Fusion judge
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite-8b
+  namespace: triforce
+  labels:
+    app: ovms-granite-8b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite-8b
+  template:
+    metadata:
+      labels:
+        app: ovms-granite-8b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-3-2-8b-instruct-cpu
+            - --model_path
+            - /models/ov/granite-8b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "32"
+              memory: 32Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 300
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite-8b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite-8b
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+# =============================================================================
+# 9. granite-4.1-8b (8B INT4) — Next-gen reasoning, simulated GPU tier
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms-granite41-8b
+  namespace: triforce
+  labels:
+    app: ovms-granite41-8b
+    triforce.io/role: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovms-granite41-8b
+  template:
+    metadata:
+      labels:
+        app: ovms-granite41-8b
+        triforce.io/role: model-serving
+    spec:
+      containers:
+        - name: ovms
+          image: openvino/model_server:latest
+          args:
+            - --model_name
+            - granite-4.1-8b
+            - --model_path
+            - /models/ov/granite-41-8b
+            - --rest_port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: rest
+          resources:
+            requests:
+              cpu: "8"
+              memory: 16Gi
+            limits:
+              cpu: "32"
+              memory: 32Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: 8080
+            initialDelaySeconds: 300
+            periodSeconds: 30
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovms-granite41-8b
+  namespace: triforce
+spec:
+  selector:
+    app: ovms-granite41-8b
+  ports:
+    - port: 8080
+      targetPort: 8080
