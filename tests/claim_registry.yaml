@@ -1,0 +1,248 @@
+# Claim Provenance Registry — every factual assertion in the demo
+# Run `make audit-claims` to see unverified claims
+# Run `make test-claims` to validate against live measurements
+
+claims:
+
+  # ===== COST CLAIMS =====
+
+  - id: cost-xeon6-annual
+    value: "$15,000/year"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 6
+    source: "Intel Xeon 6 6741P list price estimate (server amortized)"
+    source_url: ""
+    verified: false
+    notes: "Approximate — server cost varies by config and vendor"
+
+  - id: cost-claude-haiku-per-record
+    value: "$0.0084/record"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 10
+    source: "Anthropic pricing, 2025-Q3"
+    source_url: "https://anthropic.com/pricing"
+    verified: false
+    notes: "Pricing changes — should verify against current rates"
+
+  - id: cost-gpt4o-mini-per-record
+    value: "$0.012/record"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 11
+    source: "Azure OpenAI pricing, 2025"
+    verified: false
+
+  - id: cost-claude-opus-per-record
+    value: "$0.042/record"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 13
+    source: "Anthropic pricing, 2025-Q3"
+    verified: false
+
+  - id: cost-nvidia-a100-annual
+    value: "$64,000/year"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 12
+    source: "NVIDIA A100 server leasing estimate"
+    verified: false
+    notes: "Varies by cloud provider and configuration"
+
+  - id: cost-nvidia-h100-annual
+    value: "$119,333/year"
+    file: frontend/src/acts/Act03Cost.tsx
+    line: 14
+    source: "NVIDIA H100 server leasing estimate"
+    verified: false
+
+  - id: cost-vmware-per-socket
+    value: "$8,475/socket/yr"
+    file: frontend/src/acts/virt/Act01VmwareMigration.tsx
+    source: "Broadcom VMware vSphere list price estimate post-acquisition"
+    verified: false
+    notes: "VMware pricing changed significantly after Broadcom acquisition"
+
+  # ===== LATENCY CLAIMS =====
+
+  - id: latency-drug-interaction-mcp
+    value: "16ms"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 50
+    source: "Live MCP tool measurement on MAAS"
+    verified: true
+    verified_date: "2026-06-23"
+    notes: "Measured on MAAS — oberon may differ"
+
+  - id: latency-classification-cpu-maas
+    value: "779ms"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 848
+    source: "MAAS benchmark 2026-06-23 (qwen25-3b-cpu)"
+    verified: true
+    verified_date: "2026-06-23"
+    notes: "MAAS baseline — oberon OVMS is ~1.8s"
+
+  - id: latency-ner-cpu-maas
+    value: "6,248ms"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 849
+    source: "MAAS benchmark 2026-06-23 (granite-2b-cpu)"
+    verified: true
+    verified_date: "2026-06-23"
+
+  - id: latency-summarization-cpu-maas
+    value: "5,208ms"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 850
+    source: "MAAS benchmark 2026-06-23 (granite-2b-cpu)"
+    verified: true
+    verified_date: "2026-06-23"
+
+  - id: latency-attestation-handshake
+    value: "~350ms"
+    file: frontend/src/acts/secure/Act02Attestation.tsx
+    line: 180
+    source: "Estimated from CoCo documentation"
+    verified: false
+    notes: "Not measured on oberon — KBS not fully deployed (Trustee OPA permission issue)"
+
+  - id: latency-gpu-classification-maas
+    value: "500ms"
+    file: frontend/src/acts/Act05HonestQuestion.tsx
+    line: 26
+    source: "MAAS GPU benchmark 2026-06-23"
+    verified: true
+    verified_date: "2026-06-23"
+    notes: "Labeled (MAAS) in frontend"
+
+  # ===== MODEL SPEC CLAIMS =====
+
+  - id: bitnet-params
+    value: "2.4B parameters"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    line: 75
+    source: "Microsoft BitNet model card"
+    source_url: "https://huggingface.co/microsoft/bitnet-b1.58-2B-4T"
+    verified: true
+
+  - id: bitnet-memory-footprint
+    value: "0.4 GB"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    line: 75
+    source: "Microsoft BitNet paper (non-embedding weights)"
+    verified: true
+
+  - id: bitnet-decode-latency
+    value: "29ms/token"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    line: 75
+    source: "Microsoft BitNet paper"
+    verified: false
+    notes: "Paper value on reference hardware — oberon actual is ~70ms/tok via bitnet.cpp"
+
+  - id: bitnet-energy-per-token
+    value: "0.028 J/token"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    line: 75
+    source: "Microsoft BitNet paper"
+    verified: true
+    notes: "Paper measurement — not independently verified on oberon"
+
+  - id: bitnet-energy-comparison
+    value: "12x more efficient than Qwen2.5"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    line: 196
+    source: "Microsoft BitNet paper comparison"
+    verified: true
+
+  # ===== HARDWARE CLAIMS =====
+
+  - id: xeon-core-count
+    value: "128 cores"
+    file: frontend/src/acts/Act01Architecture.tsx
+    line: 146
+    source: "Intel Xeon 6767P specification"
+    verified: true
+    verified_date: "2026-06-30"
+    notes: "Verified on oberon: lscpu shows 128 cores, 256 threads"
+
+  - id: xeon-ram
+    value: "503 GiB"
+    file: infrastructure/oberon/model_roster.yaml
+    source: "oc get node capacity"
+    verified: true
+    verified_date: "2026-06-30"
+
+  # ===== TECHNOLOGY CLAIMS =====
+
+  - id: tdx-encryption-algo
+    value: "AES-256-XTS"
+    file: frontend/src/acts/secure/Act04ConfidentialInference.tsx
+    line: 21
+    source: "Intel TDX Architecture Specification"
+    source_url: "https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/documentation.html"
+    verified: true
+
+  - id: bitnet-ternary-weights
+    value: "Ternary weights {-1, 0, 1}"
+    file: frontend/src/pages/modules/ModuleEdgeInference.tsx
+    source: "Microsoft BitNet b1.58 paper"
+    source_url: "https://arxiv.org/abs/2402.17764"
+    verified: true
+
+  - id: amx-int8-acceleration
+    value: "AMX accelerates INT8/BF16 matrix operations"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    source: "Intel AMX documentation"
+    verified: true
+
+  # ===== COMPLIANCE CLAIMS =====
+
+  - id: hipaa-phi-encryption
+    value: "TDX satisfies PHI encryption at rest and in use"
+    file: frontend/src/acts/secure/Act04ConfidentialInference.tsx
+    line: 36
+    source: "Qualitative — TDX provides encryption mechanism"
+    verified: false
+    notes: "TDX addresses encryption. Full HIPAA requires access controls, audit logging, BAAs, training. Add disclaimer: 'contributes to' not 'satisfies'"
+
+  - id: hipaa-average-fine
+    value: "$1.5M"
+    file: frontend/src/acts/secure/Act00SecureStory.tsx
+    line: 37
+    source: "HHS OCR enforcement statistics"
+    verified: false
+    notes: "Commonly cited — verify against current HHS enforcement data"
+
+  - id: phmsa-sensor-integrity
+    value: "TDX provides tamper-evident processing for sensor data"
+    file: frontend/src/acts/secure/Act04ConfidentialInference.tsx
+    line: 38
+    source: "Qualitative — TDX attestation detects runtime tampering"
+    verified: false
+    notes: "TDX detects modification. PHMSA has additional pipeline safety requirements."
+
+  # ===== SPEEDUP CLAIMS =====
+
+  - id: speedup-gpu-summarization
+    value: "3.3x faster (MAAS baseline)"
+    file: frontend/src/acts/Act01Architecture.tsx
+    line: 172
+    source: "MAAS benchmark 2026-06-23"
+    verified: true
+    verified_date: "2026-06-23"
+    notes: "Labeled (MAAS baseline) in frontend"
+
+  - id: speedup-int8-classification
+    value: "~1.5x faster"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 541
+    source: "Oberon benchmark 2026-07-01"
+    verified: true
+    verified_date: "2026-07-01"
+
+  - id: speedup-speculative
+    value: "2-3x speedup"
+    file: frontend/src/acts/Act04Efficiency.tsx
+    line: 134
+    source: "vLLM speculative decoding documentation"
+    verified: false
+    notes: "Not measured on oberon — speculative decoding not fully configured"

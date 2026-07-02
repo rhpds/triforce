@@ -155,6 +155,12 @@ test-deployment-d10: ## Stage D10 only: Govern variant (Kagenti)
 test-virt-edge: ## Edge + Virt demo validation (V0-V4)
 	python3 -m pytest tests/test_virt_edge.py -v --tb=short
 
+test-claims: ## Validate factual claims against sources and live measurements
+	python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py -v --tb=short
+
+audit-claims: ## Report unverified claims in claim_registry.yaml
+	@python3 -c "import yaml; d=yaml.safe_load(open('tests/claim_registry.yaml')); u=[c for c in d['claims'] if not c.get('verified')]; v=[c for c in d['claims'] if c.get('verified')]; print(f'{len(v)} verified, {len(u)} unverified of {len(d[\"claims\"])} total claims'); print(); [print(f'  UNVERIFIED: {c[\"id\"]}: {c[\"value\"]}') for c in u]"
+
 # --- Deploy ---
 
 generate-nav: ## Generate showroom nav from enabled modules
