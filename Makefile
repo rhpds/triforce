@@ -158,6 +158,34 @@ test-virt-edge: ## Edge + Virt demo validation (V0-V4)
 test-claims: ## Validate factual claims against sources and live measurements
 	python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py -v --tb=short
 
+test-preflight: ## FULL preflight — run before committing to demo site
+	@echo "=========================================="
+	@echo "  TRIFORCE PREFLIGHT CHECK"
+	@echo "  All validation stages"
+	@echo "=========================================="
+	@echo "\n=== 1. Contracts (Stage 0) ==="
+	python3 -m pytest tests/contracts/ -v --tb=short
+	@echo "\n=== 2. Unit Tests (Stage 2) ==="
+	python3 -m pytest services/healthcare-agent/tests/ -v --tb=short
+	@echo "\n=== 3. Modules (Stage 8) ==="
+	python3 -m pytest tests/test_stage_8_modules.py -v --tb=short
+	@echo "\n=== 4. Frontend Build ==="
+	cd frontend && npm run build
+	@echo "\n=== 5. Helm Lint (default + oberon) ==="
+	helm template infrastructure/helm --set postgres.password=test --set litellm.apiKey=test --set litellm.apiBase=http://test > /dev/null
+	helm template infrastructure/helm -f infrastructure/oberon/values-oberon.yaml > /dev/null
+	@echo "\n=== 6. Deployment Matrix (D0-D10) ==="
+	python3 -m pytest tests/test_deployment.py -v --tb=short -k "not frontend_builds"
+	@echo "\n=== 7. Edge + Virt (V0-V4) ==="
+	python3 -m pytest tests/test_virt_edge.py -v --tb=short -k "not frontend_builds"
+	@echo "\n=== 8. Claim Accuracy + Isolation ==="
+	python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py -v --tb=short
+	@echo "\n=== 9. Unverified Claims ==="
+	@python3 -c "import yaml; d=yaml.safe_load(open('tests/claim_registry.yaml')); u=[c for c in d['claims'] if not c.get('verified')]; v=[c for c in d['claims'] if c.get('verified')]; print(f'{len(v)} verified, {len(u)} unverified of {len(d[\"claims\"])} total claims'); [print(f'  UNVERIFIED: {c[\"id\"]}: {c[\"value\"]}') for c in u]"
+	@echo "\n=========================================="
+	@echo "  PREFLIGHT COMPLETE"
+	@echo "=========================================="
+
 audit-claims: ## Report unverified claims in claim_registry.yaml
 	@python3 -c "import yaml; d=yaml.safe_load(open('tests/claim_registry.yaml')); u=[c for c in d['claims'] if not c.get('verified')]; v=[c for c in d['claims'] if c.get('verified')]; print(f'{len(v)} verified, {len(u)} unverified of {len(d[\"claims\"])} total claims'); print(); [print(f'  UNVERIFIED: {c[\"id\"]}: {c[\"value\"]}') for c in u]"
 
