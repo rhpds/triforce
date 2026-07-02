@@ -111,7 +111,7 @@ export function Act02Inference({ onComplete }: Props) {
       const resp = await fetch('/healthcare/api/v1/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: SAMPLE_TEXT }),
+        body: JSON.stringify({ text: SAMPLE_TEXT , skip_cache: true}),
       })
       const data: PipelineResult = await resp.json()
 

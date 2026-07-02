@@ -24,7 +24,7 @@ export default function ModuleBatchProcessing() {
     const r: BatchResult[] = []
     for (let i = 0; i < SAMPLE_TEXTS.length; i++) {
       try {
-        const resp = await fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: SAMPLE_TEXTS[i] }) })
+        const resp = await fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: SAMPLE_TEXTS[i] , skip_cache: true}) })
         const data = await resp.json()
         r.push({ index: i, classification: data.classification, entities: data.entities?.length || 0, total_ms: data.total_ms })
         setResults([...r])

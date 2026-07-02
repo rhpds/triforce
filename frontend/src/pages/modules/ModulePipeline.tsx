@@ -40,7 +40,7 @@ export default function ModulePipeline() {
       const resp = await fetch('/healthcare/api/v1/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: activeText }),
+        body: JSON.stringify({ text: activeText , skip_cache: true}),
       })
       const data = await resp.json()
       setResult(data)

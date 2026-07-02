@@ -119,6 +119,7 @@ class PipelineRequest(BaseModel):
     classify_model: Optional[str] = None
     ner_model: Optional[str] = None
     summarize_model: Optional[str] = None
+    skip_cache: bool = False
 
 
 class PipelineResponse(BaseModel):

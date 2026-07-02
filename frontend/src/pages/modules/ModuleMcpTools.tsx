@@ -10,7 +10,7 @@ export default function ModuleMcpTools() {
     setRunning(true); setPipelineResult(null)
     try {
       const resp = await fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Started on Aspirin 81mg and Clopidogrel 75mg.' }) })
+        body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Started on Aspirin 81mg and Clopidogrel 75mg.' , skip_cache: true}) })
       setPipelineResult(await resp.json())
     } catch { setPipelineResult({ error: 'Backend not reachable' }) }
     setRunning(false)
