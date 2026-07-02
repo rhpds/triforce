@@ -15,11 +15,12 @@ import { Act04ConfidentialInference } from './acts/secure/Act04ConfidentialInfer
 import { Act05SecureTradeoff } from './acts/secure/Act05SecureTradeoff'
 import { Act06SecurePunchline } from './acts/secure/Act06SecurePunchline'
 import { Act00VirtStory } from './acts/virt/Act00VirtStory'
-import { Act01VirtArchitecture } from './acts/virt/Act01VirtArchitecture'
+import { Act01VmwareMigration } from './acts/virt/Act01VmwareMigration'
 import { Act02OneServer } from './acts/virt/Act02OneServer'
-import { Act03LegacyMeetsAI } from './acts/virt/Act03LegacyMeetsAI'
-import { Act04MigrationPath } from './acts/virt/Act04MigrationPath'
+import { Act03EdgeLive } from './acts/virt/Act03EdgeLive'
+import { Act04SidecarLive } from './acts/virt/Act04SidecarLive'
 import { Act05VirtTradeoff } from './acts/virt/Act05VirtTradeoff'
+import { Act04MigrationPath } from './acts/virt/Act04MigrationPath'
 import { Act06VirtPunchline } from './acts/virt/Act06VirtPunchline'
 import { Act00GovernStory } from './acts/govern/Act00GovernStory'
 import { Act01GovernArchitecture } from './acts/govern/Act01GovernArchitecture'
@@ -53,12 +54,13 @@ const SECURE_ACTS: ActEntry[] = [
 
 const VIRT_ACTS: ActEntry[] = [
   { id: 'virt-story', label: '00', component: Act00VirtStory },
-  { id: 'virt-arch', label: '01', component: Act01VirtArchitecture },
+  { id: 'virt-vmware', label: '01', component: Act01VmwareMigration },
   { id: 'virt-server', label: '02', component: Act02OneServer },
-  { id: 'virt-legacy', label: '03', component: Act03LegacyMeetsAI },
-  { id: 'virt-migration', label: '04', component: Act04MigrationPath },
+  { id: 'virt-edge', label: '03', component: Act03EdgeLive },
+  { id: 'virt-sidecar', label: '04', component: Act04SidecarLive },
   { id: 'virt-tradeoff', label: '05', component: Act05VirtTradeoff },
-  { id: 'virt-punch', label: '06', component: Act06VirtPunchline },
+  { id: 'virt-migration', label: '06', component: Act04MigrationPath },
+  { id: 'virt-punch', label: '07', component: Act06VirtPunchline },
 ]
 
 const GOVERN_ACTS: ActEntry[] = [
