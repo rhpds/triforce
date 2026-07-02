@@ -2,9 +2,10 @@ import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../../components/PipelineAnimation'
 import { useDemoMetrics } from '../../DemoContext'
-import { useVertical } from '../../VerticalContext'
 
 interface Props { onComplete?: () => void }
+
+const SAMPLE_TEXT = 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg.'
 
 const INITIAL_NODES: PipelineNode[] = [
   { id: 'classify', label: 'Classify', model: 'granite-2b-cpu', status: 'pending' },
@@ -31,11 +32,17 @@ const ATTACKER_VIEW = [
   { access: 'Compromised firmware', sees: 'Attestation failure → no secrets', blocked: 'Remote attestation' },
 ]
 
-export function Act04ConfidentialInference({ onComplete }: Props) {
-  const vertical = useVertical()
-  const { setPipeline } = useDemoMetrics()
+const COMPLIANCE = [
+  { framework: 'HIPAA', requirement: 'PHI encrypted at rest and in use', tdx: 'AES-256-XTS memory encryption for all inference data', status: 'satisfied' },
+  { framework: 'HIPAA', requirement: 'Access controls on PHI', tdx: 'Hardware attestation gates secret release', status: 'satisfied' },
+  { framework: 'PHMSA', requirement: 'Sensor data integrity', tdx: 'Tamper-evident Trust Domain — modification breaks attestation', status: 'satisfied' },
+  { framework: 'SOX', requirement: 'Audit trail for data access', tdx: 'Attestation logs record every secret request with hardware proof', status: 'satisfied' },
+  { framework: 'NIST 800-171', requirement: 'CUI protection in processing', tdx: 'Confidential computing = encryption during processing (not just at rest/in transit)', status: 'satisfied' },
+  { framework: 'FedRAMP', requirement: 'Data sovereignty', tdx: 'Processing stays on-premises on attested hardware — no cloud egress', status: 'satisfied' },
+]
 
-  const compliance = vertical.compliance.map(c => ({ framework: c.framework, requirement: c.requirement, tdx: c.solution, status: 'satisfied' }))
+export function Act04ConfidentialInference({ onComplete }: Props) {
+  const { setPipeline } = useDemoMetrics()
   const [nodes, setNodes] = useState<PipelineNode[]>(INITIAL_NODES)
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -78,7 +85,7 @@ export function Act04ConfidentialInference({ onComplete }: Props) {
       const resp = await fetch('/healthcare/api/v1/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: vertical.sampleTexts.pipeline , skip_cache: true}),
+        body: JSON.stringify({ text: SAMPLE_TEXT , skip_cache: true}),
       })
       const data = await resp.json()
       timersRef.current.forEach(clearTimeout)
@@ -169,7 +176,7 @@ export function Act04ConfidentialInference({ onComplete }: Props) {
           color: 'var(--text-dim)', fontFamily: "'Red Hat Mono', monospace", lineHeight: 1.6,
           border: '1px solid var(--intel-cyan)', borderStyle: 'dashed',
         }}>
-          {vertical.sampleTexts.pipeline}
+          {SAMPLE_TEXT}
         </div>
 
         <div style={{ marginTop: 14, textAlign: 'center' }}>
@@ -266,7 +273,7 @@ export function Act04ConfidentialInference({ onComplete }: Props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {compliance.map((c, i) => (
+                    {COMPLIANCE.map((c, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: 6, fontWeight: 700, color: 'var(--rh-blue)' }}>{c.framework}</td>
                         <td style={{ padding: 6, color: 'var(--text-secondary)' }}>{c.requirement}</td>

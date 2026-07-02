@@ -2,9 +2,10 @@ import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../components/PipelineAnimation'
 import { useDemoMetrics } from '../DemoContext'
-import { useVertical } from '../VerticalContext'
 
 interface Props { onComplete?: () => void }
+
+const SAMPLE_TEXT = 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg, Atorvastatin 80mg. Monitoring for bleeding risk given dual antiplatelet therapy.'
 
 const INITIAL_NODES: PipelineNode[] = [
   { id: 'classify', label: 'Classify', model: 'granite-2b-cpu', status: 'pending' },
@@ -41,15 +42,13 @@ const RISK_COLORS: Record<string, string> = {
   critical: 'var(--rh-red)',
 }
 
+const FRAUD_TRANSACTIONS = [
+  { id: 'tx-demo-001', label: 'Suspicious wire transfer', amount: 15000, currency: 'USD', merchant_category: 'wire_transfer', country: 'NG', customer_id: 'cust-042' },
+  { id: 'tx-demo-002', label: 'Normal retail purchase', amount: 89.50, currency: 'USD', merchant_category: 'retail', country: 'US', customer_id: 'cust-042' },
+]
+
 export function Act02Inference({ onComplete }: Props) {
-  const vertical = useVertical()
   const { setPipeline } = useDemoMetrics()
-
-  const fraudTransactions = [
-    { id: 'tx-demo-001', label: vertical.sampleTexts.fraud, amount: 15000, currency: 'USD', merchant_category: 'wire_transfer', country: 'NG', customer_id: 'cust-042' },
-    { id: 'tx-demo-002', label: 'Normal retail purchase', amount: 89.50, currency: 'USD', merchant_category: 'retail', country: 'US', customer_id: 'cust-042' },
-  ]
-
   const [nodes, setNodes] = useState<PipelineNode[]>(INITIAL_NODES)
   const [result, setResult] = useState<PipelineResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -112,7 +111,7 @@ export function Act02Inference({ onComplete }: Props) {
       const resp = await fetch('/healthcare/api/v1/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: vertical.sampleTexts.pipeline , skip_cache: true}),
+        body: JSON.stringify({ text: SAMPLE_TEXT , skip_cache: true}),
       })
       const data: PipelineResult = await resp.json()
 
@@ -143,7 +142,7 @@ export function Act02Inference({ onComplete }: Props) {
     setFraudResults([])
     try {
       const results = await Promise.all(
-        fraudTransactions.map(async (tx) => {
+        FRAUD_TRANSACTIONS.map(async (tx) => {
           const resp = await fetch('/finserv/api/v1/score-transaction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -182,7 +181,7 @@ export function Act02Inference({ onComplete }: Props) {
           fontSize: 13, color: 'var(--text-dim)', fontFamily: "'Red Hat Mono', monospace",
           lineHeight: 1.6,
         }}>
-          {vertical.sampleTexts.pipeline}
+          {SAMPLE_TEXT}
         </div>
 
         <div style={{ marginTop: 16, textAlign: 'center' }}>
@@ -278,7 +277,7 @@ export function Act02Inference({ onComplete }: Props) {
             <div className="step-question">Java · Quarkus · Score transactions for fraud risk in real time</div>
 
             <div style={{ marginTop: 12 }}>
-              {fraudTransactions.map((tx) => (
+              {FRAUD_TRANSACTIONS.map((tx) => (
                 <div key={tx.id} style={{
                   padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8,
                   fontSize: 13, marginBottom: 6, display: 'flex', justifyContent: 'space-between',
@@ -316,9 +315,9 @@ export function Act02Inference({ onComplete }: Props) {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600 }}>{fraudTransactions[i]?.label}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{FRAUD_TRANSACTIONS[i]?.label}</div>
                         <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-                          ${fraudTransactions[i]?.amount.toLocaleString()} · {fraudTransactions[i]?.country}
+                          ${FRAUD_TRANSACTIONS[i]?.amount.toLocaleString()} · {FRAUD_TRANSACTIONS[i]?.country}
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
