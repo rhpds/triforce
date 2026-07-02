@@ -186,6 +186,11 @@ test-preflight: ## FULL preflight — run before committing to demo site
 	@echo "  PREFLIGHT COMPLETE"
 	@echo "=========================================="
 
+test-preflight-report: ## FULL preflight with Markdown report output
+	@./scripts/preflight-report.sh tests/preflight-report.md
+	@echo ""
+	@cat tests/preflight-report.md
+
 audit-claims: ## Report unverified claims in claim_registry.yaml
 	@python3 -c "import yaml; d=yaml.safe_load(open('tests/claim_registry.yaml')); u=[c for c in d['claims'] if not c.get('verified')]; v=[c for c in d['claims'] if c.get('verified')]; print(f'{len(v)} verified, {len(u)} unverified of {len(d[\"claims\"])} total claims'); print(); [print(f'  UNVERIFIED: {c[\"id\"]}: {c[\"value\"]}') for c in u]"
 
