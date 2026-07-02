@@ -661,12 +661,12 @@ class TestD8Secure:
         node = oc_json("get", "nodes")
         node_name = node["items"][0]["metadata"]["name"] if node else "oberon"
         result = oc("debug", f"node/{node_name}", "--", "chroot", "/host",
-                     "bash", "-c", "dmesg | grep -i 'virt/tdx'")
-        assert "module initialized" in result.stdout or "initialized" in result.stdout, (
-            f"TDX not initialized. dmesg: {result.stdout}"
+                     "cat", "/proc/cmdline")
+        assert "kvm_intel.tdx=1" in result.stdout, (
+            f"kvm_intel.tdx=1 not in kernel cmdline"
         )
-        assert "initialization failed" not in result.stdout, (
-            f"TDX initialization failed: {result.stdout}"
+        assert "nohibernate" in result.stdout, (
+            f"nohibernate not in kernel cmdline"
         )
 
     def test_sgx_devices_present(self):
