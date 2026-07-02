@@ -4,13 +4,15 @@ import { motion } from 'motion/react'
 interface Props { onComplete?: () => void }
 
 const TASKS = [
-  { id: 'classification', label: 'Classification', text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.' },
-  { id: 'ner', label: 'NER', text: '72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg.' },
-  { id: 'summarization', label: 'Summarization', text: '72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent.' },
-  { id: 'compliance_reasoning', label: 'Compliance', text: 'A customer transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000.' },
+  { id: 'classification', label: '🏥 Classification', text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.' },
+  { id: 'ner', label: '🏥 NER', text: '72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg.' },
+  { id: 'summarization', label: '🏥 Summarization', text: '72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent.' },
+  { id: 'compliance_reasoning', label: '🏦 Compliance', text: 'A customer transfers $9,500 to a business account in the Cayman Islands. They have made 3 similar transfers in the past month, each just under $10,000.' },
+  { id: 'telco_anomaly', label: '📡 Network Anomaly', text: 'Cell tower RAN-0742 sector 3: throughput dropped 34% over 2 hours, handover failure rate 12% (baseline 2%), adjacent cells normal, RSRP degradation on band n78. Classify as network_anomaly, capacity_warning, hardware_fault, interference, or routine.' },
+  { id: 'energy_scada', label: '⚡ SCADA Alert', text: 'Compressor Station B: vibration X-axis 6.8mm/s (baseline 4.2, +62%), Y-axis 5.9mm/s (baseline 3.8, +55%), bearing temperature 192°F (baseline 185°F), pressure 1200psi (normal). Trend increasing 40 min. Is this an anomaly? Recommended action?' },
 ]
 
-const MODELS = ['granite-2b-cpu', 'qwen25-3b-cpu', 'granite-3-2-8b-instruct-cpu']
+const MODELS = ['granite-2b-cpu', 'qwen25-3b-cpu', 'granite-3-2-8b-instruct-cpu', 'bitnet-2b4t']
 
 interface BenchmarkResult {
   model: string
