@@ -1,0 +1,30 @@
+# bitnet.cpp server — native 1.58-bit ternary inference on CPU
+# Builds llama-server with BitNet's custom ternary kernels
+# Serves OpenAI-compatible /v1/chat/completions API
+
+FROM registry.access.redhat.com/ubi9/ubi:latest AS builder
+
+RUN dnf install -y gcc gcc-c++ cmake make git python3 python3-pip && \
+    dnf clean all
+
+WORKDIR /build
+RUN git clone --depth 1 https://github.com/microsoft/BitNet.git
+
+WORKDIR /build/BitNet
+RUN pip3 install -r requirements.txt && \
+    python3 setup_env.py --hf-repo microsoft/bitnet-b1.58-2B-4T-gguf -q i2_s
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+RUN microdnf install -y libstdc++ libgomp && microdnf clean all
+
+COPY --from=builder /build/BitNet/build/bin/llama-server /usr/local/bin/llama-server
+COPY --from=builder /build/BitNet/models/bitnet-b1.58-2B-4T-gguf/ /models/
+
+EXPOSE 8080
+
+ENTRYPOINT ["llama-server"]
+CMD ["--model", "/models/ggml-model-i2_s.gguf", \
+     "--host", "0.0.0.0", "--port", "8080", \
+     "--ctx-size", "2048", "--threads", "16", \
+     "--alias", "bitnet-2b4t"]

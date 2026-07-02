@@ -100,6 +100,13 @@ modules:
     enabled: false
     panelModels: "granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu"
     judgeModel: granite-3-2-8b-instruct
+  edge:
+    enabled: false
+    model: bitnet-2b4t
+    scadaVm:
+      enabled: false
+      cores: 2
+      memory: 4Gi
 
 # Triforce Secure — Confidential Containers (TDX)
 confidential:
