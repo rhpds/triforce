@@ -1,88 +1,208 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
-import { TriforceIntro } from '../components/TriforceIntro'
+import { motion } from 'motion/react'
 
 interface Props { onComplete?: () => void }
 
+const fadeIn = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 },
+}
+
+const bulletFade = (delay: number) => ({
+  initial: { opacity: 0, x: -12 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.4, delay },
+})
+
+const sourceStyle: React.CSSProperties = {
+  fontSize: 9,
+  color: 'var(--text-dim)',
+  fontStyle: 'italic',
+  marginTop: 4,
+}
+
 export function Act00Story({ onComplete }: Props) {
-  const [introComplete, setIntroComplete] = useState(false)
+  const [beat, setBeat] = useState(0)
+
+  const advance = () => setBeat(b => Math.min(b + 1, 4))
 
   return (
     <div className="demo-section">
+      <h3><span className="section-num">00</span> The Question</h3>
 
-      {!introComplete && (
-        <TriforceIntro onComplete={() => setIntroComplete(true)} />
+      {/* Beat 0: The Spending */}
+      <motion.div {...fadeIn} style={{ marginBottom: 40 }}>
+        <div style={{
+          fontSize: 48,
+          fontWeight: 700,
+          fontFamily: 'monospace',
+          color: 'var(--text-primary)',
+          lineHeight: 1.1,
+        }}>
+          $684 billion
+        </div>
+        <div style={{ fontSize: 18, color: 'var(--text-secondary)', marginTop: 8 }}>
+          spent on enterprise AI in 2025
+        </div>
+        <div style={sourceStyle}>Industry aggregate, 2025</div>
+
+        {beat < 1 && (
+          <button
+            className="btn btn-secondary"
+            style={{ marginTop: 24 }}
+            onClick={advance}
+          >
+            Next
+          </button>
+        )}
+      </motion.div>
+
+      {/* Beat 1: The Failure */}
+      {beat >= 1 && (
+        <motion.div {...fadeIn} style={{ marginBottom: 40 }}>
+          <div style={{
+            fontSize: 48,
+            fontWeight: 700,
+            fontFamily: 'monospace',
+            color: 'var(--rh-red)',
+            lineHeight: 1.1,
+          }}>
+            $547 billion
+          </div>
+          <div style={{ fontSize: 18, color: 'var(--rh-red)', marginTop: 8 }}>
+            produced no measurable results
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 4 }}>
+              80.3% of projects failed to deliver value
+            </div>
+            <div style={sourceStyle}>RAND Corporation</div>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 4 }}>
+              95% of pilots delivered zero P&amp;L impact
+            </div>
+            <div style={sourceStyle}>MIT NANDA, 2025</div>
+          </div>
+
+          {beat < 2 && (
+            <button
+              className="btn btn-secondary"
+              style={{ marginTop: 24 }}
+              onClick={advance}
+            >
+              Next
+            </button>
+          )}
+        </motion.div>
       )}
 
-      <AnimatePresence>
-        {introComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+      {/* Beat 2: The Root Cause */}
+      {beat >= 2 && (
+        <motion.div {...fadeIn} style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 18, color: 'var(--text-secondary)', marginBottom: 4 }}>
+            Not because the models were wrong.
+          </div>
+          <div style={{
+            fontSize: 20,
+            fontWeight: 600,
+            color: 'var(--text-secondary)',
+            marginBottom: 20,
+          }}>
+            Because the <em>infrastructure</em> was wrong.
+          </div>
+
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <motion.li
+              {...bulletFade(0.15)}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
+            >
+              GPU clusters that sit 95% idle
+              <div style={sourceStyle}>VentureBeat, Q1 2026</div>
+            </motion.li>
+            <motion.li
+              {...bulletFade(0.35)}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
+            >
+              Cloud APIs that cost 18x more per token than on-premises
+              <div style={sourceStyle}>Lenovo TCO Study</div>
+            </motion.li>
+            <motion.li
+              {...bulletFade(0.55)}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
+            >
+              58% of enterprises exceeded infrastructure budgets by 40%+
+              <div style={sourceStyle}>Gartner</div>
+            </motion.li>
+          </ul>
+
+          {beat < 3 && (
+            <button
+              className="btn btn-secondary"
+              style={{ marginTop: 24 }}
+              onClick={advance}
+            >
+              Next
+            </button>
+          )}
+        </motion.div>
+      )}
+
+      {/* Beat 3: The Reframe */}
+      {beat >= 3 && (
+        <motion.div {...fadeIn} style={{ marginBottom: 40 }}>
+          <div style={{
+            fontSize: 22,
+            fontWeight: 600,
+            color: 'var(--rh-green)',
+            lineHeight: 1.4,
+            marginBottom: 8,
+          }}>
+            What if 80% of your AI workloads ran on hardware you already own?
+          </div>
+          <div style={{
+            fontSize: 20,
+            color: 'var(--rh-green)',
+            lineHeight: 1.4,
+          }}>
+            At $0 per token. No GPU. No cloud dependency. No wait list.
+          </div>
+
+          {beat < 4 && (
+            <button
+              className="btn btn-secondary"
+              style={{ marginTop: 24 }}
+              onClick={advance}
+            >
+              Next
+            </button>
+          )}
+        </motion.div>
+      )}
+
+      {/* Beat 4: The Proof */}
+      {beat >= 4 && (
+        <motion.div {...fadeIn} style={{ marginBottom: 40 }}>
+          <div style={{
+            fontSize: 16,
+            color: 'var(--intel-cyan)',
+            lineHeight: 1.6,
+          }}>
+            <div>That's not a pitch.</div>
+            <div style={{ fontWeight: 600 }}>That's what you're about to see running live.</div>
+            <div style={{ marginTop: 8 }}>On this Intel Xeon 6. Right now.</div>
+          </div>
+
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 24 }}
+            onClick={onComplete}
           >
-            <h3><span className="section-num">00</span> Why are we here</h3>
-
-            <div className="section-context">
-              Every enterprise wants AI. They've seen the demos. They've run the pilots.
-              But when the CFO asks "what does it cost at scale?" — the room goes quiet.
-              Accelerator servers cost $120K. Cloud APIs charge per token. And the models keep growing.
-              The question isn't "GPU or no GPU" — it's "which tasks need which hardware?"
-            </div>
-
-            <div style={{ maxWidth: 700, margin: '24px 0' }}>
-              <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>
-                Triforce answers three questions:
-              </p>
-
-              {[
-                { num: '1', q: 'Can I afford AI at scale?', a: 'Start on CPU at $0/token. Scale to GPU only where quality demands it. The system routes for you.' },
-                { num: '2', q: 'Can I run it on hardware I own?', a: 'CPU handles 80% of enterprise AI today. GPU handles the 20% that needs reasoning power. Both on the same OpenShift.' },
-                { num: '3', q: 'Can I trust it with my data?', a: 'Hardware-encrypted inference with TDX. Complete audit trails. Every model call logged.' },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.num}
-                  className="step-card"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + i * 0.2 }}
-                >
-                  <span className="step-num">{item.num}</span>
-                  <strong>{item.q}</strong>
-                  <div className="step-question">{item.a}</div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="pillar-grid">
-              {[
-                { name: 'Intel', role: 'Power', answer: 'Xeon 6 CPU ($0/token) + GPU pool — heterogeneous compute', accent: 'card-accent-intel', logo: '/logos/intel.png', logoH: 24, delay: 0.8 },
-                { name: 'Red Hat', role: 'Courage', answer: 'OpenShift + vLLM Semantic Router + intelligent routing', accent: 'card-accent-redhat', logo: '/logos/redhat.svg', logoH: 18, delay: 0.95 },
-                { name: 'IBM', role: 'Wisdom', answer: 'Kagenti governance + agent orchestration + audit', accent: 'card-accent-ibm', logo: '/logos/ibm.png', logoH: 20, delay: 1.1 },
-              ].map(p => (
-                <motion.div
-                  key={p.name}
-                  className={`pillar-card ${p.accent}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25, delay: p.delay }}
-                >
-                  <img src={p.logo} alt={p.name} style={{ height: p.logoH, marginBottom: 8 }} />
-                  <div className="pillar-name">{p.name}</div>
-                  <div className="pillar-role">{p.role}</div>
-                  <div className="pillar-answer">{p.answer}</div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div style={{ textAlign: 'center', marginTop: 32 }}>
-              <button className="btn btn-primary" onClick={onComplete}>
-                See the architecture →
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Show me &rarr;
+          </button>
+        </motion.div>
+      )}
     </div>
   )
 }

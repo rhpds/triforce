@@ -1,100 +1,157 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { TriforceIntro } from '../../components/TriforceIntro'
 
 interface Props { onComplete?: () => void }
 
 export function Act00GovernStory({ onComplete }: Props) {
-  const [introComplete, setIntroComplete] = useState(false)
+  const [beat, setBeat] = useState(0)
 
   return (
-    <div className="demo-section">
-      {!introComplete && (
-        <TriforceIntro onComplete={() => setIntroComplete(true)} />
-      )}
+    <div className="demo-section" onClick={() => beat < 4 && setBeat(b => b + 1)}>
+      <h3><span className="section-num">00</span> The Governance Question</h3>
 
+      {/* Beat 1 — The failure rate */}
       <AnimatePresence>
-        {introComplete && (
+        {beat >= 0 && (
           <motion.div
+            key="beat-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            style={{ marginBottom: 24 }}
           >
-            <h3><span className="section-num">00</span> Who controls your AI agents?</h3>
-
-            <div className="section-context">
-              Teams are deploying AI agents across your organization. Healthcare has one.
-              Finance built another. Operations is building a third. Each team picked
-              their own models, their own tools, their own deployment patterns. Nobody
-              has a complete picture.
-            </div>
-
-            <div style={{ textAlign: 'center', margin: '24px 0' }}>
-              <motion.div style={{
-                display: 'inline-block', padding: '24px 32px', borderRadius: 12,
-                border: '1px dashed var(--rh-orange)', background: 'var(--rh-orange-dim)',
-              }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-orange)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1 }}>Agent Sprawl</div>
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {[
-                    { name: 'Agent A', team: 'Healthcare', status: '?' },
-                    { name: 'Agent B', team: 'Finance', status: '?' },
-                    { name: 'Agent C', team: 'Ops', status: '?' },
-                    { name: 'Agent D', team: '???', status: '?' },
-                  ].map((agent, i) => (
-                    <motion.div key={agent.name} style={{
-                      padding: '8px 14px', borderRadius: 8, background: 'var(--surface-2)',
-                      border: '1px solid var(--border)', textAlign: 'center',
-                    }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i * 0.15 }}>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{agent.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-disabled)' }}>{agent.team}</div>
-                      <div style={{ fontSize: 16, color: 'var(--rh-orange)', marginTop: 4 }}>{agent.status}</div>
-                    </motion.div>
-                  ))}
-                </div>
-                <motion.div style={{ fontSize: 11, color: 'var(--rh-orange)', marginTop: 12 }}
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-                  No registry · No identity · No tool control · No audit trail
-                </motion.div>
-              </motion.div>
-            </div>
-
             <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 12, margin: '24px 0',
+              fontSize: 48, fontFamily: 'var(--font-mono, monospace)', fontWeight: 700,
+              color: 'var(--rh-red)', marginBottom: 8,
             }}>
-              {[
-                { q: 'Who deployed this agent?', a: 'No registry — agents appear without approval', color: 'var(--rh-orange)' },
-                { q: 'What data can it access?', a: 'No tool governance — agents call any tool', color: 'var(--rh-red)' },
-                { q: 'Can I prove it to an auditor?', a: 'No audit trail — no record of AI decisions', color: 'var(--rh-orange)' },
-              ].map((item, i) => (
-                <motion.div key={item.q} className="step-card" style={{ borderLeft: `3px solid ${item.color}` }}
-                  initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.4 + i * 0.15 }}>
-                  <strong style={{ fontSize: 14 }}>{item.q}</strong>
-                  <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{item.a}</div>
-                </motion.div>
-              ))}
+              89%
             </div>
-
-            <motion.div className="card card-accent-ibm"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.9 }}>
-              <p style={{ margin: 0, fontSize: 16, lineHeight: 1.7 }}>
-                <strong style={{ color: 'var(--ibm-blue)' }}>What if agents were governed like any other Kubernetes resource?</strong><br />
-                <span style={{ color: 'var(--text-dim)', fontSize: 14 }}>
-                  IBM Kagenti makes agents first-class CRDs — registered, discoverable, identity-verified,
-                  tool-controlled, and fully audited. Kubernetes-native governance for the agent era.
-                </span>
-              </p>
-            </motion.div>
-
-            <div style={{ textAlign: 'center', marginTop: 32 }}>
-              <button className="btn btn-primary" onClick={onComplete} style={{ background: 'var(--ibm-blue)' }}>
-                See the governance stack →
-              </button>
-            </div>
+            <p style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text-dim)', margin: '0 0 16px' }}>
+              of AI agent pilots never reach production — Gartner, 2026
+            </p>
+            <p style={{ fontSize: 18, color: 'var(--text-primary)', lineHeight: 1.7 }}>
+              Not because the agents don't work.
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Beat 2 — The trust barrier */}
+      <AnimatePresence>
+        {beat >= 1 && (
+          <motion.div
+            key="beat-1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ marginBottom: 24 }}
+          >
+            <p style={{ fontSize: 18, color: 'var(--text-primary)', lineHeight: 1.7, marginBottom: 16 }}>
+              Because nobody can answer:
+            </p>
+            <div style={{ marginLeft: 16, marginBottom: 16 }}>
+              <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 2 }}>
+                Who authorized this agent to access that data?
+              </p>
+              <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 2 }}>
+                Who audits what it decided?
+              </p>
+              <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 2 }}>
+                What policy governs its tool access?
+              </p>
+            </div>
+            <div style={{
+              fontSize: 40, fontFamily: 'var(--font-mono, monospace)', fontWeight: 700,
+              color: 'var(--rh-orange)', marginBottom: 8, marginTop: 16,
+            }}>
+              42%
+            </div>
+            <p style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text-dim)', margin: 0 }}>
+              of companies abandoned AI projects — trust was the #1 barrier — S&P Global
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Beat 3 — The regulatory wall */}
+      <AnimatePresence>
+        {beat >= 2 && (
+          <motion.div
+            key="beat-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ marginBottom: 24 }}
+          >
+            <div style={{ lineHeight: 1.9, fontSize: 16, color: 'var(--text-secondary)' }}>
+              <p>The EU AI Act requires traceability for every AI decision.</p>
+              <p>SOX requires audit trails for financial AI.</p>
+              <p>HIPAA requires access controls on PHI — even when an AI agent is the one accessing it.</p>
+            </div>
+            <p style={{ fontSize: 9, fontStyle: 'italic', color: 'var(--text-dim)', marginTop: 8 }}>
+              Sources: EU AI Act Art. 12-14, Sarbanes-Oxley Act Sec. 302/404, HIPAA Security Rule 45 CFR 164.312
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Beat 4 — The reframe */}
+      <AnimatePresence>
+        {beat >= 3 && (
+          <motion.div
+            key="beat-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ marginBottom: 24 }}
+          >
+            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--intel-cyan)', lineHeight: 1.7 }}>
+              What if every agent had a cryptographic identity?
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--intel-cyan)', lineHeight: 1.7 }}>
+              Every tool call was policy-gated?
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--intel-cyan)', lineHeight: 1.7 }}>
+              Every decision was logged with hardware-level proof?
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Beat 5 — The answer */}
+      <AnimatePresence>
+        {beat >= 4 && (
+          <motion.div
+            key="beat-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ textAlign: 'center', marginTop: 32 }}
+          >
+            <p style={{ fontSize: 18, color: 'var(--text-primary)', lineHeight: 1.7 }}>
+              That's agent governance.
+            </p>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 24 }}>
+              And it starts with three Kubernetes CRDs.
+            </p>
+            <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); onComplete?.() }}
+              style={{ background: 'var(--ibm-blue)' }}>
+              See the architecture →
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {beat < 4 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ delay: 1, duration: 0.5 }}
+          style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-disabled)', marginTop: 32, cursor: 'pointer' }}
+        >
+          click to continue
+        </motion.div>
+      )}
     </div>
   )
 }
