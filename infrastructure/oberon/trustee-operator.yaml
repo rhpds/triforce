@@ -1,0 +1,27 @@
+# Trustee Operator — Red Hat build of Key Broker Service (KBS)
+# Manages attestation, secret release, and reference value verification for TDX
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trustee-operator-system
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: trustee-operator-group
+  namespace: trustee-operator-system
+spec:
+  targetNamespaces:
+    - trustee-operator-system
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: trustee-operator
+  namespace: trustee-operator-system
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: trustee-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace

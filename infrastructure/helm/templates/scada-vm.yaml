@@ -1,0 +1,87 @@
+{{- if and .Values.modules.edge.enabled .Values.modules.edge.scadaVm.enabled }}
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: scada-compressor-station
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: scada-compressor-station
+    app.kubernetes.io/part-of: triforce
+    triforce.io/vertical: energy
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: scada-compressor-station
+    spec:
+      domain:
+        cpu:
+          cores: {{ .Values.modules.edge.scadaVm.cores | default 2 }}
+          sockets: 1
+          threads: 1
+        resources:
+          requests:
+            memory: {{ .Values.modules.edge.scadaVm.memory | default "4Gi" }}
+          limits:
+            memory: {{ .Values.modules.edge.scadaVm.memory | default "4Gi" }}
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: registry.redhat.io/rhel9/rhel-guest-image:latest
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: operator
+              password: scada-demo
+              chpasswd: { expire: false }
+              write_files:
+                - path: /opt/scada/station-config.json
+                  content: |
+                    {
+                      "station_id": "COMP-B-DFW",
+                      "station_name": "Compressor Station B - Dallas",
+                      "pipeline": "Permian Basin Lateral 42",
+                      "sensors": [
+                        {"id": "VIB-X", "name": "vibration_x", "unit": "mm/s", "baseline": 4.2, "warn": 6.0, "alarm": 8.0},
+                        {"id": "VIB-Y", "name": "vibration_y", "unit": "mm/s", "baseline": 3.8, "warn": 5.5, "alarm": 7.5},
+                        {"id": "PRESS-IN", "name": "pressure_inlet", "unit": "psi", "baseline": 850, "warn": 950, "alarm": 1000},
+                        {"id": "PRESS-OUT", "name": "pressure_outlet", "unit": "psi", "baseline": 1200, "warn": 1350, "alarm": 1400},
+                        {"id": "TEMP", "name": "bearing_temp", "unit": "F", "baseline": 185, "warn": 210, "alarm": 230},
+                        {"id": "FLOW", "name": "flow_rate", "unit": "MMSCFD", "baseline": 45.2, "warn": 38, "alarm": 30}
+                      ]
+                    }
+              runcmd:
+                - echo "SCADA Simulator — Compressor Station B (Dallas/Permian Basin)"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scada-compressor-station
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: scada-compressor-station
+  ports:
+    - port: 22
+      targetPort: 22
+      name: ssh
+    - port: 502
+      targetPort: 502
+      name: modbus
+{{- end }}

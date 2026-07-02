@@ -1,0 +1,90 @@
+= Explore: Edge Inference (1-Bit/2-Bit Models)
+:navtitle: Edge Inference
+
+*Time: ~15 minutes* · *Role: Edge Computing Architect / Field Operations*
+
+== What You'll Learn
+
+How sub-1B models with ternary weights (BitNet b1.58) enable agentic AI on existing field hardware — compressor stations, pump sites, substations — with zero new infrastructure. You'll see a multi-agent pipeline running alongside a simulated SCADA system on the same Xeon node, using less than 1GB of additional RAM.
+
+== Exercise 1: Check the BitNet Model
+
+The BitNet b1.58 2B4T model is served via llama.cpp with an OpenAI-compatible API.
+
+[source,bash,role="execute"]
+----
+curl -s ${LITELLM_API_BASE}/v1/models \
+  -H "Authorization: Bearer ${LITELLM_API_KEY}" | \
+  python3 -m json.tool | grep bitnet
+----
+
+You should see `bitnet-2b4t` in the model list — a 2.4B parameter model with 1.58-bit ternary weights, using only 0.4GB of memory.
+
+== Exercise 2: Anomaly Detection
+
+Send a sensor reading to the BitNet anomaly agent:
+
+[source,bash,role="execute"]
+----
+curl -s -X POST ${HEALTHCARE_AGENT_URL}/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Compressor B vibration X-axis: 6.8 mm/s (baseline 4.2), Y-axis: 5.9 mm/s (baseline 3.8). Trend: increasing over 40 minutes. Pressure differential normal. Temperature 192F (baseline 185F).",
+    "model": "bitnet-2b4t"
+  }' | python3 -m json.tool
+----
+
+Notice the response time — BitNet generates at ~29ms per token on CPU. The classification runs entirely on the same hardware as the SCADA system.
+
+== Exercise 3: Natural Language Query
+
+Ask a maintenance question in plain English:
+
+[source,bash,role="execute"]
+----
+curl -s -X POST ${LITELLM_API_BASE}/v1/chat/completions \
+  -H "Authorization: Bearer ${LITELLM_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "bitnet-2b4t",
+    "messages": [
+      {"role": "system", "content": "You are a field maintenance assistant for pipeline compressor stations. Answer concisely based on the maintenance context provided."},
+      {"role": "user", "content": "Compressor B vibration has been trending up 22% over baseline for 40 minutes. The pattern looks like bearing wear. What should the field tech do?"}
+    ],
+    "max_tokens": 128,
+    "temperature": 0.1
+  }' | python3 -c "import json,sys; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
+----
+
+== Exercise 4: Compare Model Sizes
+
+See how the 1-bit model compares to standard models:
+
+[source,bash,role="execute"]
+----
+echo "=== Model Comparison ==="
+echo "BitNet b1.58 2B4T:  0.4 GB  |  29ms/token  |  0.028 J/token"
+echo "Granite 2B (INT4):  1.2 GB  |  ~200ms/token |  ~0.34 J/token"
+echo "Granite 8B (INT4):  4.0 GB  |  ~400ms/token |  ~0.50 J/token"
+echo ""
+echo "BitNet is 12x more energy efficient and 3x smaller than the"
+echo "smallest standard model. It runs on hardware you already have."
+----
+
+== Exercise 5: Check Resource Usage
+
+Verify that BitNet barely impacts the node:
+
+[source,bash,role="execute"]
+----
+oc adm top pod -n triforce -l app=bitnet-server
+----
+
+Expected: ~500MB RAM, <5% CPU. The SCADA VM and BitNet agent coexist comfortably on a single Xeon node.
+
+== The Takeaway
+
+1-bit models aren't a compromise — they're a new deployment tier. The same agentic pipeline pattern (classify → extract → respond) runs at the data center with 8B models and at the edge with 2B ternary models. Same architecture, same APIs, different scale. The Xeon CPU does both.
+
+[.next-nav]
+xref:99-conclusion.adoc[Back to module list →]

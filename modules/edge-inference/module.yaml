@@ -1,0 +1,40 @@
+name: edge-inference
+displayName: Edge Inference (1-Bit/2-Bit)
+description: >
+  Sub-1B agentic AI on existing edge hardware. Ternary weights (BitNet b1.58)
+  turn multiply-accumulate into add/subtract — pure CPU integer math, no GPU.
+  0.4GB footprint, 29ms/token, 12x more energy efficient. Enables multi-agent
+  pipelines at compressor stations, pump sites, and field offices on hardware
+  they already own and aren't fully utilizing.
+audience:
+  - Field Operations Engineer
+  - OT Security Architect
+  - Edge Computing Architect
+  - Oil & Gas Operations Manager
+  - Telecom Edge Architect
+status: building
+dependencies:
+  runtime: llama.cpp
+  models:
+    - microsoft/BitNet-b1.58-2B4T-gguf
+  optional_models:
+    - Qwen/Qwen3.5-0.8B
+    - HuggingFaceTB/SmolLM2-360M-Instruct
+    - TinyLlama/TinyLlama-1.1B-Chat-v1.0
+helm:
+  flag: modules.edge.enabled
+  values:
+    edge:
+      enabled: false
+      model: bitnet-2b4t
+      servingImage: ghcr.io/ggml-org/llama.cpp:server
+      scadaVm:
+        enabled: false
+        cores: 2
+        memory: 4Gi
+showroom:
+  nav_entry: '* xref:explore-edge-inference.adoc[Edge Inference (1-Bit)]'
+  lab_page: explore-edge-inference.adoc
+frontend:
+  mechanism_group: fleet
+  mechanism_num: 8

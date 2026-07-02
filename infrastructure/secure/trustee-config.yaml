@@ -1,5 +1,5 @@
 ---
-apiVersion: confidentialcontainers.org/v1beta1
+apiVersion: confidentialcontainers.org/v1alpha1
 kind: KbsConfig
 metadata:
   name: kbsconfig

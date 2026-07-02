@@ -15,6 +15,7 @@ const MODULE_PAGES: Record<string, React.LazyExoticComponent<React.ComponentType
   'fusion': lazy(() => import('./modules/ModuleFusion')),
   'heterogeneous': lazy(() => import('./modules/ModuleHeterogeneous')),
   'pipeline': lazy(() => import('./modules/ModulePipeline')),
+  'edge-inference': lazy(() => import('./modules/ModuleEdgeInference')),
 }
 
 export function ModulePage() {
