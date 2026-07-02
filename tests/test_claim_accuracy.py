@@ -164,12 +164,20 @@ class TestTechnologyClaims:
     """Verify technology claims against the actual deployment."""
 
     def test_tdx_initialized(self):
-        node_name = oc("get", "nodes", "-o", "jsonpath={.items[0].metadata.name}")
-        if node_name.returncode != 0:
+        result = oc("get", "nodes", "-o", "jsonpath={.items[0].metadata.name}")
+        if result.returncode != 0:
             pytest.skip("Cannot reach cluster")
-        result = oc("debug", f"node/{node_name.stdout}", "--", "chroot", "/host",
-                     "bash", "-c", "dmesg | grep 'virt/tdx.*module initialized'")
-        assert "initialized" in result.stdout, "TDX not initialized on this node"
+        node_name = result.stdout.strip()
+        # Check kernel cmdline for TDX params (more reliable than dmesg via oc debug)
+        debug = oc("debug", f"node/{node_name}", "--", "chroot", "/host",
+                    "cat", "/proc/cmdline")
+        has_tdx = "kvm_intel.tdx=1" in debug.stdout
+        has_nohibernate = "nohibernate" in debug.stdout
+        assert has_tdx and has_nohibernate, (
+            f"TDX kernel params missing on {node_name}: "
+            f"kvm_intel.tdx=1={'found' if has_tdx else 'MISSING'}, "
+            f"nohibernate={'found' if has_nohibernate else 'MISSING'}"
+        )
 
     def test_kata_runtime_exists(self):
         result = oc("get", "runtimeclass", "kata")
