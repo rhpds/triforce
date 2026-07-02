@@ -110,32 +110,44 @@ export function Act00Story({ onComplete }: Props) {
             color: 'var(--text-secondary)',
             marginBottom: 20,
           }}>
-            Because the <em>infrastructure</em> was wrong.
+            Because enterprises didn't <em>right-size</em> the inference.
           </div>
 
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <motion.li
               {...bulletFade(0.15)}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-orange)' }}
+            >
+              Enterprise servers run at 12–18% CPU utilization — the rest is idle
+              <div style={sourceStyle}>McKinsey &amp; Company</div>
+            </motion.li>
+            <motion.li
+              {...bulletFade(0.30)}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-orange)' }}
+            >
+              30% of servers are "comatose" — running, drawing power, doing zero work
+              <div style={sourceStyle}>NRDC / Stanford</div>
+            </motion.li>
+            <motion.li
+              {...bulletFade(0.45)}
               style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
             >
-              GPU clusters that sit 95% idle
+              Meanwhile, GPU clusters purchased for AI sit 95% idle
               <div style={sourceStyle}>VentureBeat, Q1 2026</div>
             </motion.li>
             <motion.li
-              {...bulletFade(0.35)}
+              {...bulletFade(0.60)}
               style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
             >
-              Cloud APIs that cost 18x more per token than on-premises
-              <div style={sourceStyle}>Lenovo TCO Study</div>
-            </motion.li>
-            <motion.li
-              {...bulletFade(0.55)}
-              style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10, paddingLeft: 16, borderLeft: '2px solid var(--rh-red)' }}
-            >
-              58% of enterprises exceeded infrastructure budgets by 40%+
-              <div style={sourceStyle}>Gartner</div>
+              Cloud APIs cost up to 18x more per token than on-premises inference
+              <div style={sourceStyle}>Lenovo TCO Study, 2026</div>
             </motion.li>
           </ul>
+
+          <motion.div {...bulletFade(0.75)} style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 12, fontStyle: 'italic' }}>
+            GPUs are powerful — for the workloads that need them. But 80% of enterprise AI is classification,
+            extraction, and summarization. Tasks a CPU handles in seconds.
+          </motion.div>
 
           {beat < 3 && (
             <button
@@ -159,14 +171,30 @@ export function Act00Story({ onComplete }: Props) {
             lineHeight: 1.4,
             marginBottom: 8,
           }}>
-            What if 80% of your AI workloads ran on hardware you already own?
+            What if you right-sized your inference to the workload?
           </div>
           <div style={{
-            fontSize: 20,
-            color: 'var(--rh-green)',
-            lineHeight: 1.4,
+            fontSize: 16,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.5,
+            marginBottom: 8,
           }}>
-            At $0 per token. No GPU. No cloud dependency. No wait list.
+            CPU for the 80% — classification, extraction, summarization — at $0 per token on hardware you already own.
+          </div>
+          <div style={{
+            fontSize: 16,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.5,
+          }}>
+            GPU for the 20% that needs it — frontier reasoning, large-scale generation — when the task demands it.
+          </div>
+          <div style={{
+            fontSize: 18,
+            fontWeight: 600,
+            color: 'var(--rh-green)',
+            marginTop: 12,
+          }}>
+            Both. On the same platform. Routed automatically.
           </div>
 
           {beat < 4 && (
