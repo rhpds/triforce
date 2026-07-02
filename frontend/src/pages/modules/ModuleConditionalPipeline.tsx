@@ -22,7 +22,7 @@ export default function ModuleConditionalPipeline() {
     const r: typeof results = []
     for (const s of SAMPLES) {
       try {
-        const resp = await fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: s.text }) })
+        const resp = await fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: s.text , skip_cache: true}) })
         r.push({ label: s.label, result: await resp.json(), expectSkip: s.expectSkip })
       } catch { /* skip */ }
       setResults([...r])

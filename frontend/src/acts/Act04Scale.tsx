@@ -48,7 +48,7 @@ export function Act04Scale({ onComplete }: Props) {
       return fetch('/healthcare/api/v1/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, skip_cache: true }),
         signal: controller.signal,
       })
         .then(r => r.json())

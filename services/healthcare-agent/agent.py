@@ -28,7 +28,7 @@ healthcare_graph = None
 SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "8081"))
 
 
-async def run_graph(text: str, patient_id: str = None) -> dict:
+async def run_graph(text: str, patient_id: str = None, skip_cache: bool = False) -> dict:
     """Execute the full LangGraph pipeline on a clinical text."""
     global healthcare_graph
     if healthcare_graph is None:
@@ -44,6 +44,7 @@ async def run_graph(text: str, patient_id: str = None) -> dict:
         "drug_interactions": [],
         "summary": None,
         "inference_log": [],
+        "skip_cache": skip_cache,
     })
 
     for entry in result.get("inference_log", []):
@@ -263,7 +264,8 @@ async def summarize_record(req: models.SummarizeRequest):
 
 async def _run_pipeline_with_models(text: str, patient_id: str = None,
                                      classify_model: str = None, ner_model: str = None,
-                                     summarize_model: str = None) -> models.PipelineResponse:
+                                     summarize_model: str = None,
+                                     skip_cache: bool = False) -> models.PipelineResponse:
     """Run pipeline with optional model overrides."""
     import graph as g
     saved = (g.CLASSIFY_MODEL, g.NER_MODEL, g.SUMMARIZE_MODEL)
@@ -275,7 +277,7 @@ async def _run_pipeline_with_models(text: str, patient_id: str = None,
         if summarize_model:
             g.SUMMARIZE_MODEL = summarize_model
 
-        result = await run_graph(text, patient_id=patient_id)
+        result = await run_graph(text, patient_id=patient_id, skip_cache=skip_cache)
     finally:
         g.CLASSIFY_MODEL, g.NER_MODEL, g.SUMMARIZE_MODEL = saved
 
@@ -309,6 +311,7 @@ async def run_pipeline(req: models.PipelineRequest):
     return await _run_pipeline_with_models(
         req.text, req.patient_id,
         req.classify_model, req.ner_model, req.summarize_model,
+        skip_cache=req.skip_cache,
     )
 
 

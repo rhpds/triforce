@@ -11,7 +11,7 @@ export default function ModuleReplicaScaling() {
     const start = performance.now()
     const promises = Array.from({ length: n }, () =>
       fetch('/healthcare/api/v1/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin.' }) })
+        body: JSON.stringify({ text: 'DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin.' , skip_cache: true}) })
         .then(r => r.json()).then(d => d.total_ms).catch(() => 0)
     )
     const latencies = await Promise.all(promises)

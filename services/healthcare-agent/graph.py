@@ -41,6 +41,7 @@ class HealthcareState(TypedDict):
     drug_interactions: list
     summary: Optional[str]
     inference_log: list
+    skip_cache: bool
 
 
 def _get_llm(model: str = None, max_tokens: int = 1024) -> ChatOpenAI:
@@ -60,7 +61,7 @@ async def classify_node(state: HealthcareState) -> dict:
     text = state["text"]
 
     start = time.monotonic()
-    cached = adaptive_cache.lookup(text)
+    cached = None if state.get("skip_cache") else adaptive_cache.lookup(text)
     if cached:
         latency_ms = int((time.monotonic() - start) * 1000)
         classification = cached["classification"]
