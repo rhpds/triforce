@@ -207,27 +207,34 @@ const LAYERS = [
 export function Act01Architecture({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
 
+  const totalSteps = LAYERS.length * 2
+
   const advance = () => {
-    if (revealed < LAYERS.length) {
+    if (revealed < totalSteps) {
       setRevealed(prev => prev + 1)
     }
   }
 
-  const allRevealed = revealed >= LAYERS.length
+  const allRevealed = revealed >= totalSteps
 
   return (
     <div className="demo-section">
       <h3><span className="section-num">01</span> Architecture</h3>
       <div className="section-context">
-        Every layer exists because of a real workload problem. Click through to see
-        the customer challenge first — then the platform layer that solves it.
+        Every layer exists because of a real workload problem. Click to see
+        the challenge — then click again to see the platform answer.
       </div>
 
       <div className={revealed > 0 ? 'arch-diagram' : ''}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-          {LAYERS.map((layer, i) => (
+          {LAYERS.map((layer, i) => {
+            const questionStep = (i * 2) + 1
+            const answerStep = (i * 2) + 2
+            const showQuestion = revealed >= questionStep
+            const showAnswer = revealed >= answerStep
+            return (
             <AnimatePresence key={layer.id}>
-              {revealed >= i + 1 && (
+              {showQuestion && (
                 <motion.div
                   style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                   initial={{ opacity: 0 }}
@@ -255,25 +262,30 @@ export function Act01Architecture({ onComplete }: Props) {
                     {layer.customerQuestion}
                   </motion.div>
 
-                  <div style={{ marginBottom: 4 }}>
-                    {layer.render()}
-                  </div>
+                  {showAnswer && (
+                    <>
+                      <div style={{ marginBottom: 4 }}>
+                        {layer.render()}
+                      </div>
 
-                  <motion.div
-                    style={{
-                      fontSize: 13, color: 'var(--text-dim)', maxWidth: 520,
-                      textAlign: 'center', padding: '4px 0 16px', lineHeight: 1.6,
-                    }}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                  >
-                    {layer.workload}
-                  </motion.div>
+                      <motion.div
+                        style={{
+                          fontSize: 13, color: 'var(--text-dim)', maxWidth: 520,
+                          textAlign: 'center', padding: '4px 0 16px', lineHeight: 1.6,
+                        }}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 }}
+                      >
+                        {layer.workload}
+                      </motion.div>
+                    </>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -281,8 +293,12 @@ export function Act01Architecture({ onComplete }: Props) {
         {!allRevealed ? (
           <button className="btn btn-secondary" onClick={advance}>
             {revealed === 0
-              ? `Start: ${LAYERS[0].label} →`
-              : `Next: ${LAYERS[revealed].label} →`}
+              ? `Start: The first challenge →`
+              : revealed % 2 === 1
+              ? `Show the answer: ${LAYERS[Math.floor((revealed - 1) / 2)].label} →`
+              : revealed < LAYERS.length * 2
+              ? `Next challenge →`
+              : ''}
           </button>
         ) : (
           <motion.div
