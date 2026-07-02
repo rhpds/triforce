@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { ModuleLayout, StepCard } from '../../components/ModuleLayout'
+import { useVertical } from '../../VerticalContext'
 
 export default function ModuleEdgeInference() {
+  const vertical = useVertical()
   const [demoResult, setDemoResult] = useState<any>(null)
   const [running, setRunning] = useState(false)
   const [compareResult, setCompareResult] = useState<any>(null)
   const [comparing, setComparing] = useState(false)
 
-  const SENSOR_PROMPT = 'Compressor B vibration X-axis: 6.8 mm/s (baseline 4.2), Y-axis: 5.9 mm/s (baseline 3.8). Trend: increasing 22% over 40 minutes. Bearing temperature 192F (baseline 185F). Is this an anomaly? If so, what is the likely cause and recommended action? Answer concisely.'
+  const SENSOR_PROMPT = vertical.edgeScenario.sensors.map(s =>
+    `${s.label}: ${s.value} ${s.unit} (baseline ${s.baseline}${s.pct && s.pct > 5 ? `, +${s.pct}%` : ''})`
+  ).join('. ') + '. Is this an anomaly? If so, what is the likely cause and recommended action? Answer concisely.'
 
   const runDemo = async () => {
     setRunning(true)
