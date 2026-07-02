@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { VerticalProvider } from './VerticalContext'
-import { VerticalSelector } from './components/VerticalSelector'
 import { Act00Story } from './acts/Act00Story'
 import { Act01Architecture } from './acts/Act01Architecture'
 import { Act02Inference } from './acts/Act02Inference'
@@ -246,7 +244,6 @@ export default function App() {
   const CurrentComponent = showFooter ? null : acts[currentAct].component
 
   return (
-    <VerticalProvider>
     <div>
       {/* Header */}
       <div className="demo-header">
@@ -260,7 +257,6 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <VerticalSelector />
           {variant !== 'base' && (
             <span style={{
               fontSize: 10, padding: '2px 8px', borderRadius: 4,
@@ -325,6 +321,5 @@ export default function App() {
         ) : null}
       </AnimatePresence>
     </div>
-    </VerticalProvider>
   )
 }

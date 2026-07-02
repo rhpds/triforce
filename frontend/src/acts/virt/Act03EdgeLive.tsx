@@ -1,20 +1,24 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { useVertical } from '../../VerticalContext'
 
 interface Props { onComplete?: () => void }
 
+const SENSORS = [
+  { id: 'VIB-X', label: 'Vibration X', value: 6.8, baseline: 4.2, unit: 'mm/s', pct: 62 },
+  { id: 'VIB-Y', label: 'Vibration Y', value: 5.9, baseline: 3.8, unit: 'mm/s', pct: 55 },
+  { id: 'TEMP', label: 'Bearing Temp', value: 192, baseline: 185, unit: '°F', pct: 4 },
+  { id: 'PRESS', label: 'Pressure Out', value: 1200, baseline: 1200, unit: 'psi', pct: 0 },
+  { id: 'FLOW', label: 'Flow Rate', value: 45.2, baseline: 45.2, unit: 'MMSCFD', pct: 0 },
+]
+
 export function Act03EdgeLive({ onComplete }: Props) {
-  const vertical = useVertical()
-  const sensors = vertical.edgeScenario.sensors
-  const location = vertical.edgeScenario.location
   const [result, setResult] = useState<any>(null)
   const [running, setRunning] = useState(false)
 
   const runDetection = async () => {
     setRunning(true)
-    const prompt = sensors.map(s =>
-      `${s.label}: ${s.value} ${s.unit} (baseline ${s.baseline}${(s.pct ?? 0) > 5 ? `, +${s.pct}%` : ''})`
+    const prompt = SENSORS.map(s =>
+      `${s.label}: ${s.value} ${s.unit} (baseline ${s.baseline}${s.pct > 5 ? `, +${s.pct}%` : ''})`
     ).join('. ') + '. Trend: vibration increasing over 40 minutes. Is this an anomaly? What is the likely cause and recommended action?'
 
     try {
@@ -47,14 +51,14 @@ export function Act03EdgeLive({ onComplete }: Props) {
     <div className="demo-section">
       <h3><span className="section-num">03</span> Live: Sensor → BitNet Alert</h3>
       <div className="section-context">
-        {location}. Sensor readings streaming from the SCADA VM.
+        Compressor Station B — Permian Basin Lateral 42. Sensor readings streaming from the SCADA VM.
         BitNet analyzes them on the same hardware. No cloud. No GPU. No external calls.
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, margin: '16px 0' }}>
-        {sensors.map(s => {
-          const alarm = (s.pct ?? 0) > 20
-          const warn = (s.pct ?? 0) > 5
+        {SENSORS.map(s => {
+          const alarm = s.pct > 20
+          const warn = s.pct > 5
           return (
             <div key={s.id} style={{
               padding: 10, borderRadius: 8, textAlign: 'center',
@@ -69,7 +73,7 @@ export function Act03EdgeLive({ onComplete }: Props) {
                 {s.value}
               </div>
               <div style={{ fontSize: 9, color: 'var(--text-dim)' }}>{s.unit}</div>
-              {(s.pct ?? 0) > 5 && (
+              {s.pct > 5 && (
                 <div className="mono" style={{ fontSize: 10, color: alarm ? 'var(--rh-red)' : 'orange', marginTop: 2 }}>
                   +{s.pct}%
                 </div>

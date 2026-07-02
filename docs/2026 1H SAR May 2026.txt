@@ -1,0 +1,2476 @@
+1
+Atlanta
+May 14, 2026
+Red Hat & Intel
+1H2026 SAR
+
+Welcoming Remarks
+Raghu
+2
+Etienne
+
+Welcoming Remarks (Raghu / Etienne)
+  
+
+ 
+ 
+
+
+Event importance, mid-year goals and direction for balance of ‘25
+
+Housekeeping
+
+Agenda overview
+
+Welcoming new faces in the room
+Intel;s journey over this last year
+Forward looking alliance - Our journey together
+
+Agenda - U.S. Eastern Time Zone
+4
+Light breakfast will be served
+Box lunches available ‘to go’
+Room will be open until 2pm
+Space for luggage is available
+
+8:00
+Doors Open
+8:15
+
+Kick Off
+Raghu and Etienne
+8:30
+RHEL and OpenShift Workstreams
+RHEL
+Don Bayly/Puneet Sethi
+Xeon for OS Virt
+Preston, Brien P
+Confidential Compute
+Phil King 
+9:15
+Red Hat & Intel AI
+Raghu
+Xeon for RHAI
+Mylinh Gillen / Bertrand
+GPU for RHAI
+Vlatko / Bertrand
+Spark AI POC
+Jen Horvath
+9:45
+Vertical GTM Update
+Jen Horvath
+10:00
+Public Sector
+Jen Horvath
+10:15
+Telco
+Jen, Tony, Reza
+10:30
+Edge: AI/Industrial/Energy
+Kelly, Joe Dolan
+10:45
+Marketing
+Susan/Jen/Regions
+11:15
+Rainmaker Program
+Janelle Harris, Sherry Nixon
+11:30
+Ecosystem Engagement Update
+Tim Allen/Kiran Koritala
+11:55
+Recap, Action Items, Wrap Up
+Etienne, Raghu
+
+2026 Red Hat - Intel Innovate Together Guidance
+Virtualization
+RH:  OpenShif
+Intel Hdwr:  Xeon
+Intel Software:  XPA
+
+Workload & Products 
+AI / Confidential AI
+RH: RHAI, AI Factory
+Hdwr:  Xeon, Nvidia, GPU (‘27)
+Intel Software:  vLLM, llm-d
+Hybrid Cloud
+RH:  OpenShift, RHEL
+Intel Hdwr:  Xeon
+Regional Custom
+Joint Global Priorities  and Campaigns
+Customized Regional and/or Vertical Campaigns
+Targeted to 
+Industrial/Manufacturing
+Telco
+Government
+       Innovate Together
+ Any model. Any accelerator. Any cloud.
+
+Ecosystem Integration, Marketing & Scale Programs with Ecosystem Channel Partners (Dell, Lenovo, HPE, ISV, GSI, Disty)
+Collaborate and Elevate
+Network/Edge
+RH:  RHEL,  RHDE,  & Desktop
+Intel Hdwr: Xeon, Core & Atom 
+Intel Sftw:  OpenVINO (GPU, NPU), IPM, + more
+Partner Channel Engagement - Three + Pronged Approach (Full stack/solution marketing approach)
+Integrate and Expand
+5
+FSI
+Enterprise + Commercial
+
+6
+Category
+1H’26
+2H’26
+Virtualization
+Launched XPA for Virt
+Scale XPA for Virt
+Enhance XPA for Xeon AI
+AI
+Launched AI for Xeon 
+Enabled Red Hat AI Factory Nvidia + Xeon
+Enhance Xeon AI features / models / solutions
+Scale Xeon AI (Pilots / deployments)
+Scale Red Hat AI Factory Nvidia + Xeon
+Start enabling for Intel GPU
+Confidential Computing
+Launched Condential Computing
+Launched Confidential GPU (TP)
+Scale Confidential AI / Sovereign AI
+Enable Confidential Computing for Virtualization 
+Enable Confidential Computing with TDX Connect
+Edge
+Launched Edge AI
+Launched Humanoid 
+Launched Red Hat Desktop with Intel AI PC
+Scale Edge AI (Ecosystem, Pilots, Reference)
+Pilot Humanoid + Addl  Robotics use cases
+Launched Red Hat Desktop with Intel AI PC
+Vertical Initiatives
+Launched FSI Go-2 Market Initiatives
+Intiatied Public Sector Got-2 and Go-2 Market Initiatives
+Launched Flight Path
+Reinvigorated Telco & Edge Engagements
+Scale FSI Go-2 Market Initiatives
+Scale Public Sector Got-2 and Go-2 Market Initiatives
+Scale Flight Path
+ScaleTelco & Edge Engagements
+Others
+Re-initiated IPU discussions
+Launched Red Hat Demo site
+Finalize IPU workstream
+Scale Red Hat Demo platform
+Status Update
+
+Intel’s Team Red Hat
+SMG 
+Extended  Team
+Global Engineering Development
+Sridhar Kayathi
+Global Sales & Marketing 
+Jen Horvath
+Global Ecosystem 
+Scale
+Tim Allen
+NA Sales Dev. & 
+Global Ops
+Dennis Hitaj
+Updated: March 31, 2026
+EMEA 
+Sales
+Jorge Sentis
+EMEA Marketing
+Helena Kelly*
+APJ Sales & Marketing
+Jerrard Hou
+Global Account Dir /Principal Eng.
+Raghu Moorthy
+Executive Assistant
+Sylvia Vasquez
+Network & Edge
+Extended  Team
+Network
+Tony Dempsey
+Edge AI
+Vinodh Raghunathan
+Conf. Compute & Security (FSI/Gov’t)
+Phil King
+Data Center & 
+AI Team
+Found. Eng.
+Ulisses Furquim 
+OpenShift Eng.
+Samu Kaajas
+RHEL  Eng.
+Puneet Sethi
+Industrial
+Stan Woody
+Utility/Grid
+Dean Rubio-Samara
+DCG Red Hat Sol. Eng.
+Brien Porter
+Global Marketing Support
+Brian Warren*
+*Accenture Team
+Sales & Marketing Rotation
+Kevin Chen
+Fed / Gov Tactical Edge
+Mark Phillips
+LATAM Sales & Marketing
+Jose Cornejo
+DCAI Red Hat AI Sol. Eng.
+Preethi Venkatesh
+India Sales & Marketing
+Sagar Mehta
+Virtualization
+Illyse Schaeffer
+iGT (Intel Government Team)
+7
+
+Red Hat’s Team Intel
+Regional 
+Teams
+Global Engineering Development
+
+       Global  Marketing 
+Susan Shipp
+
+Telco
+Reza MokhtariEllen Crown (marketing)
+Edge
+Kelly Switt
+
+Updated: March 31, 2026
+EMEA 
+Sales
+Sunny Sahajpal
+EMEA Marketing
+Irena Gomberg Kabeli
+APJ Sales 
+Kim Danker
+Global Account Director
+Etienne DeGroot
+Rainmaker Program Team
+Janelle Harris
+Rainmaker Program Mgr
+NA Sales
+Nancy Schneider 
+BU and Solutions
+RHEL
+Don Byly
+OpenShift
+Bertrand Rault
+AI
+Noah Meyes
+Sherry Nixon
+Rainmaker Claims Mgt
+LATAM Marketing 
+
+*Accenture Team
+Technical
+Preston Davis
+LATAM Sales
+ Alejandro Raffaele 
+APJ Marketing
+Sakshi Sakshi
+NA  Marketing 
+Alyssa Genestreti
+Technical
+Michael Hrvnik
+Global OEM & IHVs
+Kiran Koritala
+
+(Up to Date as  of  May 4th  2026)
+8
+
+9
+RHEL and OpenShift Workstreams
+Intel products for RHEL
+Don Bayly/Puneet Sethi
+Xeon for OpenShift Virtualization
+Brien Porter/Preston Davis
+Confidential Computing
+Phil King
+
+
+
+11
+Red Hat and Intel AI Platform Update and Workstreams
+Raghu Moorthy
+Xeon for Red Hat AI
+Mylinh Gillen/Bertrand Rault
+
+CRI for Red Hat AI
+Vlatko/Bertrand Rault
+Spark AI PoC Program Update
+Jen H
+Products and Ecosystem Updates, Gaudi BU?
+
+Updated: March 31, 2026
+Xeon
+Enablement Update
+
+Available now
+INTEL CPU available for Inferencing on Red Hat AI 3.4
+Reference Architecture published
+OEM leveraging the REF Arch:
+DELL Ref Architecture
+
+
+
+
+Short term (Q2)
+Performance Enhancement
+Make libomp the default  OpenMP runtime
+Make tcmalloc the default memory allocator
+Red Hat AI 3.4.1 or 3.5 EA1 (June)
+More Xeon compatible models on Huggingface Red Hat catalog and RHOAI Catalog
+New AI Quickstarts use cases
+
+
+
+Midterm (2H’26)
+Official LLM-D (KV-Cache Aware scheduling) support
+Multi-Token Prediction (MTP) Speculative Decoding
+New models support
+Increased models quantization/ compressed-tensor support 
+Expand GitOps pipeline 
+Exploration: Semantic Routing, OpenClaw, Xeon AI Host CPU with Nvidia collaboration
+
+
+Notes:
+MTP only works for model families that support MTP in vLLM.
+
+12
+
+Sales Motions
+Get to Market(Intel + RH Dev
+Joint Ecosystem Engagement
+Go To Market Enablement
+Plan of Record
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Goal: Launch and scale OpenShift AI and AI Inference Server for Intel Xeon (GNR) and Intel AI SW stack with OEMs and CSPs
+KPI (2026): Launch OpenShift AI and AI Inference Server offering with Xeon on XX Cloud, and Enterprise AI systems and sales programs with 1 -2  OEMs (Dell, Lenovo, Supermicro) and CSPs; 2–3 Marquee deployments 
+Lighthouse Customers:
+PM.  
+Solution Lead
+Get to Market Team
+Ecosystem Team
+Go To Market Team / Sales
+Sales Team
+Mylinh Gillen / Bertrand
+Intel
+Imran Mohamed
+Andrzej, Preethi 
+Brien Porter, Tim Allen
+Rahul Awasthy
+Jen Horvath
+Red Hat
+Erwan Gallen
+Taneem, Rob Lundberg
+Etienne Degroot
+Preston Davis
+Noah Mayes
+Xeon: Red Hat AI Workstream (RHAIIS, RHOAI, RHEL AI), AI Plan
+Model Identification and Validation
+ Benchmarking Docker/OpenShift
+Flight Path, POCs / Pilots / Deployments / Proof points with OEM & GSI partners
+Red Hat Summit / Intel Vision
+Intel Innovation 
+-----MWC Barcelona  ----
+Enable AI ISV Partners, OEM, SI partners for Xeon and Red Hat AI
+Launch Enterprise AI System with Xeon with 1-2 OEMs / ISVs / SIs
+Q4’25
+2025
+2026
+Q1’26
+Q2’26
+Q3’26
+Q4’26
+Tech Target - Promote Xeon & Red Hat AI
+(Blogs, Podcast) events with Red Hat AI for Xeon
+Demos @ RH Summit
+vLLM- Upstream
+Removed IPEX dependencies
+Red Hat AI Ref. Arch, Red Hat AI Blog
+H1’27
+Developer Engagement for Xeon with Red Hat AI
+Quickstarts Solutions (RAG, Observability Data Analyser)
+Xeon AI TCO / Value Guide / Calculator
+Xeon AI Sales Plays
+Launch RH AI for Xeon
+Quickstarts Solutions 
+AI Virtual Agents, Confidential Computing
+Quickstarts Solutions 
+(MaaS, RAG, Agentic, …)
+Hackathon demos 
+@ RH Summit Connect
+Demos: Ericsson @ MWC and blog, Nvidia GTC, Federal Summit Demo
+vLLM Upstream
+CPU model runner v2
+vLLM-Upstream  
+Deep seek support (mla)
+vLLM Upstream 
+Multi-token speculative decoding, compressed tensors
+Joint Paper: vLLM Perf Evaluation
+RH AI  3.4
+w/ AVX512/AMX
+RH AI  3.5 (EUS)
+RH AI  3.6
+(Stable)
+RH AI  3.7 (Stable)
+llm-d Upstream
+Inference
+llm-d Upstream
+llm-d Upstream  
+llm-d Upstream 
+Target Inference support in RH AI 3.5
+Cont’d Partner Enabling
+Quickstarts Solutions (Product Recommender, HR assistant.)
+RHAIIS 3.3 
+(AVX2 only)
+New Model Support
+Base RHEL Addition of Inference Server
+vLLM + PyTorch + llm-d Upstream  (Fan)
+Model Identification and Validation (Andrzej)
+Xeon AI TCO / Value Guide / Calculator (Andrzej)
+Quickstarts (Preethi)
+RHOAI / RHIIAS Ref. Arch (Francisco)
+Xeon AI Sales Plays (Rahul)
+
+
+Open: Perf degradation on OpenShift, require BKMs
+Dell : Confirm ongoing with Tim
+*For benchmark – use OpenShift for benchmarking (Use vLLM docker for internal reference)
+
+
+
+
+
+13
+
+Updated: March 31, 2026
+GPU
+Enablement Update
+
+Short term (Now) - Focus on Battlemage (BMG) 
+Preliminary enablement via BMG
+SW Stack: 
+OCP 4.22 / RHEL 9.8 & 10.2
+GPU Base Operator 
+DRA support by default
+Operator expected to be open source
+Driver in-tree (Xe2)
+vLLM support present
+Red Hat Ecosystem Engineering engaged
+BMG HW available
+Total of 4 (G31) systems: 2 Alpha BMG, 2 Qual BMG
+Intel to provide a 5th one CRI SDV (BMG-based workstation)
+Testing and Integration of Base Operator
+
+Midterm (Q4) - Switch to CRI
+SW Stack: 
+OCP 5.0 / RHEL 10.2
+GPU Base Operator 
+DRA support by Default
+Driver out-of-tree (Xe3) via KMM
+RDMA support
+LLM-D support
+
+14
+
+Sales Motions
+Get to Market(Intel + RH Dev)
+Joint Ecosystem Engagement
+Go To Market Enablement
+Plan of Record
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Goal: Launch Red Hat AI (TP) support for Crescent Island (CRI) and begin enabling leading OEMs, ISVs, and SIS. Use BMG as SDV for CRI.
+KPI (2026): Launch Red Hat AI (TP) offering with CRI and enable 1 -2  OEMs, 2–3 lighthouse end customers 
+Lighthouse Customers / Partners: IBM Cloud, Dell, Lenovo, SMC, HPE and lighthouse end customers 
+PM.  
+Solution Lead
+Get to Market Team
+Ecosystem Team
+Go To Market Team / Sales
+Sales Team
+Vlatko (Intel) / Bertrand (RH)
+Intel
+Sridhar
+Dennis, Jen, Jerrard, Jorge, Ruhika, Sridhar, Tim
+Tim / Geos (Jorge, Jerrard, Ruhika)
+Jen, Dennis, Jorge, Jerrard, Ruhika
+Jen Horvath
+Red Hat
+Erwan Gallen 
+Chris Calderon (SA)
+
+Etienne DeGroot 
+Etienne DeGroot / Susan Shipp
+Noah Mayes
+Crescent Island (CRI) GPU: Red Hat AI Workstream (RHAII, RHOAI, RHEL AI)
+CRI POCs for early customer proof points
+Launch CRI with RH AI TP
+Launch CRI Sales Program 
+Red Hat Summit
+Enable CRI OEMs, ISV, SIs
+2026
+Q3’26
+Q4’26
+Q1’27
+Q2’27
+Create CRI Sales Collateral
+CRI Full Driver in  RHEL 10.4 (May'27)
+BMG Upstream Kernel 6.14
+2027
+CRI Enabling Upstream  
+Create CRI Ref. Arch
+Promote CRI Launch
+RH AI x.y 
+(GA w/ CRI and in-tree driver
+Q3’27
+Q4’27
+Q4’26
+CRI Base driver (plugin & DRA) in RHEL 10.2 (Nov'26)
+CRI GA w/ OCP 5.2 & RHEL 10.4
+CRI Driver Upstream Kernel 6.23
+Red Hat Summit Connect
+Quickstarts Solutions Program to scale Xeon and CRI POCs & Pilots / customer proof points
+OEM RH AI Ref Arch
+GSI RH AI Ref Arch
+RHAI 3.5 
+(DP w/ BMG )
+RH AI 3.6 
+(TP w/ CRI and via KMM)
+Launch CRI with RH AI GA
+CRI K8S GA 
+RH AI 3.7
+(GA w/ CRI and via KMM)
+CRI TP w/ OCP 5.0 & RHEL 10.2
+Upstream vLLM, LLM-D, KubeVirt, multi-node
+“RH AI” includes RHAII, RHOAI, and RHEL AI products
+OCP 4.22 w/ RHEL 10.2 (Jun’26)
+“Base” driver - allows recognition of the device by the upstream kernel, without having the full functionality of the device, full device is out of tree.
+“Full driver” - full device functionality in tree
+CRI K8S GA includes base operator 1.0, networking operator 1.3, device plugin, DRA 1.0
+CRI OCP GA includes base operator 1.x, networking operator >1.3, device plugin, DRA 1.x
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+Vertical Go-to-Market 
+Update
+Jen Horvath
+
+Public Sector
+Telco
+Industrial/Energy
+Financial
+
+21
+Telco & Enterprise Cloud Networking 
+Update
+Reza Mokhtari / Tony Dempsey / Jen Horvath
+
+RAN
+5G Core
+SASE
+
+22
+Intel demo featuring Red Hat:Unleash Ericsson Cloud RAN for Edge Media on Intel Xeon 6 SoC
+Intel demo featuring Red Hat:Ericsson-Red Hat-IntelRAN Agenic AI on Intel Xeon 6
+Intel demo featuring Red Hat:Edge Elevated: Modular Server - AI & More
+Jen and the Red Hat team@ The Red Hat Partner Reception
+Red Hat was featured in more Intel demos than any other partner
+Intel participation in Red Hat’s Partner Pod
+Red Hat participation in Intel's Innovation Pass program
+Intel social post
+File & Email
+Telco partner marketing @ MWC
+
+Plan of Record
+Paper
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+ 
+Go To Market
+Enablement
+Goals: Focus on deploying GNR-D and continuing software enabling supporting the new ethernet and timing architectures.  Ensure the required Operators & DRA’s are developed, validated and made available to Red Hat, Continue to evolve AI & Security strategy and build a Private 5G Wireless offering to address the federal and industrial market segments.
+KPI (2026): Ericsson & Red Hat deployed at Verizon, Samsung & Red Hat scaling at CoSP.
+Lighthouse Customers for 2026: Ericsson, Nokia, Samsung, Reliance JIO (RHEL).
+Red Hat-Intel RAN Workstream Roadmap - 2026 (CNDA 157157)
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+PM.  
+Solution Lead
+Get to Market  Lead
+Ecosystem Lead
+Go To Market Lead
+Sales Acceleration Lead
+Tony Dempsey
+Intel
+Niall Power (vRAN)
+Vijay Skesavan (P5G)
+Niall Power (vRAN)
+Vijay Skesavan (P5G)
+Brad Chaddick
+Tony Dempsey
+Jennifer Horvath
+Jennifer Horvath
+Red Hat
+Muhammad Waqas
+Gurpreet Singh
+Shujaur Mufti
+Susan Shipp / Ellen Crown
+Reza Mokhtari
+2026
+04 ‘26
+
+Q1 ‘26
+
+Q2 ‘26
+
+Q3 ‘26
+
+Q2 Review
+Q3 Review
+Q4 Review
+MWC 
+Barcelona 
+2-5 MAR.
+MWC- Americas
+TBD
+Q1 Review
+QAT - Device Plugin Operator Validation
+OCP 4.19, 4.20 & 4.21 (OTCK8-2765)
+DSA - Device Plugin Operator + VFIO Driver support in OCP 4.20 & 4.21 OTCK8-2754 
+KubeCon - Amsterdam
+23-26 MAR 
+Red Hat Summit
+11-14 May 
+Atlanta, Georgia
+vRAN Timing Reference Example
+(aka APTS Timing Manager)
+vRAN AI Integration Kit
+AI Work Activity - TBD
+Intel Idle Driver
+Joint Certification with an OEM based on GNR-D
+Security Work Activity TEM
+Joint white paper / VRC with HPE on GNR-D
+MWC RAN Field Operations Agentic AI Red Hat, Ericsson & Intel Demo
+Security Work Activity TEM
+Security Work Activity TEM
+DMR OSV Ingredient / Feature Enabling 
+Private 5G
+Private 5G (TBD)
+Private 5G (TBD)
+QAT - Dynamic Resource Allocation: Final version upstreamed
+AI Work Activity - TBD
+FlexRAN IPM Integration
+FlexRAN IPM Partner Enabling (Ericsson, Nokia & Samsung)
+FlexRAN IPM Marketing
+Red Hat Power Hour Training - IPM
+Field to Factory Forum - IPM Training
+DTAG ORAN
+Dell (Connorsville) RTS for XCC
+Ericsson VDU 2.0 / SPR EE / OCP 
+GNR-D Microcode
+Red Hat, Ericsson & Intel Agentic AI Blog
+23
+
+Multivendor Agentic AI Solution for Cloud RAN - Blog
+https://www.ericsson.com/en/blog/2026/5/multivendor-agentic-ai-solution-for-cloud-ran
+
+RAN Workstream
+Intel – Red Hat Joint Collaboration
+Overview & Segments Addressed
+A joint Intel–Red Hat initiative focused on enabling open, virtualized, and AI‑enabled RAN solutions using Intel FlexRAN on Red Hat OpenShift. Spans platform enablement, AI integration, validation, and ecosystem readiness to support operator deployments and partner solutions.
+Addresses vRAN, OpenRAN, Private 5G RAN, and AI‑RAN across mobile network operators, enterprises, and the RAN ecosystem. Focuses on deployments requiring high performance, scalability, and AI‑driven RAN optimization.
+$$$ Market Opportunity
+Red Hat: Positions OpenShift as the platform foundation for vRAN and AI‑RAN, increasing relevance with OEMs, ISVs, and operators.
+Intel: Drives adoption of Intel platforms, FlexRAN software, and AI acceleration in high‑value RAN infrastructure deployments.
+Jointly: Enables ecosystem‑scale RAN adoption through open, validated solutions rather than proprietary stacks.
+Q1/Q2 ’26 Review & Q3/Q4 Outlook
+Q1/Q2 Achievements:
+Established bi-weekly cadence aligning Intel and Red Hat engineering, product, and GTM teams.
+Advanced AI‑RAN enablement, supporting AI model development, inference optimization, and deployment workflows.  This was shown and delivered via a joint Intel–Red Hat–Ericsson RAN demo at MWC, showcasing ecosystem interoperability.
+Strengthened ecosystem alignment with OEMs and partners through roadmap reviews and technical engagements.
+
+Q3/Q4 Outlook:
+Build on MWC momentum to drive AI‑enabled RAN demos, reference solutions, and field validations.
+Expand ecosystem readiness, including broader OEM and ISV adoption of FlexRAN‑based AI‑RAN solutions.
+Align RAN outcomes more directly to operator‑facing deployments and GTM execution.
+Challenges & Opportunities
+What’s left to do:
+Complete system‑level validation of AI‑RAN use cases and performance gains beyond demos.
+Convert technical progress into clear GTM assets (reference architectures, validated demo outcomes). What is Intel’s GNR-D AI Strategy?
+Challenges: Integration complexity across RAN stacks, AI workflows, and multi‑vendor ecosystems; scaling from demos to production.
+Opportunities: Leverage MWC visibility to position Intel + Red Hat as leaders in open, AI‑enabled RAN, accelerating operator confidence and ecosystem adoption.  
+Private 5G discussions in early-stage discussions (taking place during Red Hat Summit)
+25
+
+Plan of Record
+Paper
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+Go To Market
+Enablement
+Goals: Commercial-ready solution for deploying workloads on the SASE edge Points of Presence using certified Red Hat components and drive a go-to-market motion with Telco and Enterprise customers.
+KPI (2026): Bell Canada and others to follow.
+Lighthouse Customers for 2026: Bell Canada, Verizon, (FSI), (Retail).
+Red Hat-Intel Secure Access Service Edge (SASE) Workstream Roadmap - 2026 (CNDA 157157)
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+PM.  
+Solution Lead
+Get to Market  Lead
+Ecosystem lead
+Go To Market Lead/Sales Acceleration
+Marketing
+Tony Dempsey
+Intel
+Jay Vincent
+Jay Vincent
+Jay Vincent / Tony Dempsey
+Jay Vincent / Jennifer Horvath
+Jennifer Horvath
+Red Hat
+William Zhao
+William Zhao
+Paul Lancaster / Arif Osmani/Hanen
+Reza Mokhtari
+Susan Shipp / Ellen Crown
+2026
+04 ‘26
+
+Q1 ‘26
+
+Q2 ‘26
+
+Q3 ‘26
+
+Q4 Review
+Q2 Review
+Q3 Review
+Arqit Certification on OpenShift
+OEM Enablement (Super Micro) 
+E2E HDW Solution
+MWC Demo - Modular Hardware Design (MHD) (SMC) 3rd Party ISV SASE SW Solutions using OCP
+Fortigate Solution Brief
+HPE Red Hat Validation - Target: Bell Canada
+Q1 Review
+Red Hat Summit - MHD
+3rd Party ISV SASE SW Solutions using OCP (Retail Demo)
+RH Edge Lab (PTL3 Testing)
+HPE, Red Hat & Bell Canada Promotional Activities - Case Study
+HPE, Red Hat & Bell Canada Sales Motion
+AI use cases with ISV’s running on Core’s and Orchestrated on OCP 
+MWC 
+Barcelona 
+2-5 MAR.
+MWC- Americas
+TBD
+KubeCon - Amsterdam
+23-26 MAR 
+Red Hat Summit
+11-14 May 
+Atlanta, Georgia
+Modular Hardware Design (MHD) Development with OEMs to target customers
+White Paper to promote Modular Hardware Design (MHD) White Paper
+PTL1 & 2 OpenShift Certification complete
+26
+
+Secure Access Service Edge (SASE) / NetSec Edge Workstream
+Intel – Red Hat Joint Collaboration
+Overview & Segments Addressed
+A joint Intel–Red Hat initiative focused on enabling and validating secure, cloud-native edge and network security deployments on Red Hat OpenShift, optimized for Intel platforms. Spans platform readiness, validation, ecosystem engagement, and GTM alignment.
+
+The Intel® NetSec Accelerator Reference Design is a reference architecture that enables OEMs, ODMs, and network security vendors to build high-performance PCIe add-in cards that function like autonomous mini-servers dedicated to networking and cybersecurity workloads. 
+Targets SASE, network security, and secure edge use cases across service providers, enterprises, and regulated/public-sector environments. Supports deployments where security, performance, and scalability at the edge are critical requirements.
+$$$ Market Opportunity
+Red Hat: Extends OpenShift adoption into security-led edge and SASE deployments, increasing platform relevance and subscription pull-through in high-value edge environments.
+Intel: Drives demand for Intel CPUs and security-centric platforms in edge and network security workloads, which carry strong attach and long lifecycle value.
+Jointly: Enables solution-level GTM motions by combining validated platforms, hardware, and security ecosystem partners rather than point technologies.
+By offloading these workloads from the host CPU into an isolated execution environment on the accelerator card, the platform improves performance, scalability, workload isolation, power efficiency, and rack-space utilization for edge, enterprise, and cloud deployments. 
+Q1/Q2 ’26 Review & Q3/Q4 Outlook
+
+Q1/Q2 Achievements:
+Established bi-weekly cadence aligning Intel and Red Hat engineering, product, and GTM teams.
+Established Bell Canada as primary anchor customer for SASE / NetSec Edge validation.
+Completed PTL1 and PTL2 testing; PTL2 hardware deployed and validated at Bell Canada.
+Advanced Arqit ecosystem engagement on OpenShift-based security use cases and public-sector interest.
+
+Q3/Q4 Outlook:
+Execute PTL3 validation starting with Bell Canada; extend to Senao once production cards available.
+Continue PTL3 with Arqit; enable additional security ecosystem partners.
+Leverage Bell Canada outcomes for next customer and OEM expansions (e.g., HPE).
+Challenges & Opportunities
+What’s left to do:
+Complete PTL3 validation and close remaining hardware-dependent items.
+Convert Bell Canada learnings into clear GTM artifacts (reference guidance, validation positioning).
+Challenges: Hardware availability and readiness (PTL3 cards, server form-factor, edge lab constraints).
+Opportunities: Establish Bell Canada as a credible reference deployment and position Intel + Red Hat as a trusted, validated SASE / NetSec Edge platform for broader market adoption.
+27
+
+Plan of Record
+Paper
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+Go To Market
+Enablement
+Goals: Complete Intel ingredient/feature enabling for Clearwater Forest AP, certify on RHEL/OpenShift and engage with TEM’s to enable them and promote with a 3-way joint customer paper.  Build on IPM releases through continued Red Hat Operator releases, Develop and implement AI & Security strategy by working with the ecosystem and bringing functionality to market through partners & customers. 
+KPI (2026): SKT, Airtel .. others to be added 
+Lighthouse Customers for 2026: Nokia, Samsung & Ericsson
+Red Hat - Intel 5G Core Workstream Roadmap - 2026 (CNDA 157157)
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+PM.  
+Solution Lead
+Get to Market  Lead
+Ecosystem Lead
+Go To Market Lead/Sales Acceleration
+Marketing
+Tony Dempsey
+Intel
+Alex Mui (coordinate)
+Paul Mannion (AI)
+Alex Mui (Core) / 
+Tim O’Driscoll (IPM)
+Brad Chaddick (OEM) / 
+Tony Dempsey (OSV)
+Steve Dinkins / Jennifer Horvath
+Jennifer Horvath
+Red Hat
+Hanen Garcia
+Shujaur Mufti
+Paul Lancaster / Mark Longwell
+Hanen Garcia / Reza Mokhtari
+Susan Shipp / Ellen Crown
+2026
+04 ‘26
+
+Q1 ‘26
+
+Q2 ‘26
+
+Q3 ‘26
+
+MWC 
+Barcelona 
+2-5 MAR.
+KubeCon - Amsterdam
+23-26 MAR 
+Red Hat Summit
+11-14 May 
+Atlanta, Georgia
+MWC - Americas
+TBD
+Q1 Review
+Q2 Review
+Q3 Review
+Q4 Review
+Integration and verification of Clearwater Forest AP on RHEL/OpenShift
+Red Hat, Nokia & Intel 5G Core Solution Brief
+26.05 IPM - Red Hat Operator Update
+26.11 IPM - Red Hat Operator Update
+Ericsson and then Nokia, Samsung - Sierra Forest
+Joint enabling with Ericsson / Nokia with TDX / Service Mesh
+Red Hat’s enablement of TDX / Service Mesh
+Power Hour Session with Red Hat Sales Team - 
+Topic TBD
+Joint enabling Ericsson/Nokia on Clearwater Forest AP - RHEL 9.7 / 10.1 & OCP ???)
+AI Alignment & Development to be defined
+AI Ecosystem
+AI GTM Activities
+2027 - Clearwater Forest joint customer 
+White Paper
+IPM Case Study
+IPM Case Study
+IAA - Red Hat Operator 
+GA’ed in (RHEL 10.2 (June ’26))
+2027 - Nokia, Samsung & Ericsson - Clearwater Forest - AP
+Reference Lab for 4G and 5G Core at Global CTIO (Telefonica)
+SRF HPE VRC w/OCP White Paper
+Security:
+Milestone 1 (Q1): MWC demo on TDX/Service mesh with mTLS to Nokia
+Milestone 2 (Q2): identify TDX/Service mesh timeline for Nokia/Ericsson, build PoC to assist Nokia/Ericsson’s evaluations
+Milestone 3 (Q3): decisions on GA features & POA for depended security feature for Nokia/Ericsson to productize/validate. 
+
+CWF-AP enablement
+Identify timeline for CWF-AP RHEL and OpenShift verifications, certifications including OEMs (should happen by Q4’25)
+Identify and ensuring Ericsson/Nokia enabling timeline for CWF-AP, to have RHEL/OCP (i.e. RHEL & OpenShift well verified before E/// Nokia picks up the OEM platform for development)
+
+
+
+
+28
+
+5G Core Workstream
+Intel – Red Hat Joint Collaboration
+Overview & Segments Addressed
+A joint Intel–Red Hat effort focused on enabling and validating cloud-native 5G Core deployments on RHEL and OpenShift, optimized for Intel platforms. Brings together platform enablement, certification alignment, security, and GTM readiness for production-grade deployments.
+Addresses Telco Core and Edge Core deployments across CSPs, enterprises, and regulated industries. Supports both operator-led and enterprise-driven 5G programs with emphasis on performance, security, and platform validation.
+$$$ Market Opportunity
+Red Hat: Anchors OpenShift and RHEL as the platform of choice for production 5G Core, driving long-lifecycle subscription pull-through in telco and private network environments.
+Intel: Drives adoption of Intel server platforms (e.g., Sierra Forest, Clearwater Forest) and security capabilities across high-value 5G Core deployments.
+Jointly: Enables repeatable, scalable revenue opportunities by moving from enablement to validated, production-ready reference stacks.
+Q1/Q2 ’26 Review & Q3/Q4 Outlook
+Q1/Q2 Achievements:
+Established bi-weekly cadence aligning Intel and Red Hat engineering, product, and GTM teams.
+Progressed platform enablement (Sierra Forest) and clarified certification expectations and have provided a Clearwater Forest SDP.
+Defined confidential computing (TDX) lab validation plans for ISV and customer adoption.
+
+Q3/Q4 Outlook:
+Transition to validated reference stacks for customer and ISV engagements.
+Advance certification clarity tied to Intel platforms and Red Hat releases.
+Strengthen GTM alignment with account teams for customer-facing deployments.
+Challenges & Opportunities
+What’s left to do:
+Complete lab validation and certification alignment for security initiatives (SGX/TDX).
+Convert technical enablement for CWF-AP into clear GTM artifacts (reference architectures, validation statements).
+Challenges: Hardware availability (CWF-AP SDP’s have been provided to Red Hat), certification ownership clarity, and dependency alignment across OEMs and ISVs.
+Opportunities: Position the joint stack as a trusted, secure, production-ready 5G Core platform, enabling broader adoption and repeatable wins.
+29
+
+Red Hat & Intel Engineering Enabling Activities
+Red Hat and Intel work deeply together in enabling the latest silicon developments through software to support our joint enterprise and telco customers.
+ 
+Ethernet Enabling
+Daily tracking of top priority issues via a dedicated tracker.
+This is reviewed weekly jointly by the teams and reviewed as part of the monthly governance meeting.
+ 
+GNR-D Enabling
+Use case definitions for GNR-D jointly defined and to be validated by Intel.
+Closely working together for Verizon FOA enablement for GNR-D.
+ 
+Microcode Updates
+Jointly worked together to resolve Microcode issues identified on SPR-EE & GNR-D.
+ 
+DPLL Driver Enabling
+Joint ongoing activity with Microchip to develop a DPLL driver with continuous improvements.
+Work is continued with new features developed & upstreamed in 6.17, 6.18, 6.19, 7.0, 7.1 & now working on 7.2.
+ 
+Continuous Integration Workstream
+DCI Lab Move – Operators & OpenShift Testing.
+SR-IOV/PTP hardware enablement testing on DCI – Enabling PTP and other timing features.
+Root Cause Analysis (RCA) and Escape Defect Analysis (EDA) - joint activity across the Intel & Red Hat teams.
+30
+
+Agentic AI framework co-developed by Ericsson, Red Hat, and Intel to power autonomous RAN operations 
+Red Hat Summit 2026
+David Kypuros
+Reza Mokhtari
+31
+Ellen Crown
+
+32
+Completed end-to-end Agentic troubleshooting use case for P2P with Ericsson, Intel, & Red Hat
+“Final Phase 1”
+
+33
+Category
+Strategic Focus
+Key Actions & Considerations
+Product & Engineering
+Build for the Long-Term
+• Assess what is missing to take the solution into full production.
+• Identify specific gaps for productization.
+• Clearly define the final product and service offering.
+Technical Improvements
+• Explore adding additional agents to the current solutions.
+• Implement "Ask Red" improvements.
+• Look at actual tickets and real-world problems to guide development.
+Go-To-Market Strategy
+Expansion & Momentum
+• Bring the solution to sites at the edge (Part 1).
+• "Go wide" to maintain momentum and keep up the hype.
+• Extend the existing playbook to new areas.
+• Frame the offering around enterprise solutions or a mission-critical angle.
+Discussion Points
+Ericsson, Intel, Red Hat Red Hat Summit 2026
+
+34
+Category
+Strategic Focus
+Key Actions & Considerations
+Customers to Present to 
+NVIDIA Alignment
+• Ensure NVIDIA is getting the right support for the project.
+Customer Targeting
+• Identify and address "friendly" end customers first.
+
+• Target and engage with CTO office personnel.
+Telco Strategy
+
+(AT&T vs. Verizon)
+• General: Both offer larger R&D support opportunities.
+
+• AT&T: May present tougher internal alignment challenges.
+
+• Verizon: Likely the better option to pursue. Starting with Verizon Business is a solid entry point.
+Discussion Points
+Ericsson, Intel, Red Hat Red Hat Summit 2026
+
+35
+Proposed Next Steps - Phase 2
+Strategic Focus
+Working Lab as Phase-2 Prototyping Environment
+
+Production quality outcome
+Product AND Service Offering
+Troubleshoot actual tickets
+GAP Analysis, delta to a commercial solution
+Red Hat Summit 2026
+Discussion Points
+Ericsson, Intel, Red Hat Red Hat Summit 2026
+
+36
+Edge: AI/Industrial/Energy 
+Update
+Kelly Switt/Vinodh Raghunathan
+
+The journey to transform the edge
+The future of the edge is here and evolving
+Modernizing Edge infrastructure
+Workloads are consolidating driven by shift to SW-defined infrastructures to unlock data
+
+Edge nodes becoming more intelligent with higher-end compute and AI acceleration
+
+Increased use of virtualization and containers
+
+Computer vision starting to scale
+
+Companies looking to infuse AI into all workflows, SLMs helping drive edge AI inference at scale 
+
+Increased automation through Agentic AI with reasoning and context, vision-language-action models (VLAs), polyfunctional robotics
+
+
+Edge AI Growing
+We are making significant advancements at the edge, including AI, and this journey is only beginning. 
+The industry is shifting toward software-defined infrastructure, enabling the consolidation of numerous workloads onto increasingly intelligent nodes. 
+This transformation facilitates greater flexibility and scalability via established data center technologies such as containers and virtualization. 
+With this newfound flexibility, we have the opportunity to enhance applications, workloads, and workflows with AI, unlocking additional value from data. 
+Currently, AI inference is taking a prominent role in real-world applications, and this expand further. 
+With the emergence of small language models and large vision models generative AI at the Edge will become mainstream, initially through workflow automation and subsequently through advancements in agentic AI, physical AI, and robotics. 
+The future of edge computing is not merely approaching; it is already here and continuously evolving.
+And it’s an opportunity for both Lenovo and Intel
+37
+
+Interactive 
+Kiosk
+Video Management 
+Server
+Digital 
+Signage
+Point of Sale
+Edge 
+Server
+Interactive Flat Panel Display
+Medical
+Imaging
+Industrial 
+PC
+Network Video Recorder
+Smart Roadside Unit
+Smart 
+Grid
+Edge opportunities span many verticals and use cases
+And many 
+more…
+Transportation
+IndustrialHealthcare
+Energy
+Consumer Industries
+Education
+Safety and Security
+Federal and Aerospace
+The edge is a space with so many different use cases that are quite literally impacting all facets of our lives…from how we manage our health, to how we educate students to how we travel safely to how we shop and even how we get energy. So we really look at the work we’re doing as transforming our lives and the world
+There are immense opportunities and a lot of transformation that has been happening at the edge for many years, driven by enterprises wanting to get better business outcomes, whether that’s improved operational efficiency in a factory, increased customer loyalty that translates to sales in retail or improved patient outcomes in healthcare. 
+Intel’s primary focus is on the on-premises edge – or what some may call the far edge or embedded edge. While we are not focused on areas such as smart home technologies or cameras, we do focus on the devices and systems that enable connectivity to these cameras. This is everything from self-checkout systems, industrial personal computers, MRI machines, and edge servers that improve transportation and public safety efforts.
+38
+
+Transformation at the Edge
+Workloads consolidation
+Virtualization / Container
+Increased use of virtualization and containers. Workloads are consolidating driven by shift to SW-defined infrastructures to unlock data
+
+Edge Systems / Nodes
+Increased automation through Agentic AI with reasoning and context, vision-language-action models (VLAs), polyfunctional robotics
+Infusion of AI – inferencing at the Edge
+Edge nodes becoming more intelligent with higher-end compute and AI acceleration
+Infusion of AI - primarily inference  into existing edge workloads. Edge AI capabilities becoming more mainstream through machine learning and computer vision . 
+The maturity of LLM/SLMs and Open sources tools & Libraries will drive edge AI inference at scale 
+AI Models (LLM, SLM), 
+Open-Source Tools & Libraries
+Agentic AI
+1
+2
+3
+4
+5
+Intelligent Edge
+39
+
+Summary
+Industrial Edge Workstream (mfg)
+
+Energy Workstream
+
+Edge AI Horizontal workstream
+
+
+
+
+
+Manufacturing (#1) 
+(Stan Woody /
+Kelly Switt)
+Process Automation, Deterministic, Compute + 
+Controls manufacturing use case 
+TAM: IA will represent ~ $115 billion global market in 2025, McKinsey’s estimates
+Enabling Control in manufacturing to address quality assurance, process automation and production
+Solutions
+Energy (#2) 
+(Dean Samara-Rubio / Kelly Switt)
+Enabling Energy  based solutions partners for OpenShift/Red Hat Products. 
+Open Energy compute platform (Including Substation Digitalization) optimized that can be deployed in Hybrid Multi-cloud Environments
+Edge AI (#3) ​
+(Vinodh Raghunathan/ Josh David)​
+
+
+
+Build a strategy to create certified and qualified AI systems rich on Intel BOM. Drive HW certification with OEMs/ODMs
+Build/certify Edge AI ISV ecosystem with ISVs
+Drive Sales programs through SIs
+
+
+Enabling Easy Deployment capabilities for Edge AI systems running on Intel and RH infrastructure
+
+H1 2026 PROGRESS: FROM STRATEGY TO EXECUTABLE EDGE AI SYSTEMS
+Edge AI System Demonstrations
+Edge AI progressed from abstract concepts to demonstrable systems featuring live video captioning and retrieval-augmented search.
+Industrial Edge Software Infrastructure
+Industrial Edge now focuses on software-defined infrastructure emphasizing real-time performance, lifecycle management, and AI coexistence.
+Energy and Grid Networking
+Energy and Grid work highlights resilient edge networking patterns and RHEL/OpenShift deployment for reliable operations.
+Repeatability and Reference Architectures
+Focus on repeatable, validated reference architectures and deployable solutions to scale industrial edge AI from pilots to production.
+---This slide references information from the following file: https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7BF5F1A551-388E-4536-AD73-AF9CA8047869%7D&file=Red%20Hat%20Summit%202026%20-%20Edge%20AI%20Demo%20Progress.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B150C509E-CE72-4B6E-9138-835BA36F51B5%7D&file=Edge%20AI%20x%20PTL-H%20Slides%20for%20RH%20Summit%202026-Final.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel.sharepoint.com/sites/RedHat-GoBigPlanExecution/_layouts/15/Doc.aspx?sourcedoc=%7BF2DBF7C6-08AA-4C75-A320-DB2535886346%7D&file=Embedded%20World%20-%20Red%20Hat%20Edge%20AI%20Interview.docx&action=default&mobileredirect=true&DefaultItemOpen=1,https://intel.sharepoint.com/sites/RedHat-GoBigPlanExecution/_layouts/15/Doc.aspx?sourcedoc=%7BF40A2F84-5CA6-4372-BB10-18D48C6EA937%7D&file=RHSummitedgeAI%20blog.docx&action=default&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/vinodhkumar_raghunathan_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B2940C132-C795-4184-B59B-4591C6BF7F47%7D&file=Intel%20%2B%20Red%20Hat%20%20-%20Industrial_Energy_Edge_AI%20Workstreams%20Primary%202026.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1This opening replacement slide frames the H1 2026 update as a transition from broad Intel and Red Hat edge strategy into executable, repeatable systems that can be used in customer-facing conversations without exposing internal details. The first point is that Edge AI has moved from an abstract positioning topic into a demonstrable Red Hat-based system story. The slide synthesizes the progress shown in the Red Hat Summit 2026 Edge AI demo materials, which describe a live video captioning workflow, use of OpenVINO GenAI, CPU/GPU/NPU visibility for inference, RHEL 10.2 base OS enablement, and a demo flow that combines video understanding with retrieval-augmented search. The second point is that Industrial Edge is no longer presented only as compute hardware on the factory floor; it is positioned as software-defined infrastructure where real-time performance, lifecycle management, security posture, and AI coexistence matter as much as raw acceleration. This reflects the Embedded World messaging around MicroShift, RHEL for Device Edge, real-time kernel discussions, TSN/TCC, and the need to help industrial customers move from proprietary or fixed-function systems toward managed Linux-based edge platforms. The third point is that Energy and Grid work has gained clearer structure around resilient edge networking and RHEL/OpenShift deployment patterns, but the slide deliberately avoids internal implementation detail, issue tracking, funding, or partner negotiations. Finally, the slide introduces the repeatability theme that anchors the rest of the deck: Reference Architecture, Verified Reference Blueprint, and deployable suite or partner solution. This framing is based on the RHSummit edge AI blog’s argument that industrial edge AI has a scaling problem rather than a model problem, and that pilots become production only when validated configurations, reusable building blocks, and lifecycle operations come together. The slide also uses three simple workstream cards—Edge AI, Industrial, and Energy/Grid—to create an executive-level view. Each card states progress in clean, external-safe language: RHEL-based demo stack and CPU/GPU/NPU execution for Edge AI; real-time AI coexistence and Device Edge/MicroShift lifecycle narrative for Industrial; and resilient network edge patterns plus RHEL/OpenShift alignment for Energy/Grid. No internal owners, Jira references, customer pipeline, or confidential blockers are included.
+41
+
+NPU / GPU / OPENVINO PROGRESS: MAKING ACCELERATION CONSUMABLE ON RED HAT
+Base Platform Foundation
+RHEL-based edge system foundation includes container runtime and edge lifecycle management primitives for secure deployment.
+Acceleration Stack Integration
+OpenVINO combined with GPU and NPU components enable efficient local inference across heterogeneous computing resources.
+Demonstrated Edge Use Cases
+Live video captioning and RAG-style question answering showcase practical CPU/GPU/NPU usage at the edge.
+Scaling and Deployment Path
+Transition from demos to OS-native packaging enables repeatable, partner-delivered AI systems on Red Hat.
+---This slide references information from the following file: https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7BF5F1A551-388E-4536-AD73-AF9CA8047869%7D&file=Red%20Hat%20Summit%202026%20-%20Edge%20AI%20Demo%20Progress.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B150C509E-CE72-4B6E-9138-835BA36F51B5%7D&file=Edge%20AI%20x%20PTL-H%20Slides%20for%20RH%20Summit%202026-Final.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel.sharepoint.com/sites/RedHat-GoBigPlanExecution/_layouts/15/Doc.aspx?sourcedoc=%7BF40A2F84-5CA6-4372-BB10-18D48C6EA937%7D&file=RHSummitedgeAI%20blog.docx&action=default&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/vinodhkumar_raghunathan_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B73C158F8-771A-450C-A0AB-DEFD7ADCEC58%7D&file=Red%20Hat%20Summit%20-%20Demo%20Proposal%20Template.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://outlook.office365.com/owa/?ItemID=AAMkADEzMGJhZGMxLTlkYmQtNGZlMC04ZGRhLWZhZTdjY2Y0MzkyZABGAAAAAADA%2bmLvh3kASLz7xS%2b4CGUkBwChDNMDtR%2bBTbVoqKrwIXTCAAAA42UsAAC1%2bNyZB0GVTZ3llEJ1mVBtAAbidcsxAAA%3d&exvsurl=1&viewmodel=ReadMessageItemThis slide focuses directly on the NPU, GPU, and OpenVINO progress the user asked to include, but it phrases the progress in a way that avoids internal disclosure. The slide is organized as a four-step flow: base platform, acceleration stack, demo proof, and scale path. The first step says the base platform is a RHEL-based edge system foundation with container runtime and edge lifecycle primitives. That statement is grounded in the Red Hat Summit demo progress, which used RHEL 10.2, Podman, edge platform security, and the Red Hat-oriented demo flow, and it also aligns with RHEL stack slides that describe RHEL base OS, Podman, image mode, and mainline kernel support for edge devices. The second step states that OpenVINO plus GPU and NPU components enable local inference paths across heterogeneous compute. This is a deliberately safe synthesis of multiple sources: the demo tracker says OpenVINO GenAI was enabled and could see CPU/GPU/NPU accelerators; the OSV deck says NPU upstreaming to Fedora had been initiated and that NPU user-mode driver verification had been done on a Panther Lake Ubuntu BKC platform; and email threads describe OpenVINO, GPU, and NPU packaging discussions with Red Hat. The third step says the live video captioning and RAG-style question answering demonstrate practical CPU/GPU/NPU use at the edge. This comes from the Summit final slide language that describes real-time video captioning, YOLO plus VLM pipelines, vector similarity search, keyframes and timestamps, and NPU-powered chat UI, along with the progress tracker’s status of the LLM chatbot with RAG on NPU. The fourth step moves from demo into scale: from hand-built enablement to OS-native packaging and repeatable partner-delivered systems. This is where the slide is careful. It does not include internal package ordering, dependency blockers, Jira numbers, extension-channel business negotiations, or support SLAs. Instead, it provides a precise customer-facing phrase: Intel and Red Hat are aligning the edge AI software stack so customers can deploy OpenVINO-accelerated workloads on Red Hat-based systems with less integration friction. The slide also tells presenters what not to say, reducing risk that confidential details will accidentally be spoken aloud during a customer or partner review.
+42
+
+Industrial (Manufacturing/Energy/Robotics):  2025 Transform Pipeline $1M
+Objectives & Areas of Focus
+Objectives: 
+Deliver Revenue
+Customer/Ecosystem Design Wins
+Win Edge AI System (HW + SW) through Red Hat enablement 🡪 Platform RA
+Ecosystem Engagement
+Vertical
+      ABB
+      Schneider
+      Siemens
+      Rockwell
+Sales & Marketing Activities
+Joint Events:  Red Hat Summit (Humanoid Demp)
+Webinars:  ECI Webinar w/ Intel-Red Hat-Schneider
+Assets:  TSN/RHEL 10 Whitepaper, TSA Net Paper & Modular AI-Vision Robotic Control at the Edge
+Houston Lab Stack Testing:  RHEL & OpenShift with Xeon & Atom (OnLogic, AsRock, Dell, & Logitech)
+Top Target Customers
+Industrial/Industrial Use Cases:  VW/Audi, IKEA & Nestle (via Accenture)
+Oil & Gas:  Exxon, Shell & Chevron
+Energy:  PG&E, SRP, etc.
+Misc.:  COPA (CPlane.ai)
+Areas of Focus:
+Robotics and Physical AIEdge Controls
+AI/Software defined Automation
+SecuritEnergy tranformations
+Onboarding
+Realtime Control
+Growth Segments:  Utility/Energy & Oil & Gas
+
+Positive Partnership
+Early Engagement
+Yet to Engage
+Horizontal
+      Dell
+      Cisco
+      HPE
+      Lenovo
+      SuperMicro/Advantech/+
+43
+
+Plan of Record
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+Go To Market
+Enablement
+Objective: Intel/RH goal is to expand for high compute workload such as multi-unit control, 2D/3D sensing for AI and autonomous control resulting in an expansion of revenue opportunities that include:
+Use of virtualization and containers from edge to cloud managed by real time software platforms
+Ability to remotely diagnose, secure, manage, and upgrade without having to shut down the system 
+Converged edge compute bringing more powerful computing to the factory floor and utility grids
+KPI (2026): 1) Release of RELH Device Edge + Intel optimization  2) Apdation of RELH Device Edge by 1 industrial custoemr. 3) Joint living demos & Events, 4) Revenu generation of a production deployment
+Light House Customers/ partners for 2026: Audi,  ExxonMobil, Schneider, ABB, Yokogawa, Nestle, Siemens, etc. (?)
+PM.  
+Overall Workstream Solution Lead (owner)
+Get to Market  
+Architect & Engineering Leads
+Ecosystem  Lead
+(Lead, BU Prod, BU Mark, SMG)
+Go To Market /Marketing Lead
+(Lead, BU Prod,  BU Mark)
+Customer Pilots Lead
+ (SMG, BU Prod,  PM)
+Vinodh ( Hussein) / ? 
+Intel
+Stan Woody
+Rob Chavez
+Stan Woody
+Jennifer Horvath
+Jennifer Horvath
+Red Hat
+Kelly Switt
+Josh Swanson
+David R
+Kendall / Laney B
+Patrick Hug / Ed Hutchinson
+Red Hat-Intel Industrial Edge/Robotics Workstream  – 
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+Q1 ‘26
+Q4’25
+Q4 ‘26
+
+Q3 ‘26
+
+Q2 ‘26
+
+Plan, Build and Agreement to Engage end customers  Xeon class hardware,Including delivery timeline, support model / plan
+Red Hat Summit Submissions
+Intel+ Red Hat + Partners deliver a scalable solution to at least 1 mfg market segment through a significat light house customer win mfg customer
+RHEL Devie Edge + Intel Optimization
+Joint Labs, Oregon (Intel-Red Hat),
+-----MWC Barcelona  2026------------------------------
+-----Red Hat Summit  2026------------------------------
+-----Intel Innovation 2026------------------------------
+Joint Test Bed-Texas (For 3rd party vendor interoperability (External), Utilize test bed to attract new use cases with Operations Technology Partners. Leverage Solution Center for customer/partner workshops. Evaluate product enhancement needs based on test bed efforts.
+RHEL Devie Edge + Intel Optimization
+Humanoid Demo
+RHEL Devic Edge + Intel Optimization
+Build a demo for SPS
+Publish platform Brief
+Publish platform Brief
+Intel + Red Hat + Partners start a POC with a lead end customer 
+Collaborate on ARC?
+SPS
+Q1 Review
+Q2 Review
+Q2 Review
+Q4 Review
+Q4 Review
+Developed a joint offering with eco-systems partners. Engage directly with partners and end customers
+44
+
+EDGE AI: VALIDATED SYSTEMS INSTEAD OF CUSTOM PILOTS
+Integration Challenges in Edge AI
+Many edge AI pilots fail due to bespoke integration of hardware, OS, drivers, and AI components in resource-constrained environments.
+Progress in Edge AI Demo Path
+RHEL-based demo shows video understanding at the edge using CPU, GPU, and NPU for local AI workloads with workload consolidation.
+Repeatable System Recipe Model
+Reference Architecture, Verified Reference Blueprint, and reusable suites enable scalable and tested edge AI deployments.  RA going to be published with Panther Lake on RHEL on Intel Solutions builders and cross published on Red Hat in the weeks following summit.
+---This slide references information from the following file: https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7BF5F1A551-388E-4536-AD73-AF9CA8047869%7D&file=Red%20Hat%20Summit%202026%20-%20Edge%20AI%20Demo%20Progress.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/abhijit_sinha_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B150C509E-CE72-4B6E-9138-835BA36F51B5%7D&file=Edge%20AI%20x%20PTL-H%20Slides%20for%20RH%20Summit%202026-Final.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://intel.sharepoint.com/sites/RedHat-GoBigPlanExecution/_layouts/15/Doc.aspx?sourcedoc=%7BF40A2F84-5CA6-4372-BB10-18D48C6EA937%7D&file=RHSummitedgeAI%20blog.docx&action=default&mobileredirect=true&DefaultItemOpen=1,https://intel-my.sharepoint.com/personal/vinodhkumar_raghunathan_intel_com/_layouts/15/Doc.aspx?sourcedoc=%7B73C158F8-771A-450C-A0AB-DEFD7ADCEC58%7D&file=Red%20Hat%20Summit%20-%20Demo%20Proposal%20Template.pptx&action=edit&mobileredirect=true&DefaultItemOpen=1,https://outlook.office365.com/owa/?ItemID=AAMkADEzMGJhZGMxLTlkYmQtNGZlMC04ZGRhLWZhZTdjY2Y0MzkyZABGAAAAAADA%2bmLvh3kASLz7xS%2b4CGUkBwChDNMDtR%2bBTbVoqKrwIXTCAAAA42UsAAC1%2bNyZB0GVTZ3llEJ1mVBtAAbidcsxAAA%3d&exvsurl=1&viewmodel=ReadMessageItemThis slide reframes the Edge AI discussion away from an internal demo checklist and toward a customer problem: many edge AI pilots stall because the hardware, operating system, drivers, AI runtime, inference models, lifecycle tooling, and fleet operations are integrated as bespoke projects. The customer does not simply need a model running once in a lab. They need a system recipe that can be repeated across factories, logistics hubs, retail environments, robots, and remote field sites. The slide begins by stating that pilots often fail at the integration boundary, especially when the environment is resource-constrained, intermittently connected, or difficult to service. This theme is drawn from the RHSummit edge AI blog, which says industrial edge AI has a scaling problem rather than a model problem and describes the need for repeatable system recipes. The second card then explains what Intel and Red Hat progress has produced in H1 2026, but it uses shareable language. It says the RHEL-based demo path now shows video understanding at the edge, that OpenVINO enables model execution across CPU, GPU, and NPU paths, and that the NPU is used for a local LLM or chat-style RAG experience in the edge demo flow. This combines the Red Hat Summit demo progress tracker's completion of RHEL OS installation, user-space driver enablement, OpenVINO GenAI installation, and CPU/GPU/NPU visibility with the final Summit slide language describing workload consolidation across CPU, Xe3 GPU, and NPU. The third card introduces the repeatable model that customers can understand: a Reference Architecture defines the stack and deployment model; a Verified Reference Blueprint converts the architecture into a tested recipe; and suites or reusable building blocks accelerate vertical deployment. This mirrors the blog’s Reference Architecture to Verified Reference Blueprint to Suite pattern, while avoiding sensitive details such as internal owners, issue IDs, build blockers, or support-model negotiations. The slide’s footer explicitly notes that internal program names, owners, Jira IDs, SLA details, and unpublished blockers are excluded. This is important because the user specifically requested progress such as NPU but asked not to include inside Intel information. The slide therefore preserves the strategic and technical substance while converting it into a clean external-safe narrative.
+45
+
+-----Red Hat Summit  2026------------------------------
+-----Intel Innovation 2026------------------------------
+Plan of Record
+Paper
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+Go To Market
+Enablement
+Goal: Open Create a Joint Pipeline where RH can effectively utilize Intel’s co-marketing capabilities.
+KPI (2026):  End-User Eval: Collaborate with OEM, HW provider, and EPC for distribution grid POC in 2026 
+Light House Customers/ partners for 2026: Readiness of SW stack of infra SW for scale deployments – comprehend documented specs, and actual customer requirements	Comprehensive lab testing on stacks with ABB and emerging new OEM application SW, PG&E, Tata Power, SRP.
+Red Hat-Intel Energy Workstream –
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+-----MWC Barcelona  2026------------------------------
+PM.  
+Overall Workstream Solution Lead (owner)
+Get to Market  
+Architect & Engineering Leads
+Ecosystem Lead
+Go To Market/ Marketing Lead
+Customer Pilots Lead
+
+Vinodh (Hussein) / ?
+Intel
+Dean Samara-Rubio
+Dean Samara – Rubio
+Dean Samara-Rubio
+Dean Samara-Rubio /  Jennifer Hoover
+Prithpal Khajuria
+Red Hat
+Kelly Switt
+Stefan Ritcher 
+John Archer
+Kendall ?
+Andrew Block
+Q1 ‘26
+Q4’25
+Q4 ‘26
+
+Q3 ‘26
+
+Q2 ‘26
+
+Readiness of SW stack of infra SW for scale deployments – comprehend documented specs, and actual customer requirements	Comprehensive lab testing on stacks with ABB and emerging new OEM application SWExecute on customer engagements past discovery and initial interest w/ champions and execs.  Get to grid ops and IT ops of utilities	AI -- we have some initial projects* but want to build a comprehensive plan.  (*w/ academics, in lab, w/ ISVs.)	Understand the opportunity for RH in the “farther edge” space – renewable and storage integration, microgrid, E4S.
+4 areas of engagement in Power – software-defined and edge AI    Primary Substation (MV/HV) : vPAC alliance Secondary Substation (MV/LV) : E4S alliance Renewable Energy Integration / Microgrid    AI for grid modeling, asset predictive maintenance, fault prediction
+Enlit event (Advantech) Preparations for vPAC Booth at DTECH 2026
+Intel to support the relationship building, alignment and collaboration
+Q1 Review
+Q2 Review
+Q2 Review
+Q4 Review
+Q4 Review
+Red Hat Summit Submissions
+46
+
+Current Status – Energy focus- Sep 11, 2025 -- 4 areas of engagement in Power – software-defined and edge AI    Primary Substation (MV/HV) : vPAC alliance Secondary Substation (MV/LV) : E4S alliance Renewable Energy Integration / Microgrid    AI for grid modeling, asset predictive maintenance, fault predictionEngagement approach – invest with ecosystem at multiple levels- Hardware companies – NRE and co-marketing.  Build IEC61850 servers on Core Ultra and Xeon-SP- Infra SW – collaborate with testing/validation in lab, selective Co-Funding for specific objectives, co-marketing- OEM/ISV -- drive to support OEMs in their journey to software-defined with Co-Fund Development funds and co-marketing- Lab (co-funded with Kalkitech)- Premiere Events  (DTECH, CIGRE, IEEE T&D, Enlit), and selected other partner events (Doble, Pacworld, Alltricitry,…)- Alliances (vPAC, E4S, …)Future looking for the rest of 2025Events	Enlit event (Advantech)	Preparations for vPAC Booth at DTECH 2026HW 	Define new HW/NRE (Lanner, Moxa, Advantech) on BTLS12P, PTL.  	Complete existing Xeon6 NRE (Lanner, Welotec) on SRF/GNR	Energy Smart NIC w/ Altera -- HSR/PRP+PTP+SRIOV. Sampling to OEMsCo-Investments with OEMs  	Add major co-invest with OEM #3.	Progress work with OEM #2, Alliances	Convert to non-profits 	Publish vPAC Spec 1.0Customers in focus for 2H 2025	PG&E, Tata Power, SRP, DEWA, Longer Term in 2026- 	Readiness of SW stack of infra SW for scale deployments – comprehend documented specs, and actual customer requirements	Comprehensive lab testing on stacks with ABB and emerging new OEM application SW	Execute on customer engagements past discovery and initial interest w/ champions and execs.  Get to grid ops and IT ops of utilities	AI -- we have some initial projects* but want to build a comprehensive plan.  (*w/ academics, in lab, w/ ISVs.)	Understand the opportunity for RH in the “farther edge” space – renewable and storage integration, microgrid, E4S.	  
+Listen to partners – where to step in to provide additional support, resources
+Certification for RT Grid PAC -- What is the timeline, steps, and entities to be involved?
+
+Plan of Record
+Get to Market
+(Intel + RH Dev)
+Joint Ecosystem Engagement
+Sales Motions
+Go To Market
+Enablement
+Objective: Intel/RH goal is to drive tangible edge enterprise use cases for AI and to enable easy deployment of AI systems at the edge across Retail, Manufacturing and Energy verticals, 
+Build a strategy to create certified and qualified AI systems rich on Intel BOM..  Drive HW certification with OEMs/ODMs Build/certify Edge AI ISV ecosystem with ISVs
+Drive Sales programs through SIs
+KPI (2026): 1) Release of HW+SW Solution. 2) Identifying SI candidates for joint engagement 3) Joint living demos & Events, 4) Announcing a joint scale program with SIs 5) revenue acceleration
+Light House Customers/ partners for 2025: Audi,  ExxonMobil, Schneider, ABB, Yokogawa, Nestle, Siemens, etc. (?)
+PM.  
+Overall Workstream Solution Lead (owner)
+Get to Market  
+Architect & Engineering Leads
+Ecosystem  Lead
+(Lead, BU Prod, BU Mark, SMG)
+Go To Market /Marketing Lead
+(Lead, BU Prod,  BU Mark)
+Customer Pilots Lead
+ (SMG, BU Prod,  PM)
+Vinodh /Josh
+Intel
+Vinodh R
+Vinodh Raghunathan
+Jessie Ritchey
+Jennifer Horvath
+Jennifer Horvath/Vinodh R
+Red Hat
+Josh David 
+Rashid Khan
+Shobhan/Arif Osmani
+Kendall / Laney B
+Cole Wangsness 
+Red Hat-Intel Edge AI systems  
+WS Activities
+Complete
+In Dev
+In Plan
+Explore
+Workstream Status
+Q1 ‘26
+Q4’25
+Q4 ‘26
+
+Q3 ‘26
+
+Q2 ‘26
+
+Red Hat Summit Submissions
+Intel+ Red Hat + Partners deliver a scalable solution that can be accelerated to deployments through SIs
+Early brainstorming on edge AI Qual/Cert program
+Joint Labs, Oregon (Intel-Red Hat),
+-----MWC Barcelona  2026------------------------------
+-----Red Hat Summit  2026------------------------------
+-----Intel Innovation 2026------------------------------
+Joint Test Bed-Texas (For 3rd party vendor interoperability (External), Utilize test bed to attract new use cases with Operations Technology Partners. Leverage Solution Center for customer/partner workshops. Evaluate product enhancement needs based on test bed efforts.,
+Dependencies and Extensions request created
+VLM demo for summit
+Build a demo for SPS
+Publish platform Brief
+Publish platform Brief
+Intel + Red Hat + Partners start a POC with a lead end customer Still TBD
+Embedded world demo - Onlogic
+SPS
+Q1 Review
+Q2 Review
+Q2 Review
+Q4 Review
+Q4 Review
+Red Hat Summit in May
+Engage directly with partners and end customers
+Build SI Scale program to drive AI systems deployment
+Red Hat was part of Intel AI Edge system PR
+48
+
+49
+
+50
+Global Marketing & Sales Update
+Susan Shipp
+Irena 
+Sakshi 
+Alyssa/Stacey
+
+
+
+Red Hat/Intel GTM 
+2026 Marketing Highlights
+CY26 Focus Areas
+Robust 2026 Rainmaker Funding ($8M)
+Intel’s Platinum Sponsorship and Ecosystem engagement at RH Summit 2026
+In Market Global Campaign
+Red Hat Sales/Field/Partner Enablement on all things Intel - more work needed
+
+
+Virtualization
+AI
+Edge
+Foundational
+Telco
+FSI
+Fed Gov/PS
+***Ecosystem Engagement***
+
+
+Content/Demand Gen
+Thought Leadership/Awareness
+Global Events/Engagement
+Tech Target 2026 Campaign - Data Center Modernization
+AI
+Security
+Virtualization
+FSI, Fed / Gov
+
+Summit Video Demo Series (2025 & 2026)
+Red Hat Partner Training Portal:  21+ assets
+Joint BOM
+Red Hat  Source Page.
+Joint Value Proposition and co-branded partner deck
+
+Tech Target Moderated webinar series, fireside chat, ongoing content curation, content syndication
+Ecosystem collaboration - ‘stack/solution’ marketing and content (Dell, HPE, Lenovo)
+Co-branded FSI Playbook
+Digital Search Engines
+Social Media 
+Red Hat Ecosystem Catalog w/Intel
+Red Hat Summit - Platinum Sponsor
+MWC-B
+Dell Tech World
+HPE Discover
+Cisco LIVE
+Regional:
+Red Hat Summit Connects
+Red Hat Tech Days
+Ansible Automates
+Virtualization Roadshows
+Exec Summits
+
+Intel Alliance Resources
+
+Tech Target Campaign 2026
+52
+
+Summit 2026
+53
+
+EMEA Mktg - H1 update 
+Highlights:
+Strategic Alignment: Collaboration between Red Hat and Intel is strengthened across EMEA leadership and local field teams.
+Geographic Expansion: High field-level engagement, with successful adoption of the collaborative framework in several new countries.
+Program Momentum: 28 programs submitted, 25 programs approved. Representing a $1.85M investment (109% budget utilization).
+Dedicated Leadership: Sunny, a new Red Hat Alliance Manager, onboarded to streamline strategy and execution with Intel.
+Low-lights:
+On-site Activity Impact: Postponement of Middle East in-person programs due to regional developments.
+
+Sovereignty: Gaining traction with one of our focus topics including a Deloitte white paper ("Sovereign AI-Ready, Private Cloud"), a keynote in Bucharest, FSI Day at Forbes House Madrid and the EMEA-wide "Building Trust in the Age of Sovereign AI" webinar.
+
+Red Hat/Intel Marketing - EMEA
+2026 H1 Highlights 
+           2026 1H Lowlights 
+CY26 2H Focus Areas 
+On-site Activity Impact: Postponement of Middle East in-person programs due to regional developments.
+Social Media: team to support not yet mobilised (expect H2)
+
+
+
+11 Summit Connects - expecting avg. 1,000 attendees per event
+Innovate Together events in 10 locations including in Israel & Croatia
+Developer Days x 10 locations - FSI focus for Riyadh event
+Red Hat Tech Days continue in 5 more locations
+FSI Events UK, Italy and Saudi Arabia
+OpenShift Data-Centre-in-a-Box Experience, Germany
+Content/Demand Gen
+Thought Leadership/Brand Elevation
+Regional Events/Engagement
+Immersion Days TechTalks x Indra - Topic: Confidential Computing
+Video creation for Webcast panel discussion - Topic: Building Trust in the Age of Sovereign AI
+FSI specific Digital Sovereignty & Security content created
+Virtualization Solution Brief created  
+
+Deloitte x Red Hat x Intel Whitepaper published: Sovereign AI-Ready, Private Cloud 
+Executive Partner Day and Luxottica Customer Day (both Italy)
+
+Innovate Together Bilboa, Bucharest & Lisbon
+Tech Day Madrid 
+FSI Day at Forbes House, Madrid, Digital Sovereignty: Powering Trust and Innovation 
+
+EMEA Mktg - H1 update 
+Switzerland Summit connect 2026
+$546,133
+$45,777
+Switzerland
+Seitzerland
+ACIC
+$20,000
+$5,000
+Italy
+Italy
+Accelerate Innovation
+$200,000
+$100,000
+RDC - Campaigns
+EMEA
+Iberia Join Red Hat and Intel Plan
+$360,630
+$138,470
+february
+Iberia
+Iberia
+Summit Connect Dubai
+$400,000
+$25,000
+October
+MENA
+Dubai
+High Level Engagement Italy
+$221,200
+$110,600
+february
+Italy
+Italy
+Technical Engagement campaign Italy
+$33,500
+$16,750
+february
+Italy
+Italy
+Developer Hands on labs events
+$420,500
+$114,000
+february
+RDC - Campaigns
+EMEA
+OpenShift Virtualization - Virt Market Awareness
+$216,000
+$72,000
+february
+RDC - Campaigns
+EMEA
+Digital Sovereignty
+$120,000
+$60,000
+february
+RDC - Campaigns
+EMEA
+UK Intel CAMPAIGN 2026
+$128,200
+$64,100
+June
+UK
+UK
+Red Hat AI Roadshow: Saudi Arabia
+$175,000
+$88,000
+April
+KSA
+KSA, Kuwait
+Accelerating IT Modernization AI - Israel-Joint Marketing Plan 2026
+$400,000
+$45,000
+February
+IGC
+Israel
+Turkey Innovate together
+$45,700
+November
+Turkey
+Turkey
+MENA plan
+$215,000
+$107,500
+February
+MENA
+UAE, Egypt, Qatar
+Tech Days in the Benelux-region
+$102,720
+$16,748
+June
+Belux
+BeLux
+FRANCE Intel CAMPAIGN 2026
+$103,500
+$51,750
+May
+France
+France
+Nordic Innovate Together - regional flagship events 2026
+$593,196
+$140,000
+June
+Nordics
+Denmark, Finland, Norway, Sweden
+CY26 CEE Accelerate Innovation Campaign
+$135,180
+$54,255
+July
+CEE
+Romania, Czech Republic
+Partner Day Iberia
+$45,000
+$15,000
+April 22
+Iberia
+Spain, Portugal
+Partner Day Israel
+$40,000
+$20,000
+June
+IGC
+Israel
+FSI Days 2026 Intel
+$100,486
+$50,243
+September
+UK, Italy
+UK, Italy
+Summit Connects
+$6,505,518
+$457,765
+September
+EMEA
+PAN EMEA 
+OpenShift Data Center in a Box Experience
+$23,100
+$11,550
+October
+RDC - Campaigns
+Germany
+Ansible Automation
+94,950
+$47,475
+July
+RDC - Campaigns
+Netherlands & Pan EMEA
+Red Hat FSI event
+$40,000
+$20,000
+21.9.26
+MENA
+KSA
+Developer day SA
+$18,750
+$9,375
+Q3
+RDC - Campaigns
+SA
+
+57
+Summit Connect Zurich:
+Record number of registrations (1099)
+790 attendees total 
+28 Executive exchanges attendees 
+
+Developers Day  Spain:
+ 190 attendees, 
+great collaboration 
+Luxottica customer day: Italy
+13 customer executives 
+EMEA Mktg - H1 update 
+
+58
+Innovate together Bucharest 
+ 260 attendees, 82% attendance rate 
+Executive Partner day Italy 
+13 selected Partners’  Executives 
+(CEO or their delegates C-level)
+EMEA Mktg - H1 update 
+Partner Day Italy:
+50 people from 28 Red Hat Focus Partners distribution
+
+EMEA plans CY26
+59
+Immersion Days - Confidential Computing x Indra Spain 
+325 registrations
+193 attendees 
+59% attendance rate 
+
+Security and Digital Sovereignty Campaign Flow
+EMEA Cross Portfolio Program_Security and Digital Sovereignty 
+
+EMEA Webcast  with 
+Tier 1 Media publishers
+Virtual Roundtable 
+
+60
+………………………………………………………………………………………………………………………
+………………………………………………………………………………………………………………………
+………………………………………………………………………………………………………………………
+EMEA Thought Leadership Campaign with Tier 1 media publishers 
+(Creating the content (one or two pagers), Promoting on publisher & Organic Social post)
+
+EMEA Lead Generation Campaign with Tier 1 media publishers
+(Content Syndication)
+
+Lead Qualification
+KPI 
+
+Impressions
+# 2,500 of clicks or view
+
+
+Spend
+
+#250 of Leads
+#200of End customers
+#20-30 of End customers
+Total 
+Red Hat : 60,000
+Intel : 60,000
+Red Hat :20,000 
+Intel : 20,000
+Red Hat : 17,000
+Intel : 17,000
+Red Hat : 20,000
+Intel : 20,000
+Red Hat :3000
+Intel : 3,000
+EMEA Webcast with Tier 1 media publisher
+
+EMEA virtual
+Roundtable
+
+2026 Co-selling Sales Programs – Virtualization -  XEON 6
+Objectives
+Intel initiative to align and support (funding) on the largest strategic deals in EMEA for 2026, aiming to drive incremental growth or deal acceleration for Red Hat & Intel.
+Win market infrastructure through OpenShift Virt by Data Center Modernization on Xeon 6.
+Large Deals Acceleration Program in EMEA
+
+Objectives
+Build and execute joint sales plays with priority OEMs, CSPs, SIs, and distributors to accelerate adoption of Red Hat solutions optimized on Intel. Identify the ideal partners in each focus country Meta (already ongoing), UK, Germany, France, and Spain (already ongoing). 
+Win market infrastructure through OpenShift Virt by Data Center Modernization on Xeon 6
+Partner Scale Programs in EMEA (OEMs, GSI, CSPs and Distis)
+
+ 
+
+62
+2026 Large Deals Collaboration Program (EMEA)
+Where are we today
+
+Primary goal: Accelerate the sales cycle and support the closure of OpenShift Virtualization deals
+Consumption timeline: June  - December 2026
+Segments: Enterprise and Commercial
+In process of getting alignment with:
+Tech Sales leaders: Martin Zierer and Didier Vitiello ✅
+Marketing leaders: Alan Fewell (Field), Ginette Lacroix (ABM), Karin Heinz (RDC) ✅
+Enterprise segments: Aurelia Ivan (Commercial PM), Keith Lynch (Enterprise VP) ✅ 
+Intel Rainmaker leads: Jorge Sentis, Helena Kelly,  Irena Kabeli and  Sunny Sahajpal ⇒ in progress 
+
+
+Where Do We Want to Go (Next 2 Weeks)
+
+
+
+
+
+
+Definition and Alignment on Key Tactics: Sponsored VMAs or OCP Virt Pilots,, Executive Roundtables, and Customer Success Days
+Alignment with EMEA Countries: Enterprise, Commercial and Marketing leaders 
+Collection and consolidation of the tactics to be executed by each country
+Intel funds request process
+Execution and follow up
+
+63
+Format: Invite-only Executive Roundtable events: Life After Broadcom
+10-15 customers, facilitated by Business Value Practice; co-hosted by Intel. Customers must feel safe to share; limited Red Hatters in the room; mostly customers connecting to each other
+
+Requesting priority accounts from Sales Leadership
+Good fit: accounts with an opportunity in virtualization that haven’t committed to a VMA
+Know a good customer? Flag to the Regional Manager & help identify the right persona to attend
+
+Internal enablement to Sales teams
+Sharing this approach to AEs, SAs, and SSPs from priority accounts + asking them to drive invites to right personas
+
+Follow-up led by Sales & Tech Sales in-country
+
+
+Customers events: Life After Broadcom
+
+Engage teams from Intel and Red Hat with aligned OEM or distributor / reseller
+Selectively link with Accenture on specific deals
+64
+Identify 25 key Enterprise accounts to co-sell on together (excluding Telco)
+Track large deals pipeline to closure
+EMEA Enterprise Account Alignment CY26 (Sunny)
+Identify 5 key compelling events to drive OpenShift Virtualisation Migration discussion
+Pipeline review; AI Factory aligned accounts; Feedback from country managers; OpenShift Virt pipeline
+Work with OEM/partner to provide POC, VMware Migration Assessment (or mini VMA)
+List to be validated at RH and with Intel
+
+Company Name
+Industry
+Country
+Estimated Revenue Potential ($M)
+Likely OEM Alignment
+Volkswagen Group
+Automotive
+Germany
+25
+Dell Technologies
+
+TotalEnergies
+Energy/Oil & Gas
+France
+12
+Dell Technologies
+
+Unilever PLC
+Consumer Goods
+UK
+9
+Dell Technologies
+
+Stellantis
+Automotive
+Netherlands/France
+15
+Dell Technologies
+
+Sanofi
+Healthcare/Pharma
+France
+10
+Dell Technologies
+
+Iberdrola
+Energy
+Spain
+7
+Dell Technologies
+
+Enel Group
+Energy
+Italy
+9
+Dell Technologies
+
+Ahold Delhaize
+Retail
+Netherlands
+8
+Dell Technologies
+
+Société Générale
+Financial Services
+France
+12
+Dell Technologies
+
+Barclays PLC
+Financial Services
+UK
+14
+Dell Technologies
+
+Schneider Electric
+Energy Management
+France
+9
+Dell Technologies / HPE
+
+Siemens AG
+Manufacturing/Industrial
+Germany
+15
+Fujitsu / HPE
+
+BMW Group
+Automotive
+Germany
+18
+HPE
+
+Nestlé S.A.
+Consumer Goods
+Switzerland
+10
+HPE
+
+Roche Holding
+Healthcare/Pharma
+Switzerland
+11
+HPE
+
+Lufthansa Group
+Aviation
+Germany
+6
+HPE
+
+Volvo Group
+Automotive/Manufacturing
+Sweden
+8
+HPE
+
+Airbus SE
+Aerospace
+France/Germany
+14
+HPE / Atos
+
+HSBC Holdings
+Financial Services
+UK
+20
+HPE / Dell
+
+Swiss Re
+Insurance
+Switzerland
+7
+HPE / Dell
+
+ABB Ltd
+Industrial Automation
+Switzerland
+8
+HPE / Fujitsu
+
+Deutsche Bank
+Financial Services
+Germany
+16
+HPE / Lenovo
+
+BASF SE
+Chemicals
+Germany
+11
+HPE / Lenovo
+
+BNP Paribas
+Financial Services
+France
+15
+IBM / Dell
+
+Maersk
+Logistics
+Denmark
+13
+Lenovo / HPE
+
+
+VMware to Red Hat OpenShift Virtualization (Sunny)
+The Strategic Path for Cloud Service Providers (CCSP) in EMEA
+Ready to transition? Contact your Red Hat Partner Manager for a Readiness Assessment.
+CCSP / 2026 STRATEGY
+Market Evolution
+Address VMware licensing uncertainty and mandatory bundling impacts.
+Shift from legacy virtualization silos to a modern, unified hybrid platform.
+Regain control over CSP margins with predictable, open cost structures.
+Unified Infrastructure
+Run Virtual Machines and Containers side-by-side on OpenShift.
+Utilize proven KVM-based virtualization with Kubernetes orchestration.
+Simplify operations by eliminating redundant virtualization stacks.
+The Migration Path
+MTV: Included Migration Toolkit for Virtualization for bulk VM moves.
+Automate discovery and execution using the Ansible Automation Platform.
+Maintain continuity with warm-migration and low-downtime capabilities.
+Red Hat CCSP Program
+Access flexible consumption-based and pay-per-use billing models.
+Deploy AI-ready infrastructure with a cloud-native foundation.
+Scale your business without proprietary lock-in or forced bundles.
+Intel EMEA Sales engagement in this Partner recruitment campaign
+
+Intel® Red Hat with Lenovo Iberia – Infrastructure Modernization
++
++
+Activate data center modernization with Lenovo, Intel and Red Hat for 
+OpenShift Virtualization and OpenShift AI on Xeon 6 and ThinkSystem V4
+Joint Accounts
+Demo Cluster
+GTM
+Value Add
+FSI / Gov / Telco 
+
+Collaboration
+Kyndryl
+Inetum
+Devoteam
+
+Refresh/Acquisition
+Red Hat Demo Cluster
+
+Local Lenovo Office
+
+POC Target
+Deal Win Target
+
+Webinar
+Customer Events
+
+Sales Play Assets
+Value Proposition
+Xeon 6/V4
+
+XPA Tool
+
+Team Training Workshop
+Virtualization
+AI Adoption
+
+
+Red Hat/Intel Sales - APJ
+
+2026 1H Highlights 
+CY26 1H  Lowlights
+CY26 2H Focus Areas
+Long wait time for delivery of Xeon servers for Red Hat labs
+Lack of joint sales wins within the country sales
+
+Onboarding of funded head to drive joint account sales and partner acquisition
+OCPVirt: jointly target SI partners to drive pipeline on virt opportunities
+OEM joint promotion with HPE, Dell, Cisco, Lenovo
+Country/practice leadership view of strategic partnership 
+Top Customer Engagements
+Ecosystem Engagement
+Telco: SK Telecom, KT Corp – Confidential Containers, Samsung – AI on RAN, Telstra – Virt POC
+FSI: MBBank, Vietinbank, Sacombank - Virt
+Manufacturing: TNB – AI Platform
+Engagements with the wider ecosystem to uplift the Intel-Red Hat partnership:
+Account days with Amdocs
+SemiconAsia with Cisco and Rovisys
+MWC panel with ZTE and WhaleCloud
+CIO Event with TCS, Accenture, IBM
+
+69
+Rainmaker Program Priorities
+Executive Engagement
+Account Days
+Executive Roundtables
+Customer Exchanges
+Thought leadership Events
+Impact: Better engagement quality than broad awareness campaigns
+
+Verticalized GTM
+Telco
+Manufacturing
+Retail (New) 
+Public Sector
+FSI
+Impact: Higher customer relevance and larger strategic conversations.
+
+
+Ecosystem Expansion
+HPE, Lenovo, Dell 
+IBM
+TCS
+Accenture
+Amdocs
+Starburst
+Impact: Improved credibility and deal size.
+
+
+APAC is Placing Its Bets on Verticals and Ecosystem
+APJ
+
+Q1 Performance Snapshot (Tableau) , campaign ROI: 37.9x 
+70
+Metric
+Result
+Q1 Investment
+USD 95K
+Marketing Touched Pipeline
+USD 3.6M+
+Marketing Sourced Pipeline
+USD 3.1M+
+Marketing Pipeline Type
+Pipeline
+Wins
+Touched
+USD 12M
+USD 7.2M
+Sourced
+USD 8.6M
+USD 5.6M
+CY26 Impact Snapshot (Tableau)
+Q1 Program Impact
+APJ
+
+Success stories 
+that prove scale
+71
+Intel + Red Hat AI Campaign via Tech Target
+USD 1.4M+ marketing-touched pipeline
+19.44x ROI
+Project-lead driven approach
+HPE + Intel + Red Hat RHEL 10 Campaign
+USD 920K+ marketing-touched pipeline
+Strong OEM-led engagement model
+Key takeaway
+Integrated ecosystem campaigns tied to real customer projects significantly outperforms standalone awareness activities.
+Continue
+ ✅ Vertical-led GTM motions ✅ Executive engagements and account days ✅ Ecosystem (OEM, GSI, ISV) collaboration ✅ AI + modernization positioning
+Increase Investment In
+ABM and named-account engagement for Pipeline acceleration programs
+Content syndication / leads
+Reduce Focus On
+Generic broad awareness campaigns
+What we should 
+continue and scale in 2H
+What drove success
+APJ
+
+$960K
+TOTAL CY26 ALLOCATION
+Utilized to Date ($268K)
+28%
+CY26 Rainmaker Utilization & 2H Allocation
+Area
+Investment
+Marketing Programs & Events
+$330K
+Funded Headcount
+$160K
+POCs / Demo / Partner Scale / Servers
+$200K
+Planned 2H Investment Allocation : $690k
+APJ
+
+73
+Account /  Partner Days
+Customer Success Day with Globe Telecom, Philippines 
+Amdocs Partner Day, Philippines
+Demand Gen Events and Executive Engagements
+Manufacturing and Industrial Edge Roundtables in Taiwan (2)
+Retail RTs: The Frontline of Digital Business, Sydney and Melbourne 
+FSI Executive Exchange, Indonesia 
+Public Sector Executive Exchange, Canberra (Aus) 
+Industry Events, Thought Leadership
+CIO Leadership Live Event with GSI partners IBM, TCS and Accenture 
+Semicon Malaysia event and workshop
+Panel Discussion Filmed Onsite at MWC 2026 -  AI, AI-Ops, Autonomous Network
+Executed so far
+Upcoming for Q2 and 2H
+Account /  Partner Days
+FSI Account Days (3), Vietnam
+Smart PLDT Account Day, Philippines
+Samsung Telco Cloud Day , Korea
+ Telco Day at Summit Connect Japan
+Demand Gen Events / Programs  and Executive Engagements
+APAC FSI Insurance Roundtables (Mumbai Aug 2026 , Sydney Feb 2027)
+Red Hat Executive Exchange Event series 
+AI Always on content hub for top funnel lead gen , APAC (EN)
+Integrated Campaign for Manufacturing Components System Suppliers, China
+3-way joint activity with Starburst for India and Australia 
+Rakuten AI Optimism Event, Japan
+Industry Events, Thought Leadership
+Sponsorship - Energy Transition Conf. (ETCon) Malaysia, 3-5 June 2026
+Singapore Fintech Festival (SFF) 
+POCs , Partner Scale Programs
+Vietnam Partner Scale Program
+Dell POC India 
+Telstra POC
+APJ
+Activities 
+
+APJ Activity Snaps
+74
+Accelerating possibilities: Enabling the future of telco with 5G and AI
+Account and Partner Days
+Panel Discussion Filmed Onsite at MWC 2026 - 
+ AI, AI-Ops, Autonomous Network
+Manufacturing and Industrial Edge Roundtables in Taiwan
+Retail in APAC: The Frontline of Digital Business, ANZ
+Content 1
+Content 2
+Public Sector Executive Exchange, Canberra (Event,content sync)
+Semicon Event, Malaysia
+CIO Leadership Live Event, Singapore
+
+Red Hat/Intel Marketing - NA
+2026 1H Highlights 
+CY26 1H  Lowlights
+CY26 2H Focus Areas
+
+Lower attendance at In-Person workshops across all programs
+Venture Beat - Boston; Action: Venture Beat - NYC focused partnership integration with planning and deliverables.
+8 Summit Connects w/ 4 Exec Exchange 
+7 Red Hat Tech Days 
+        ^^ Lab Integrations (6 Xeon Servers) 
+FSI synergy (replicate success with NAPS & Telco & Edge) 
+Marquee Demand & Pipeline Accelerating events: OpenShift Showcase, Ansible Automates, Security Symposium 
+
+Content/Demand Gen
+Thought Leadership/Brand Elevation
+Events
+
+Techtarget Priority Engine programs  (Auto, AI, OpenShift/Virt and RHEL) - targeted audience acquisition
+Red Hat Virtual Security Symposium - Confidential Compute session live & on demand for guaranteed lead delivery
+Top Performing AI content in North America: GovCio panel (2025) and Integrate and Simplify production AI with Red Hat and Intel
+
+Red Hat AI Elevate - FSI Panel with Citi & LPL Financial
+New York City FSI Executive Dinner / Fintech Event Support 
+
+Red Hat AI Elevate, NYC and Palo Alto (June)
+Red Hat Tech Days - Cross Platform Workshop featuring all 4 product workshops (hosted on Intel provided lab stuff) 
+Ansible Automates
+In Person Workshops - AI, Virt and OpenShift, Automation
+Security Symposium
+
+76
+Red Hat Tech Days
+Ansible Automates Toronto
+NA 1H Updates - Regional Events
+Red Hat AI Elevate New York City
+Created Pipeline for Tech Days: $8.9M
+
+77
+Operationalizing Confidential Computing: Securing Data in Use
+Axel Sass, Chief Architect, Field CTO Organization, Red Hat
+Dr. Benny Fuhry, Cloud Software Architect, Intel
+Join Intel and Red Hat experts for a forward-looking session on the technologies redefining trusted computing in the era of AI and data sovereignty. This session will focus on the joint Intel–Red Hat strategy for Confidential Computing and Confidential AI, and how these capabilities are enabling enterprises and governments to protect sensitive data and workloads across hybrid and multi-cloud environments.
+
+We will explore how Intel’s hardware-rooted security innovations, integrated with Red Hat Enterprise Linux (RHEL), establish trusted execution environments that keep data encrypted in use, enforce workload isolation, and enable verifiable trust through attestation. Attendees will gain insight into how these technologies support sovereign and regulated deployments by ensuring control over data, infrastructure, and execution—whether on-prem, at the edge, or in the cloud.
+
+The session will also highlight how Confidential Computing and Confidential AI form the foundation for protecting models, data, and intellectual property throughout the AI lifecycle, enabling secure collaboration, trusted data sharing, and privacy-preserving innovation at scale.
+NA 1H Updates - Security Symposium (Virtual)
+Inquiries: 1,212 Opportunity: $1.98MOpportunity Business New: $766K
+Created Pipeline for Tech Days: $8.9M
+
+78
+Rainmaker Program Update
+Janelle Harris /Sherry Nixon 
+Janelle Harris/Sherry Nixon
+
+90%
+ANNUAL BUDGET EXHAUSTED
+Entering the third month of Q2, the program has utilized nearly the entire CY26 marketing budget.
+Critical Budget Utilization
+
+Total allocation reflects all approvals through May 11, 2025, exceeding the 1H plan by 180%.
+1H Budget vs. Total Allocation
+
+NA / EMEA
+Significant spend compared to full-year CY26 budgets.
+GLOBAL
+Allocation has reached 3x the 1H budgeted amount.
+APAC
+Currently the only region with significant remaining budget
+Regional Performance Status
+
+Region
+1H Budget
+Allocated (To Date)
+Variance (%)
+North America (NA)
+$1,300,000
+$2,561,638
++97%
+EMEA
+$850,000
+$1,855,343
++118%
+APAC
+$480,000
+$179,020
+-63%
+Global
+$120,000
+$349,500
++191%
+Summary of Spend - Q1 + Apr/May 2025
+
+OUTCOME-BASED CLAIMS: PERFORMANCE SUMMARY
+PERFORMANCE HIGHS
+CHALLENGES & LEARNINGS
+$1.2M Milestone: Successfully submitted the inaugural claim under the new Outcome-Based process framework.
+Regional Adaptation: Rapid team adaptation to new proof-of-performance metrics and documentation requirements.
+Strategic Value: Increased upfront operational effort effectively reduces post-approval audit risk and enhances investment visibility.
+Alignment Delays: Initial submission revealed review-team alignment gaps, requiring documentation revisions.
+Coordination Overhead: Shifting to consolidated project-level submissions adds complexity to revision cycles.
+Process Refinement: Continuous collaboration with Intel is ongoing to streamline workflows and reduce approval timelines.
+•
+•
+•
+•
+•
+•
+
+84
+Ecosystem Engagement Update
+Kiran Koritala/Tim Allen
+Tim Allen / Kiran Koritala
+
+Follow Up Items
+85
+
+Follow Up Items
+86
+
+Follow Up Items
+87
+
+Follow Up Items
+88
+
+89
+Recap and Next Steps
+Susan Shipp/Jennifer Horvath/Brian Warren
+
+Follow Up Items
+90
+Confidential Compute - Capability in our products today - Best kept secret
+Need to drive end customer and channel awareness / influence via training  programs for scale 
+Engage sellers/influencers (Jason Corey’s team key engagement) 
+Training and amplify via power hours, blogs, joinit OEM trainings etc.
+Leverage MDF for Intel / RH secure compute campaign for customer / OEMs  - Security Story together
+AI 
+Quick Starts - Great work foundationally for dev. audience.  Follow-up discussion with Karl Eklund 
+Scale needed on messaging for driving into deployment with OEM / GSIs
+Direct customer influence on joint value for joint brand affinity for revenue enablement 
+Scale Red Hat AI Factory Nvidia + Xeon
+Add Intel messaging for Red Hat AI Factory + NVidia 
+Edge AI
+Create Edge AI Quickstart
+Cloud Leadership follow-up for CSP alignment (Breah Winy at RH)
+Ecosystem - Tri branded messaging, Case studies
+
+
+91
+Next Up….
+
+
+
+
+December 2026…..
+
+
+
+
+
+
+
+
+
+
+92
+Appendix
+Susan Shipp/Jennifer Horvath/Brian Warren
+
+
+
+January
+February
+March
+April
+May
+June
+Red Hat-(IHV) Event Plan 2026 
+
+July
+August
+September
+October
+November
+December
+2026
+MWC-B
+RH Summit
+Summit Connects NA 
+Cisco LIVE - Amsterdam
+Summit Connects NA
+Summit Connects NA
+Intel Exec Summit
+HPE Discover
+Dell Tech World
+TechDays
+TechDays
+TechDays
+TechDays
+Intel Fed Summit
+Summit Connects NA
+Cisco LIVE - Las Vegas
