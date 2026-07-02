@@ -8,7 +8,7 @@ const LAYERS = [
     id: 'registry',
     label: 'Agent Registry',
     position: 'Lifecycle',
-    question: '"How do I know what agents are running in my cluster?"',
+    question: '"How do I enforce rules across all agents without checking each one manually?"',
     color: 'var(--ibm-blue)',
     detail: 'AgentRuntime CRDs register agents as Kubernetes resources. Kagenti watches for the kagenti.io/type: agent label and manages the agent lifecycle — creation, health monitoring, scaling, and termination. Agents are managed like Deployments.',
     visual: () => (
@@ -34,7 +34,7 @@ const LAYERS = [
     id: 'discovery',
     label: 'A2A Discovery',
     position: 'Protocol',
-    question: '"How do agents find each other without manual wiring?"',
+    question: '"How do agents find each other without hardcoded URLs?"',
     color: 'var(--rh-green)',
     detail: 'Each agent publishes an AgentCard at /.well-known/agent-card.json — name, skills, capabilities, URL. The orchestrator queries these cards automatically. When a new agent deploys, it\'s discoverable within seconds. No service registry configuration.',
     visual: () => (
@@ -62,7 +62,7 @@ const LAYERS = [
     id: 'identity',
     label: 'SPIFFE Identity',
     position: 'Security',
-    question: '"How do I verify an agent is who it claims to be?"',
+    question: '"How do I know which agent is which — and prove it cryptographically?"',
     color: 'var(--intel-cyan)',
     detail: 'Every agent pod receives a SPIFFE Verifiable Identity Document (SVID) — a cryptographic workload identity issued by the SPIRE server. No static API keys. No shared secrets. Agent-to-agent communication uses mTLS with SVID certificates. Identity is verified at the infrastructure level.',
     visual: () => (
@@ -90,7 +90,7 @@ const LAYERS = [
     id: 'tools',
     label: 'MCP Tool Control',
     position: 'Policy',
-    question: '"Which agents can access which tools — and who decides?"',
+    question: '"How do I control what tools each agent can access?"',
     color: 'var(--rh-red)',
     detail: 'The MCP Gateway federates tools across agents and enforces access policies. Healthcare tools are available to all agents. FinServ tools are restricted to the finserv-agent. Sanctions screening requires explicit approval. Policy-as-code — not permission-by-default.',
     visual: () => (
@@ -135,20 +135,32 @@ const LAYERS = [
 
 export function Act01GovernArchitecture({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
-  const allRevealed = revealed >= LAYERS.length
+
+  const totalSteps = LAYERS.length * 2
+
+  const advance = () => {
+    if (revealed < totalSteps) setRevealed(prev => prev + 1)
+  }
+
+  const allRevealed = revealed >= totalSteps
 
   return (
     <div className="demo-section">
       <h3><span className="section-num">01</span> The Governance Stack</h3>
       <div className="section-context">
-        Four layers of control. Click through each one — from agent registry
-        to tool-level access policies.
+        Four layers of control. Click to see the challenge —
+        then click again to see the platform answer.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        {LAYERS.map((layer, i) => (
+        {LAYERS.map((layer, i) => {
+          const questionStep = (i * 2) + 1
+          const answerStep = (i * 2) + 2
+          const showQuestion = revealed >= questionStep
+          const showAnswer = revealed >= answerStep
+          return (
           <AnimatePresence key={layer.id}>
-            {revealed >= i + 1 && (
+            {showQuestion && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 {i > 0 && <motion.div style={{ width: 2, height: 20, background: layer.color, margin: '0 auto' }} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ duration: 0.3 }} />}
                 <div className="step-card" style={{ borderLeft: `3px solid ${layer.color}` }}>
@@ -160,19 +172,29 @@ export function Act01GovernArchitecture({ onComplete }: Props) {
                     </div>
                   </div>
                   <motion.div style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 10, fontWeight: 500 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>{layer.question}</motion.div>
-                  <motion.div style={{ marginBottom: 12 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{layer.visual()}</motion.div>
-                  <motion.div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>{layer.detail}</motion.div>
+
+                  {showAnswer && (
+                    <>
+                      <motion.div style={{ marginBottom: 12 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{layer.visual()}</motion.div>
+                      <motion.div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>{layer.detail}</motion.div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-        ))}
+          )
+        })}
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>
         {!allRevealed ? (
-          <button className="btn btn-secondary" onClick={() => setRevealed(prev => prev + 1)}>
-            {revealed === 0 ? `Start: ${LAYERS[0].label} →` : `Next: ${LAYERS[revealed].label} →`}
+          <button className="btn btn-secondary" onClick={advance}>
+            {revealed === 0
+              ? 'Start: The first challenge →'
+              : revealed % 2 === 1
+              ? `Show the answer: ${LAYERS[Math.floor((revealed - 1) / 2)].label} →`
+              : 'Next challenge →'}
           </button>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>

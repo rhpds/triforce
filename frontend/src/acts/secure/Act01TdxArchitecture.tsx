@@ -8,7 +8,7 @@ const LAYERS = [
     id: 'hardware',
     label: 'Intel Xeon 6 + TDX',
     position: 'Hardware',
-    question: '"What\'s in the silicon that makes this possible?"',
+    question: '"How do I encrypt data during AI inference — not just at rest?"',
     color: 'var(--intel-cyan)',
     detail: 'Intel TDX is built into the Xeon 6 CPU. It creates Trust Domains — hardware-isolated execution environments with AES-256 memory encryption. The encryption keys live in silicon. No software, no firmware, no hypervisor can read them.',
     visual: () => (
@@ -39,7 +39,7 @@ const LAYERS = [
     id: 'runtime',
     label: 'Kata VM + Trust Domain',
     position: 'Runtime',
-    question: '"How does a container run inside a Trust Domain?"',
+    question: '"How do I run AI workloads in hardware-isolated VMs without changing my code?"',
     color: 'var(--rh-red)',
     detail: 'Red Hat OpenShift Sandboxed Containers uses Kata Containers to run each pod inside a lightweight VM. When TDX is available, that VM boots inside a Trust Domain — the CPU encrypts all its memory automatically. Your container image runs unchanged inside.',
     visual: () => (
@@ -79,7 +79,7 @@ const LAYERS = [
     id: 'trustee',
     label: 'Trustee Operator on OpenShift',
     position: 'Platform',
-    question: '"How do secrets get into the Trust Domain safely?"',
+    question: '"How do I verify the hardware is genuine before releasing secrets?"',
     color: 'var(--ibm-blue)',
     detail: 'The Trustee operator runs on OpenShift and manages three components: the Key Broker Service (KBS) holds secrets, the Attestation Service (AS) verifies hardware state, and the Reference Value Provider (RVPS) stores known-good measurements. Before releasing an API key, Trustee verifies the pod is inside a genuine TDX Trust Domain.',
     visual: () => (
@@ -114,7 +114,7 @@ const LAYERS = [
     id: 'deploy',
     label: 'One Line Deployment',
     position: 'Deploy',
-    question: '"What actually changes in the deployment?"',
+    question: '"How do I enable confidential computing without rewriting my application?"',
     color: 'var(--rh-green)',
     detail: 'One line: runtimeClassName: kata-cc. That\'s the entire difference. Same container image, same application code, same AI model. The Helm chart toggles it with confidential.enabled=true. OpenShift schedules the pod on a TDX-capable node, boots it inside a Kata VM, and the CPU encrypts everything.',
     visual: () => (
@@ -148,7 +148,7 @@ const LAYERS = [
     id: 'application',
     label: 'Same Agent, Same Code',
     position: 'Application',
-    question: '"Does anything change in the application?"',
+    question: '"How does my AI agent get secrets only after hardware attestation?"',
     color: 'var(--rh-green)',
     detail: 'Nothing. The healthcare agent, the LangGraph pipeline, the MCP tools, the models — all identical. The attestation module (attestation.py) automatically detects TDX and fetches secrets from Trustee KBS instead of environment variables. If TDX isn\'t present, it falls back. Zero code changes for the application developer.',
     visual: () => (
@@ -185,24 +185,31 @@ const LAYERS = [
 export function Act01TdxArchitecture({ onComplete }: Props) {
   const [revealed, setRevealed] = useState(0)
 
+  const totalSteps = LAYERS.length * 2
+
   const advance = () => {
-    if (revealed < LAYERS.length) setRevealed(prev => prev + 1)
+    if (revealed < totalSteps) setRevealed(prev => prev + 1)
   }
 
-  const allRevealed = revealed >= LAYERS.length
+  const allRevealed = revealed >= totalSteps
 
   return (
     <div className="demo-section">
       <h3><span className="section-num">01</span> The Security Stack</h3>
       <div className="section-context">
-        Five layers, from silicon to application. Click through each one to see
-        the concept and where it lives on the platform — bottom up.
+        Five layers, from silicon to application. Click to see the challenge —
+        then click again to see the platform answer.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        {LAYERS.map((layer, i) => (
+        {LAYERS.map((layer, i) => {
+          const questionStep = (i * 2) + 1
+          const answerStep = (i * 2) + 2
+          const showQuestion = revealed >= questionStep
+          const showAnswer = revealed >= answerStep
+          return (
           <AnimatePresence key={layer.id}>
-            {revealed >= i + 1 && (
+            {showQuestion && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -233,26 +240,35 @@ export function Act01TdxArchitecture({ onComplete }: Props) {
                     {layer.question}
                   </motion.div>
 
-                  <motion.div style={{ marginBottom: 12 }}
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                    {layer.visual()}
-                  </motion.div>
+                  {showAnswer && (
+                    <>
+                      <motion.div style={{ marginBottom: 12 }}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                        {layer.visual()}
+                      </motion.div>
 
-                  <motion.div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }}
-                    initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                    {layer.detail}
-                  </motion.div>
+                      <motion.div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }}
+                        initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                        {layer.detail}
+                      </motion.div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-        ))}
+          )
+        })}
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>
         {!allRevealed ? (
           <button className="btn btn-secondary" onClick={advance}>
-            {revealed === 0 ? `Start: ${LAYERS[0].label} →` : `Next: ${LAYERS[revealed].label} →`}
+            {revealed === 0
+              ? 'Start: The first challenge →'
+              : revealed % 2 === 1
+              ? `Show the answer: ${LAYERS[Math.floor((revealed - 1) / 2)].label} →`
+              : 'Next challenge →'}
           </button>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
