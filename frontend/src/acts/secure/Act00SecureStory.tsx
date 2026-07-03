@@ -1,144 +1,154 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
+import { TriforceIntro } from '../../components/TriforceIntro'
 
 interface Props { onComplete?: () => void }
 
+const sourceStyle: React.CSSProperties = {
+  fontSize: 9, color: 'var(--text-dim)', fontStyle: 'italic', marginTop: 4,
+}
+
 export function Act00SecureStory({ onComplete }: Props) {
-  const [beat, setBeat] = useState(0)
+  const [step, setStep] = useState(-1)
+
+  if (step === -1) {
+    return <TriforceIntro onComplete={() => setStep(0)} />
+  }
+
+  const advance = () => setStep(s => s + 1)
+
+  const slides = [
+    // Step 0: The fine
+    <div key="fine" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 80, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)', lineHeight: 1 }}>
+        $1.5M
+      </div>
+      <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12 }}>
+        average HIPAA violation fine
+      </div>
+      <div style={sourceStyle}>HHS OCR</div>
+    </div>,
+
+    // Step 1: The exposure
+    <div key="exposure" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 26, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+        Every AI inference processes your most sensitive data.
+      </div>
+      <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12, lineHeight: 1.5 }}>
+        Patient records. Transaction histories. Subscriber identities.
+      </div>
+    </div>,
+
+    // Step 2: Naked in memory
+    <div key="naked" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 26, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+        Protected at rest.
+      </div>
+      <div style={{ fontSize: 26, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>
+        Protected in transit.
+      </div>
+      <div style={{ fontSize: 30, fontWeight: 600, color: 'var(--rh-red)', marginTop: 12 }}>
+        Naked in memory during inference.
+      </div>
+    </div>,
+
+    // Step 3: 80% stat
+    <div key="eighty" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 80, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)', lineHeight: 1 }}>
+        80%
+      </div>
+      <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12 }}>
+        of AI deployments have zero encryption during processing
+      </div>
+      <div style={sourceStyle}>Industry estimate</div>
+    </div>,
+
+    // Step 4: 2x2 grid
+    <div key="grid" style={{ textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 520, margin: '0 auto' }}>
+        <div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>$1.5M</div>
+          <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>HIPAA violation fine</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>80%</div>
+          <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>no encryption in use</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--text-primary)' }}>800-171</div>
+          <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>NIST CUI protection</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--text-primary)' }}>FedRAMP</div>
+          <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>data sovereignty</div>
+        </div>
+      </div>
+    </div>,
+
+    // Step 5: Root cause
+    <div key="root" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 26, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+        Every compliance framework assumes encryption in use.
+      </div>
+      <div style={{ fontSize: 30, fontWeight: 600, color: 'var(--text-primary)', marginTop: 12 }}>
+        Almost no AI deployment provides it.
+      </div>
+    </div>,
+
+    // Step 6: The reframe
+    <div key="reframe" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--rh-green)', lineHeight: 1.4 }}>
+        What if one line of YAML encrypted every byte during inference
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--intel-cyan)', marginTop: 12, lineHeight: 1.4 }}>
+        — in silicon, where even root access can't read it?
+      </div>
+    </div>,
+
+    // Step 7: The proof
+    <div key="proof" style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--intel-cyan)', lineHeight: 1.6 }}>
+        Intel TDX does exactly that.
+      </div>
+      <div style={{ fontSize: 18, color: 'var(--intel-cyan)', marginTop: 8 }}>
+        And it's running on this machine.
+      </div>
+    </div>,
+  ]
+
+  const isLast = step >= slides.length - 1
 
   return (
-    <div className="demo-section" onClick={() => beat < 4 && setBeat(b => b + 1)}>
-      <h3><span className="section-num">00</span> The Trust Question</h3>
+    <div
+      className="demo-section"
+      onClick={isLast ? undefined : advance}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', minHeight: 400, cursor: isLast ? 'default' : 'pointer',
+      }}
+    >
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.4 }}
+        style={{ maxWidth: 600, width: '100%' }}
+      >
+        {slides[step]}
+      </motion.div>
 
-      {/* Beat 1 — The exposure */}
-      <AnimatePresence>
-        {beat >= 0 && (
-          <motion.div
-            key="beat-0"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ marginBottom: 24 }}
-          >
-            <p style={{ fontSize: 18, color: 'var(--text-primary)', lineHeight: 1.7 }}>
-              Every AI inference processes your most sensitive data.
-            </p>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              Patient records. Transaction histories. Subscriber identities.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Beat 2 — The cost of failure */}
-      <AnimatePresence>
-        {beat >= 1 && (
-          <motion.div
-            key="beat-1"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ marginBottom: 24 }}
-          >
-            <div style={{
-              fontSize: 48, fontFamily: 'var(--font-mono, monospace)', fontWeight: 700,
-              color: 'var(--rh-red)', marginBottom: 8,
-            }}>
-              $1.5M
-            </div>
-            <p style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text-dim)', margin: '0 0 16px' }}>
-              average HIPAA violation fine — HHS Office for Civil Rights
-            </p>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              But 80% of AI pilots never even considered encryption during processing.
-            </p>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              Protected at rest. Protected in transit.
-            </p>
-            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--rh-red)' }}>
-              Naked in memory during inference.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Beat 3 — The regulatory wall */}
-      <AnimatePresence>
-        {beat >= 2 && (
-          <motion.div
-            key="beat-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ marginBottom: 24 }}
-          >
-            <div style={{ lineHeight: 1.9, fontSize: 16, color: 'var(--text-secondary)' }}>
-              <p>NIST 800-171 requires CUI protection during processing.</p>
-              <p>FedRAMP requires data sovereignty.</p>
-              <p>PHMSA requires sensor data integrity.</p>
-              <p>Every framework assumes encryption in use.</p>
-              <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                Almost no AI deployment provides it.
-              </p>
-            </div>
-            <p style={{ fontSize: 9, fontStyle: 'italic', color: 'var(--text-dim)', marginTop: 8 }}>
-              Sources: NIST SP 800-171 Rev 3 (2024), FedRAMP Authorization Boundary Guidance, PHMSA 49 CFR 192
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Beat 4 — The reframe */}
-      <AnimatePresence>
-        {beat >= 3 && (
-          <motion.div
-            key="beat-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ marginBottom: 24 }}
-          >
-            <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--intel-cyan)', lineHeight: 1.7 }}>
-              What if one line of YAML encrypted every byte of data during inference
-              — in silicon, at the hardware level, where even root access can't read it?
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Beat 5 — The answer */}
-      <AnimatePresence>
-        {beat >= 4 && (
-          <motion.div
-            key="beat-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ textAlign: 'center', marginTop: 32 }}
-          >
-            <p style={{ fontSize: 18, color: 'var(--text-primary)', lineHeight: 1.7 }}>
-              Intel TDX does exactly that.
-            </p>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 24 }}>
-              And it's running on this machine.
-            </p>
-            <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); onComplete?.() }}>
-              See the proof →
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {beat < 4 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-disabled)', marginTop: 32, cursor: 'pointer' }}
-        >
-          click to continue
-        </motion.div>
+      {isLast && (
+        <div style={{ marginTop: 32 }}>
+          <button className="btn btn-primary" onClick={onComplete}>
+            See the proof &rarr;
+          </button>
+        </div>
       )}
+
+      <div style={{ fontSize: 10, color: 'var(--text-disabled)', marginTop: 16 }}>
+        {step + 1} / {slides.length}
+      </div>
     </div>
   )
 }
