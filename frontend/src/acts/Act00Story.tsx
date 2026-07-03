@@ -61,7 +61,29 @@ export function Act00Story({ onComplete }: Props) {
       <div style={sourceStyle}>MIT Project NANDA, 2025</div>
     </div>,
 
-    // Step 4: Root cause intro
+    // Step 4: All four stats in 2x2 grid — "let that sink in"
+    <div key="grid" style={{ textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 520, margin: '0 auto' }}>
+        <div>
+          <div style={{ fontSize: 36, fontWeight: 700, fontFamily: 'monospace', color: 'var(--text-primary)' }}>$684B</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>spent on AI in 2025</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 36, fontWeight: 700, fontFamily: 'monospace', color: 'var(--rh-red)' }}>$547B</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>produced nothing</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 36, fontWeight: 700, fontFamily: 'monospace', color: 'var(--rh-red)' }}>80.3%</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>projects failed — RAND</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 36, fontWeight: 700, fontFamily: 'monospace', color: 'var(--rh-red)' }}>95%</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>zero P&L impact — MIT</div>
+        </div>
+      </div>
+    </div>,
+
+    // Step 5: Root cause intro
     <div key="root" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 22, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
         Not because the models were wrong.
