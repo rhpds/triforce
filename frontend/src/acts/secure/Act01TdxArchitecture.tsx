@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 
 interface Props { onComplete?: () => void }
 
@@ -201,77 +201,102 @@ export function Act01TdxArchitecture({ onComplete }: Props) {
         then click again to see the platform answer.
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        {LAYERS.map((layer, i) => {
-          const questionStep = (i * 2) + 1
-          const answerStep = (i * 2) + 2
-          const showQuestion = revealed >= questionStep
-          const showAnswer = revealed >= answerStep
-          return (
-          <AnimatePresence key={layer.id}>
-            {showQuestion && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                {i > 0 && (
-                  <motion.div style={{ width: 2, height: 20, background: layer.color, margin: '0 auto' }}
-                    initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ duration: 0.3 }} />
-                )}
-
-                <div className="step-card" style={{ borderLeft: `3px solid ${layer.color}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <span className="step-num" style={{ background: layer.color, fontSize: 11 }}>{i + 1}</span>
-                    <div style={{ flex: 1 }}>
-                      <strong>{layer.label}</strong>
-                      <span style={{
-                        fontSize: 10, marginLeft: 8, padding: '1px 8px', borderRadius: 4,
-                        background: 'var(--surface-2)', color: 'var(--text-disabled)',
-                        border: '1px solid var(--border)',
-                      }}>
-                        {layer.position}
-                      </span>
-                    </div>
-                  </div>
-
-                  <motion.div style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 10, fontWeight: 500 }}
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
-                    {layer.question}
-                  </motion.div>
-
-                  {showAnswer && (
-                    <>
-                      <motion.div style={{ marginBottom: 12 }}
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                        {layer.visual()}
-                      </motion.div>
-
-                      <motion.div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.7 }}
-                        initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                        {layer.detail}
-                      </motion.div>
-                    </>
-                  )}
+      <div className={revealed > 0 ? 'arch-diagram' : ''}>
+        {/* Completed layers — collapsed to badges */}
+        {revealed > 0 && (
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
+            {LAYERS.map((layer, i) => {
+              const answerStep = (i * 2) + 2
+              if (revealed < answerStep) return null
+              const isCurrent = revealed === answerStep
+              if (isCurrent) return null
+              return (
+                <div key={layer.id} style={{
+                  padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+                  background: 'var(--surface-2)', border: `1px solid ${layer.color}`,
+                  color: layer.color, opacity: 0.7,
+                }}>
+                  ✓ {layer.label}
                 </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Current layer — question and/or answer */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          {LAYERS.map((layer, i) => {
+            const questionStep = (i * 2) + 1
+            const answerStep = (i * 2) + 2
+            const isCurrentQuestion = revealed === questionStep
+            const isCurrentAnswer = revealed === answerStep
+            const isCurrent = isCurrentQuestion || isCurrentAnswer
+            if (!isCurrent) return null
+            return (
+              <motion.div
+                key={layer.id}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div
+                  style={{
+                    fontSize: 17, fontStyle: 'italic', color: 'var(--text-primary)',
+                    textAlign: 'center', maxWidth: 520, padding: '12px 0 8px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {layer.question}
+                </motion.div>
+
+                {isCurrentAnswer && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                  >
+                    <div style={{ marginBottom: 4 }}>
+                      {layer.visual()}
+                    </div>
+
+                    <motion.div
+                      style={{
+                        fontSize: 13, color: 'var(--text-dim)', maxWidth: 520,
+                        textAlign: 'center', padding: '4px 0 16px', lineHeight: 1.6,
+                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      {layer.detail}
+                    </motion.div>
+                  </motion.div>
+                )}
               </motion.div>
-            )}
-          </AnimatePresence>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: 20 }}>
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
         {!allRevealed ? (
           <button className="btn btn-secondary" onClick={advance}>
             {revealed === 0
               ? 'Start: The first challenge →'
               : revealed % 2 === 1
               ? `Show the answer: ${LAYERS[Math.floor((revealed - 1) / 2)].label} →`
-              : 'Next challenge →'}
+              : revealed < LAYERS.length * 2
+              ? 'Next challenge →'
+              : ''}
           </button>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             <div style={{ fontSize: 13, color: 'var(--rh-green)', fontWeight: 600, marginBottom: 16 }}>
               Hardware → Runtime → Platform → Deploy → Application — the entire stack, one toggle
             </div>
