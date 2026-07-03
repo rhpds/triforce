@@ -72,14 +72,14 @@ async def log_audit(agent_name: str, action: str, entity_type: str = None,
         logger.warning("Failed to log audit: %s", e)
 
 
-async def get_inference_stats(window_minutes: int = 60):
+async def get_inference_stats(window_minutes: int = 5):
     if not _pool:
         return {}
     try:
         row = await _pool.fetchrow(
             """SELECT
                 COUNT(*) as total_requests,
-                COALESCE(AVG(latency_ms), 0) as avg_latency_ms,
+                COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY latency_ms), 0) as median_latency_ms,
                 COALESCE(percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms), 0) as p95_latency_ms,
                 COUNT(*) FILTER (WHERE accelerator = 'cpu') as cpu_requests,
                 COUNT(*) FILTER (WHERE accelerator = 'gpu') as gpu_requests,
@@ -89,16 +89,22 @@ async def get_inference_stats(window_minutes: int = 60):
                FROM inference_log
                WHERE created_at > now() - interval '%s minutes'""" % window_minutes
         )
+        last = await _pool.fetchrow(
+            "SELECT latency_ms, model, task_type FROM inference_log ORDER BY created_at DESC LIMIT 1"
+        )
         total = row["total_requests"]
         return {
             "total_requests": total,
-            "avg_latency_ms": float(row["avg_latency_ms"]),
+            "avg_latency_ms": float(row["median_latency_ms"]),
             "p95_latency_ms": float(row["p95_latency_ms"]),
             "cpu_requests": row["cpu_requests"],
             "gpu_requests": row["gpu_requests"],
             "kv_cache_hit_rate": row["cache_hits"] / total if total > 0 else 0,
             "total_input_tokens": row["total_input_tokens"],
             "total_output_tokens": row["total_output_tokens"],
+            "last_request_ms": last["latency_ms"] if last else 0,
+            "last_request_model": last["model"] if last else "",
+            "window_minutes": window_minutes,
         }
     except Exception as e:
         logger.warning("Failed to get stats: %s", e)
