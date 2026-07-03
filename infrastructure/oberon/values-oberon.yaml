@@ -4,12 +4,16 @@
 
 namespace: triforce
 
+# Secrets injected at deploy time — do not hardcode here
+# oc create secret generic triforce-secrets -n triforce \
+#   --from-literal=litellm-api-key="$(openssl rand -hex 16)" \
+#   --from-literal=postgres-password="$(openssl rand -base64 16)"
 litellm:
   apiBase: "http://litellm.triforce.svc:4000"
-  apiKey: "local-oberon-key"
+  apiKey: ""  # injected from triforce-secrets
 
 postgres:
-  password: "triforce-oberon-2026"
+  password: ""  # injected from triforce-secrets
 
 # Benchmark-optimized model assignments for Xeon 6767P
 healthcareAgent:

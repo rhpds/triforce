@@ -105,6 +105,7 @@ modules:
     model: bitnet-2b4t
     scadaVm:
       enabled: false
+      password: ""
       cores: 2
       memory: 4Gi
 
@@ -119,5 +120,6 @@ virtualization:
   vm:
     name: legacy-database
     image: registry.redhat.io/rhel9/rhel-guest-image:latest
+    password: ""
     cores: 4
     memory: 8Gi

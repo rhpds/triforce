@@ -48,8 +48,7 @@ spec:
             userData: |
               #cloud-config
               user: operator
-              # Demo credential — printed in lab instructions, not a real secret
-              password: scada-demo
+              password: {{ .Values.modules.edge.scadaVm.password | default "changeme" }}
               chpasswd: { expire: false }
               write_files:
                 - path: /opt/scada/station-config.json
