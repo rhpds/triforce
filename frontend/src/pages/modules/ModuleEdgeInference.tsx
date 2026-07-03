@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { ModuleLayout, StepCard } from '../../components/ModuleLayout'
+import { getConfig } from '../../config'
 
 export default function ModuleEdgeInference() {
   const [demoResult, setDemoResult] = useState<any>(null)
@@ -16,7 +17,7 @@ export default function ModuleEdgeInference() {
       const start = Date.now()
       const resp = await fetch('/litellm/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer local-oberon-key' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getConfig().litellmKey}` },
         body: JSON.stringify({
           model: 'bitnet-2b4t',
           messages: [
@@ -49,7 +50,7 @@ export default function ModuleEdgeInference() {
         const start = Date.now()
         const resp = await fetch('/litellm/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer local-oberon-key' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getConfig().litellmKey}` },
           body: JSON.stringify({
             model,
             messages: [{ role: 'user', content: prompt }],

@@ -1,6 +1,6 @@
 # Triforce Preflight Report
 
-**Generated:** 2026-07-02T14:58:03Z
+**Generated:** 2026-07-02T18:56:33Z
 **Cluster:** https://api.oberon.fm2aihpcsed.com:6443
 **Node:** oberon
 
@@ -17,14 +17,14 @@
 
 | # | Stage | Passed | Failed | Skipped | Status | Duration |
 |---|---|---|---|---|---|---|
-| 1 | Contracts (Stage 0) | 120 | 0 | 0 | **GREEN** | in 2.15s |
-| 2 | Unit Tests (Stage 2) | 49 | 0 | 0 | **GREEN** | in 17.36s |
-| 3 | Modules (Stage 8) | 11 | 0 | 0 | **GREEN** | in 0.56s |
+| 1 | Contracts (Stage 0) | 120 | 0 | 0 | **GREEN** | in 2.29s |
+| 2 | Unit Tests (Stage 2) | 49 | 0 | 0 | **GREEN** | in 18.49s |
+| 3 | Modules (Stage 8) | 11 | 0 | 0 | **GREEN** | in 0.55s |
 | 4 | Frontend Build | 1 | 0 | 0 | **GREEN** |  |
 | 5 | Helm Lint | 2 | 0 | 0 | **GREEN** |  |
-| 6 | Deployment (D0-D10) | 103 | 0 | 3 | **GREEN** | in 377.57s |
-| 7 | Edge + Virt (V0-V4) | 29 | 0 | 0 | **GREEN** | in 33.76s |
-| 8 | Claims + Isolation | 17 | 0 | 0 | **GREEN** | in 84.54s |
+| 6 | Deployment (D0-D10) | 103 | 0 | 3 | **GREEN** | in 382.93s |
+| 7 | Edge + Virt (V0-V4) | 29 | 0 | 0 | **GREEN** | in 34.34s |
+| 8 | Claims + Isolation | 17 | 0 | 0 | **GREEN** | in 85.95s |
 
 ## Claims Audit
 

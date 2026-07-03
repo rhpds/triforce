@@ -23,7 +23,7 @@ const CPU_MODELS = [
 
 const GPU_MODELS = [
   { id: 'granite-3-2-8b-instruct', label: 'granite-8b (GPU — available on MAAS)', hw: 'gpu', params: '8B', checked: true },
-  { id: 'microsoft-phi-4', label: 'phi-4 (GPU — available on MAAS)', hw: 'gpu', params: '14B', checked: false },
+  { id: 'qwen3-14b', label: 'qwen3-14b (GPU — available on MAAS)', hw: 'gpu', params: '14B', checked: false },
   { id: 'gpt-oss-20b', label: 'gpt-oss-20b (GPU — available on MAAS)', hw: 'gpu', params: '20B', checked: false },
 ]
 

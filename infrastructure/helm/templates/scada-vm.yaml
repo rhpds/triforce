@@ -48,6 +48,7 @@ spec:
             userData: |
               #cloud-config
               user: operator
+              # Demo credential — printed in lab instructions, not a real secret
               password: scada-demo
               chpasswd: { expire: false }
               write_files:

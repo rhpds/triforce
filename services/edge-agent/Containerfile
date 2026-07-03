@@ -2,7 +2,7 @@
 # Builds llama-server with BitNet's custom ternary kernels
 # Serves OpenAI-compatible /v1/chat/completions API
 
-FROM registry.access.redhat.com/ubi9/ubi:latest AS builder
+FROM registry.access.redhat.com/ubi9/ubi:9.4-1214.1726694543 AS builder
 
 RUN dnf install -y gcc gcc-c++ cmake make git python3 python3-pip && \
     dnf clean all
@@ -14,13 +14,14 @@ WORKDIR /build/BitNet
 RUN pip3 install -r requirements.txt && \
     python3 setup_env.py --hf-repo microsoft/bitnet-b1.58-2B-4T-gguf -q i2_s
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4-1227.1726694542
 
 RUN microdnf install -y libstdc++ libgomp && microdnf clean all
 
 COPY --from=builder /build/BitNet/build/bin/llama-server /usr/local/bin/llama-server
 COPY --from=builder /build/BitNet/models/bitnet-b1.58-2B-4T-gguf/ /models/
 
+USER 1001
 EXPOSE 8080
 
 ENTRYPOINT ["llama-server"]

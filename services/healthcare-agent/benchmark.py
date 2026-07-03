@@ -46,7 +46,7 @@ CPU_MODELS = os.environ.get("BENCHMARK_CPU_MODELS",
 ).split(",")
 
 GPU_MODELS = os.environ.get("BENCHMARK_GPU_MODELS",
-    "granite-3-2-8b-instruct,microsoft-phi-4,gpt-oss-20b,gpt-oss-120b"
+    "granite-3-2-8b-instruct,qwen3-14b,gpt-oss-20b,gpt-oss-120b"
 ).split(",")
 
 

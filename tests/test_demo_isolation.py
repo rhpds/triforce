@@ -11,7 +11,7 @@ import subprocess
 import pytest
 
 NAMESPACE = "triforce"
-KUBECONFIG = os.path.expanduser("~/.kube/config-oberon")
+KUBECONFIG = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config-oberon"))
 
 SAMPLE_TEXT = (
     "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on "
