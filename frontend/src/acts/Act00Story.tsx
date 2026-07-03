@@ -159,7 +159,14 @@ export function Act00Story({ onComplete }: Props) {
   const isLast = step >= slides.length - 1
 
   return (
-    <div className="demo-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+    <div
+      className="demo-section"
+      onClick={isLast ? undefined : advance}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', minHeight: 400, cursor: isLast ? 'default' : 'pointer',
+      }}
+    >
       <motion.div
         key={step}
         initial={{ opacity: 0, y: 20 }}
@@ -171,19 +178,15 @@ export function Act00Story({ onComplete }: Props) {
         {slides[step]}
       </motion.div>
 
-      <div style={{ marginTop: 32 }}>
-        {isLast ? (
+      {isLast && (
+        <div style={{ marginTop: 32 }}>
           <button className="btn btn-primary" onClick={onComplete}>
             Show me &rarr;
           </button>
-        ) : (
-          <button className="btn btn-secondary" onClick={advance}>
-            {step === 0 ? 'Next' : 'click to continue'}
-          </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div style={{ fontSize: 10, color: 'var(--text-disabled)', marginTop: 12 }}>
+      <div style={{ fontSize: 10, color: 'var(--text-disabled)', marginTop: 16 }}>
         {step + 1} / {slides.length}
       </div>
     </div>
