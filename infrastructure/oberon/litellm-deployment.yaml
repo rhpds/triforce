@@ -75,8 +75,15 @@ spec:
       labels:
         app: litellm
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: litellm
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           image: ghcr.io/berriai/litellm:main-latest
           args:
             - --config

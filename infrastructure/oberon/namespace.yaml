@@ -6,13 +6,8 @@ metadata:
     app.kubernetes.io/part-of: triforce
     intel.com/hardware: xeon-6767p
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: triforce-secrets
-  namespace: triforce
-type: Opaque
-stringData:
-  postgres-user: triforce
-  postgres-password: REDACTED_PASSWORD
-  litellm-api-key: local-oberon-key
+# Secret created manually at deploy time:
+#   oc create secret generic triforce-secrets -n triforce \
+#     --from-literal=postgres-user=triforce \
+#     --from-literal=postgres-password="$(openssl rand -base64 16)" \
+#     --from-literal=litellm-api-key="$(openssl rand -hex 16)"

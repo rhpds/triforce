@@ -48,8 +48,7 @@ spec:
             userData: |
               #cloud-config
               user: triforce
-              # Demo credential — printed in lab instructions, not a real secret
-              password: triforce-demo
+              password: {{ .Values.virtualization.vm.password | default "changeme" }}
               chpasswd: { expire: false }
               runcmd:
                 - echo "Triforce Legacy VM — running alongside AI agents on Intel Xeon 6"
