@@ -14,7 +14,7 @@ import yaml
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAMESPACE = "triforce"
-KUBECONFIG = os.path.expanduser("~/.kube/config-oberon")
+KUBECONFIG = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config-oberon"))
 REGISTRY_PATH = os.path.join(REPO_ROOT, "tests", "claim_registry.yaml")
 
 

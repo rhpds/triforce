@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-20:latest AS build
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-71.1726664346 AS build
 
 USER 0
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM registry.access.redhat.com/ubi9/nginx-122:latest
+FROM registry.access.redhat.com/ubi9/nginx-122:1-18.1726551932
 
 COPY --from=build /app/dist /opt/app-root/src
 COPY nginx.conf /opt/app-root/etc/nginx.default.d/triforce.conf

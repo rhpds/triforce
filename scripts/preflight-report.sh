@@ -7,8 +7,8 @@ set -o pipefail
 
 REPORT="${1:-tests/preflight-report.md}"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-CLUSTER=$(KUBECONFIG=~/.kube/config-oberon oc whoami --show-server 2>/dev/null || echo "unknown")
-NODE=$(KUBECONFIG=~/.kube/config-oberon oc get nodes -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "unknown")
+CLUSTER=$(KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config-oberon}" oc whoami --show-server 2>/dev/null || echo "unknown")
+NODE=$(KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config-oberon}" oc get nodes -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "unknown")
 
 TOTAL_PASS=0
 TOTAL_FAIL=0
@@ -79,13 +79,13 @@ run_stage 5 "Helm Lint" \
   "helm template infrastructure/helm --set postgres.password=test --set litellm.apiKey=test --set litellm.apiBase=http://test > /dev/null 2>&1 && helm template infrastructure/helm -f infrastructure/oberon/values-oberon.yaml > /dev/null 2>&1 && echo '2 passed'"
 
 run_stage 6 "Deployment (D0-D10)" \
-  "KUBECONFIG=~/.kube/config-oberon python3 -m pytest tests/test_deployment.py --tb=no -q -k 'not frontend_builds' 2>&1"
+  "KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config-oberon} python3 -m pytest tests/test_deployment.py --tb=no -q -k 'not frontend_builds' 2>&1"
 
 run_stage 7 "Edge + Virt (V0-V4)" \
-  "KUBECONFIG=~/.kube/config-oberon python3 -m pytest tests/test_virt_edge.py --tb=no -q -k 'not frontend_builds' 2>&1"
+  "KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config-oberon} python3 -m pytest tests/test_virt_edge.py --tb=no -q -k 'not frontend_builds' 2>&1"
 
 run_stage 8 "Claims + Isolation" \
-  "KUBECONFIG=~/.kube/config-oberon python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py --tb=no -q 2>&1"
+  "KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config-oberon} python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py --tb=no -q 2>&1"
 
 # Claims audit
 UNVERIFIED=$(python3 -c "import yaml; d=yaml.safe_load(open('tests/claim_registry.yaml')); u=[c for c in d['claims'] if not c.get('verified')]; print(len(u))" 2>/dev/null || echo "?")

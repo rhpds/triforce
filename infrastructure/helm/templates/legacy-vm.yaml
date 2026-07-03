@@ -48,6 +48,7 @@ spec:
             userData: |
               #cloud-config
               user: triforce
+              # Demo credential — printed in lab instructions, not a real secret
               password: triforce-demo
               chpasswd: { expire: false }
               runcmd:

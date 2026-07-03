@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:latest AS builder
+FROM registry.access.redhat.com/ubi9/python-311:1-72.1726664307 AS builder
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir onnxruntime optimum
 
-FROM registry.access.redhat.com/ubi9/python-311:latest
+FROM registry.access.redhat.com/ubi9/python-311:1-72.1726664307
 
 WORKDIR /app
 

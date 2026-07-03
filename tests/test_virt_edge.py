@@ -14,7 +14,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).parent.parent
 NAMESPACE = "triforce"
-KUBECONFIG = os.path.expanduser("~/.kube/config-oberon")
+KUBECONFIG = os.environ.get("KUBECONFIG", os.path.expanduser("~/.kube/config-oberon"))
 
 
 def oc(*args, namespace=None):

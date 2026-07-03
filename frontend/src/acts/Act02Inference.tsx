@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../components/PipelineAnimation'
 import { useDemoMetrics } from '../DemoContext'
+import { getConfig } from '../config'
 
 interface Props { onComplete?: () => void }
 
@@ -176,7 +177,7 @@ export function Act02Inference({ onComplete }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer local-oberon-key',
+          'Authorization': `Bearer ${getConfig().litellmKey}`,
         },
         body: JSON.stringify({
           model: 'granite-2b-cpu',
@@ -212,7 +213,7 @@ export function Act02Inference({ onComplete }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer local-oberon-key',
+          'Authorization': `Bearer ${getConfig().litellmKey}`,
         },
         body: JSON.stringify({
           model: 'bitnet-2b4t',
