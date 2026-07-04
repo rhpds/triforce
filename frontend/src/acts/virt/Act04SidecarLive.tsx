@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { getConfig } from '../../config'
 
 interface Props { onComplete?: () => void }
 
@@ -13,9 +12,9 @@ export function Act04SidecarLive({ onComplete }: Props) {
     const prompt = 'Compressor B vibration X-axis 6.8mm/s (baseline 4.2), Y-axis 5.9mm/s (baseline 3.8), trending up 22% over 40 minutes. Is this an anomaly? Brief answer.'
     try {
       const start = Date.now()
-      const resp = await fetch('/litellm/v1/chat/completions', {
+      const resp = await fetch('/bitnet/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getConfig().litellmKey}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'bitnet-2b4t',
           messages: [{ role: 'user', content: prompt }],

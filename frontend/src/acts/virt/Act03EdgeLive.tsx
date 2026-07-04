@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { getConfig } from '../../config'
 
 interface Props { onComplete?: () => void }
 
@@ -24,9 +23,9 @@ export function Act03EdgeLive({ onComplete }: Props) {
 
     try {
       const start = Date.now()
-      const resp = await fetch('/litellm/v1/chat/completions', {
+      const resp = await fetch('/bitnet/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getConfig().litellmKey}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'bitnet-2b4t',
           messages: [

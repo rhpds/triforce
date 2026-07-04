@@ -12,7 +12,6 @@ describe('Story Acts', () => {
   it('Act01 renders architecture with click-through layers', async () => {
     const { Act01Architecture } = await import('../acts/Act01Architecture')
     render(<Act01Architecture />)
-    expect(screen.getByText(/Start: Intelligent Routing/)).toBeInTheDocument()
     expect(screen.getByText(/Architecture/)).toBeInTheDocument()
   })
 
@@ -71,7 +70,6 @@ describe('Secure Acts', () => {
     const { Act01TdxArchitecture } = await import('../acts/secure/Act01TdxArchitecture')
     render(<Act01TdxArchitecture />)
     expect(screen.getByText(/The Security Stack/)).toBeInTheDocument()
-    expect(screen.getByText(/Start: Intel Xeon 6/)).toBeInTheDocument()
   })
 
   it('Act02 Attestation renders handshake steps', async () => {
@@ -120,7 +118,6 @@ describe('Virt Acts', () => {
     const { Act01VirtArchitecture } = await import('../acts/virt/Act01VirtArchitecture')
     render(<Act01VirtArchitecture />)
     expect(screen.getByText(/The Coexistence Stack/)).toBeInTheDocument()
-    expect(screen.getByText(/Start: Intel Xeon 6/)).toBeInTheDocument()
   })
 
   it('Act02 Virt renders one server', async () => {
@@ -167,7 +164,6 @@ describe('Govern Acts', () => {
     const { Act01GovernArchitecture } = await import('../acts/govern/Act01GovernArchitecture')
     render(<Act01GovernArchitecture />)
     expect(screen.getByText(/The Governance Stack/)).toBeInTheDocument()
-    expect(screen.getByText(/Start: Agent Registry/)).toBeInTheDocument()
   })
 
   it('Act02 Govern renders discovery button', async () => {

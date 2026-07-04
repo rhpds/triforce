@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../components/PipelineAnimation'
 import { useDemoMetrics } from '../DemoContext'
-import { getConfig } from '../config'
 
 interface Props { onComplete?: () => void }
 
@@ -173,24 +172,21 @@ export function Act02Inference({ onComplete }: Props) {
     setTelcoResult(null)
     const start = performance.now()
     try {
-      const resp = await fetch('/litellm/v1/chat/completions', {
+      const resp = await fetch('/healthcare/api/v1/classify', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getConfig().litellmKey}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'granite-2b-cpu',
-          messages: [
-            { role: 'system', content: 'You are a network operations AI. Analyze cell tower metrics and classify the event.' },
-            { role: 'user', content: 'NETWORK ANOMALY: Cell tower RAN-0742 sector 3 in Dallas metro. Throughput dropped 34% over 2 hours. Handover failure rate 12% (baseline 2%). Adjacent cells normal. RSRP degradation on band n78. Classify as: network_anomaly, capacity_warning, hardware_fault, interference, or routine. Provide brief analysis.' },
-          ],
-          max_tokens: 128,
+          text: 'NETWORK ANOMALY: Cell tower RAN-0742 sector 3 in Dallas metro. Throughput dropped 34% over 2 hours. Handover failure rate 12% (baseline 2%). Adjacent cells normal. RSRP degradation on band n78. Classify as: network_anomaly, capacity_warning, hardware_fault, interference, or routine. Provide brief analysis.',
+          skip_cache: true,
         }),
       })
       const data = await resp.json()
       const elapsed = Math.round(performance.now() - start)
-      setTelcoResult({ ...data, latency_ms: elapsed })
+      setTelcoResult({
+        choices: [{ message: { content: `Classification: ${data.classification} (${(data.confidence * 100).toFixed(0)}% confidence). Model: ${data.model}, Accelerator: ${data.accelerator}, Inference: ${data.inference_ms}ms.` } }],
+        model: data.model,
+        latency_ms: elapsed,
+      })
       setTelcoDone(true)
     } catch {
       const elapsed = Math.round(performance.now() - start)
@@ -209,11 +205,10 @@ export function Act02Inference({ onComplete }: Props) {
     setEnergyResult(null)
     const start = performance.now()
     try {
-      const resp = await fetch('/litellm/v1/chat/completions', {
+      const resp = await fetch('/bitnet/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getConfig().litellmKey}`,
         },
         body: JSON.stringify({
           model: 'bitnet-2b4t',

@@ -4,22 +4,46 @@
 
 FROM registry.access.redhat.com/ubi9/ubi:9.4 AS builder
 
-RUN dnf install -y gcc gcc-c++ cmake make git python3 python3-pip && \
+RUN dnf install -y clang cmake make git python3 python3-pip && \
     dnf clean all
 
 WORKDIR /build
-RUN git clone --depth 1 https://github.com/microsoft/BitNet.git
+RUN git clone --recursive https://github.com/microsoft/BitNet.git
 
 WORKDIR /build/BitNet
-RUN pip3 install -r requirements.txt && \
-    python3 setup_env.py --hf-repo microsoft/bitnet-b1.58-2B-4T-gguf -q i2_s
+RUN pip3 install -r requirements.txt
+
+# Pre-patch const-correctness bug in ternary kernel
+RUN find . -name "*.cpp" -o -name "*.h" | \
+    xargs grep -rl "int8_t \* y_col" 2>/dev/null | \
+    xargs sed -i 's/int8_t \* y_col/const int8_t * y_col/g' 2>/dev/null; \
+    echo "const patch applied"
+
+# Build llama-server
+COPY build-cmake.sh /build/build-cmake.sh
+RUN chmod +x /build/build-cmake.sh && /build/build-cmake.sh
+
+# Download only the pre-converted 400MB GGUF
+RUN huggingface-cli download microsoft/bitnet-b1.58-2B-4T-gguf \
+    ggml-model-i2_s.gguf --local-dir /build/model
+
+# Export all artifacts to known paths
+RUN mkdir -p /export/lib && \
+    cp build/bin/llama-server /export/ && \
+    find build/ -name "libllama.so" -exec cp {} /export/lib/ \; && \
+    find build/ -name "libggml.so" -exec cp {} /export/lib/ \; && \
+    find build/ -name "libggml-base.so" -exec cp {} /export/lib/ \; && \
+    find build/ -name "libggml-cpu.so" -exec cp {} /export/lib/ \; && \
+    ls -la /export/ /export/lib/
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4
 
-RUN microdnf install -y libstdc++ libgomp && microdnf clean all
+RUN microdnf install -y libstdc++ libgomp libomp && microdnf clean all
 
-COPY --from=builder /build/BitNet/build/bin/llama-server /usr/local/bin/llama-server
-COPY --from=builder /build/BitNet/models/bitnet-b1.58-2B-4T-gguf/ /models/
+COPY --from=builder /export/llama-server /usr/local/bin/llama-server
+COPY --from=builder /export/lib/ /usr/local/lib/
+COPY --from=builder /build/model/ggml-model-i2_s.gguf /models/ggml-model-i2_s.gguf
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 USER 1001
 EXPOSE 8080
