@@ -260,7 +260,7 @@ stages:
     description: "Benchmark rubric validates all 10 model aliases on Xeon 6767P with real baselines"
     threshold: 80
     criteria:
-      benchmark_all_9_models:
+      benchmark_all_10_models:
         description: "GET /api/v1/benchmark/models returns all 10 local model aliases"
         points: 10
         required: true
@@ -434,7 +434,7 @@ stages:
         required: true
 
       # Combined
-      all_14_modules_combined:
+      all_15_modules_combined:
         description: "All 15 modules enabled simultaneously, full pipeline completes without conflicts"
         points: 15
         required: true
