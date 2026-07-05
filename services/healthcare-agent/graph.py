@@ -20,10 +20,14 @@ from typing_extensions import TypedDict
 
 LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.maas.redhatworkshops.io")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
+GPU_API_BASE = os.environ.get("GPU_API_BASE", "")
+GPU_API_KEY = os.environ.get("GPU_API_KEY", "")
 CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "qwen25-3b-cpu")
 NER_MODEL = os.environ.get("NER_MODEL", "granite-2b-cpu")
 SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "qwen25-3b-cpu")
 REASONING_MODEL = os.environ.get("REASONING_MODEL", "phi3-mini-cpu")
+HETEROGENEOUS_ROUTING = os.environ.get("HETEROGENEOUS_ROUTING", "").lower() == "true"
+SEMANTIC_ROUTER_URL = os.environ.get("SEMANTIC_ROUTER_URL", "http://semantic-router:8094")
 
 
 def set_api_key(key: str):
@@ -44,11 +48,32 @@ class HealthcareState(TypedDict):
     skip_cache: bool
 
 
-def _get_llm(model: str = None, max_tokens: int = 1024) -> ChatOpenAI:
+def _resolve_api_base(model: str, text: str = "") -> tuple:
+    """Return (api_base, model, hardware) using heterogeneous routing if enabled."""
+    if not HETEROGENEOUS_ROUTING or not GPU_API_BASE:
+        return LITELLM_API_BASE, model, "cpu"
+    try:
+        import httpx
+        resp = httpx.post(
+            f"{SEMANTIC_ROUTER_URL}/classify",
+            json={"text": text[:500]},
+            timeout=3,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("hardware") == "gpu":
+                return GPU_API_BASE, data.get("model", model), "gpu"
+    except Exception:
+        pass
+    return LITELLM_API_BASE, model, "cpu"
+
+
+def _get_llm(model: str = None, max_tokens: int = 1024, text: str = "") -> ChatOpenAI:
+    api_base, resolved_model, _ = _resolve_api_base(model or CLASSIFY_MODEL, text)
     return ChatOpenAI(
-        model=model or CLASSIFY_MODEL,
-        base_url=f"{LITELLM_API_BASE}/v1",
-        api_key=LITELLM_API_KEY or "no-key",
+        model=resolved_model,
+        base_url=f"{api_base}/v1",
+        api_key=(GPU_API_KEY if api_base == GPU_API_BASE else LITELLM_API_KEY) or "no-key",
         temperature=0.1,
         max_tokens=max_tokens,
     )
@@ -84,7 +109,8 @@ async def classify_node(state: HealthcareState) -> dict:
         f"Document:\n{text[:5000]}"
     )
 
-    llm = _get_llm(CLASSIFY_MODEL, max_tokens=64)
+    _, resolved_model, hardware = _resolve_api_base(CLASSIFY_MODEL, text)
+    llm = _get_llm(CLASSIFY_MODEL, max_tokens=64, text=text)
     start = time.monotonic()
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
@@ -105,8 +131,8 @@ async def classify_node(state: HealthcareState) -> dict:
         await adaptive_cache.store(text, classification)
 
     log_entry = {
-        "node": "classify", "model": CLASSIFY_MODEL,
-        "latency_ms": latency_ms, "accelerator": "cpu",
+        "node": "classify", "model": resolved_model,
+        "latency_ms": latency_ms, "accelerator": hardware,
         "kv_cache_hit": False,
     }
 
@@ -160,7 +186,8 @@ async def extract_entities_node(state: HealthcareState) -> dict:
         "Output: "
     )
 
-    llm = _get_llm(NER_MODEL)
+    _, resolved_model, hardware = _resolve_api_base(NER_MODEL, text)
+    llm = _get_llm(NER_MODEL, text=text)
     start = time.monotonic()
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
@@ -185,7 +212,7 @@ async def extract_entities_node(state: HealthcareState) -> dict:
         entities = []
         latency_ms = 0
 
-    log_entry = {"node": "extract_entities", "model": NER_MODEL, "latency_ms": latency_ms, "accelerator": "cpu"}
+    log_entry = {"node": "extract_entities", "model": resolved_model, "latency_ms": latency_ms, "accelerator": hardware}
 
     return {
         "entities": entities,
@@ -249,7 +276,8 @@ async def summarize_node(state: HealthcareState) -> dict:
         f"Summarize this patient record concisely:\n{text[:8000]}"
     )
 
-    llm = _get_llm(SUMMARIZE_MODEL)
+    _, resolved_model, hardware = _resolve_api_base(SUMMARIZE_MODEL, text)
+    llm = _get_llm(SUMMARIZE_MODEL, text=text)
     start = time.monotonic()
     try:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
@@ -259,7 +287,7 @@ async def summarize_node(state: HealthcareState) -> dict:
         summary = "Summary unavailable."
         latency_ms = 0
 
-    log_entry = {"node": "summarize", "model": SUMMARIZE_MODEL, "latency_ms": latency_ms, "accelerator": "cpu"}
+    log_entry = {"node": "summarize", "model": resolved_model, "latency_ms": latency_ms, "accelerator": hardware}
 
     return {
         "summary": summary,

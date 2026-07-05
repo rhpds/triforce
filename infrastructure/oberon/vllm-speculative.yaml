@@ -19,16 +19,13 @@ spec:
       labels:
         app: vllm-granite-2b-speculative
     spec:
-      securityContext:
-        runAsNonRoot: true
       containers:
         - name: vllm
           securityContext:
-            runAsNonRoot: true
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-          image: registry.redhat.io/rhai/vllm-openai-rhel9:latest
+          image: vllm/vllm-cpu-env:latest
           args:
             - --model=ibm-granite/granite-3.2-2b-instruct
             - --served-model-name=granite-2b-cpu-speculative

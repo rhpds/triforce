@@ -210,6 +210,14 @@ def _model_for_node(result: dict, node: str) -> str:
     )
 
 
+def _hardware_for_node(result: dict, node: str) -> str:
+    """Extract the hardware (cpu/gpu) used for a pipeline node from inference_log."""
+    return next(
+        (e.get("accelerator", "cpu") for e in result.get("inference_log", []) if e.get("node") == node),
+        "cpu",
+    )
+
+
 @app.post("/api/v1/classify")
 async def classify_document(req: models.ClassifyRequest):
     result = await run_graph(req.text)
@@ -219,7 +227,7 @@ async def classify_document(req: models.ClassifyRequest):
         classification=models.DocumentType(result.get("classification", "unknown")),
         confidence=0.85,
         model=_model_for_node(result, "classify"),
-        accelerator="cpu",
+        accelerator=_hardware_for_node(result, "classify"),
         inference_ms=total_ms,
     )
 
@@ -244,7 +252,7 @@ async def extract_entities(req: models.ExtractEntitiesRequest):
     return models.ExtractEntitiesResponse(
         entities=entities,
         model=_model_for_node(result, "extract_entities"),
-        accelerator="cpu",
+        accelerator=_hardware_for_node(result, "extract_entities"),
         inference_ms=total_ms,
     )
 
@@ -257,7 +265,7 @@ async def summarize_record(req: models.SummarizeRequest):
     return models.SummarizeResponse(
         summary=result.get("summary", "Summary unavailable."),
         model=_model_for_node(result, "summarize"),
-        accelerator="cpu",
+        accelerator=_hardware_for_node(result, "summarize"),
         inference_ms=total_ms,
     )
 

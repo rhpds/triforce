@@ -72,10 +72,14 @@ spec:
             - name: ADAPTIVE_CLASSIFICATION
               value: "true"
             {{- if .Values.modules.heterogeneous.enabled }}
+            - name: HETEROGENEOUS_ROUTING
+              value: "true"
             - name: GPU_API_BASE
               value: {{ .Values.modules.heterogeneous.gpuApiBase | quote }}
             - name: GPU_API_KEY
               value: {{ .Values.modules.heterogeneous.gpuApiKey | quote }}
+            - name: SEMANTIC_ROUTER_URL
+              value: "http://semantic-router.{{ .Values.namespace }}.svc.cluster.local:8094"
             - name: ROUTING_THRESHOLD
               value: {{ .Values.modules.heterogeneous.routingThreshold | quote }}
             {{- end }}

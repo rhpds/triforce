@@ -170,12 +170,13 @@ async def run_fusion(prompt: str, task: str = "general") -> dict:
     )
 
     judge_prompt = (
-        f"You are a judge comparing {len(valid)} model responses to the same question.\n\n"
-        f"Original question: {prompt[:500]}\n\n"
-        f"Responses:\n{panel_summary}\n\n"
-        "Return only valid JSON with these exact string fields:\n"
-        '{"consensus":"","contradictions":"","blind_spots":"","synthesis":""}\n'
-        "Be concise and do not wrap the JSON in Markdown."
+        f"Compare these {len(valid)} responses to: {prompt[:300]}\n\n"
+        f"{panel_summary}\n\n"
+        "Respond with EXACTLY this format (fill in each field):\n"
+        "Consensus: [what all models agree on]\n"
+        "Contradictions: [where they disagree]\n"
+        "Blind spots: [what none of them covered]\n"
+        "Synthesis: [your consolidated answer combining the best from each]"
     )
 
     judge_result = await _call_model(judge_model, judge_prompt, max_tokens=500)

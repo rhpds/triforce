@@ -50,7 +50,7 @@ async def test_speculative_run_computes_speedup(monkeypatch):
     assert data["speculative"]["model"] == "granite-2b-cpu-speculative"
     assert data["speedup"] == 2.0
     assert data["baseline"]["output_tokens"] == 24
-    assert "configured and measured faster" in data["message"]
+    assert "2.0x faster" in data["message"]
 
 
 def test_speculative_endpoint_rejects_empty_text(client):

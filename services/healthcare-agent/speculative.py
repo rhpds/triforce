@@ -1,8 +1,12 @@
 """Speculative decoding benchmark endpoints.
 
-Measures the normal target model against a LiteLLM alias backed by a vLLM
-speculative-decoding worker. The application only sees OpenAI-compatible
-chat completions; vLLM owns draft/target verification.
+Two modes:
+- vLLM speculative: measures target vs a vLLM alias with draft-model config
+  (requires vllm-speculative pod — GPU/Gaudi only)
+- App-layer draft: measures target vs draft model directly, showing the
+  latency/quality tradeoff. Works on CPU with OVMS models.
+
+Falls back to app-layer mode when the vLLM speculative model is unreachable.
 """
 
 import os
@@ -45,7 +49,7 @@ def status() -> dict:
         "draft_model": _draft_model(),
         "speculative_model": _speculative_model(),
         "api_base_configured": bool(os.environ.get("LITELLM_API_BASE", "")),
-        "mode": "vllm-draft-model",
+        "mode": "vllm-draft-model" if enabled else "app-layer-draft",
         "num_speculative_tokens": int(os.environ.get("SPECULATIVE_NUM_TOKENS", "5")),
         "claim_threshold": _claim_threshold(),
     }
@@ -99,7 +103,14 @@ async def _call_model(model: str, text: str, task: str, max_tokens: Optional[int
 
 async def run(text: str, task: str = "summarization", max_tokens: Optional[int] = None) -> dict:
     baseline = await _call_model(_target_model(), text, task, max_tokens)
+
+    # Try vLLM speculative model first; fall back to draft model
     speculative = await _call_model(_speculative_model(), text, task, max_tokens)
+    mode = "vllm-draft-model"
+
+    if "error" in speculative:
+        speculative = await _call_model(_draft_model(), text, task, max_tokens)
+        mode = "app-layer-draft"
 
     speedup = None
     if "error" not in baseline and "error" not in speculative and speculative["latency_ms"] > 0:
@@ -111,10 +122,10 @@ async def run(text: str, task: str = "summarization", max_tokens: Optional[int] 
         message = "Speculative decoding could not be measured for this prompt."
     elif speedup >= claim_threshold:
         run_status = "complete"
-        message = "Speculative decoding is configured and measured faster on this prompt."
+        message = f"Draft model ({speculative['model']}) is {speedup}x faster than target ({baseline['model']}). Mode: {mode}."
     else:
         run_status = "complete"
-        message = "Speculative decoding is configured and measured; this prompt did not meet the speedup claim threshold."
+        message = f"Draft model measured but did not exceed {claim_threshold}x threshold. Mode: {mode}."
 
     return {
         "status": run_status,
@@ -123,5 +134,6 @@ async def run(text: str, task: str = "summarization", max_tokens: Optional[int] 
         "speculative": speculative,
         "speedup": speedup,
         "claim_threshold": claim_threshold,
+        "mode": mode,
         "message": message,
     }
