@@ -200,7 +200,7 @@ services/
   orchestrator/      # Go + A2A client + workflow engine
   semantic-router/   # Python + sentence-transformers + heterogeneous routing
   mcp-gateway/       # Python/FastAPI + 8 JSON-RPC tools
-modules/             # 14 pluggable optimization modules with manifests + lab content
+modules/             # 15 pluggable optimization modules with manifests + lab content
 infrastructure/
   podman-compose.yaml  # Local dev stack (8 services)
   helm/              # Helm chart for OpenShift with module flags
