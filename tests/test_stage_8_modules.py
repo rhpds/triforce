@@ -97,7 +97,7 @@ class TestModuleHelmFlags:
     def test_edge_bitnet_service_alias_renders(self):
         result = helm_template(["--set", "modules.edge.enabled=true"])
         assert "name: bitnet-server" in result.stdout
-        assert "app: bitnet-server" in result.stdout
+        assert "app: edge-agent" in result.stdout
 
 
 class TestModuleContent:
