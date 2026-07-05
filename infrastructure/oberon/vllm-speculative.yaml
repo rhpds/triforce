@@ -19,8 +19,15 @@ spec:
       labels:
         app: vllm-granite-2b-speculative
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: vllm
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           image: registry.redhat.io/rhai/vllm-openai-rhel9:latest
           args:
             - --model=ibm-granite/granite-3.2-2b-instruct
@@ -42,7 +49,7 @@ spec:
             - name: VLLM_TARGET_DEVICE
               value: cpu
             - name: HF_HOME
-              value: /root/.cache/huggingface
+              value: /opt/app-root/.cache/huggingface
           resources:
             requests:
               cpu: "8"
@@ -52,7 +59,7 @@ spec:
               memory: 24Gi
           volumeMounts:
             - name: model-cache
-              mountPath: /root/.cache/huggingface
+              mountPath: /opt/app-root/.cache
           readinessProbe:
             httpGet:
               path: /health
