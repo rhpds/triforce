@@ -1,122 +1,343 @@
 benchmark_rubric:
+  version: "2026-07-05-evidence-backed"
   description: >
-    Per-module benchmark matrix. Each module defines which models run on which
-    tasks, with expected baselines and pass criteria. Run via `make test-benchmarks`
-    or the /api/v1/benchmark/run endpoint.
+    Project-wide benchmark authority for Triforce. This file defines the
+    workload prompts, model sets, pass/fail criteria, claim thresholds, and
+    target-environment acceptance gates used by `make test-benchmarks`,
+    Stage 9 module validation, and Oberon deployment validation.
+
+  verification_policy:
+    verified_means: "Measured by a live endpoint or benchmark command in the named target environment."
+    target_environment_authority: "Oberon/OpenShift validation is authoritative for live module claims."
+    public_claim_rules:
+      - "Do not publish speculative, INT8, BitNet, cost, or compliance multipliers unless the claim registry marks the current target environment as verified."
+      - "If a feature is configured but does not meet its claim threshold, present it as configured and measured."
+      - "Compliance language must use supports or contributes to, not satisfies."
+      - "Pricing and cost figures are estimates unless tied to a current verified registry entry."
+
+  run_modes:
+    local_static:
+      description: "Contracts, module manifests, YAML parsing, unit tests, frontend build, and non-live benchmark rubric checks."
+      requires: ["python", "node", "go"]
+      no_cluster_required: true
+    local_full:
+      description: "Adds Helm template rendering and FinServ Java/Quarkus checks."
+      requires: ["python", "node", "go", "java-21", "maven", "helm"]
+      no_cluster_required: true
+    live_maas:
+      description: "Legacy CPU/Gaudi comparison measurements through MAAS/LiteLLM."
+      requires: ["LITELLM_API_BASE", "LITELLM_API_KEY"]
+      current_role: "Historical comparison data, not Oberon acceptance."
+    oberon_acceptance:
+      description: "OpenShift validation on Oberon with local OVMS/vLLM/LiteLLM services."
+      requires: ["oc", "helm", "KUBECONFIG", "local-oberon-key"]
+      current_role: "Authoritative live module and claim validation."
+
+  module_inventory:
+    - name: adaptive-classification
+      rubric_key: adaptive_classification
+      status: live
+    - name: batch-processing
+      rubric_key: batch_processing
+      status: live
+    - name: benchmarking
+      rubric_key: benchmarking
+      status: live
+    - name: conditional-pipeline
+      rubric_key: conditional_pipeline
+      status: live
+    - name: cost-analysis
+      rubric_key: cost_analysis
+      status: live
+    - name: edge-inference
+      rubric_key: edge_inference
+      status: live
+    - name: heterogeneous-routing
+      rubric_key: heterogeneous_routing
+      status: live
+    - name: llmd-inference
+      rubric_key: llmd_inference
+      status: roadmap
+    - name: mcp-tools
+      rubric_key: mcp_tools
+      status: live
+    - name: model-optimization
+      rubric_key: model_optimization
+      status: live
+    - name: multi-model-fusion
+      rubric_key: fusion
+      status: live
+    - name: replica-scaling
+      rubric_key: replica_scaling
+      status: live
+    - name: scale-testing
+      rubric_key: scale_testing
+      status: live
+    - name: semantic-routing
+      rubric_key: semantic_routing
+      status: live
+    - name: speculative-decoding
+      rubric_key: speculative_decoding
+      status: live
+
+  project_gates:
+    contracts:
+      command: "python -m pytest tests/contracts/"
+      pass_criteria: "All OpenAPI, AsyncAPI, MCP, and A2A contracts parse and refs resolve."
+    healthcare_agent:
+      command: "python -m pytest services/healthcare-agent/tests/"
+      pass_criteria: "Healthcare endpoints, graph fallbacks, speculative endpoints, and fusion structure pass."
+    semantic_router:
+      command: "python -m pytest services/semantic-router/tests/"
+      pass_criteria: "/classify and /route return compatible routing responses."
+    orchestrator:
+      command: "go test ./..."
+      cwd: "services/orchestrator"
+      pass_criteria: "A2A, Kafka, health, and workflow packages pass."
+    frontend:
+      commands:
+        - "npm run build"
+        - "npx vitest run"
+      cwd: "frontend"
+      pass_criteria: "TypeScript build and UI tests pass without hardcoded unsafe claims."
+    helm:
+      command: "python -m pytest tests/test_stage_8_modules.py"
+      pass_criteria: "All Helm cases pass when helm is installed; local runs skip Helm-dependent cases cleanly otherwise."
+    live_benchmarks:
+      command: "python -m pytest tests/test_stage_9_module_benchmarks.py tests/test_stage_9_benchmarks.py"
+      pass_criteria: "Live model endpoints return measured metrics and module-specific responses."
 
   modules:
-
     core_pipeline:
-      description: "Base healthcare pipeline — classify → NER → interactions → summarize"
+      description: "Base healthcare pipeline: classify -> NER -> interactions -> summarize"
+      status: live
+      endpoint: "/api/v1/benchmark/run"
       benchmarks:
         classification:
+          task: classification
+          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."
           models:
+            - model: granite-350m
+              hardware: cpu
+              baseline_ms: null
+              max_ms: 1000
+              expected_output: discharge_summary
+              target_environment: oberon
+            - model: granite-4-0-h-tiny-cpu
+              hardware: cpu
+              baseline_ms: null
+              max_ms: 1500
+              expected_output: discharge_summary
+              target_environment: oberon
             - model: granite-2b-cpu
               hardware: cpu
               baseline_ms: 858
               max_ms: 2000
               expected_output: discharge_summary
+              target_environment: maas
             - model: qwen25-3b-cpu
               hardware: cpu
               baseline_ms: 779
               max_ms: 2000
               expected_output: discharge_summary
+              target_environment: maas
             - model: granite-3-2-8b-instruct-cpu
               hardware: cpu
               baseline_ms: 1128
               max_ms: 3000
               expected_output: discharge_summary
+              target_environment: maas
             - model: granite-3-2-8b-instruct
               hardware: gpu
               baseline_ms: 500
               max_ms: 1500
               expected_output: discharge_summary
-          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."
+              target_environment: maas
 
         ner:
+          task: ner
+          test_text: "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg."
           models:
             - model: granite-2b-cpu
               hardware: cpu
               baseline_ms: 6248
               max_ms: 15000
               min_entities: 5
+              target_environment: maas
+            - model: granite-2b-int8
+              hardware: cpu-xeon6767p-amx
+              baseline_ms: null
+              max_ms: 10000
+              min_entities: 5
+              target_environment: oberon
             - model: qwen25-3b-cpu
               hardware: cpu
               baseline_ms: 7715
               max_ms: 15000
               min_entities: 5
+              target_environment: maas
+            - model: granite-4.1-3b
+              hardware: cpu-xeon6767p
+              baseline_ms: null
+              max_ms: 15000
+              min_entities: 5
+              target_environment: oberon
+            - model: granite-4.1-8b
+              hardware: cpu-xeon6767p
+              baseline_ms: null
+              max_ms: 15000
+              min_entities: 7
+              target_environment: oberon
             - model: granite-3-2-8b-instruct
               hardware: gpu
               baseline_ms: 5661
               max_ms: 10000
               min_entities: 7
+              target_environment: maas
             - model: microsoft-phi-4
               hardware: gpu
               baseline_ms: 3809
               max_ms: 8000
               min_entities: 8
-          test_text: "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg."
+              target_environment: maas
 
         summarization:
+          task: summarization
+          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent."
           models:
             - model: granite-2b-cpu
               hardware: cpu
               baseline_ms: 5208
               max_ms: 12000
               min_tokens: 50
+              target_environment: maas
             - model: qwen25-3b-cpu
               hardware: cpu
               baseline_ms: 5205
               max_ms: 12000
               min_tokens: 50
+              target_environment: maas
+            - model: granite-4.1-3b
+              hardware: cpu-xeon6767p
+              baseline_ms: null
+              max_ms: 12000
+              min_tokens: 50
+              target_environment: oberon
+            - model: granite-4.1-8b
+              hardware: cpu-xeon6767p
+              baseline_ms: null
+              max_ms: 15000
+              min_tokens: 80
+              target_environment: oberon
             - model: gpt-oss-20b
               hardware: gpu
               baseline_ms: 1572
               max_ms: 5000
               min_tokens: 80
-          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent."
+              target_environment: maas
 
     fraud_scoring:
-      description: "FinServ fraud scoring — rule signals + LLM risk assessment"
+      description: "FinServ fraud scoring: deterministic rule signals plus LLM risk assessment"
+      status: live
+      service: finserv-agent
+      endpoint: "/api/v1/score-transaction"
       benchmarks:
         fraud_risk:
+          test_text: "$15,000 wire transfer to Nigeria from a new account opened 3 days ago. Round amount. First international transaction."
+          min_score: 70
+          required_fields: ["risk_score", "risk_level", "signals", "model", "inference_ms"]
           models:
             - model: granite-2b-cpu
               hardware: cpu
               baseline_ms: 2326
               max_ms: 5000
-              min_score: 70
             - model: qwen25-3b-cpu
               hardware: cpu
               baseline_ms: 2057
               max_ms: 5000
-              min_score: 70
             - model: llama-scout-17b
               hardware: gpu
               baseline_ms: 1147
               max_ms: 3000
-              min_score: 70
-          test_text: "$15,000 wire transfer to Nigeria from a new account opened 3 days ago. Round amount. First international transaction."
+              target_environment: maas
+        compliance_reasoning:
+          test_text: "$9,500 transfers repeated to an offshore business account over 30 days."
+          expected_conclusion: "potential_structuring"
+          max_ms: 8000
 
-    heterogeneous_routing:
-      description: "Semantic router CPU→GPU routing decisions"
+    semantic_routing:
+      description: "Request classification and model routing without an LLM call"
+      status: live
+      service: semantic-router
+      endpoint: "/route"
       benchmarks:
         simple_routes_cpu:
+          test_text: "Classify this clinical document"
+          expected_route: simple
+          expected_hardware: cpu
+          max_router_ms: 500
+        medium_routes_cpu:
+          test_text: "Summarize the patient record for physician handoff"
+          expected_route: medium
+          expected_hardware: cpu
+          max_router_ms: 500
+        complex_routes_configured_tier:
+          test_text: "Analyze the drug interactions between Warfarin and Aspirin considering renal function and provide a differential diagnosis"
+          expected_route: complex
+          expected_default_model: granite-4.1-8b
+          max_router_ms: 500
+
+    heterogeneous_routing:
+      description: "Semantic router routes simple work to CPU and complex work to the configured complex tier"
+      status: live
+      service: semantic-router
+      endpoint: "/route"
+      benchmarks:
+        simple_routes_cpu:
+          test_text: "Classify this clinical document"
           models:
             - model: granite-2b-cpu
               hardware: cpu
               expected_route: simple
-          test_text: "Classify this clinical document"
-
         complex_routes_gpu:
-          models:
-            - model: granite-3-2-8b-instruct
-              hardware: gpu
-              expected_route: complex
           test_text: "Analyze the drug interactions between Warfarin and Aspirin considering renal function and provide a differential diagnosis"
+          models:
+            - model: granite-4.1-8b
+              hardware: gpu-simulated
+              expected_route: complex
+          public_claim_note: "On Oberon this is a simulated GPU tier unless a real GPU API base is configured."
+
+    benchmarking:
+      description: "Model x task x hardware comparison matrix"
+      status: live
+      service: healthcare-agent
+      endpoints:
+        models: "/api/v1/benchmark/models"
+        run: "/api/v1/benchmark/run"
+      benchmarks:
+        model_listing:
+          min_cpu_models: 9
+          min_total_models: 10
+          required_models:
+            - granite-350m
+            - granite-4-0-h-tiny-cpu
+            - granite-2b-cpu
+            - granite-2b-cpu-speculative
+            - granite-2b-int8
+            - qwen25-3b-cpu
+            - granite-4.1-3b
+            - phi3-mini-cpu
+            - granite-3-2-8b-instruct-cpu
+            - granite-4.1-8b
+        result_shape:
+          required_fields: ["model", "hardware", "task", "latency_ms", "output_tokens"]
+          sort_by: latency_ms
 
     fusion:
-      description: "Multi-model panel + judge synthesis"
+      description: "Multi-model panel plus judge synthesis"
+      status: live
+      service: healthcare-agent
+      endpoint: "/api/v1/fusion"
       benchmarks:
         panel_consensus:
           panel_models:
@@ -127,19 +348,37 @@ benchmark_rubric:
           max_panel_ms: 15000
           max_total_ms: 60000
           min_panel_responses: 2
+          required_judge_fields: ["consensus", "contradictions", "blind_spots", "synthesis"]
           test_prompt: "Does a pattern of $9,500 transfers to the Cayman Islands indicate AML structuring?"
 
     speculative_decoding:
-      description: "Draft model + target model — speedup measurement"
+      description: "vLLM draft-model speculative decoding through LiteLLM"
+      status: live
+      service: healthcare-agent
+      endpoints:
+        status: "/api/v1/speculative/status"
+        run: "/api/v1/speculative/run"
       benchmarks:
         draft_target_speedup:
-          draft_model: granite-4-0-h-tiny-cpu
+          draft_model: granite-350m
           target_model: granite-2b-cpu
-          expected_speedup: 1.5
-          status: planned
+          speculative_model: granite-2b-cpu-speculative
+          method: draft_model
+          num_speculative_tokens: 5
+          minimum_speedup_for_claim: 1.5
+          max_tokens: 128
+          status: live
+          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. Summarize key findings for a physician handoff."
+          public_claim_fallback: "configured and measured"
 
     adaptive_classification:
-      description: "Classification cache — cold vs warm performance"
+      description: "Classification cache cold vs warm performance"
+      status: live
+      service: healthcare-agent
+      endpoints:
+        pipeline: "/api/v1/pipeline"
+        stats: "/api/v1/adaptive/stats"
+        reset: "/api/v1/adaptive/reset"
       benchmarks:
         cache_warmup:
           model: qwen25-3b-cpu
@@ -147,193 +386,221 @@ benchmark_rubric:
           warm_max_ms: 5
           warmup_calls: 3
           test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes."
+          required_stats: ["cache_size", "hits", "misses"]
+
+    conditional_pipeline:
+      description: "Skip unnecessary graph nodes based on record content"
+      status: live
+      service: healthcare-agent
+      endpoint: "/api/v1/pipeline"
+      benchmarks:
+        skip_interactions_when_less_than_two_medications:
+          test_text: "Patient reports headache and takes acetaminophen as needed."
+          expected_skipped_node: check_interactions
+        run_interactions_when_two_or_more_medications:
+          test_text: "Patient on Warfarin 5mg, Aspirin 81mg, and Metformin 500mg."
+          expected_node: check_interactions
+
+    mcp_tools:
+      description: "MCP gateway and local fallback tools replace expensive LLM calls"
+      status: live
+      services: ["healthcare-agent", "mcp-gateway"]
+      benchmarks:
+        drug_interaction_tool:
+          max_ms: 100
+          required_fields: ["drug_a", "drug_b", "severity"]
+        fhir_lookup:
+          max_ms: 250
+          required_fields: ["patient_id", "resources"]
+
+    model_optimization:
+      description: "Model selection and INT8/AMX optimization"
+      status: live
+      benchmarks:
+        int8_quantization:
+          before_model: granite-2b-cpu
+          after_model: granite-2b-int8
+          minimum_speedup_for_claim: 1.5
+          quality_threshold: "same classification output"
+          public_claim_fallback: "measured per target environment"
+        model_ladder:
+          task: classification
+          models:
+            - granite-350m
+            - granite-4-0-h-tiny-cpu
+            - granite-2b-cpu
+            - qwen25-3b-cpu
+            - phi3-mini-cpu
+            - granite-3-2-8b-instruct-cpu
+
+    batch_processing:
+      description: "AMQ Streams/Redpanda batch event throughput"
+      status: live
+      service: redpanda
+      benchmarks:
+        healthcare_event_flow:
+          topics: ["healthcare.patients.synthetic", "healthcare.analysis.results", "healthcare.alerts"]
+          min_events: 100
+          required_result_topic: "healthcare.analysis.results"
+        finserv_event_flow:
+          topics: ["finserv.transactions.synthetic", "finserv.risk.results"]
+          min_events: 100
+          required_result_topic: "finserv.risk.results"
+
+    replica_scaling:
+      description: "Horizontal scaling of agents under concurrent request load"
+      status: live
+      benchmarks:
+        healthcare_replicas:
+          min_replicas: 2
+          concurrent_requests: [10, 30]
+          throughput_scale_min: 2.5
+          max_latency_regression_pct: 20
+        finserv_replicas:
+          min_replicas: 2
+          concurrent_requests: [10, 30]
+
+    scale_testing:
+      description: "Synthetic load and throughput ceiling"
+      status: live
+      benchmarks:
+        pipeline_concurrency:
+          endpoint: "/api/v1/pipeline"
+          concurrent_requests: 30
+          timeout_s: 180
+        kafka_throughput:
+          min_events_per_second: 100
+          required: false
+
+    cost_analysis:
+      description: "Cost comparison is calculated from measured routing mix and clearly labeled estimates"
+      status: live
+      benchmarks:
+        cost_labels:
+          required_labels: ["estimate", "measured routing mix"]
+          forbidden_public_phrases: ["guaranteed savings", "verified pricing"]
+        cpu_incremental_cost:
+          expected_value: 0
+          condition: "owned CPU inference path"
+
+    edge_inference:
+      description: "BitNet edge service and SCADA-sidecar flow"
+      status: live
+      service: bitnet-server
+      benchmarks:
+        service_alias:
+          kubernetes_service: bitnet-server
+          port: 8080
+          expected_model: bitnet-2b4t
+        anomaly_detection:
+          prompt: "Compressor B vibration X-axis: 6.8 mm/s (baseline 4.2), Y-axis: 5.9 mm/s (baseline 3.8). Trend: increasing 22% over 40 minutes."
+          max_ms: 5000
+          expected_terms: ["yes", "abnormal", "anomaly"]
+        public_claim_policy:
+          latency_claim: "paper reference unless measured on Oberon"
+          energy_claim: "paper reference unless measured on Oberon"
+
+    llmd_inference:
+      description: "Disaggregated prefill/decode inference"
+      status: roadmap
+      benchmarks:
+        prefix_caching:
+          required: false
+          current_validation: "health endpoint and manifests only"
+        public_claim_policy:
+          claim_status: roadmap
+          no_live_badge: true
 
   measured_baselines:
-    description: "Live MAAS measurements from June 23, 2026"
-    source: "maas-rhdp.apps.maas.redhatworkshops.io"
-    date: "2026-06-23"
-    notes: >
-      CPU models on Intel Xeon 6 via RHDP MAAS.
-      GPU models on NVIDIA via RAC MAAS.
-      Baselines are single-request latency (no concurrency).
-
-    cpu_vs_gpu_comparison:
-      - task: classification
-        cpu_model: qwen25-3b-cpu
-        cpu_ms: 779
-        gpu_model: granite-3-2-8b-instruct
-        gpu_ms: 500
-        speedup: 1.6x
-        quality_diff: none
-
-      - task: ner
-        cpu_model: granite-2b-cpu
-        cpu_ms: 6248
-        gpu_model: microsoft-phi-4
-        gpu_ms: 3809
-        speedup: 1.6x
-        quality_diff: "GPU includes dosages (500mg, 10mg)"
-
-      - task: summarization
-        cpu_model: granite-2b-cpu
-        cpu_ms: 5208
-        gpu_model: gpt-oss-20b
-        gpu_ms: 1572
-        speedup: 3.3x
-        quality_diff: "GPU produces more detailed output (223 vs 176 tokens)"
-
-      - task: compliance_reasoning
-        cpu_model: granite-2b-cpu
-        cpu_ms: 3537
-        gpu_model: microsoft-phi-4
-        gpu_ms: 1692
-        speedup: 2.1x
-        quality_diff: "GPU cites specific AML regulations"
-
-      - task: differential_diagnosis
-        cpu_model: granite-3-2-8b-instruct-cpu
-        cpu_ms: 14817
-        gpu_model: gpt-oss-120b
-        gpu_ms: 1465
-        speedup: 10.1x
-        quality_diff: "GPU (120B) best quality — cites pathogen, references CSF findings"
-
-    throughput_guidellm:
-      granite-2b-cpu:
-        hardware: cpu
-        requests_per_second: 0.23
-        latency_mean_s: 4.33
-        ttft_mean_ms: 4204
-        itl_mean_ms: 1.3
-      granite-3-2-8b-instruct:
-        hardware: gpu
-        requests_per_second: 0.87
-        latency_mean_s: 1.15
-        ttft_mean_ms: 401
-        itl_mean_ms: 24
-
-    # ---------------------------------------------------------------
-    # Oberon — Intel Lab Cluster (Xeon 6767P, local vLLM)
-    # ---------------------------------------------------------------
+    maas_live:
+      description: "Live MAAS measurements from June 23, 2026"
+      source: "maas-rhdp.apps.maas.redhatworkshops.io"
+      date: "2026-06-23"
+      notes: >
+        CPU models on Intel Xeon 6 via RHDP MAAS. GPU models on accelerator
+        MAAS. Baselines are single-request latency unless noted. These numbers
+        provide historical comparison data, not Oberon acceptance.
+      cpu_vs_gpu_comparison:
+        - task: classification
+          cpu_model: qwen25-3b-cpu
+          cpu_ms: 779
+          gpu_model: granite-3-2-8b-instruct
+          gpu_ms: 500
+          speedup: 1.6x
+          quality_diff: none
+        - task: ner
+          cpu_model: granite-2b-cpu
+          cpu_ms: 6248
+          gpu_model: microsoft-phi-4
+          gpu_ms: 3809
+          speedup: 1.6x
+          quality_diff: "GPU includes dosages"
+        - task: summarization
+          cpu_model: granite-2b-cpu
+          cpu_ms: 5208
+          gpu_model: gpt-oss-20b
+          gpu_ms: 1572
+          speedup: 3.3x
+          quality_diff: "GPU produces more detailed output"
+        - task: compliance_reasoning
+          cpu_model: granite-2b-cpu
+          cpu_ms: 3537
+          gpu_model: microsoft-phi-4
+          gpu_ms: 1692
+          speedup: 2.1x
+          quality_diff: "GPU cites specific AML regulations"
+        - task: differential_diagnosis
+          cpu_model: granite-3-2-8b-instruct-cpu
+          cpu_ms: 14817
+          gpu_model: gpt-oss-120b
+          gpu_ms: 1465
+          speedup: 10.1x
+          quality_diff: "GPU cites pathogen and references CSF findings"
+      throughput_guidellm:
+        granite-2b-cpu:
+          hardware: cpu
+          requests_per_second: 0.23
+          latency_mean_s: 4.33
+          ttft_mean_ms: 4204
+          itl_mean_ms: 1.3
+        granite-3-2-8b-instruct:
+          hardware: gpu
+          requests_per_second: 0.87
+          latency_mean_s: 1.15
+          ttft_mean_ms: 401
+          itl_mean_ms: 24
 
     oberon_local:
-      description: "Local Xeon 6767P inference — 9 models via vLLM, no MAAS"
-      source: "oberon.fm2aihpcsed.com (Intel lab)"
-      hardware: "2x Intel Xeon 6767P (128 cores, 256 threads, AMX BF16/INT8)"
-      date: "TBD"
-
-      benchmarks:
-        classification:
-          models:
-            - model: granite-350m
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 500
-              expected_output: discharge_summary
-            - model: granite-4-0-h-tiny-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 1000
-              expected_output: discharge_summary
-            - model: granite-2b-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 2000
-              expected_output: discharge_summary
-            - model: granite-2b-int8
-              hardware: cpu-xeon6767p-amx
-              baseline_ms: TBD
-              max_ms: 1500
-              expected_output: discharge_summary
-            - model: qwen25-3b-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 2000
-              expected_output: discharge_summary
-            - model: granite-4.1-3b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 2000
-              expected_output: discharge_summary
-            - model: phi3-mini-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 2500
-              expected_output: discharge_summary
-            - model: granite-3-2-8b-instruct-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 3000
-              expected_output: discharge_summary
-            - model: granite-4.1-8b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 3000
-              expected_output: discharge_summary
-          test_text: "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."
-
-        ner:
-          models:
-            - model: granite-2b-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 15000
-              min_entities: 5
-            - model: granite-2b-int8
-              hardware: cpu-xeon6767p-amx
-              baseline_ms: TBD
-              max_ms: 10000
-              min_entities: 5
-            - model: granite-4.1-3b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 15000
-              min_entities: 5
-            - model: granite-4.1-8b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 15000
-              min_entities: 7
-          test_text: "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg and Clopidogrel 75mg."
-
-        summarization:
-          models:
-            - model: qwen25-3b-cpu
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 12000
-              min_tokens: 50
-            - model: granite-4.1-3b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 12000
-              min_tokens: 50
-            - model: granite-4.1-8b
-              hardware: cpu-xeon6767p
-              baseline_ms: TBD
-              max_ms: 15000
-              min_tokens: 80
-          test_text: "72-year-old male admitted with acute chest pain. History of Type 2 Diabetes, hypertension, CKD stage 3. ECG showed ST elevation. Troponin I elevated at 8.2. Emergent catheterization revealed 95% occlusion of RCA. Successful PCI with drug-eluting stent."
-
-      optimization_story:
-        description: "Before/after comparisons — the engineering payoff on Xeon 6767P"
-        comparisons:
-          - name: int8_quantization
-            before: { model: granite-2b-cpu, hardware: cpu-xeon6767p }
-            after: { model: granite-2b-int8, hardware: cpu-xeon6767p-amx }
-            expected_speedup: 1.5
-            quality_threshold: "same classification output"
-          - name: next_gen_granite
-            before: { model: granite-3-2-8b-instruct-cpu, hardware: cpu-xeon6767p }
-            after: { model: granite-4.1-8b, hardware: cpu-xeon6767p }
-            expected_quality: "equal or better"
-            notes: "4.1 matches 4.0-H-Small (32B MoE) with 8B dense"
-          - name: ultrafast_router
-            before: { model: qwen25-3b-cpu, task: classification }
-            after: { model: granite-350m, task: classification }
-            expected_speedup: 3.0
-            notes: "350M for router pre-classification"
-          - name: model_ladder
-            models: [granite-350m, granite-4-0-h-tiny-cpu, granite-2b-cpu, qwen25-3b-cpu, phi3-mini-cpu, granite-3-2-8b-instruct-cpu]
-            task: classification
-            notes: "Full latency ladder from 350M to 8B on same hardware"
+      description: "Local Xeon 6767P inference via OVMS/vLLM/LiteLLM, no MAAS dependency"
+      source: "oberon.fm2aihpcsed.com"
+      hardware: "2x Intel Xeon 6767P, 128 cores, 256 threads, AMX BF16/INT8"
+      date: null
+      acceptance_status: "pending fresh deployment measurement"
+      model_aliases:
+        - granite-350m
+        - granite-4-0-h-tiny-cpu
+        - granite-2b-cpu
+        - granite-2b-cpu-speculative
+        - granite-2b-int8
+        - qwen25-3b-cpu
+        - granite-4.1-3b
+        - phi3-mini-cpu
+        - granite-3-2-8b-instruct-cpu
+        - granite-4.1-8b
+      required_acceptance_outputs:
+        - "D7 module validation passes"
+        - "Edge/virt validation passes"
+        - "Frontend build passes"
+        - "Claim audit passes"
+        - "Preflight report shows speculative decoding measured, not skipped"
+      claim_thresholds:
+        speculative_speedup: 1.5
+        int8_speedup: 1.5
+        adaptive_warm_cache_ms: 5
+      benchmark_placeholders:
+        classification_ms: null
+        ner_ms: null
+        summarization_ms: null
+        speculative_speedup: null
+        int8_speedup: null
+        bitnet_ms_per_token: null

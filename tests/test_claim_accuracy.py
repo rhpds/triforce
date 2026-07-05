@@ -68,6 +68,44 @@ class TestClaimRegistry:
         # This test always passes — it's a report, not a gate
         # Change to assert len(unverified) == 0 when all claims are sourced
 
+    def test_public_copy_avoids_unverified_phrases(self):
+        public_paths = [
+            "README.md",
+            "CLAUDE.md",
+            "docs",
+            "content",
+            "content-secure",
+            "content-virt",
+            "content-govern",
+            "modules",
+            "frontend/src",
+        ]
+        forbidden = [
+            "performance impact: zero",
+            "zero impact",
+            "2-3x speedup",
+            "2-3x faster",
+            "live: 2-3x",
+            "status: 'satisfied'",
+            'status: "satisfied"',
+            "how tdx satisfies",
+        ]
+        offenders = []
+        for rel in public_paths:
+            path = os.path.join(REPO_ROOT, rel)
+            files = [path] if os.path.isfile(path) else [
+                os.path.join(root, name)
+                for root, _, names in os.walk(path)
+                for name in names
+                if name.endswith((".md", ".adoc", ".tsx", ".ts", ".yaml", ".yml"))
+            ]
+            for filename in files:
+                text = open(filename, encoding="utf-8").read().lower()
+                for phrase in forbidden:
+                    if phrase in text:
+                        offenders.append(f"{os.path.relpath(filename, REPO_ROOT)}: {phrase}")
+        assert not offenders, "Unverified public copy found:\n" + "\n".join(offenders)
+
 
 class TestHardwareClaims:
     """Verify hardware claims match the actual cluster."""
@@ -97,8 +135,8 @@ class TestModelClaims:
         if resp is None:
             pytest.skip("LiteLLM not reachable")
         model_ids = [m["id"] for m in resp.get("data", [])]
-        expected = ["granite-2b-cpu", "qwen25-3b-cpu", "phi3-mini-cpu",
-                     "granite-3-2-8b-instruct-cpu", "bitnet-2b4t"]
+        expected = ["granite-2b-cpu", "granite-2b-cpu-speculative", "qwen25-3b-cpu",
+                     "phi3-mini-cpu", "granite-3-2-8b-instruct-cpu", "bitnet-2b4t"]
         for m in expected:
             assert m in model_ids, f"Claimed model {m} not in LiteLLM"
 

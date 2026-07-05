@@ -379,6 +379,25 @@ async def benchmark_run(req: dict):
     return await benchmark.run_comparison(task, text, models)
 
 
+@app.get("/api/v1/speculative/status")
+async def speculative_status():
+    import speculative
+    return speculative.status()
+
+
+@app.post("/api/v1/speculative/run")
+async def speculative_run(req: dict):
+    import speculative
+    text = req.get("text", "")
+    if not text:
+        return {"error": "text is required"}
+    return await speculative.run(
+        text=text,
+        task=req.get("task", "summarization"),
+        max_tokens=req.get("max_tokens"),
+    )
+
+
 @app.post("/api/v1/fusion")
 async def fusion_endpoint(req: dict):
     import fusion

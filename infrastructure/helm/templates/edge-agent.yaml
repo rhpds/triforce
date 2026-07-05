@@ -5,17 +5,17 @@ metadata:
   name: edge-agent
   namespace: {{ .Values.namespace }}
   labels:
-    app: edge-agent
+    app: bitnet-server
     app.kubernetes.io/part-of: triforce
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: edge-agent
+      app: bitnet-server
   template:
     metadata:
       labels:
-        app: edge-agent
+        app: bitnet-server
     spec:
       securityContext:
         runAsNonRoot: true
@@ -68,11 +68,27 @@ metadata:
   name: edge-agent
   namespace: {{ .Values.namespace }}
   labels:
-    app: edge-agent
+    app: bitnet-server
     app.kubernetes.io/part-of: triforce
 spec:
   selector:
-    app: edge-agent
+    app: bitnet-server
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitnet-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: bitnet-server
+    app.kubernetes.io/part-of: triforce
+spec:
+  selector:
+    app: bitnet-server
   ports:
     - port: 8080
       targetPort: 8080

@@ -20,7 +20,7 @@ When heterogeneous routing is enabled, the health response includes `heterogeneo
 
 [source,bash,role="execute",subs=attributes+]
 ----
-curl -s -X POST {semantic_router_url}/classify \
+curl -s -X POST {semantic_router_url}/route \
   -H "Content-Type: application/json" \
   -d '{"text": "Classify this document: DISCHARGE SUMMARY"}' | jq '{route, model, hardware, confidence, latency_ms}'
 ----
@@ -31,12 +31,12 @@ Simple classification → CPU model (granite-2b-cpu). Hardware: `cpu`. Cost: $0.
 
 [source,bash,role="execute",subs=attributes+]
 ----
-curl -s -X POST {semantic_router_url}/classify \
+curl -s -X POST {semantic_router_url}/route \
   -H "Content-Type: application/json" \
   -d '{"text": "Analyze the drug interactions between Warfarin and Aspirin considering the patients renal function and provide a differential diagnosis"}' | jq '{route, model, hardware, confidence, latency_ms}'
 ----
 
-Complex reasoning → GPU model (granite-3-2-8b-instruct). Hardware: `gpu`. Cost: $/token — but only when needed.
+Complex reasoning routes to the Helm-configured complex tier. On Oberon, the default simulated GPU tier is `granite-4.1-8b` unless a real GPU endpoint is configured.
 
 == Exercise 4: Compare the Cost Breakdown
 
@@ -55,18 +55,18 @@ for prompt in \
   "Tag this as compliant or non-compliant" \
   "Synthesize the lab results with medication contraindications" \
   "Check if this amount exceeds the threshold"; do
-  result=$(curl -s -X POST {semantic_router_url}/classify \
+  result=$(curl -s -X POST {semantic_router_url}/route \
     -H "Content-Type: application/json" \
     -d "{\"text\": \"$prompt\"}" | jq -r '[.route, .hardware] | @tsv')
   echo "  $result  ← $prompt"
 done
 ----
 
-Typical result: 7-8 requests route to CPU ($0), 2-3 to GPU ($/token). That's 70-80% of your workload running free.
+Use the run output to calculate the current CPU/GPU split for your prompt mix.
 
 == The Takeaway
 
-The semantic router makes the CPU vs GPU decision in <1ms per request. No code changes needed — the same API call routes to optimal hardware automatically. At scale: 80% of your workload runs at $0, 20% pays for GPU where quality/speed justifies the cost.
+The semantic router makes the CPU vs GPU decision before the model call. No code changes needed — the same API call routes to the configured hardware tier automatically.
 
 [.next-nav]
 xref:99-conclusion.adoc[Back to module list →]

@@ -82,6 +82,14 @@ spec:
             {{- if .Values.modules.speculative.enabled }}
             - name: SPECULATIVE_DRAFT_MODEL
               value: {{ .Values.modules.speculative.draftModel | quote }}
+            - name: SPECULATIVE_TARGET_MODEL
+              value: {{ .Values.modules.speculative.targetModel | quote }}
+            - name: SPECULATIVE_MODEL
+              value: {{ .Values.modules.speculative.speculativeModel | quote }}
+            - name: SPECULATIVE_NUM_TOKENS
+              value: {{ .Values.modules.speculative.numSpeculativeTokens | quote }}
+            - name: SPECULATIVE_SPEEDUP_CLAIM_THRESHOLD
+              value: {{ .Values.modules.speculative.speedupClaimThreshold | quote }}
             {{- end }}
             {{- if .Values.modules.fusion.enabled }}
             - name: FUSION_PANEL_MODELS
@@ -90,7 +98,7 @@ spec:
               value: {{ .Values.modules.fusion.judgeModel | quote }}
             {{- end }}
             - name: MODULES_ENABLED
-              value: "{{ if .Values.modules.benchmarking.enabled }}benchmarking,{{ end }}{{ if .Values.modules.speculative.enabled }}speculative,{{ end }}{{ if .Values.modules.heterogeneous.enabled }}heterogeneous,{{ end }}{{ if .Values.modules.fusion.enabled }}fusion,{{ end }}"
+              value: "{{ if .Values.modules.benchmarking.enabled }}benchmarking,{{ end }}{{ if .Values.modules.speculative.enabled }}speculative,{{ end }}{{ if .Values.modules.heterogeneous.enabled }}heterogeneous,{{ end }}{{ if .Values.modules.fusion.enabled }}fusion,{{ end }}{{ if .Values.modules.edge.enabled }}edge,{{ end }}"
           resources:
             {{- toYaml .Values.healthcareAgent.resources | nindent 12 }}
           readinessProbe:

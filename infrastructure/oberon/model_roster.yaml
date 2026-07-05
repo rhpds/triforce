@@ -1,6 +1,6 @@
 # Model Roster — Intel Lab Cluster (Oberon)
 # Xeon 6767P (128 cores, 256 threads, 503 GiB RAM, AMX BF16/INT8)
-# All models served locally via vLLM — no external MAAS dependency
+# All models served locally via OVMS/vLLM — no external MAAS dependency
 
 cluster:
   name: oberon
@@ -46,6 +46,23 @@ models:
     role: NER, fraud scoring, speculative target
     triforce_env: NER_MODEL, FRAUD_MODEL, TARGET_MODEL
     vllm_service: vllm-granite-2b
+
+  - alias: granite-2b-cpu-speculative
+    huggingface_id: ibm-granite/granite-3.2-2b-instruct
+    params: 2B target + 350M draft
+    architecture: dense-transformer
+    dtype: bfloat16
+    quantization: none
+    max_model_len: 4096
+    estimated_ram_gib: 12
+    estimated_cpu_cores: 24
+    role: vLLM draft-model speculative decoding target
+    triforce_env: SPECULATIVE_MODEL
+    vllm_service: vllm-granite-2b-speculative
+    speculative_config:
+      method: draft_model
+      model: ibm-granite/granite-4.0-350m
+      num_speculative_tokens: 5
 
   - alias: qwen25-3b-cpu
     huggingface_id: Qwen/Qwen2.5-3B-Instruct
@@ -142,12 +159,12 @@ models:
 
 # Resource summary
 resource_totals:
-  estimated_ram_gib: 122
-  estimated_cpu_cores: 136
+  estimated_ram_gib: 134
+  estimated_cpu_cores: 160
   cluster_ram_gib: 503
   cluster_cpu_threads: 256
-  ram_headroom_pct: 75
-  cpu_headroom_pct: 47
+  ram_headroom_pct: 73
+  cpu_headroom_pct: 38
 
 # vLLM common config
 vllm_defaults:

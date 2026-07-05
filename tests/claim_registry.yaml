@@ -131,27 +131,27 @@ claims:
     verified: true
 
   - id: bitnet-decode-latency
-    value: "29ms/token"
+    value: "Paper reference: 29ms/token"
     file: frontend/src/pages/modules/ModuleEdgeInference.tsx
     line: 75
     source: "Microsoft BitNet paper"
     verified: false
-    notes: "Paper value on reference hardware — oberon actual is ~70ms/tok via bitnet.cpp"
+    notes: "Paper value on reference hardware; Oberon must use live measurement"
 
   - id: bitnet-energy-per-token
-    value: "0.028 J/token"
+    value: "Paper reference: 0.028 J/token"
     file: frontend/src/pages/modules/ModuleEdgeInference.tsx
     line: 75
     source: "Microsoft BitNet paper"
-    verified: true
-    notes: "Paper measurement — not independently verified on oberon"
+    verified: false
+    notes: "Paper measurement; not independently verified on Oberon"
 
   - id: bitnet-energy-comparison
-    value: "12x more efficient than Qwen2.5"
+    value: "Paper reference: 12x more efficient than Qwen2.5"
     file: frontend/src/pages/modules/ModuleEdgeInference.tsx
     line: 196
     source: "Microsoft BitNet paper comparison"
-    verified: true
+    verified: false
 
   # ===== HARDWARE CLAIMS =====
 
@@ -197,12 +197,12 @@ claims:
   # ===== COMPLIANCE CLAIMS =====
 
   - id: hipaa-phi-encryption
-    value: "TDX satisfies PHI encryption at rest and in use"
+    value: "TDX contributes to PHI encryption at rest and in use"
     file: frontend/src/acts/secure/Act04ConfidentialInference.tsx
     line: 36
     source: "Qualitative — TDX provides encryption mechanism"
     verified: false
-    notes: "TDX addresses encryption. Full HIPAA requires access controls, audit logging, BAAs, training. Add disclaimer: 'contributes to' not 'satisfies'"
+    notes: "TDX addresses encryption. Full HIPAA requires access controls, audit logging, BAAs, training. Use 'contributes to' language."
 
   - id: hipaa-average-fine
     value: "$1.5M"
@@ -240,9 +240,9 @@ claims:
     verified_date: "2026-07-01"
 
   - id: speedup-speculative
-    value: "2-3x speedup"
+    value: "Measured baseline-vs-speculative latency from /api/v1/speculative/run"
     file: frontend/src/acts/Act04Efficiency.tsx
     line: 134
-    source: "vLLM speculative decoding documentation"
+    source: "Oberon preflight benchmark"
     verified: false
-    notes: "Not measured on oberon — speculative decoding not fully configured"
+    notes: "Feature is configured; verify only after the Oberon endpoint returns current measurements"
