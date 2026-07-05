@@ -14,7 +14,7 @@ embedding:
 
 heterogeneous:
   enabled: false
-  gpu_model: "granite-3.2-8b-instruct"
+  gpu_model: "granite-4.1-8b"
   escalation_routes:
     - complex
 

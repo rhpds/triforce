@@ -89,17 +89,21 @@ modules:
     enabled: false
   speculative:
     enabled: false
-    draftModel: granite-4-0-h-tiny-cpu
+    draftModel: granite-350m
     targetModel: granite-2b-cpu
+    speculativeModel: granite-2b-cpu-speculative
+    numSpeculativeTokens: 5
+    speedupClaimThreshold: 1.5
   heterogeneous:
     enabled: false
     gpuApiBase: ""
     gpuApiKey: ""
+    gpuModel: granite-4.1-8b
     routingThreshold: 0.7
   fusion:
     enabled: false
     panelModels: "granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu"
-    judgeModel: granite-3-2-8b-instruct
+    judgeModel: granite-3-2-8b-instruct-cpu
   edge:
     enabled: false
     model: bitnet-2b4t

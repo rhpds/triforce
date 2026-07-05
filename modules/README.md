@@ -46,10 +46,11 @@ modules/
 ### Heterogeneous Compute (new)
 | Module | Focus | Audience | Status |
 |--------|-------|----------|--------|
-| benchmarking | Model × Task × Hardware comparison matrix | Performance Engineer | building |
-| heterogeneous-routing | CPU→GPU intelligent routing | Platform Architect | building |
-| multi-model-fusion | Panel+judge for critical decisions | Compliance | building |
-| speculative-decoding | 2-3x speedup via draft model | ML Engineer | planned |
+| benchmarking | Model x Task x Hardware comparison matrix | Performance Engineer | live |
+| heterogeneous-routing | CPU to GPU intelligent routing | Platform Architect | live |
+| multi-model-fusion | Panel+judge for critical decisions | Compliance | live |
+| speculative-decoding | Measured draft/target speculative path | ML Engineer | live |
+| edge-inference | BitNet edge service and SCADA sidecar demo | Field Operations | live |
 
 ### Analysis
 | Module | Focus | Audience | Status |

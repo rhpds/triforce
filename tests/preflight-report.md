@@ -43,11 +43,11 @@
 - **cost-nvidia-h100-annual**: $119,333/year — 
 - **cost-vmware-per-socket**: $8,475/socket/yr — VMware pricing changed significantly after Broadcom acquisition
 - **latency-attestation-handshake**: ~350ms — Not measured on oberon — KBS not fully deployed (Trustee OPA permission issue)
-- **bitnet-decode-latency**: 29ms/token — Paper value on reference hardware — oberon actual is ~70ms/tok via bitnet.cpp
-- **hipaa-phi-encryption**: TDX satisfies PHI encryption at rest and in use — TDX addresses encryption. Full HIPAA requires access controls, audit logging, BAAs, training. Add disclaimer: 'contributes to' not 'satisfies'
+- **bitnet-decode-latency**: Paper reference: 29ms/token — Oberon must use live measurement
+- **hipaa-phi-encryption**: TDX contributes to PHI encryption at rest and in use — TDX addresses encryption. Full HIPAA requires access controls, audit logging, BAAs, training.
 - **hipaa-average-fine**: $1.5M — Commonly cited — verify against current HHS enforcement data
 - **phmsa-sensor-integrity**: TDX provides tamper-evident processing for sensor data — TDX detects modification. PHMSA has additional pipeline safety requirements.
-- **speedup-speculative**: 2-3x speedup — Not measured on oberon — speculative decoding not fully configured
+- **speedup-speculative**: Measured baseline-vs-speculative latency from /api/v1/speculative/run — Feature is configured; verify only after the Oberon endpoint returns current measurements
 
 
 ### Stage 5: Helm Lint — FAILURES

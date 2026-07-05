@@ -73,17 +73,17 @@ export default function ModuleEdgeInference() {
   }
 
   const models = [
-    { name: 'BitNet b1.58 2B4T', params: '2.4B', bits: '1.58-bit', mem: '0.4 GB', speed: '~29ms/tok', energy: '0.028 J/tok', color: 'var(--intel-cyan)' },
-    { name: 'Granite 2B (INT4)', params: '2B', bits: '4-bit', mem: '1.2 GB', speed: '~200ms/tok', energy: '~0.34 J/tok', color: 'var(--text-dim)' },
-    { name: 'Granite 8B (INT4)', params: '8B', bits: '4-bit', mem: '4.0 GB', speed: '~400ms/tok', energy: '~0.50 J/tok', color: 'var(--text-dim)' },
-    { name: 'Cloud API (GPT-4o)', params: '?', bits: 'N/A', mem: 'N/A', speed: '~50ms/tok', energy: 'N/A', color: 'var(--text-dim)' },
+    { name: 'BitNet b1.58 2B4T', params: '2.4B', bits: '1.58-bit', mem: '0.4 GB', speed: 'Live run', energy: 'Estimate', color: 'var(--intel-cyan)' },
+    { name: 'Granite 2B (INT4)', params: '2B', bits: '4-bit', mem: '1.2 GB', speed: 'Live run', energy: 'Estimate', color: 'var(--text-dim)' },
+    { name: 'Granite 8B (INT4)', params: '8B', bits: '4-bit', mem: '4.0 GB', speed: 'Live run', energy: 'Estimate', color: 'var(--text-dim)' },
+    { name: 'Cloud API', params: '?', bits: 'N/A', mem: 'N/A', speed: 'Provider data', energy: 'N/A', color: 'var(--text-dim)' },
   ]
 
   return (
     <ModuleLayout
       title="Edge Inference (1-Bit / 2-Bit Models)"
-      description="Sub-1B agentic AI on existing edge hardware. Ternary weights turn multiply-accumulate into add/subtract — pure CPU integer math. 0.4GB footprint, 29ms/token, 12x more energy efficient. Your SCADA hardware can now think."
-      status="tested"
+      description="Sub-1B agentic AI on existing edge hardware. Ternary weights turn multiply-accumulate into add/subtract: pure CPU integer math with live latency measured by the demo."
+      status="live"
     >
       <StepCard num={1} title="How 1-Bit Inference Works">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
@@ -194,7 +194,7 @@ export default function ModuleEdgeInference() {
           {[
             { label: 'Model Size', value: '0.4 GB', detail: '10x smaller than INT4 2B' },
             { label: 'Per Token', value: '$0', detail: 'On hardware you already own' },
-            { label: 'Energy', value: '0.028 J', detail: '12x more efficient than Qwen2.5' },
+            { label: 'Energy', value: 'Estimate', detail: 'Tracked in claim registry' },
             { label: 'Deployment', value: '0 GPUs', detail: 'CPU integer ops only' },
           ].map(s => (
             <div key={s.label} style={{ textAlign: 'center', padding: 10, borderRadius: 8, background: 'var(--surface-2)' }}>

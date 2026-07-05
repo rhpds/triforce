@@ -77,4 +77,20 @@ spec:
     - port: 8080
       targetPort: 8080
       name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitnet-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: edge-agent
+    app.kubernetes.io/part-of: triforce
+spec:
+  selector:
+    app: edge-agent
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
 {{- end }}

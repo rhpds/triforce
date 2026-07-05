@@ -48,7 +48,7 @@ curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
   }' | jq '.results[] | {model, hardware, latency_ms, output_tokens}'
 ----
 
-GPU summarization is 2-3x faster. The question: is that speed worth the cost for your volume?
+Compare the measured GPU and CPU summarization latency. The question: is that speed worth the cost for your volume?
 
 == Exercise 4: Run a guidellm Throughput Sweep
 

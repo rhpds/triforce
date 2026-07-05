@@ -38,6 +38,7 @@ def _load_config():
     config_paths = [
         os.environ.get("ROUTES_CONFIG", ""),
         "/app/config/routes.yaml",
+        str(Path(__file__).with_name("routes.yaml")),
         "./routes.yaml",
     ]
 
@@ -69,7 +70,7 @@ def _get_heterogeneous():
     env_enabled = os.environ.get("HETEROGENEOUS_ROUTING", "").lower() == "true"
     return {
         "enabled": hetero.get("enabled", False) or env_enabled,
-        "gpu_model": os.environ.get("GPU_COMPLEX_MODEL", hetero.get("gpu_model", "granite-3.2-8b-instruct")),
+        "gpu_model": os.environ.get("GPU_COMPLEX_MODEL", hetero.get("gpu_model", "granite-4.1-8b")),
         "escalation_routes": hetero.get("escalation_routes", ["complex"]),
     }
 
@@ -253,6 +254,11 @@ async def classify(request: dict):
     if not text:
         return {"error": "text is required"}
     return classify_request(text)
+
+
+@app.post("/route")
+async def route(request: dict):
+    return await classify(request)
 
 
 @app.post("/classify/batch")

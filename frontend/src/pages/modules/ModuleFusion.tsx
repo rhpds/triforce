@@ -11,7 +11,7 @@ const SCENARIOS = [
 interface FusionResult {
   status: string
   panel: { models: string[]; count: number; latency_ms: number; responses: { model: string; latency_ms: number; tokens: number }[] }
-  judge: { model: string; latency_ms: number; synthesis: string; tokens: number }
+  judge: { model: string; latency_ms: number; consensus: string; contradictions: string; blind_spots: string; synthesis: string; tokens: number }
   total_ms: number
   total_models_called: number
   error?: string
@@ -38,7 +38,7 @@ export default function ModuleFusion() {
       })
       setResult(await resp.json())
     } catch {
-      setResult({ status: 'error', panel: { models: [], count: 0, latency_ms: 0, responses: [] }, judge: { model: '', latency_ms: 0, synthesis: '', tokens: 0 }, total_ms: 0, total_models_called: 0, error: 'Backend not reachable' })
+      setResult({ status: 'error', panel: { models: [], count: 0, latency_ms: 0, responses: [] }, judge: { model: '', latency_ms: 0, consensus: '', contradictions: '', blind_spots: '', synthesis: '', tokens: 0 }, total_ms: 0, total_models_called: 0, error: 'Backend not reachable' })
     }
     setRunning(false)
   }
@@ -157,14 +157,30 @@ export default function ModuleFusion() {
           </StepCard>
 
           <StepCard num={5} title="Insight">
-            <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
-              Single model: one perspective. Fusion: {result.panel.count} independent answers + judge synthesis.
-              The judge catches what individual models miss — contradictions, blind spots, incomplete reasoning.
-              For compliance and diagnostic decisions, the cost of being wrong exceeds the cost of 3 extra calls.
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <JudgeField label="Consensus" value={result.judge.consensus} />
+              <JudgeField label="Contradictions" value={result.judge.contradictions} />
+              <JudgeField label="Blind Spots" value={result.judge.blind_spots} />
+              <JudgeField label="Synthesis" value={result.judge.synthesis} />
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
+              Single model: one perspective. Fusion: {result.panel.count} independent answers plus judge synthesis.
+              The judge catches disagreements, blind spots, and incomplete reasoning before a high-impact answer is accepted.
             </div>
           </StepCard>
         </motion.div>
       )}
     </ModuleLayout>
+  )
+}
+
+function JudgeField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="card" style={{ padding: 12 }}>
+      <div style={{ fontSize: 11, color: 'var(--ibm-blue)', fontWeight: 700, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.5, maxHeight: 120, overflow: 'auto' }}>
+        {value || 'No field returned'}
+      </div>
+    </div>
   )
 }

@@ -1,0 +1,92 @@
+# vLLM speculative decoding worker for Oberon.
+# LiteLLM exposes this as granite-2b-cpu-speculative.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-granite-2b-speculative
+  namespace: triforce
+  labels:
+    app: vllm-granite-2b-speculative
+    app.kubernetes.io/part-of: triforce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-granite-2b-speculative
+  template:
+    metadata:
+      labels:
+        app: vllm-granite-2b-speculative
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: vllm
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          image: registry.redhat.io/rhai/vllm-openai-rhel9:latest
+          args:
+            - --model=ibm-granite/granite-3.2-2b-instruct
+            - --served-model-name=granite-2b-cpu-speculative
+            - --host=0.0.0.0
+            - --port=8000
+            - --dtype=bfloat16
+            - --max-model-len=4096
+            - --enable-prefix-caching
+            - '--speculative-config={"method":"draft_model","model":"ibm-granite/granite-4.0-350m","num_speculative_tokens":5}'
+          ports:
+            - containerPort: 8000
+              name: inference
+            - containerPort: 8001
+              name: metrics
+          env:
+            - name: VLLM_ENABLE_PREFIX_CACHING
+              value: "1"
+            - name: VLLM_TARGET_DEVICE
+              value: cpu
+            - name: HF_HOME
+              value: /opt/app-root/.cache/huggingface
+          resources:
+            requests:
+              cpu: "8"
+              memory: 12Gi
+            limits:
+              cpu: "24"
+              memory: 24Gi
+          volumeMounts:
+            - name: model-cache
+              mountPath: /opt/app-root/.cache
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 12
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: huggingface-model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-granite-2b-speculative
+  namespace: triforce
+  labels:
+    app: vllm-granite-2b-speculative
+    app.kubernetes.io/part-of: triforce
+spec:
+  selector:
+    app: vllm-granite-2b-speculative
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: inference
+    - port: 8001
+      targetPort: 8001
+      name: metrics

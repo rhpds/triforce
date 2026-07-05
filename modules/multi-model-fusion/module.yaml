@@ -9,7 +9,7 @@ audience:
 - Compliance Officer
 - Clinical Decision Maker
 - Risk Analyst
-status: building
+status: live
 dependencies:
   maas_models:
     panel:
@@ -27,7 +27,7 @@ helm:
       - granite-2b-cpu
       - qwen25-3b-cpu
       - phi3-mini-cpu
-      judgeModel: granite-3-2-8b-instruct
+      judgeModel: granite-3-2-8b-instruct-cpu
 showroom:
   content_dir: modules/multi-model-fusion/content
   nav_entry: '* xref:explore-multi-model-fusion.adoc[Multi-Model Fusion]'

@@ -130,13 +130,13 @@ const MECHANISMS = [
     group: 'fleet',
     title: 'Speculative Decoding',
     owner: 'vLLM · Intel',
-    what: 'A small draft model (1B) proposes tokens ahead. The target model (2-3B) verifies them in a single pass. Correct tokens accepted instantly. Wrong ones regenerated. Output is identical — lossless quality, 2-3x speedup.',
-    gain: 'Works on both CPU and GPU. Compounds with INT8 quantization and llm-d. The same hardware does 2-3x more work with zero quality loss.',
+    what: 'A small draft model proposes tokens ahead. The target model verifies them in a single pass. Correct tokens are accepted; wrong ones are regenerated. The demo reports measured latency for the active Oberon deployment.',
+    gain: 'Works through vLLM and LiteLLM as a serving-layer optimization. If a prompt does not speed up, the UI says configured and measured instead of claiming a fixed multiplier.',
     visual: 'speculative',
     color: 'var(--intel-blue)',
-    status: 'planned',
+    status: 'live',
     before: 'Generate tokens one at a time: each waits for the last',
-    after: 'Draft proposes 5 tokens → target verifies in 1 pass → 2-3x faster',
+    after: 'Draft proposes 5 tokens; target verifies in 1 pass; result is measured live',
   },
   {
     num: 10,
@@ -144,8 +144,8 @@ const MECHANISMS = [
     group: 'fleet',
     title: 'Heterogeneous Compute Routing',
     owner: 'Red Hat · vLLM',
-    what: 'The semantic router classifies each request by complexity and routes to optimal hardware. Simple → CPU ($0). Complex → GPU ($/token). Same API, different backends. The system decides in <1ms.',
-    gain: 'Classification and NER stay on CPU — no quality difference, $0 cost. Summarization and reasoning route to GPU — 3-10x faster with better output. 80% of workload runs free.',
+    what: 'The semantic router classifies each request by complexity and routes to the configured hardware tier. Simple requests stay on CPU. Complex requests use the Helm-configured complex model.',
+    gain: 'Classification and NER stay on CPU when the router says they fit. Summarization and reasoning can route to the complex tier, with measured latency and quality deciding whether the extra compute is worth it.',
     visual: 'heterogeneous',
     color: 'var(--gpu-amber)',
     status: 'live',
@@ -746,7 +746,7 @@ function SpeculativeVisual() {
       <motion.div style={{ fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.0 }}>
         4 correct, 1 rejected → regenerate 1 token<br/>
-        <span className="mono" style={{ fontWeight: 700, color: 'var(--rh-green)' }}>Total: ~850ms vs 4s sequential = 4.7x faster</span>
+        <span className="mono" style={{ fontWeight: 700, color: 'var(--rh-green)' }}>Total: measured by the live speculative endpoint</span>
       </motion.div>
     </div>
   )

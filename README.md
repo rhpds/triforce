@@ -77,7 +77,7 @@ LangGraph   Rules+LLM  A2A dispatch
 
 ## Pluggable Module Architecture
 
-14 optimization modules — each city/event picks their set:
+15 optimization modules — each city/event picks their set:
 
 ```
 modules/
@@ -94,10 +94,11 @@ modules/
 ├── Compounding Over Time
 │   └── adaptive-classification  LIVE     cache learns from LLM results
 ├── Heterogeneous Compute
-│   ├── benchmarking             BUILDING model × task × hardware matrix
-│   ├── heterogeneous-routing    BUILDING CPU→GPU intelligent routing
-│   ├── multi-model-fusion       BUILDING panel + judge for critical decisions
-│   └── speculative-decoding     PLANNED  draft model 2-3x speedup
+│   ├── benchmarking             LIVE     model × task × hardware matrix
+│   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing
+│   ├── multi-model-fusion       LIVE     panel + judge for critical decisions
+│   ├── speculative-decoding     LIVE     measured draft/target path
+│   └── edge-inference           LIVE     BitNet service alias + edge demo
 └── Analysis
     ├── cost-analysis            LIVE     CPU vs GPU vs Cloud comparison
     └── scale-testing            LIVE     concurrent load, throughput ceiling
@@ -136,11 +137,20 @@ curl -s -X POST http://localhost:8081/api/v1/benchmark/run \
 curl -s -X POST http://localhost:8081/api/v1/fusion \
   -H "Content-Type: application/json" \
   -d '{"task":"compliance","prompt":"Is this AML structuring?"}' | jq .
+
+# Measure speculative decoding
+curl -s -X POST http://localhost:8081/api/v1/speculative/run \
+  -H "Content-Type: application/json" \
+  -d '{"task":"summarization","text":"Patient admitted with chest pain.","max_tokens":64}' | jq .
 ```
 
 ## Testing
 
 **CDD → TDD → EDD** methodology. 11-stage validation matrix gates deployment.
+
+Prerequisites for the full local suite: Python 3.11, Node.js/npm, Go, Java 21,
+Maven, and Helm. The FinServ Quarkus service expects `mvn` on PATH; this repo
+does not vendor Maven wrapper files.
 
 ```bash
 make test-contracts              # Stage 0: 120 contract validation tests

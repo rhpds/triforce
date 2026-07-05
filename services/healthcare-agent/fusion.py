@@ -8,8 +8,10 @@ for decisions with consequences.
 """
 
 import asyncio
+import json
 import logging
 import os
+import re
 import time
 from typing import List, Optional
 
@@ -30,6 +32,68 @@ def _get_panel_models() -> List[str]:
 
 def _get_judge_model() -> str:
     return os.environ.get("FUSION_JUDGE_MODEL", DEFAULT_JUDGE)
+
+
+def _parse_judge_response(text: str) -> dict:
+    """Normalize judge output into stable fields for UI and validation."""
+    empty = {
+        "consensus": "",
+        "contradictions": "",
+        "blind_spots": "",
+        "synthesis": text.strip(),
+    }
+    if not text.strip():
+        return empty
+
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return {
+                "consensus": str(parsed.get("consensus", "")).strip(),
+                "contradictions": str(parsed.get("contradictions", "")).strip(),
+                "blind_spots": str(parsed.get("blind_spots", parsed.get("coverage_gaps", ""))).strip(),
+                "synthesis": str(parsed.get("synthesis", "")).strip() or text.strip(),
+            }
+    except json.JSONDecodeError:
+        pass
+
+    match = re.search(r"\{.*\}", text, flags=re.DOTALL)
+    if match:
+        try:
+            parsed = json.loads(match.group(0))
+            if isinstance(parsed, dict):
+                return {
+                    "consensus": str(parsed.get("consensus", "")).strip(),
+                    "contradictions": str(parsed.get("contradictions", "")).strip(),
+                    "blind_spots": str(parsed.get("blind_spots", parsed.get("coverage_gaps", ""))).strip(),
+                    "synthesis": str(parsed.get("synthesis", "")).strip() or text.strip(),
+                }
+        except json.JSONDecodeError:
+            pass
+
+    sections = {}
+    pattern = re.compile(
+        r"(consensus|contradictions|blind[_ ]spots|coverage gaps|synthesis)\s*:\s*",
+        flags=re.IGNORECASE,
+    )
+    matches = list(pattern.finditer(text))
+    for index, item in enumerate(matches):
+        key = item.group(1).lower().replace(" ", "_")
+        if key == "coverage_gaps":
+            key = "blind_spots"
+        start = item.end()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        sections[key] = text[start:end].strip(" \n\r\t-*")
+
+    if sections:
+        return {
+            "consensus": sections.get("consensus", ""),
+            "contradictions": sections.get("contradictions", ""),
+            "blind_spots": sections.get("blind_spots", ""),
+            "synthesis": sections.get("synthesis", text.strip()),
+        }
+
+    return empty
 
 
 async def _call_model(model: str, prompt: str, max_tokens: int = 300) -> dict:
@@ -109,15 +173,13 @@ async def run_fusion(prompt: str, task: str = "general") -> dict:
         f"You are a judge comparing {len(valid)} model responses to the same question.\n\n"
         f"Original question: {prompt[:500]}\n\n"
         f"Responses:\n{panel_summary}\n\n"
-        "Analyze the responses and provide:\n"
-        "1. CONSENSUS: What do all models agree on?\n"
-        "2. CONTRADICTIONS: Where do they disagree?\n"
-        "3. COVERAGE GAPS: What did none of them address?\n"
-        "4. SYNTHESIS: Your best combined answer based on all responses.\n\n"
-        "Be concise."
+        "Return only valid JSON with these exact string fields:\n"
+        '{"consensus":"","contradictions":"","blind_spots":"","synthesis":""}\n'
+        "Be concise and do not wrap the JSON in Markdown."
     )
 
     judge_result = await _call_model(judge_model, judge_prompt, max_tokens=500)
+    judge_fields = _parse_judge_response(judge_result.get("response", ""))
 
     total_ms = int((time.monotonic() - start_total) * 1000)
 
@@ -134,7 +196,10 @@ async def run_fusion(prompt: str, task: str = "general") -> dict:
         "judge": {
             "model": judge_result.get("model", judge_model),
             "latency_ms": judge_result.get("latency_ms", 0),
-            "synthesis": judge_result.get("response", ""),
+            "consensus": judge_fields["consensus"],
+            "contradictions": judge_fields["contradictions"],
+            "blind_spots": judge_fields["blind_spots"],
+            "synthesis": judge_fields["synthesis"],
             "tokens": judge_result.get("tokens", 0),
         },
         "total_ms": total_ms,

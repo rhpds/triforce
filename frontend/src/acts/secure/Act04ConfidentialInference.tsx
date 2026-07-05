@@ -33,12 +33,12 @@ const ATTACKER_VIEW = [
 ]
 
 const COMPLIANCE = [
-  { framework: 'HIPAA', requirement: 'PHI encrypted at rest and in use', tdx: 'AES-256-XTS memory encryption for all inference data', status: 'satisfied' },
-  { framework: 'HIPAA', requirement: 'Access controls on PHI', tdx: 'Hardware attestation gates secret release', status: 'satisfied' },
-  { framework: 'PHMSA', requirement: 'Sensor data integrity', tdx: 'Tamper-evident Trust Domain — modification breaks attestation', status: 'satisfied' },
-  { framework: 'SOX', requirement: 'Audit trail for data access', tdx: 'Attestation logs record every secret request with hardware proof', status: 'satisfied' },
-  { framework: 'NIST 800-171', requirement: 'CUI protection in processing', tdx: 'Confidential computing = encryption during processing (not just at rest/in transit)', status: 'satisfied' },
-  { framework: 'FedRAMP', requirement: 'Data sovereignty', tdx: 'Processing stays on-premises on attested hardware — no cloud egress', status: 'satisfied' },
+  { framework: 'HIPAA', requirement: 'PHI encrypted at rest and in use', tdx: 'AES-256-XTS memory encryption for inference data', status: 'supports' },
+  { framework: 'HIPAA', requirement: 'Access controls on PHI', tdx: 'Hardware attestation gates secret release', status: 'supports' },
+  { framework: 'PHMSA', requirement: 'Sensor data integrity', tdx: 'Tamper-evident Trust Domain: modification breaks attestation', status: 'contributes' },
+  { framework: 'SOX', requirement: 'Audit trail for data access', tdx: 'Attestation logs record secret requests with hardware proof', status: 'contributes' },
+  { framework: 'NIST 800-171', requirement: 'CUI protection in processing', tdx: 'Confidential computing adds encryption during processing', status: 'supports' },
+  { framework: 'FedRAMP', requirement: 'Data sovereignty', tdx: 'Processing stays on-premises on attested hardware with no cloud egress', status: 'contributes' },
 ]
 
 export function Act04ConfidentialInference({ onComplete }: Props) {
@@ -269,7 +269,7 @@ export function Act04ConfidentialInference({ onComplete }: Props) {
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
                       <th style={{ textAlign: 'left', padding: 6 }}>Framework</th>
                       <th style={{ textAlign: 'left', padding: 6 }}>Requirement</th>
-                      <th style={{ textAlign: 'left', padding: 6 }}>How TDX Satisfies</th>
+                      <th style={{ textAlign: 'left', padding: 6 }}>How TDX Supports</th>
                     </tr>
                   </thead>
                   <tbody>

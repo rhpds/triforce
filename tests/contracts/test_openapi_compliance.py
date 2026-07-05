@@ -124,6 +124,14 @@ class TestHealthcareAgentContract:
         spec = load_spec("healthcare-agent.yaml")
         assert "/api/v1/summarize" in spec["paths"]
 
+    def test_has_speculative_status_endpoint(self):
+        spec = load_spec("healthcare-agent.yaml")
+        assert "/api/v1/speculative/status" in spec["paths"]
+
+    def test_has_speculative_run_endpoint(self):
+        spec = load_spec("healthcare-agent.yaml")
+        assert "/api/v1/speculative/run" in spec["paths"]
+
     def test_classify_response_has_required_fields(self):
         spec = load_spec("healthcare-agent.yaml")
         schema = spec["components"]["schemas"]["ClassifyResponse"]

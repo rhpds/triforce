@@ -3,16 +3,16 @@ displayName: Edge Inference (1-Bit/2-Bit)
 description: >
   Sub-1B agentic AI on existing edge hardware. Ternary weights (BitNet b1.58)
   turn multiply-accumulate into add/subtract — pure CPU integer math, no GPU.
-  0.4GB footprint, 29ms/token, 12x more energy efficient. Enables multi-agent
-  pipelines at compressor stations, pump sites, and field offices on hardware
-  they already own and aren't fully utilizing.
+  Small footprint with live token-rate measurement in the edge benchmark.
+  Enables multi-agent pipelines at compressor stations, pump sites, and field
+  offices on hardware they already own and aren't fully utilizing.
 audience:
   - Field Operations Engineer
   - OT Security Architect
   - Edge Computing Architect
   - Oil & Gas Operations Manager
   - Telecom Edge Architect
-status: building
+status: live
 dependencies:
   runtime: llama.cpp
   models:

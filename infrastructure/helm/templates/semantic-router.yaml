@@ -37,7 +37,7 @@ spec:
             - name: HETEROGENEOUS_ROUTING
               value: "true"
             - name: GPU_COMPLEX_MODEL
-              value: {{ .Values.semanticRouter.gpuComplexModel | default "granite-3-2-8b-instruct" | quote }}
+              value: {{ .Values.modules.heterogeneous.gpuModel | default .Values.semanticRouter.gpuComplexModel | default "granite-4.1-8b" | quote }}
             {{- end }}
           volumeMounts:
             - name: router-config
