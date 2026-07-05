@@ -1,175 +1,295 @@
-# Heterogeneous AI Inference at Enterprise Scale on Intel Hardware
+# Triforce: Evidence-Backed Enterprise AI Inference on OpenShift and Intel Hardware
 
 **Red Hat + Intel + IBM Technical White Paper**
-**June 2026**
-
-*Data classification: ✓ Measured, ⓘ Reported (infra team), ⊕ Estimated, ◇ Projected. See companion benchmark data for full provenance.*
+**External-Safe Draft - July 2026**
 
 ## Executive Summary
 
-Enterprise AI inference doesn't need a single compute tier. This paper presents benchmark data from the Triforce platform demonstrating that intelligent workload routing across heterogeneous Intel hardware — Xeon 6 CPU ($0 incremental per token) and Intel Gaudi 3 accelerator — reduces inference costs by 80% while maintaining quality for the 20% of workloads that benefit from acceleration.
+Enterprise AI inference should be routed, measured, and governed instead of
+treated as a single hardware decision. Triforce demonstrates that pattern with
+polyglot agents, OpenAI-compatible model serving, semantic routing, live module
+validation, and a benchmark rubric that separates measured facts from estimates
+or roadmap work.
 
-The entire stack is Intel-native. No third-party accelerator dependency.
+The core lesson is practical: simple and repeatable tasks can stay on CPU, while
+complex or latency-sensitive tasks can be routed to a configured higher-capacity
+tier. The platform does not ask users to trust presentation copy. It exposes
+endpoints, test gates, and benchmark files that decide which claims are live.
 
-Key findings:
-- **80% of enterprise AI tasks** (classification, NER, fraud scoring) run at equivalent quality on Intel Xeon 6 CPU at $0 incremental cost per token
-- **20% of tasks** (summarization, complex reasoning, differential diagnosis) benefit from Intel Gaudi 3 — 2-10x faster with higher quality output
-- **Semantic routing** classifies task complexity in 5ms (ONNX qint8 AVX512) and routes to optimal Intel hardware automatically
-- **Adaptive caching** reduces LLM calls by 80%+ over time, compounding savings
-- **Full Intel stack**: Xeon 6 CPU + Intel Gaudi 3 + AMX instructions + OpenVINO + ONNX Runtime
+Current implementation status:
 
-## 1. The Problem
+| Area | Current State |
+|------|---------------|
+| Application services | Healthcare, FinServ, semantic router, orchestrator, MCP gateway, frontend |
+| Model access | LiteLLM proxy with OpenAI-compatible API |
+| Oberon local serving | OVMS/vLLM model aliases, including speculative vLLM worker |
+| Modules | 15 total: 14 live, 1 roadmap (`llmd-inference`) |
+| Claim authority | `tests/benchmark_rubric.yaml` and `tests/claim_registry.yaml` |
+| Public benchmark rule | Verified means measured in the named target environment |
 
-| Approach | Cost | Quality | Scale | Vendor Lock-in |
-|----------|------|---------|-------|----------------|
-| All accelerator | $120K per server | Highest | Limited by budget | NVIDIA dependency |
-| Cloud API | $0.15-$0.60/M tokens | Varies | Unlimited but expensive | Cloud vendor |
-| All CPU | $0 incremental | Good for 80% of tasks | Limited for complex reasoning | None |
-| **Heterogeneous Intel** | **$0 for 80% + accel for 20%** | **Optimal per task** | **Scales both tiers** | **Intel-native** |
+## What Triforce Proves
 
-## 2. Architecture
+Triforce is not a slide-only demo. It is a testable platform with three layers
+of evidence:
 
+1. **Local correctness**: contracts, unit tests, router tests, Go tests,
+   frontend build, and claim-copy hygiene.
+2. **Deployment correctness**: Helm rendering, OpenShift manifests, model
+   aliases, and service health checks.
+3. **Live benchmark correctness**: target-environment measurements from
+   healthcare, FinServ, semantic routing, fusion, speculative decoding, edge
+   inference, and claim audit endpoints.
+
+The project now treats Oberon/OpenShift validation as the authority for whether
+a module can be called live. Historical MAAS CPU/Gaudi numbers remain useful
+comparison data, but they do not automatically verify Oberon claims.
+
+## Architecture
+
+```text
+User or workload
+    |
+    v
+Frontend / API clients
+    |
+    +--> Semantic Router (/route)
+    |       - simple / medium / complex classification
+    |       - CPU by default
+    |       - configured complex tier for harder prompts
+    |
+    +--> Healthcare Agent
+    |       - clinical pipeline
+    |       - benchmark endpoints
+    |       - speculative measurement
+    |       - multi-model fusion
+    |
+    +--> FinServ Agent
+    |       - fraud scoring
+    |       - compliance reasoning
+    |       - risk assessment
+    |
+    +--> Orchestrator
+    |       - A2A discovery
+    |       - workflow coordination
+    |
+    +--> MCP Gateway
+            - FHIR, risk, and platform tools
+
+Model calls flow through LiteLLM to local OVMS/vLLM services or, when configured,
+external accelerator-backed endpoints.
 ```
-Request → Semantic Router (5ms, ONNX qint8 AVX512 on Xeon 6)
-              │
-    ┌─────────┼─────────┐
-    │         │         │
-  SIMPLE    MEDIUM    COMPLEX
-    │         │         │
-  CPU Pool  CPU Pool  Gaudi Pool
-  Xeon 6    Xeon 6    Intel Gaudi 3
-  granite-2b  qwen25-3b  phi-4 / gpt-oss-120b
-  $0/token   $0/token   $/token
+
+### Serving Model
+
+| Layer | Role |
+|-------|------|
+| LiteLLM | One OpenAI-compatible API for model aliases |
+| OVMS | Local CPU model serving on Oberon |
+| vLLM | Local speculative worker and future serving targets |
+| Semantic router | Routes prompt complexity before model invocation |
+| OpenShift | Runtime, scaling, service discovery, and deployment controls |
+
+Oberon currently defines 10 model aliases in the benchmark rubric:
+
+- `granite-350m`
+- `granite-4-0-h-tiny-cpu`
+- `granite-2b-cpu`
+- `granite-2b-cpu-speculative`
+- `granite-2b-int8`
+- `qwen25-3b-cpu`
+- `granite-4.1-3b`
+- `phi3-mini-cpu`
+- `granite-3-2-8b-instruct-cpu`
+- `granite-4.1-8b`
+
+## Benchmark Methodology
+
+Triforce uses explicit evidence labels:
+
+| Label | Meaning |
+|-------|---------|
+| Measured | Collected by a live endpoint or benchmark command in the named environment |
+| Reported | Provided by another team and not independently re-measured in this repo |
+| Estimated | Calculated from assumptions or extrapolated from measured data |
+| Roadmap | Designed or documented, but not a live feature claim |
+
+The benchmark rubric defines four run modes:
+
+| Run Mode | Purpose |
+|----------|---------|
+| `local_static` | Contracts, YAML, unit tests, frontend build, and claim-copy checks |
+| `local_full` | Adds Java 21, Maven, and Helm-dependent local checks |
+| `live_maas` | Historical CPU/Gaudi comparison data |
+| `oberon_acceptance` | Authoritative live module and claim validation |
+
+Public copy follows one rule: if the current target environment did not measure
+the result, the claim must be labeled as configured, estimated, reported, or
+roadmap.
+
+## Current Benchmark Evidence
+
+### Historical MAAS Comparison Data
+
+The following comparison data remains in the rubric as historical measured data
+from June 2026 MAAS runs. It is useful for explaining why routing matters, but it
+does not replace Oberon acceptance.
+
+| Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Notes |
+|------|-----------|-------------|-------------------|---------------------|-------|
+| Classification | `qwen25-3b-cpu` | 779ms | `granite-3-2-8b-instruct` | 500ms | Both produced acceptable classification |
+| NER | `granite-2b-cpu` | 6248ms | `microsoft-phi-4` | 3809ms | Accelerator output included more dosage detail |
+| Summarization | `granite-2b-cpu` | 5208ms | `gpt-oss-20b` | 1572ms | Accelerator output was more detailed |
+| Compliance reasoning | `granite-2b-cpu` | 3537ms | `microsoft-phi-4` | 1692ms | Accelerator cited AML details |
+| Differential diagnosis | `granite-3-2-8b-instruct-cpu` | 14817ms | `gpt-oss-120b` | 1465ms | Accelerator produced stronger clinical reasoning |
+
+Throughput comparison from the same historical data:
+
+| Metric | CPU | Accelerator |
+|--------|-----|-------------|
+| Requests per second | 0.23 | 0.87 |
+| Mean latency | 4.33s | 1.15s |
+| Time to first token | 4204ms | 401ms |
+
+### Oberon Acceptance Data
+
+Oberon is the current live validation target. The benchmark rubric now reserves
+placeholders for fresh Oberon measurements:
+
+- classification latency
+- NER latency
+- summarization latency
+- speculative decoding speedup
+- INT8 speedup
+- BitNet token latency
+
+Until those measurements are generated by the deployed endpoints, public copy
+must avoid presenting those values as verified claims.
+
+## Live Module Set
+
+| Module | Status | Evidence Path |
+|--------|--------|---------------|
+| `semantic-routing` | Live | `/route` compatibility and router tests |
+| `conditional-pipeline` | Live | Healthcare pipeline node logs |
+| `mcp-tools` | Live | Gateway/tool responses and fallback data |
+| `model-optimization` | Live | Model ladder and measured target-environment comparisons |
+| `batch-processing` | Live | Redpanda/AMQ Streams event flow |
+| `replica-scaling` | Live | Replica and concurrency tests |
+| `adaptive-classification` | Live | Cold/warm cache benchmark |
+| `benchmarking` | Live | `/api/v1/benchmark/models` and `/api/v1/benchmark/run` |
+| `speculative-decoding` | Live | `/api/v1/speculative/status` and `/api/v1/speculative/run` |
+| `edge-inference` | Live | `bitnet-server` service and BitNet inference checks |
+| `heterogeneous-routing` | Live | Router complex-tier configuration |
+| `multi-model-fusion` | Live | Panel plus structured judge fields |
+| `cost-analysis` | Live | Estimate-labeled routing/cost model |
+| `scale-testing` | Live | Concurrent request and throughput gates |
+| `llmd-inference` | Roadmap | Manifests and prefix-caching direction only |
+
+## Speculative Decoding
+
+Speculative decoding is now an implemented feature path, not a planned label.
+Oberon defines a vLLM service named `vllm-granite-2b-speculative`, exposed
+through LiteLLM as `granite-2b-cpu-speculative`.
+
+The worker uses:
+
+- target model: `granite-2b-cpu`
+- draft model: `granite-350m`
+- method: `draft_model`
+- speculative tokens: `5`
+
+The healthcare agent exposes:
+
+- `GET /api/v1/speculative/status`
+- `POST /api/v1/speculative/run`
+
+The run endpoint measures baseline `granite-2b-cpu` against
+`granite-2b-cpu-speculative`, returns both outputs, records latency and token
+counts, and calculates speedup. The public claim threshold defaults to `1.5x`.
+If the measured result does not reach that threshold, the UI says
+`configured and measured` rather than claiming a speedup.
+
+## Multi-Model Fusion
+
+Fusion is live when panel models and a judge model return real responses. The
+judge output is structured, so downstream consumers can inspect:
+
+- `consensus`
+- `contradictions`
+- `blind_spots`
+- `synthesis`
+
+This makes the module auditable. It no longer relies on a single free-form
+judge paragraph as proof of behavior.
+
+## Heterogeneous Routing
+
+The semantic router exposes `/route` as the compatibility endpoint while keeping
+`/classify` for existing callers. In Oberon mode, complex prompts route to the
+Helm-configured complex tier. The default simulated complex tier is
+`granite-4.1-8b` unless a real accelerator endpoint is configured.
+
+This distinction matters: the platform can demonstrate routing behavior without
+claiming accelerator performance where no accelerator endpoint is active.
+
+## Edge Inference
+
+The edge module now aligns naming across tests, services, and frontend proxying.
+The Helm chart keeps the existing `edge-agent` service and adds `bitnet-server`
+as the service alias expected by validation and lab copy.
+
+BitNet latency and energy values from papers remain reference claims unless
+they are measured on Oberon and marked verified in the claim registry.
+
+## Secure Variant
+
+The secure story uses support language. TDX, attestation, and confidential
+containers can support or contribute to controls such as HIPAA, PHMSA, SOX,
+NIST 800-171, and FedRAMP, but they do not satisfy those frameworks by
+themselves. Full compliance still depends on operational controls, audit
+processes, policy, access management, and organizational evidence.
+
+## Reproducibility
+
+Core local checks:
+
+```bash
+python -m pytest tests/contracts/
+python -m pytest services/healthcare-agent/tests/
+python -m pytest services/semantic-router/tests/
+go test ./...
+npm run build
+npx vitest run
 ```
 
-### Technology Stack
+Full local checks also require Java 21, Maven, and Helm. The FinServ Quarkus
+service expects system `mvn`; this repo intentionally does not vendor Maven
+wrapper files.
 
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Routing | ONNX Runtime (qint8 AVX512) | Classify complexity, route to hardware |
-| Agents | Python/LangGraph + Java/Quarkus + Go | Polyglot AI agents via A2A protocol |
-| Tools | MCP Gateway (8 tools, JSON-RPC 2.0) | Database lookups instead of LLM calls |
-| Streaming | AMQ Streams | Batch processing at volume |
-| CPU Serving | OpenVINO (OptimumIntel) + vLLM CPU | Intel-optimized CPU inference |
-| Gaudi Serving | vLLM Gaudi runtime | Accelerated inference on Intel Gaudi 3 |
-| Proxy | LiteLLM | Unified OpenAI-compatible API |
-| Platform | Red Hat OpenShift | Container orchestration + KServe |
-| Governance | IBM Kagenti | Agent discovery, identity, tool control, audit trails |
-| Hardware | **Intel Xeon 6 + Intel Gaudi 3** | Full Intel heterogeneous compute |
+Live benchmark checks:
 
-### Infrastructure
+```bash
+python -m pytest tests/test_stage_9_benchmarks.py
+python -m pytest tests/test_stage_9_module_benchmarks.py
+```
 
-| Tier | Compute | Serving |
-|------|---------|---------|
-| CPU | Intel Xeon 6 (1,536 total cores) | OpenVINO + vLLM CPU |
-| Gaudi | Intel Gaudi 3 (24 total cards) | vLLM Gaudi |
+Oberon acceptance:
 
-## 3. Benchmark Methodology
+```bash
+helm template infrastructure/helm \
+  --values infrastructure/oberon/values-oberon.yaml
 
-All measurements taken on production infrastructure (June 2026):
-- **CPU**: Intel Xeon 6, OpenVINO + vLLM CPU serving
-- **Gaudi**: Intel Gaudi 3, vLLM Gaudi serving
-- **Protocol**: OpenAI-compatible chat completions API via LiteLLM proxy
-- **Measurement**: Client-side wall-clock latency (includes network overhead)
-- **Workloads**: Clinical NLP (healthcare) and transaction scoring (financial services)
-- **Tool**: guidellm for throughput sweeps, custom benchmark endpoints for task-level comparison
+python -m pytest tests/test_deployment.py
+python -m pytest tests/test_virt_edge.py
+python -m pytest tests/test_claim_accuracy.py
+```
 
-## 4. Results
+## Conclusion
 
-### 4.1 CPU vs Gaudi — Reproducible Medians (3 samples per measurement) ✓
+Triforce is now structured around evidence rather than assertion. The benchmark
+rubric covers the entire project, the white paper distinguishes historical data
+from target-environment validation, and live module claims depend on endpoints
+returning real measurements.
 
-| Task | Best CPU | CPU Median | Best Gaudi | Gaudi Median | Speedup | Quality |
-|------|----------|------------|------------|--------------|---------|---------|
-| Classification | phi3-mini (3.8B) | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
-| NER | granite-2b (2B) | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
-| Summarization | phi3-mini (3.8B) | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
-| Compliance | phi3-mini (3.8B) | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
-| Diagnosis† | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
-
-*† Single-sample. All other rows are medians from 3 independent runs.*
-
-**Key Insight**: llama-scout-17b is the most consistent Gaudi model — fastest median on all 4 standard tasks. The 2.0-2.4x speedup is the honest, reproducible number.
-
-### 4.2 Throughput Under Concurrent Load ✓
-
-| Metric | CPU (Xeon 6) | Gaudi 3 | Speedup |
-|--------|-------------|---------|---------|
-| Requests/sec | 0.23 | 0.87 | **3.8x** |
-| Mean latency | 4.33s | 1.15s | **3.8x** |
-| Time to first token | 4,204ms | 401ms | **10.5x** |
-| Concurrent scaling | Flat | Linear | Gaudi wins at concurrency |
-
-### 4.3 Optimization Stack (12 Modules)
-
-| Optimization | Impact | Status |
-|-------------|--------|--------|
-| Semantic routing (ONNX qint8 AVX512) | 3,200ms → 5ms (**640x**) | ✓ Live |
-| Conditional pipeline | 25% fewer LLM calls | ✓ Live |
-| MCP tools vs LLM | 16ms vs 3,000ms (**187x**) | ✓ Live |
-| Model selection (right model per task) | 10.2s → 7.8s pipeline (24%) | ✓ Live |
-| Adaptive classification cache | 80%+ hit rate after warmup | ✓ Live |
-| Multi-model fusion (3+judge) | Higher confidence for critical decisions | ✓ Live |
-| Heterogeneous routing (CPU→Gaudi) | **80% cost savings** vs all-Gaudi | ✓ Live |
-| Batch streaming (AMQ Streams) | N records parallel | ✓ Live |
-| Replica scaling | 20-30% latency improvement | ✓ Tested |
-| INT8 quantization (OpenVINO) | ◇ Projected 2-3x | Pending |
-| Speculative decoding | ◇ Projected 2-3x | Pending |
-| llm-d disaggregated inference | ◇ Projected 5.6x | Roadmap |
-
-### 4.4 Cost at Scale ⊕
-
-| Routing Strategy (1M records/month) | Monthly Incremental Cost | Savings |
-|--------------------------------------|------------------------|---------|
-| 100% Gaudi | ⊕ ~$11,250 | — |
-| 100% CPU | $0 | ~$11,250 (100%) |
-| **80% CPU / 20% Gaudi** | **⊕ ~$2,250** | **⊕ ~$9,000 (80%)** |
-
-*Cost estimated using equivalent cloud API pricing for comparative analysis.*
-
-## 5. Why Intel-Native Heterogeneous Compute
-
-The entire stack runs on Intel hardware:
-- **Xeon 6 CPU**: AMX instructions for INT8/BF16 acceleration
-- **Intel Gaudi 3**: Purpose-built AI accelerator with high-bandwidth memory
-- **ONNX Runtime**: Quantized INT8 models with AVX512 for sub-5ms routing
-- **OpenVINO**: Intel-optimized inference engine for CPU model serving
-
-No NVIDIA dependency. No cloud vendor lock-in. Single-vendor procurement.
-
-### When to Use Each Tier
-
-| Workload | Best Tier | Why |
-|----------|-----------|-----|
-| Classification | CPU | Identical quality, $0 incremental |
-| NER (batch) | CPU | Adequate quality for batch processing |
-| NER (real-time) | Gaudi | 4.6x faster, includes dosage extraction |
-| Fraud scoring | CPU | Rules + LLM combination, CPU handles well |
-| Summarization | Gaudi | 3x more detailed output, 2x faster |
-| Compliance reasoning | Either | CPU is 1.2x slower but correct |
-| Differential diagnosis | Gaudi | 10.1x faster, clinically superior |
-| Frontier reasoning (120B) | Gaudi | Models too large for CPU |
-
-## 6. Future Work
-
-- **INT8 quantization** (pending): OpenVINO INT8 models on Xeon 6 with AMX. ◇ Projected 2-3x additional CPU speedup.
-- **Speculative decoding** (pending): Draft model (1B) proposes tokens for target model (2B) verification. ◇ Projected 2-3x speedup, lossless quality.
-- **CPU serving evaluation** (in progress): Evaluating OpenVINO vs vLLM CPU for optimal single-request vs concurrent performance tradeoff.
-- **llm-d disaggregated inference** (roadmap): Separate prefill and decode across specialized CPU/Gaudi pools with SLO-based routing.
-
-## 7. Conclusion
-
-Heterogeneous AI inference on Intel hardware is not a compromise — it's an optimization:
-
-- **80% of enterprise AI workloads** run at equivalent quality on Intel Xeon 6 CPU at $0 incremental cost
-- **20% of workloads** benefit from Intel Gaudi 3 — 2.0-2.4x faster (reproducible medians) with higher quality on complex tasks
-- **The semantic router** makes the CPU vs Gaudi decision in 5ms, automatically
-- **⊕ Cost savings**: ~$9,000/month at 1M records vs all-Gaudi
-- **Full Intel stack**: No third-party accelerator dependency
-
-The question for enterprises isn't "CPU or accelerator?" It's: which tasks need which Intel hardware? The semantic router answers that in 5ms.
-
----
-
-**Authors**: Jonathan Kershaw (Red Hat), with contributions from Intel and IBM teams.
-**Platform**: Triforce
-**Contact**: jkershaw@redhat.com
+That is the enterprise pattern: route the work, measure the result, label the
+claim, and let the platform decide what is live.

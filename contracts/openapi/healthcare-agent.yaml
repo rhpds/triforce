@@ -118,6 +118,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/SummarizeResponse"
 
+  /api/v1/speculative/status:
+    get:
+      operationId: getSpeculativeStatus
+      summary: Return speculative decoding configuration
+      tags: [optimization]
+      responses:
+        "200":
+          description: Speculative decoding configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeculativeStatusResponse"
+
+  /api/v1/speculative/run:
+    post:
+      operationId: runSpeculativeMeasurement
+      summary: Measure target baseline versus speculative decoding
+      tags: [optimization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpeculativeRunRequest"
+      responses:
+        "200":
+          description: Baseline and speculative model measurement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeculativeRunResponse"
+
 components:
   schemas:
     HealthResponse:
@@ -280,6 +312,101 @@ components:
           type: integer
         output_tokens:
           type: integer
+
+    SpeculativeStatusResponse:
+      type: object
+      required:
+        - enabled
+        - baseline_model
+        - target_model
+        - draft_model
+        - speculative_model
+        - api_base_configured
+        - mode
+        - num_speculative_tokens
+        - claim_threshold
+      properties:
+        enabled:
+          type: boolean
+        baseline_model:
+          type: string
+        target_model:
+          type: string
+        draft_model:
+          type: string
+        speculative_model:
+          type: string
+        api_base_configured:
+          type: boolean
+        mode:
+          type: string
+        num_speculative_tokens:
+          type: integer
+          minimum: 1
+        claim_threshold:
+          type: number
+          minimum: 1
+
+    SpeculativeRunRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 100000
+        task:
+          type: string
+          default: summarization
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 2000
+
+    SpeculativeModelResult:
+      type: object
+      required: [model, task, latency_ms]
+      properties:
+        model:
+          type: string
+        task:
+          type: string
+        latency_ms:
+          type: integer
+          minimum: 0
+        output:
+          type: string
+        prompt_tokens:
+          type: integer
+          minimum: 0
+        output_tokens:
+          type: integer
+          minimum: 0
+        error:
+          type: string
+
+    SpeculativeRunResponse:
+      type: object
+      required: [status, task, baseline, speculative, message]
+      properties:
+        status:
+          type: string
+          enum: [complete, error]
+        task:
+          type: string
+        baseline:
+          $ref: "#/components/schemas/SpeculativeModelResult"
+        speculative:
+          $ref: "#/components/schemas/SpeculativeModelResult"
+        speedup:
+          type:
+            - number
+            - "null"
+        claim_threshold:
+          type: number
+          minimum: 1
+        message:
+          type: string
 
     # A2A Protocol schemas
     AgentCard:

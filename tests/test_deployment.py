@@ -30,6 +30,7 @@ NEW_ALIASES = [
     "granite-4.1-3b",
     "granite-4.1-8b",
     "granite-2b-int8",
+    "granite-2b-cpu-speculative",
 ]
 ALL_ALIASES = MAAS_ALIASES + NEW_ALIASES
 
@@ -120,7 +121,7 @@ class TestD0ModelContracts:
         assert ROSTER_PATH.exists(), "model_roster.yaml not found"
         roster = yaml.safe_load(ROSTER_PATH.read_text())
         models = roster["models"]
-        assert len(models) == 9, f"Expected 9 models, got {len(models)}"
+        assert len(models) == 10, f"Expected 10 models, got {len(models)}"
         aliases = [m["alias"] for m in models]
         for alias in ALL_ALIASES:
             assert alias in aliases, f"Missing alias: {alias}"
@@ -140,6 +141,17 @@ class TestD0ModelContracts:
         model_names = [m["model_name"] for m in config["model_list"]]
         for alias in ALL_ALIASES:
             assert alias in model_names, f"LiteLLM config missing alias: {alias}"
+
+    def test_speculative_vllm_manifest(self):
+        manifest_path = OBERON_DIR / "vllm-speculative.yaml"
+        assert manifest_path.exists(), "vllm-speculative.yaml not found"
+        content = manifest_path.read_text()
+        assert "name: vllm-granite-2b-speculative" in content
+        assert "granite-2b-cpu-speculative" in content
+        assert "--speculative-config" in content
+        assert '"method":"draft_model"' in content
+        assert '"model":"ibm-granite/granite-4.0-350m"' in content
+        assert '"num_speculative_tokens":5' in content
 
     def test_model_alias_consistency(self):
         roster = yaml.safe_load(ROSTER_PATH.read_text())
@@ -540,11 +552,11 @@ class TestD6Benchmarks:
 
 
 # ---------------------------------------------------------------------------
-# Stage D7: All 14 Modules
+# Stage D7: All 15 Modules
 # ---------------------------------------------------------------------------
 
 class TestD7Modules:
-    """stage_d7: All 14 modules work correctly with locally-served models."""
+    """stage_d7: All 15 modules work correctly with locally-served models."""
 
     def test_semantic_routing_3tier(self):
         for text, expected in [
@@ -574,6 +586,25 @@ class TestD7Modules:
         resp = curl_service("healthcare-agent", 8081, "/api/v1/fusion",
                             method="POST", data=data, timeout=120)
         assert resp is not None, "Fusion endpoint did not respond"
+
+    def test_speculative_configured(self):
+        resp = curl_service("healthcare-agent", 8081, "/api/v1/speculative/status")
+        assert resp is not None, "Speculative status endpoint did not respond"
+        assert resp.get("draft_model") == "granite-350m"
+        assert resp.get("target_model") == "granite-2b-cpu"
+        assert resp.get("speculative_model") == "granite-2b-cpu-speculative"
+
+    def test_speculative_run_measured(self):
+        data = {
+            "task": "summarization",
+            "text": "72-year-old male admitted with acute chest pain and Type 2 Diabetes.",
+            "max_tokens": 64,
+        }
+        resp = curl_service("healthcare-agent", 8081, "/api/v1/speculative/run",
+                            method="POST", data=data, timeout=120)
+        assert resp is not None, "Speculative run endpoint did not respond"
+        assert resp.get("status") == "complete", resp
+        assert resp.get("speedup") is not None
 
     def test_adaptive_cache_cold_warm(self):
         data = {"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes."}
@@ -631,7 +662,7 @@ class TestD7Modules:
         resp = curl_service("ovms-granite-2b", 8080, "/v2/health/ready")
         assert resp is not None, "OVMS health endpoint unreachable"
 
-    def test_all_14_modules_combined(self):
+    def test_all_15_modules_combined(self):
         data = {
             "text": "72-year-old male on Warfarin 5mg and Aspirin 81mg with Type 2 Diabetes. "
                     "DISCHARGE SUMMARY with acute chest pain and ST elevation.",

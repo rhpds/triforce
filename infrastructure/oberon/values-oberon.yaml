@@ -1,5 +1,5 @@
 # Helm values override for Intel Lab Cluster (Oberon)
-# Local OVMS model serving via LiteLLM proxy — no MAAS dependency
+# Local OVMS/vLLM model serving via LiteLLM proxy — no MAAS dependency
 # Model assignments based on benchmark results (2026-07-01)
 
 namespace: triforce
@@ -21,7 +21,7 @@ healthcareAgent:
   nerModel: "granite-2b-cpu"
   summarizeModel: "granite-4.1-8b"
 
-# All 14 modules enabled
+# All 15 modules enabled
 modules:
   benchmarking:
     enabled: true
@@ -29,15 +29,22 @@ modules:
     enabled: true
     draftModel: granite-350m
     targetModel: granite-2b-cpu
+    speculativeModel: granite-2b-cpu-speculative
+    numSpeculativeTokens: 5
+    speedupClaimThreshold: 1.5
   heterogeneous:
     enabled: true
     gpuApiBase: "http://litellm.triforce.svc:4000"
     gpuApiKey: "local-oberon-key"
+    gpuModel: granite-4.1-8b
     routingThreshold: 0.7
   fusion:
     enabled: true
     panelModels: "granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu"
     judgeModel: granite-3-2-8b-instruct-cpu
+  edge:
+    enabled: true
+    model: bitnet-2b4t
 
 # Secure variant (TDX + kata sandboxed containers)
 confidential:

@@ -81,6 +81,24 @@ class TestRouteClassification:
         resp = client.post("/classify", json={"text": "classify this document"})
         assert resp.json()["latency_ms"] < 500
 
+    def test_route_alias_matches_classify_shape(self):
+        from router import app
+        client = TestClient(app)
+        resp = client.post("/route", json={"text": "Classify this lab report."})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "route" in data
+        assert "model" in data
+        assert "confidence" in data
+        assert "latency_ms" in data
+
+    def test_route_alias_rejects_empty_text(self):
+        from router import app
+        client = TestClient(app)
+        resp = client.post("/route", json={"text": ""})
+        assert resp.status_code == 200
+        assert resp.json()["error"] == "text is required"
+
 
 class TestRouteConfig:
     def test_routes_endpoint_exists(self):

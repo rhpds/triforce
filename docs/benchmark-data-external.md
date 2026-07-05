@@ -1,242 +1,140 @@
-# Triforce Benchmark Data — June 2026
+# Triforce Benchmark Data Ledger
 
-## Data Provenance
+**External-Safe Companion to the Triforce White Paper**
+**July 2026**
 
-All numbers are classified by how they were obtained:
+## Purpose
 
-- **✓ Measured** — independently verified by our team via live API calls
-- **ⓘ Reported** — provided by infrastructure team, not independently verified by us
-- **⊕ Estimated** — calculated from assumptions or extrapolated from measured data
-- **◇ Projected** — expected based on vendor data, not yet tested
+This file summarizes benchmark provenance for public-facing Triforce material.
+The source of truth for pass/fail thresholds is `tests/benchmark_rubric.yaml`.
+The source of truth for publishable claims is `tests/claim_registry.yaml`.
 
-## Measurement Environment
+## Evidence Labels
 
-| Component | Detail |
-|-----------|--------|
-| **Platform** | Red Hat OpenShift on bare metal |
-| **CPU Pool** | Intel Xeon 6 workers (1,536 total cores) |
-| **Gaudi Pool** | Intel Gaudi 3 workers (24 total accelerator cards) |
-| **Model Proxy** | LiteLLM → routes to CPU or Gaudi backends |
-| **Benchmark Date** | June 23-26, 2026 |
-| **Methodology** | Single-request latency unless noted. Client-side wall-clock (includes network). |
-| **Benchmark Tool** | guidellm v0.3.1 + custom benchmark endpoints |
+| Label | Meaning |
+|-------|---------|
+| Measured | Produced by a live endpoint or benchmark command in the named environment |
+| Reported | Provided by another team and not independently re-measured here |
+| Estimated | Calculated from assumptions or extrapolated from measurements |
+| Roadmap | Designed or documented, but not a live feature claim |
 
-### CPU Model Serving
-| Model | Parameters | Runtime | Notes |
-|-------|-----------|---------|-------|
-| granite-2b-cpu | 2B | **OpenVINO** (OptimumIntel) | Intel-optimized inference engine |
-| qwen25-3b-cpu | 3B | **OpenVINO** (OptimumIntel) | Intel-optimized inference engine |
-| phi3-mini-cpu | 3.8B | **OpenVINO** (OptimumIntel) | Intel-optimized inference engine |
-| granite-3.2-8b-instruct-cpu | 8B | **vLLM CPU** | Continuous batching enabled |
-| granite-4-0-h-tiny-cpu | ~1B | HuggingFace Transformers | Classification only |
+## Current Target Environments
 
-### Gaudi Model Serving
-| Model | Parameters | Runtime |
-|-------|-----------|---------|
-| granite-3-2-8b-instruct | 8B | vLLM Gaudi |
-| microsoft-phi-4 | 14B | vLLM Gaudi (TP=2) |
-| deepseek-r1-distill-qwen-14b | 14B | vLLM Gaudi (TP=4) |
-| qwen3-14b | 14B | vLLM Gaudi (TP=4, 2 replicas) |
-| llama-scout-17b | 17B | vLLM Gaudi |
-| gpt-oss-20b | 20B | vLLM Gaudi |
-| gpt-oss-120b | 120B | vLLM Gaudi (multi-card) |
+| Environment | Role | Status |
+|-------------|------|--------|
+| Local static | Unit, contract, frontend, YAML, and copy-hygiene checks | Active |
+| Local full | Adds Helm, Java 21, and Maven checks | Requires local tools |
+| MAAS | Historical CPU/accelerator comparison data | Retained for context |
+| Oberon | Current authoritative OpenShift validation target | Requires fresh deployment run |
 
----
+## Oberon Model Alias Set
 
-## CPU-Only Benchmarks (Intel Xeon 6 + OpenVINO)
+Oberon acceptance is built around 10 LiteLLM aliases:
 
-*All CPU models served via OpenVINO (Intel's optimized inference engine) except granite-3.2-8b (vLLM CPU) and granite-4-0-h-tiny (HuggingFace Transformers).*
+| Alias | Role |
+|-------|------|
+| `granite-350m` | fast draft/classification model |
+| `granite-4-0-h-tiny-cpu` | small CPU compatibility alias |
+| `granite-2b-cpu` | baseline target for NER/fraud/speculative comparison |
+| `granite-2b-cpu-speculative` | vLLM speculative decoding alias |
+| `granite-2b-int8` | AMX/INT8 optimization path |
+| `qwen25-3b-cpu` | classification and summarization |
+| `granite-4.1-3b` | next-generation Granite CPU tier |
+| `phi3-mini-cpu` | reasoning tier |
+| `granite-3-2-8b-instruct-cpu` | fusion judge and complex reasoning |
+| `granite-4.1-8b` | simulated complex tier for Oberon heterogeneous routing |
 
-### Classification (single category output) ✓
-| Model | Params | Runtime | Latency | Correct |
-|-------|--------|---------|---------|---------|
-| qwen25-3b-cpu | 3B | OpenVINO | **438ms** | Misclassified as progress_note |
-| phi3-mini-cpu | 3.8B | OpenVINO | 504ms | Correct |
-| granite-2b-cpu | 2B | OpenVINO | 797ms | Correct |
-| granite-3.2-8b-instruct-cpu | 8B | vLLM CPU | 904ms | Misclassified as progress_note |
-| granite-4-0-h-tiny-cpu | ~1B | HF Transformers | 4,877ms | Correct (not CPU-optimized) |
+## Historical MAAS Measurements
 
-### NER (medical entity extraction) ✓
-| Model | Params | Runtime | Latency | Tokens | Quality |
-|-------|--------|---------|---------|--------|---------|
-| qwen25-3b-cpu | 3B | OpenVINO | **5,276ms** | 145 | Entities found, non-standard JSON |
-| granite-2b-cpu | 2B | OpenVINO | 6,850ms | 219 | Clean JSON, correct entity types |
-| phi3-mini-cpu | 3.8B | OpenVINO | 10,327ms | 338 | Verbose, JSON in markdown block |
-| granite-3.2-8b-instruct-cpu | 8B | vLLM CPU | 18,314ms | 174 | Clean JSON, includes disease subtype |
-| granite-4-0-h-tiny-cpu | ~1B | HF Transformers | **TIMEOUT** | — | Server disconnected |
+The table below is retained as measured comparison context. These values do not
+verify current Oberon claims by themselves.
 
-### Summarization (2-3 sentence clinical summary) ✓
-| Model | Params | Runtime | Latency | Tokens |
-|-------|--------|---------|---------|--------|
-| phi3-mini-cpu | 3.8B | OpenVINO | **2,712ms** | 84 |
-| qwen25-3b-cpu | 3B | OpenVINO | 3,402ms | 95 |
-| granite-2b-cpu | 2B | OpenVINO | 3,879ms | 122 |
-| granite-3.2-8b-instruct-cpu | 8B | vLLM CPU | 13,017ms | 123 |
-| granite-4-0-h-tiny-cpu | ~1B | HF Transformers | **TIMEOUT** | — |
+| Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Observation |
+|------|-----------|-------------|-------------------|---------------------|-------------|
+| Classification | `qwen25-3b-cpu` | 779ms | `granite-3-2-8b-instruct` | 500ms | Both produced acceptable classification |
+| NER | `granite-2b-cpu` | 6248ms | `microsoft-phi-4` | 3809ms | Accelerator captured more dosage detail |
+| Summarization | `granite-2b-cpu` | 5208ms | `gpt-oss-20b` | 1572ms | Accelerator output was more detailed |
+| Compliance reasoning | `granite-2b-cpu` | 3537ms | `microsoft-phi-4` | 1692ms | Accelerator cited AML details |
+| Differential diagnosis | `granite-3-2-8b-instruct-cpu` | 14817ms | `gpt-oss-120b` | 1465ms | Accelerator output had stronger reasoning |
 
-### Compliance Reasoning (AML structuring detection) ✓
-| Model | Params | Runtime | Latency | Correct | Quality |
-|-------|--------|---------|---------|---------|---------|
-| phi3-mini-cpu | 3.8B | OpenVINO | **1,613ms** | Yes | Concise, identifies structuring |
-| granite-2b-cpu | 2B | OpenVINO | 4,498ms | Yes | Basic reasoning, correct conclusion |
-| qwen25-3b-cpu | 3B | OpenVINO | 5,532ms | **No** | Incorrectly said "No" to structuring |
-| granite-3.2-8b-instruct-cpu | 8B | vLLM CPU | 21,080ms | Yes | Detailed, references suspicious pattern |
+Historical throughput comparison:
 
-### CPU Findings
-- **Best overall CPU model**: phi3-mini-cpu (OpenVINO) — fastest on 3/4 tasks, always correct
-- **Best NER format**: granite-2b-cpu (OpenVINO) — cleanest JSON output, reliable parsing
-- **OpenVINO advantage**: The 3 OpenVINO models (2B, 3B, 3.8B) outperform the vLLM 8B model on latency despite being smaller — OpenVINO is highly optimized for Intel Xeon 6
-- **granite-3.2-8b-instruct-cpu** (vLLM): Highest quality output but 3-10x slower than OpenVINO models
+| Metric | CPU | Accelerator |
+|--------|-----|-------------|
+| Requests per second | 0.23 | 0.87 |
+| Mean latency | 4.33s | 1.15s |
+| Time to first token | 4204ms | 401ms |
 
----
+## Oberon Measurements To Regenerate
 
-## Gaudi-Only Benchmarks (Intel Gaudi 3) ✓
+These values must be regenerated after deploying `infrastructure/oberon/values-oberon.yaml`:
 
-### Classification ✓
-| Model | Params | Latency | Correct |
-|-------|--------|---------|---------|
-| llama-scout-17b | 17B | **241ms** | Correct |
-| microsoft-phi-4 | 14B | 338ms | Correct |
-| granite-3-2-8b-instruct | 8B | 466ms | Misclassified |
-| gpt-oss-20b | 20B | 580ms | Reasoning model (verbose) |
+| Measurement | Endpoint or Test |
+|-------------|------------------|
+| Classification latency ladder | `/api/v1/benchmark/run` |
+| NER latency ladder | `/api/v1/benchmark/run` |
+| Summarization latency ladder | `/api/v1/benchmark/run` |
+| INT8 speedup | `granite-2b-cpu` vs `granite-2b-int8` |
+| Speculative decoding speedup | `/api/v1/speculative/run` |
+| Fusion structured judge output | `/api/v1/fusion` |
+| Router complex-tier behavior | `/route` |
+| BitNet latency | `bitnet-server:8080/v1/chat/completions` |
+| Claim audit | `tests/test_claim_accuracy.py` |
 
-### NER ✓
-| Model | Params | Latency | Tokens | Quality |
-|-------|--------|---------|--------|---------|
-| gpt-oss-20b | 20B | **1,494ms** | 296 | Most comprehensive, includes dosages |
-| llama-scout-17b | 17B | 2,656ms | 178 | Clean JSON, disease subtypes |
-| microsoft-phi-4 | 14B | 4,126ms | 198 | Includes dosages |
-| granite-3-2-8b-instruct | 8B | 5,650ms | 220 | Clean JSON |
+## Live Module Benchmark Map
 
-### Summarization ✓
-| Model | Params | Latency | Tokens |
-|-------|--------|---------|--------|
-| gpt-oss-20b | 20B | **1,326ms** | 256 |
-| llama-scout-17b | 17B | 1,755ms | 114 |
-| microsoft-phi-4 | 14B | 2,198ms | 93 |
-| granite-3-2-8b-instruct | 8B | 2,481ms | 94 |
+| Module | Benchmark Authority |
+|--------|---------------------|
+| `semantic-routing` | `/route`, router tests |
+| `conditional-pipeline` | healthcare pipeline inference log |
+| `mcp-tools` | MCP gateway and fallback tools |
+| `model-optimization` | model ladder and INT8 comparison |
+| `batch-processing` | Redpanda/AMQ Streams flow |
+| `replica-scaling` | replica and concurrency tests |
+| `adaptive-classification` | cold/warm cache benchmark |
+| `benchmarking` | `/api/v1/benchmark/models`, `/api/v1/benchmark/run` |
+| `speculative-decoding` | `/api/v1/speculative/status`, `/api/v1/speculative/run` |
+| `edge-inference` | `bitnet-server` service and inference response |
+| `heterogeneous-routing` | `/route` complex-tier output |
+| `multi-model-fusion` | structured judge fields |
+| `cost-analysis` | estimate-labeled routing/cost calculations |
+| `scale-testing` | concurrent request and throughput gates |
+| `llmd-inference` | roadmap only |
 
-### Compliance Reasoning ✓
-| Model | Params | Latency | Correct | Quality |
-|-------|--------|---------|---------|---------|
-| gpt-oss-20b | 20B | **1,396ms** | Yes | Cites $10K threshold |
-| llama-scout-17b | 17B | 2,388ms | Yes | Identifies structuring |
-| microsoft-phi-4 | 14B | 4,137ms | Yes | References AML regulations |
-| granite-3-2-8b-instruct | 8B | 5,213ms | Yes | Numbered analysis |
+## Claim Rules
 
-### Differential Diagnosis (frontier reasoning) ✓
-| Model | Params | Latency | Primary Diagnosis |
-|-------|--------|---------|-------------------|
-| gpt-oss-120b | 120B | **1,465ms** | Bacterial meningitis (S. pneumoniae) — cites pathogen |
-| microsoft-phi-4 | 14B | 4,746ms | Bacterial meningitis — good reasoning |
-| granite-3-2-8b-instruct | 8B | 7,310ms | Bacterial meningitis — adequate |
+- Speculative decoding can be called live when the status and run endpoints
+  return measurements. It can be called a speedup only when the measured result
+  meets the current threshold.
+- INT8 speedup must be measured on the target cluster before a multiplier is
+  published.
+- BitNet latency and energy values are paper references until measured on
+  Oberon.
+- Cost figures are estimates unless the claim registry marks current pricing as
+  verified.
+- Compliance wording must say supports or contributes to.
 
-### Gaudi Findings (reproducible medians, 3 samples)
-- **Most consistent model**: llama-scout-17b — fastest median on ALL 4 tasks with low variance
-- **gpt-oss-20b**: Fast in single samples but high variance (unreliable for benchmark claims)
-- **Frontier reasoning**: gpt-oss-120b at 1.5s for diagnosis (single-sample, pending verification)
-- **Intel Gaudi 3 advantage**: Consistent sub-2s on 17B model across all tasks
+## Commands
 
----
+Local static:
 
-## CPU vs Gaudi — Reproducible Medians (3 samples per measurement) ✓
-
-*Reproducible via `python3 scripts/benchmark-suite.py --samples 3 --gaudi`*
-
-| Task | Best CPU | CPU Median | Best Gaudi | Gaudi Median | Speedup | Quality |
-|------|----------|------------|------------|--------------|---------|---------|
-| Classification | phi3-mini (3.8B) | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
-| NER | granite-2b (2B) | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
-| Summarization | phi3-mini (3.8B) | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
-| Compliance | phi3-mini (3.8B) | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
-| Diagnosis† | granite-8b (8B) | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
-
-*† Single-sample. All other rows are medians from 3 independent runs.*
-
-### When CPU is Sufficient
-- **Classification**: CPU at 372ms vs Gaudi at 188ms — 2x faster on Gaudi but CPU quality is identical
-- **Compliance**: CPU at 1.9s vs Gaudi at 1.3s — 1.5x difference, both correct
-
-### When Gaudi is the Right Choice
-- **Diagnosis**: 10.1x faster AND clinically superior output
-- **NER at scale**: 2.4x faster — cumulative savings significant at high volume
-- **Real-time summarization**: 2.3x faster for interactive applications
-
----
-
-## Throughput Benchmarks (guidellm) ✓
-
-| Metric | CPU (Xeon 6 + OpenVINO) | Gaudi 3 | Speedup |
-|--------|------------------------|---------|---------|
-| Requests/sec | 0.23 | 0.87 | **3.8x** |
-| Mean latency | 4.33s | 1.15s | **3.8x** |
-| Time to first token | 4,204ms | 401ms | **10.5x** |
-| Concurrent scaling | Flat (serialized) | Linear (batching) | Gaudi wins |
-
----
-
-## vLLM CPU Migration Results ⓘ
-
-*Reported by infrastructure team. Independent verification planned.*
-
-| Metric | Before | After (vLLM v0.23.0) | Change |
-|--------|--------|----------------------|--------|
-| Single request | 663ms | 1,134ms | +71% (scheduling overhead) |
-| 5 concurrent (worst) | ~5,500ms | 3,397ms | **-38%** |
-| Max concurrency | 1 (serialized) | 64x | **64x improvement** |
-| Streaming | Simulated | Real token-by-token | Genuine SSE streaming |
-
----
-
-## Optimization Stack Results ✓
-
-| Optimization | Impact | Status |
-|-------------|--------|--------|
-| Semantic routing (ONNX qint8 AVX512) | 3,200ms → 5ms (**640x**) | Live |
-| Conditional pipeline | 25% fewer LLM calls | Live |
-| MCP tools vs LLM | 16ms vs 3,000ms (**187x**) | Live |
-| Model selection | 10.2s → 7.8s pipeline (24%) | Live |
-| Adaptive classification cache | 80%+ hit rate after warmup | Live |
-| Multi-model fusion (3+judge) | Higher confidence for critical decisions | Live |
-| Heterogeneous routing (CPU→Gaudi) | **80% cost savings** vs all-Gaudi | Live |
-| Batch streaming (AMQ Streams) | N records parallel | Live |
-| Replica scaling | 20-30% latency improvement | Tested |
-| INT8 quantization (OpenVINO) | ◇ Projected 2-3x | Pending |
-| Speculative decoding | ◇ Projected 2-3x | Pending |
-| llm-d disaggregated inference | ◇ Projected 5.6x | Roadmap |
-
----
-
-## Cost Analysis ⊕
-
-| Routing Strategy (1M records/month) | Monthly Incremental Cost | Savings |
-|--------------------------------------|------------------------|---------|
-| 100% Gaudi | ⊕ ~$11,250 | — |
-| 100% CPU (Xeon 6) | $0 | ~$11,250 (100%) |
-| **80% CPU / 20% Gaudi (heterogeneous)** | **⊕ ~$2,250** | **⊕ ~$9,000 (80%)** |
-
-*Gaudi cost estimated using equivalent cloud API pricing. Actual cost depends on internal infrastructure allocation.*
-
----
-
-## Hardware Summary
-
+```bash
+python -m pytest tests/contracts/
+python -m pytest services/healthcare-agent/tests/
+python -m pytest services/semantic-router/tests/
+go test ./...
+npm run build
+npx vitest run
 ```
-┌─────────────────────────────────────────────────────────┐
-│          Heterogeneous Intel Inference Platform         │
-│              Red Hat OpenShift on Bare Metal            │
-│                                                         │
-│  ┌────────────────────┐  ┌─────────────────────────┐    │
-│  │   CPU Pool         │  │   Gaudi Pool            │    │
-│  │   Intel Xeon 6     │  │   Intel Gaudi 3         │    │
-│  │                    │  │                         │    │
-│  │   1,536 cores      │  │   24 Gaudi 3 cards      │    │
-│  │                    │  │                         │    │
-│  │   OpenVINO + vLLM  │  │   vLLM Gaudi            │    │
-│  │   $0 incremental   │  │   $/token               │    │
-│  └────────────────────┘  └─────────────────────────┘    │
-│                                                         │
-│  LiteLLM Proxy → unified API → routes to CPU or Gaudi   │
-│  Full Intel stack — no third-party accelerator dependency│
-└─────────────────────────────────────────────────────────┘
+
+Oberon acceptance:
+
+```bash
+helm template infrastructure/helm \
+  --values infrastructure/oberon/values-oberon.yaml
+
+python -m pytest tests/test_deployment.py
+python -m pytest tests/test_virt_edge.py
+python -m pytest tests/test_claim_accuracy.py
+python -m pytest tests/test_stage_9_module_benchmarks.py
 ```

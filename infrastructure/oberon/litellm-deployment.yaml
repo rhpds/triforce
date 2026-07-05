@@ -1,4 +1,4 @@
-# LiteLLM Proxy — aggregates 9 OVMS models behind single OpenAI-compatible API
+# LiteLLM Proxy — aggregates local OVMS and vLLM models behind a single OpenAI-compatible API
 # Triforce services point LITELLM_API_BASE here instead of MAAS
 ---
 apiVersion: v1
@@ -23,6 +23,11 @@ data:
         litellm_params:
           model: openai/granite-2b-cpu
           api_base: http://ovms-granite-2b.triforce.svc:8080/v3
+          api_key: unused
+      - model_name: granite-2b-cpu-speculative
+        litellm_params:
+          model: openai/granite-2b-cpu-speculative
+          api_base: http://vllm-granite-2b-speculative.triforce.svc:8000/v1
           api_key: unused
       - model_name: granite-2b-int8
         litellm_params:

@@ -1,4 +1,4 @@
-# OpenVINO Model Server — 9 models on Xeon 6767P
+# OpenVINO Model Server — local CPU model set on Xeon 6767P
 # INT4 quantized via optimum-intel, served with continuous batching
 # OpenAI-compatible /v3/chat/completions endpoint
 

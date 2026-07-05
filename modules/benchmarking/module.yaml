@@ -9,7 +9,7 @@ audience:
 - Performance Engineer
 - ML Engineer
 - Technical Decision Maker
-status: building
+status: live
 dependencies:
   tools:
   - guidellm

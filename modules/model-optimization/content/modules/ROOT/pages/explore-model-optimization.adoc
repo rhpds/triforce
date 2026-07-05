@@ -5,7 +5,7 @@
 
 == What You'll Learn
 
-INT8 quantization runs the same model with lower precision — 2-3x faster on Intel AMX instructions. Same accuracy for enterprise tasks. Same $0 cost.
+INT8 quantization runs the same model with lower precision on Intel AMX instructions. The speedup is measured per target environment. Same accuracy target for enterprise tasks. Same $0 cost.
 
 == Exercise: FP32 vs INT8 Comparison
 
@@ -37,7 +37,7 @@ NOTE: If INT8 models are not yet deployed, the comparison will show a fallback m
 |===
 | Lever | What It Does | Expected Gain
 
-| Quantization (INT8/INT4) | Lower precision, AMX instructions | 2-3x faster
+| Quantization (INT8/INT4) | Lower precision, AMX instructions | Environment-measured speedup
 | Optimized model variants | Models built for CPU inference | AMX-aware kernels
 | Model selection | Right-size model to task complexity | ~5% (measured)
 | Prompt tuning | Shorter prompts, fewer tokens | Variable
@@ -47,7 +47,7 @@ Each lever compounds. All on the same $0/token hardware.
 
 == The Takeaway
 
-Model selection gave us 5% (measured). INT8 quantization is projected at 2-3x. Together with prompt optimization, the 7.8s pipeline could drop to ~2.5s. Same hardware. Same cost. Better engineering.
+Model selection gave us 5% (measured). INT8 quantization should be measured on the target cluster before publishing a multiplier. Together with prompt optimization, the same hardware can improve throughput without adding metered inference cost.
 
 [.next-nav]
 xref:99-conclusion.adoc[Back to module list →]

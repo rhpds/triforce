@@ -34,7 +34,7 @@ curl -s -X POST ${HEALTHCARE_AGENT_URL}/api/v1/classify \
   }' | python3 -m json.tool
 ----
 
-Notice the response time — BitNet generates at ~29ms per token on CPU. The classification runs entirely on the same hardware as the SCADA system.
+Notice the response time reported by the live run. The classification runs entirely on the same hardware as the SCADA system.
 
 == Exercise 3: Natural Language Query
 
@@ -63,12 +63,12 @@ See how the 1-bit model compares to standard models:
 [source,bash,role="execute"]
 ----
 echo "=== Model Comparison ==="
-echo "BitNet b1.58 2B4T:  0.4 GB  |  29ms/token  |  0.028 J/token"
-echo "Granite 2B (INT4):  1.2 GB  |  ~200ms/token |  ~0.34 J/token"
-echo "Granite 8B (INT4):  4.0 GB  |  ~400ms/token |  ~0.50 J/token"
+echo "BitNet b1.58 2B4T:  0.4 GB  |  measured live | estimate in registry"
+echo "Granite 2B (INT4):  1.2 GB  |  measured live | estimate in registry"
+echo "Granite 8B (INT4):  4.0 GB  |  measured live | estimate in registry"
 echo ""
-echo "BitNet is 12x more energy efficient and 3x smaller than the"
-echo "smallest standard model. It runs on hardware you already have."
+echo "Compare the measured output against the claim registry before"
+echo "publishing latency or energy multipliers."
 ----
 
 == Exercise 5: Check Resource Usage

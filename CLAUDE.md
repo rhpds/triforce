@@ -9,7 +9,7 @@ Polyglot multi-agent demo platform showcasing the Red Hat + IBM + Intel partners
 
 Two industry verticals: Healthcare (clinical NLP) and Financial Services (fraud/compliance).
 Four demo variants: AI (base), Secure (TDX), Virt (KubeVirt), Govern (Kagenti).
-14 pluggable optimization modules — cities/events select their subset.
+15 pluggable optimization modules — cities/events select their subset.
 
 ## Architecture
 
@@ -38,6 +38,10 @@ Healthcare  FinServ  Orchestrator
 cp .env.example .env  # Add LITELLM_API_KEY
 source .env && export LITELLM_API_BASE LITELLM_API_KEY
 make up               # podman-compose (requires exported env vars)
+
+# Full local suite prerequisites:
+# Python 3.11, Node.js/npm, Go, Java 21, Maven, Helm
+# FinServ uses system mvn; do not add Maven wrapper files.
 
 # Tests by stage (11 stages total)
 make test-contracts              # Stage 0: schema validation (120 tests)
@@ -91,12 +95,12 @@ services/
   orchestrator/      # Go — workflow coordination, event routing
   semantic-router/   # Python — embedding-based heterogeneous routing
   mcp-gateway/       # Python/FastAPI — 8 federated tools
-modules/             # 14 pluggable optimization modules
+modules/             # 15 pluggable optimization modules
   benchmarking/      # Model × Task × Hardware comparison
   adaptive-classification/  # Cache learns from LLM results
   multi-model-fusion/       # Panel + judge for critical decisions
   heterogeneous-routing/    # CPU→GPU intelligent routing
-  speculative-decoding/     # Draft model 2-3x speedup
+  speculative-decoding/     # Measured draft/target speculative path
   ...                       # + 9 more (see modules/README.md)
 infrastructure/
   podman-compose.yaml  # Local dev (8 services)
@@ -148,6 +152,8 @@ tests/               # Validation matrix (11 stages) + benchmark rubric
 | GET | /api/v1/modules | Active modules list |
 | GET | /api/v1/benchmark/models | Available models for benchmarking |
 | POST | /api/v1/benchmark/run | Run model comparison benchmark |
+| GET | /api/v1/speculative/status | Speculative decoding configuration |
+| POST | /api/v1/speculative/run | Measure baseline vs speculative decoding |
 | POST | /api/v1/fusion | Multi-model panel + judge synthesis |
 
 ## What NOT To Do

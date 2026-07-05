@@ -31,7 +31,7 @@ export default function ModuleHeterogeneous() {
 
   const classifyText = async (text: string) => {
     try {
-      const resp = await fetch('/router/classify', {
+      const resp = await fetch('/router/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -68,12 +68,12 @@ export default function ModuleHeterogeneous() {
   return (
     <ModuleLayout
       title="Heterogeneous Compute Routing"
-      description="The semantic router classifies each request by complexity in <1ms and routes to optimal hardware. Simple → CPU ($0). Complex → GPU ($/token). Same API, the system decides."
+      description="The semantic router classifies each request by complexity and routes to the configured hardware tier. Simple requests stay on CPU; complex requests can use the Helm-configured complex model."
       status="live"
     >
       <StepCard num={1} title="Run Sample Prompts">
         <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 12 }}>
-          Watch 6 prompts route to CPU or GPU based on complexity. Classification and labeling stay on CPU. Diagnosis and reasoning route to GPU.
+          Watch 6 prompts route by complexity. Classification and labeling stay on CPU. Diagnosis and reasoning route to the configured complex tier.
         </p>
         <button className="btn btn-primary" onClick={runAllSamples} disabled={running} style={{ fontSize: 12 }}>
           {running ? 'Routing...' : 'Route 6 Sample Prompts →'}
@@ -150,9 +150,9 @@ export default function ModuleHeterogeneous() {
       {results.length >= 4 && (
         <StepCard num={4} title="Insight">
           <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
-            The semantic router makes the CPU vs GPU decision in {'<'}1ms per request.
-            Simple tasks stay on CPU at $0. Complex reasoning routes to GPU where quality matters.
-            At scale: {Math.round(cpuCount / results.length * 100)}% free, {Math.round(gpuCount / results.length * 100)}% GPU. The system decides — no code changes needed.
+            The semantic router makes the CPU vs complex-tier decision before the model call.
+            Simple tasks stay on CPU. Complex reasoning routes to the configured tier where quality matters.
+            This run routed {Math.round(cpuCount / results.length * 100)}% to CPU and {Math.round(gpuCount / results.length * 100)}% to the complex tier.
           </div>
         </StepCard>
       )}

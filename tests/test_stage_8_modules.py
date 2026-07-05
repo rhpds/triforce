@@ -1,13 +1,25 @@
 """Stage 8: Module validation — manifests, Helm flags, composition."""
 
 import subprocess
+import shutil
 import yaml
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).parent.parent
 MODULES_DIR = REPO_ROOT / "modules"
 HELM_DIR = REPO_ROOT / "infrastructure" / "helm"
 HELM_TEST_ARGS = ["--set", "postgres.password=test", "--set", "litellm.apiKey=test", "--set", "litellm.apiBase=http://test"]
+
+
+def helm_template(extra_args=None):
+    if shutil.which("helm") is None:
+        pytest.skip("helm not installed")
+    return subprocess.run(
+        ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS + (extra_args or []),
+        capture_output=True, text=True,
+    )
 
 
 class TestModuleManifests:
@@ -50,40 +62,42 @@ class TestModuleHelmFlags:
             )
 
     def test_helm_renders_all_disabled(self):
-        result = subprocess.run(
-            ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS,
-            capture_output=True, text=True,
-        )
+        result = helm_template()
         assert result.returncode == 0, f"Helm template failed with all modules disabled: {result.stderr}"
 
     def test_helm_renders_all_enabled(self):
-        result = subprocess.run(
-            ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS + [
+        result = helm_template([
              "--set", "modules.benchmarking.enabled=true",
              "--set", "modules.speculative.enabled=true",
              "--set", "modules.heterogeneous.enabled=true",
-             "--set", "modules.fusion.enabled=true"],
-            capture_output=True, text=True,
-        )
+             "--set", "modules.fusion.enabled=true",
+             "--set", "modules.edge.enabled=true"])
         assert result.returncode == 0, f"Helm template failed with all modules enabled: {result.stderr}"
 
     def test_disabled_modules_no_env_vars(self):
-        result = subprocess.run(
-            ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS,
-            capture_output=True, text=True,
-        )
+        result = helm_template()
         assert "GPU_API_BASE" not in result.stdout, "GPU_API_BASE should not appear when heterogeneous disabled"
         assert "FUSION_PANEL_MODELS" not in result.stdout, "FUSION_PANEL_MODELS should not appear when fusion disabled"
         assert "SPECULATIVE_DRAFT_MODEL" not in result.stdout, "SPECULATIVE_DRAFT_MODEL should not appear when speculative disabled"
+        assert "SPECULATIVE_MODEL" not in result.stdout, "SPECULATIVE_MODEL should not appear when speculative disabled"
 
     def test_enabled_module_injects_env_vars(self):
-        result = subprocess.run(
-            ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS + [
-             "--set", "modules.fusion.enabled=true"],
-            capture_output=True, text=True,
-        )
+        result = helm_template(["--set", "modules.fusion.enabled=true"])
         assert "FUSION_PANEL_MODELS" in result.stdout, "FUSION_PANEL_MODELS should appear when fusion enabled"
         assert "FUSION_JUDGE_MODEL" in result.stdout, "FUSION_JUDGE_MODEL should appear when fusion enabled"
+
+    def test_speculative_env_vars_render(self):
+        result = helm_template(["--set", "modules.speculative.enabled=true"])
+        assert "SPECULATIVE_DRAFT_MODEL" in result.stdout
+        assert "SPECULATIVE_TARGET_MODEL" in result.stdout
+        assert "SPECULATIVE_MODEL" in result.stdout
+        assert "SPECULATIVE_SPEEDUP_CLAIM_THRESHOLD" in result.stdout
+        assert "granite-2b-cpu-speculative" in result.stdout
+
+    def test_edge_bitnet_service_alias_renders(self):
+        result = helm_template(["--set", "modules.edge.enabled=true"])
+        assert "name: bitnet-server" in result.stdout
+        assert "app: bitnet-server" in result.stdout
 
 
 class TestModuleContent:
@@ -120,10 +134,7 @@ class TestModuleComposition:
             flags.append(flag)
 
     def test_modules_enabled_env_var_format(self):
-        result = subprocess.run(
-            ["helm", "template", str(HELM_DIR)] + HELM_TEST_ARGS + [
+        result = helm_template([
              "--set", "modules.benchmarking.enabled=true",
-             "--set", "modules.fusion.enabled=true"],
-            capture_output=True, text=True,
-        )
+             "--set", "modules.fusion.enabled=true"])
         assert "MODULES_ENABLED" in result.stdout, "MODULES_ENABLED env var should be set"

@@ -43,7 +43,7 @@ Benchmarked results on this pipeline:
 * All qwen25-3b: ~8.6s (NER slower on long prompts)
 * Mixed (qwen classify + granite NER + qwen summarize): ~7.8s
 
-The right model per task gives ~5% improvement with zero hardware change. INT8 quantization (when available) gives 2-3x on top.
+The right model per task gives ~5% improvement with zero hardware change. INT8 quantization, when available, should be presented with measured target-environment results.
 
 [.next-nav]
 xref:99-conclusion.adoc[Back to module list →]

@@ -15,7 +15,7 @@ stages:
     threshold: 100
     criteria:
       model_roster_defined:
-        description: "9 model aliases mapped to HuggingFace IDs in model_roster.yaml"
+        description: "10 model aliases mapped to HuggingFace IDs in model_roster.yaml"
         points: 15
         required: true
       vllm_openai_schema:
@@ -23,7 +23,7 @@ stages:
         points: 15
         required: true
       litellm_routing_config:
-        description: "LiteLLM config maps all 9 aliases to correct vLLM service URLs"
+        description: "LiteLLM config maps all 10 aliases to correct local service URLs"
         points: 15
         required: true
       model_alias_consistency:
@@ -39,7 +39,7 @@ stages:
         points: 15
         required: true
       hf_model_accessible:
-        description: "All 9 HuggingFace model IDs resolve and are downloadable (Apache 2.0)"
+        description: "All 10 HuggingFace model IDs resolve and are downloadable or are documented serving aliases"
         points: 15
         required: true
 
@@ -154,7 +154,7 @@ stages:
         points: 10
         required: true
       litellm_lists_all_models:
-        description: "GET /v1/models returns all 9 model aliases"
+        description: "GET /v1/models returns all 10 model aliases"
         points: 20
         required: true
       litellm_routes_to_correct_vllm:
@@ -257,11 +257,11 @@ stages:
         required: true
 
   stage_d6_benchmarks:
-    description: "Benchmark rubric validates all 9 models on Xeon 6767P with real baselines"
+    description: "Benchmark rubric validates all 10 model aliases on Xeon 6767P with real baselines"
     threshold: 80
     criteria:
       benchmark_all_9_models:
-        description: "GET /api/v1/benchmark/models returns all 9 local models"
+        description: "GET /api/v1/benchmark/models returns all 10 local model aliases"
         points: 10
         required: true
       benchmark_classification_all:
@@ -298,7 +298,7 @@ stages:
         required: true
 
   stage_d7_modules:
-    description: "All 14 modules work correctly with locally-served models"
+    description: "All 15 modules work correctly with locally-served models"
     threshold: 85
     criteria:
       # Semantic Routing
@@ -353,7 +353,7 @@ stages:
 
       # Benchmarking
       benchmark_module_9_models:
-        description: "Benchmark module compares all 9 models across tasks"
+        description: "Benchmark module compares all 10 model aliases across tasks"
         points: 10
         required: true
       benchmark_hardware_label:
@@ -435,7 +435,7 @@ stages:
 
       # Combined
       all_14_modules_combined:
-        description: "All 14 modules enabled simultaneously, full pipeline completes without conflicts"
+        description: "All 15 modules enabled simultaneously, full pipeline completes without conflicts"
         points: 15
         required: true
 
