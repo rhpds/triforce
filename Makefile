@@ -158,6 +158,9 @@ test-virt-edge: ## Edge + Virt demo validation (V0-V4)
 test-claims: ## Validate factual claims against sources and live measurements
 	python3 -m pytest tests/test_claim_accuracy.py tests/test_demo_isolation.py -v --tb=short
 
+test-smoke: ## Frontend smoke — hit every demo endpoint, validate no NaN/empty/crash
+	python3 -m pytest tests/test_frontend_smoke.py -v --tb=short
+
 test-preflight: ## FULL preflight — run before committing to demo site
 	@echo "=========================================="
 	@echo "  TRIFORCE PREFLIGHT CHECK"
