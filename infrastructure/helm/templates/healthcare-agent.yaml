@@ -80,6 +80,8 @@ spec:
               value: {{ .Values.modules.heterogeneous.gpuApiKey | quote }}
             - name: SEMANTIC_ROUTER_URL
               value: "http://semantic-router.{{ .Values.namespace }}.svc.cluster.local:8094"
+            - name: GPU_COMPLEX_MODEL
+              value: {{ .Values.modules.heterogeneous.gpuModel | default "granite-4.1-8b" | quote }}
             - name: ROUTING_THRESHOLD
               value: {{ .Values.modules.heterogeneous.routingThreshold | quote }}
             {{- end }}

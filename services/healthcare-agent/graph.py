@@ -22,6 +22,7 @@ LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.ma
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
 GPU_API_BASE = os.environ.get("GPU_API_BASE", "")
 GPU_API_KEY = os.environ.get("GPU_API_KEY", "")
+GPU_MODEL = os.environ.get("GPU_COMPLEX_MODEL", "granite-4.1-8b")
 CLASSIFY_MODEL = os.environ.get("CLASSIFY_MODEL", "qwen25-3b-cpu")
 NER_MODEL = os.environ.get("NER_MODEL", "granite-2b-cpu")
 SUMMARIZE_MODEL = os.environ.get("SUMMARIZE_MODEL", "qwen25-3b-cpu")
@@ -62,7 +63,7 @@ def _resolve_api_base(model: str, text: str = "") -> tuple:
         if resp.status_code == 200:
             data = resp.json()
             if data.get("hardware") == "gpu":
-                return GPU_API_BASE, data.get("model", model), "gpu"
+                return GPU_API_BASE, GPU_MODEL, "gpu"
     except Exception:
         pass
     return LITELLM_API_BASE, model, "cpu"
