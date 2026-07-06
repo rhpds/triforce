@@ -31,7 +31,7 @@ export default function ModuleHeterogeneous() {
 
   const classifyText = async (text: string) => {
     try {
-      const resp = await fetch('/router/route', {
+      const resp = await fetch('/router/classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
