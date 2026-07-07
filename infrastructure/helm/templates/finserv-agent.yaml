@@ -90,3 +90,20 @@ spec:
     - port: 8082
       targetPort: 8082
       name: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: finserv-agent
+  namespace: {{ .Values.namespace }}
+  annotations:
+    haproxy.router.openshift.io/timeout: "120s"
+spec:
+  to:
+    kind: Service
+    name: finserv-agent
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

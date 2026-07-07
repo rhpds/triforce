@@ -19,3 +19,6 @@ infrastructure/kagenti/secrets.yaml
 agnosticv/
 test-receipts/
 .claude/
+www/
+/package.json
+/package-lock.json

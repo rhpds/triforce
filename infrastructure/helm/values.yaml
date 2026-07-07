@@ -121,6 +121,10 @@ confidential:
 # Triforce Virt — OpenShift Virtualization
 virtualization:
   enabled: false
+
+# Triforce Govern — Kagenti Agent Governance
+governance:
+  enabled: false
   vm:
     name: legacy-database
     image: registry.redhat.io/rhel9/rhel-guest-image:latest

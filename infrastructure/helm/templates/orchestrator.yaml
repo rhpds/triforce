@@ -52,3 +52,20 @@ spec:
     - port: 8083
       targetPort: 8083
       name: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: orchestrator
+  namespace: {{ .Values.namespace }}
+  annotations:
+    haproxy.router.openshift.io/timeout: "120s"
+spec:
+  to:
+    kind: Service
+    name: orchestrator
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

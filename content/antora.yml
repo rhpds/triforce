@@ -19,3 +19,4 @@ asciidoc:
     finserv_url: "https://finserv-agent-{user}-triforce.{openshift_cluster_ingress_domain}"
     orchestrator_url: "https://orchestrator-{user}-triforce.{openshift_cluster_ingress_domain}"
     mcp_gateway_url: "https://mcp-gateway-{user}-triforce.{openshift_cluster_ingress_domain}"
+    semantic_router_url: "https://semantic-router-{user}-triforce.{openshift_cluster_ingress_domain}"

@@ -80,4 +80,21 @@ spec:
     - port: 8094
       targetPort: 8094
       name: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: semantic-router
+  namespace: {{ .Values.namespace }}
+  annotations:
+    haproxy.router.openshift.io/timeout: "120s"
+spec:
+  to:
+    kind: Service
+    name: semantic-router
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
 {{- end }}
