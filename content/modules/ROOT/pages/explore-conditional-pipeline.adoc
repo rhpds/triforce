@@ -1,11 +1,11 @@
-= Explore: Conditional Pipeline
+= Conditional Pipeline
 :navtitle: Conditional Pipeline
 
-*Time: ~10 minutes* · *Role: AI Engineer, Platform Architect*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-The pipeline adapts per record. If a patient has fewer than 2 medications, the drug interaction check is skipped — no inference call, no latency, no cost.
+How much inference can you avoid by skipping steps that don't apply to every record?
 
 == Exercise: Single Medication (Step Skipped)
 
@@ -31,9 +31,6 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
 
 With 4+ medications, `check_interactions` fires and finds real drug interactions from the FDA database.
 
-== The Takeaway
+== What You Measured
 
-On average, ~25% of records have fewer than 2 medications. The conditional pipeline saves an inference call on every one of those records — free performance at zero engineering cost.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]
+~25% of records have fewer than 2 medications. The conditional pipeline saves an inference call on every one — free performance at zero engineering cost.

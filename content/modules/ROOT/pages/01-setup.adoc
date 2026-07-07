@@ -1,79 +1,91 @@
-= Accessing Your Environment
+= Setup
 :navtitle: Setup
 
-== Learning Objectives
+== What You'll Do
 
 * Log in to the OpenShift cluster
 * Verify all Triforce services are running
-* Access the demo frontend
+* Confirm the APIs respond with real data
 
-== Exercise 1: Log In to OpenShift
+== Exercise 1: Log In
 
-. Open a terminal and log in:
+. Open the Terminal tab and log in:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
 oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
 ----
 
-. Verify you're in the correct project:
+. Switch to your project:
 +
-[source,bash,role="execute"]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc project triforce
+oc project {user}-triforce
 ----
 
 == Exercise 2: Verify Services
 
 . Check that all pods are running:
 +
-[source,bash,role="execute"]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -n triforce
+oc get pods
 ----
 +
-Expected — 10 pods in `Running` status:
+You should see 10 pods in `Running` status:
 +
 [source]
 ----
-NAME                               READY   STATUS
-healthcare-agent-xxxxx             1/1     Running    (x2 replicas)
-finserv-agent-xxxxx                1/1     Running    (x2 replicas)
-orchestrator-xxxxx                 1/1     Running
-mcp-gateway-xxxxx                  1/1     Running
-semantic-router-xxxxx              1/1     Running
-postgres-xxxxx                     1/1     Running
-redpanda-xxxxx                     1/1     Running
-frontend-xxxxx                     2/2     Running    (app + oauth proxy)
+healthcare-agent   (x2 replicas)
+finserv-agent      (x2 replicas)
+orchestrator       (x1)
+mcp-gateway        (x1)
+semantic-router    (x1)
+frontend           (x1, 2 containers)
+postgres           (x1)
+redpanda           (x1)
 ----
 
-. Check service health:
+== Exercise 3: Test the APIs
+
+. Healthcare agent:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
 curl -s {healthcare_url}/health | jq .
+----
+
+. FinServ agent:
++
+[source,bash,role="execute",subs=attributes+]
+----
 curl -s {finserv_url}/health | jq .
+----
+
+. Orchestrator:
++
+[source,bash,role="execute",subs=attributes+]
+----
 curl -s {orchestrator_url}/health | jq .
 ----
 
-== Exercise 3: Access the Frontend
-
-. Open the Triforce demo in your browser:
+. Quick pipeline test — send a clinical note and get back classification, entities, and a summary:
 +
-[source,subs=attributes+]
+[source,bash,role="execute",subs=attributes+]
 ----
-{frontend_url}
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient presents with chest pain and shortness of breath."}' \
+  | jq '{classification, entity_count: (.entities | length), total_ms}'
 ----
++
+If you see a classification, entity count, and latency — the platform is working.
 
-. You'll authenticate via Red Hat SSO, then see the demo start screen with Red Hat × Intel × IBM logos.
+== Exercise 4: Access the Frontend
 
-. Click to begin — the Triforce intro animates, then Act 00 reveals the story.
+Open the *Triforce Demo* tab to see the visual demo interface. You'll authenticate via OpenShift SSO on first access.
 
-== Module Summary
-
-* Logged in to OpenShift
-* Verified all 10 Triforce pods are running
-* Accessed the demo frontend via Red Hat SSO
+The frontend is useful for the visual pipeline animation and cost comparison charts. The lab exercises primarily use the terminal for direct API interaction.
 
 [.next-nav]
-xref:02-inference-pipeline.adoc[Next: Run the Pipeline →]
+xref:architecture.adoc[Next: Architecture →]

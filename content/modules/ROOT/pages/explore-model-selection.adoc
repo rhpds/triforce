@@ -1,11 +1,11 @@
-= Explore: Model Selection
+= Model Selection
 :navtitle: Model Selection
 
-*Time: ~10 minutes* · *Role: Data Scientist, ML Engineer*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-Different models are better at different tasks. The pipeline uses qwen25-3b-cpu for classification and summarization, granite-2b-cpu for NER. Why? Because we benchmarked them.
+Does picking the right model per task actually matter? The pipeline uses qwen25-3b-cpu for classification and granite-2b-cpu for NER — because we benchmarked them.
 
 == Exercise: Compare Models Per Step
 
@@ -35,7 +35,7 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
 
 Compare the classify latency to your previous run. Model selection is a config change, not a code change.
 
-== The Takeaway
+== What You Measured
 
 Benchmarked results on this pipeline:
 
@@ -43,7 +43,4 @@ Benchmarked results on this pipeline:
 * All qwen25-3b: ~8.6s (NER slower on long prompts)
 * Mixed (qwen classify + granite NER + qwen summarize): ~7.8s
 
-The right model per task gives ~5% improvement with zero hardware change. INT8 quantization, when available, should be presented with measured target-environment results.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]
+The right model per task gives ~5% improvement with zero hardware change. Model selection is a config change, not a code change.

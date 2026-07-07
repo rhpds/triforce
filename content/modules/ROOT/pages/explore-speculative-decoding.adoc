@@ -1,0 +1,62 @@
+= Speculative Decoding
+:navtitle: Speculative Decoding
+
+*Time: ~10 minutes* · *Terminal*
+
+== The Question
+
+Can a tiny draft model propose tokens and a larger model verify them in batch — reducing the number of forward passes on CPU?
+
+== How It Works
+
+Standard autoregressive decoding generates one token at a time. Each token requires a full forward pass through the model. Speculative decoding changes this:
+
+```
+Standard:   Token1 → Token2 → Token3 → Token4 → Token5
+            (5 forward passes on 2B model)
+
+Speculative: Draft (350M) proposes 5 tokens → Target (2B) verifies in 1 batch
+             (1 forward pass on 350M + 1 verification pass on 2B)
+```
+
+The draft model is ~6x smaller, so its forward pass is fast. The target model verifies all proposed tokens in a single batch — accepting correct ones and regenerating from the first rejection.
+
+== Exercise 1: Check Speculative Configuration
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/speculative/status | jq .
+----
+
+Look at:
+
+* `draft_model` — the small model that proposes tokens (granite-350M)
+* `target_model` — the model that verifies (granite-2b-cpu)
+* `num_speculative_tokens` — how many tokens the draft proposes per batch
+* `claim_threshold` — minimum speedup to report as "faster"
+
+== Exercise 2: Run Baseline vs Speculative
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/speculative/run \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Summarize this clinical note: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril. Recent cardiac catheterization showed 70% stenosis in LAD."}' \
+  --max-time 30 | jq '{baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup, mode}'
+----
+
+The endpoint runs the same prompt twice — once with standard decoding, once with speculative — and reports the measured difference.
+
+NOTE: Speculative decoding requires the draft model (granite-350M) to be available on the MAAS endpoint. If it returns an error for the speculative run, the baseline still completes.
+
+== The Intel Story
+
+Speculative decoding is a CPU acceleration technique. It reduces the number of expensive forward passes through the target model by letting a cheap draft model propose tokens. On Intel Xeon 6 with AMX instructions, the 350M draft model runs in milliseconds — the overhead of proposing is negligible compared to the savings of batch verification.
+
+The speedup depends on acceptance rate — how often the draft model's proposals match what the target would generate. For structured tasks (classification, NER), acceptance rates are high. For creative generation, lower.
+
+== What You Measured
+
+* Baseline vs speculative latency on the same prompt
+* The draft/target model configuration
+* Where speculative decoding helps most (structured output) vs least (creative generation)

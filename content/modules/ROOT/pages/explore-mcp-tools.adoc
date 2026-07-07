@@ -1,11 +1,11 @@
-= Explore: MCP Tools vs LLM
+= MCP Tools
 :navtitle: MCP Tools
 
-*Time: ~10 minutes* · *Role: Platform Architect, Data Engineer*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-Not everything needs an LLM. Drug interaction data comes from an FDA database via MCP tool — 15ms vs 3000ms for an LLM call. The MCP Gateway federates 8 tools across agents.
+When should you use a tool lookup instead of an LLM call? The MCP Gateway federates 8 tools — drug interaction checks take 15ms vs 3000ms for an LLM call.
 
 == Exercise: Compare MCP vs LLM Latency
 
@@ -47,9 +47,6 @@ curl -s -X POST {mcp_gateway_url}/mcp \
 
 Real drug interaction data from curated FDA / NIH RxNav sources.
 
-== The Takeaway
+== What You Measured
 
 8 tools federated. Drug interaction checks in 15ms instead of 3000ms. Not everything needs inference — some operations are data lookups. The MCP Gateway routes to the right tool.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]

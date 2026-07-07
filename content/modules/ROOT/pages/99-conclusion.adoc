@@ -1,28 +1,37 @@
 = Conclusion
 :navtitle: Conclusion
 
-== What You Accomplished
+== What You Explored
 
-=== Required Modules (everyone)
+=== Core Platform
 
-* ✅ *Setup* — verified 10 pods, accessed the demo via Red Hat SSO
-* ✅ *Clinical NLP Pipeline* — ran 4-step LangGraph pipeline on Xeon 6 with real model provenance
-* ✅ *Fraud Scoring* — saw real LLM inference + rule signals on the same transaction
+* *Healthcare Agent* — multi-step LangGraph pipeline with real model provenance
+* *FinServ Agent* — LLM inference + rule-based fraud scoring on the same transaction
+* *Semantic Router* — embedding-based routing to right-sized model in <2ms
+* *MCP Tools* — 8 federated tools, 15ms data lookups vs 3000ms LLM calls
 
-=== Exploration Modules (your choice)
+=== Experiments
 
-Which did you explore?
+* *Model Selection* — right-sized models per task, measured ~5% improvement
+* *Benchmarking* — 13 models across CPU and GPU, side-by-side comparison
+* *Cost Analysis* — break-even at ~149K records/month vs cheapest API
+* *Scale Test* — concurrent load, latency vs throughput tradeoff
 
-* ☐ *Model Selection* — different models for different tasks, benchmarked results
-* ☐ *Conditional Pipeline* — skip unnecessary inference steps
-* ☐ *MCP Tools vs LLM* — 15ms data lookup vs 3000ms LLM call
-* ☐ *Cost at Scale* — four volume tiers, break-even analysis
-* ☐ *Scale Test* — concurrent requests, throughput ceiling
-* ☐ *Model Optimization* — FP32 vs INT8 comparison
-* ☐ *Batch Processing* — AMQ Streams at volume
-* ☐ *Replica Scaling* — agent and model serving replicas
-* ☐ *llm-d Inference* — disaggregated prefill + decode
-* ☐ *Adaptive Classification* — watch the cache hit rate climb in real time
+=== Optimization
+
+* *Conditional Pipeline* — skip unnecessary inference steps per record
+* *Model Optimization* — INT8 quantization on Intel AMX
+* *Adaptive Cache* — classification hit rate compounds with volume
+* *Speculative Decoding* — draft model proposes, target verifies in batch
+* *Multi-Model Fusion* — 3 CPU models + judge for critical decisions
+* *Batch Processing* — AMQ Streams event streaming at scale
+* *Replica Scaling* — agent replicas for latency, model replicas for throughput
+
+=== Advanced
+
+* *Heterogeneous Routing* — CPU ($0) for simple, GPU ($/token) for complex — system decides
+* *llm-d Inference* — disaggregated prefill + decode across specialized nodes
+* *Edge Inference* — BitNet 1-bit on edge hardware, pure CPU integer math
 
 == The Honest Answer
 
@@ -30,7 +39,28 @@ GPU inference is faster. But for 80% of enterprise AI — classification, NER, f
 
 *The question is: "is it fast enough at $0?"*
 
-The numbers you saw were real, from live API calls on Intel Xeon 6 CPU. Every model name came from the actual inference log. Every latency was measured, not hardcoded.
+Every number you saw was real, from live API calls on Intel Xeon 6 CPU. Every model name came from the actual inference log. Every latency was measured, not hardcoded.
+
+== The Intel Compute Story
+
+[cols="1,2,2",options="header"]
+|===
+| Tier | Hardware | Use Case
+
+| *CPU ($0/token)*
+| Intel Xeon 6 + AMX
+| 80% of tasks — classification, NER, fraud scoring, summarization, triage
+
+| *GPU ($/token)*
+| Intel Gaudi
+| 20% of tasks — frontier reasoning, 120B models, complex multi-step analysis
+
+| *Edge ($0/token)*
+| Intel Xeon (any) + BitNet
+| Field sites — local classification, alerts, no cloud dependency
+|===
+
+The platform runs all three tiers. The semantic router decides per request. You pay only for the compute that needs paying for.
 
 == What's Next
 

@@ -1,50 +1,59 @@
-= Explore: Scale Test
+= Scale Test
 :navtitle: Scale Test
 
-*Time: ~15 minutes* · *Role: Platform Architect, SRE*
+*Time: ~15 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-What happens to latency when you fire 10 concurrent requests at a single Xeon 6 node? Cost stays flat — but does throughput?
+What happens to latency when you fire concurrent requests at a single Xeon 6 node? Cost stays flat — but does throughput?
 
-== Exercise: Run the Scale Test via Frontend
+== Exercise 1: Baseline — Single Request
 
-Open the Triforce demo, navigate to Act 04 (Scale & Tradeoffs).
-
-. Click *Run 10 records* — watch the live counter, avg latency, and $0.00 cost
-. Click *Run 30 records* — latency climbs, cost stays flat
-. The table shows the comparison
-
-== Exercise: Run via API
+Time a single pipeline call:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-python3 /opt/triforce/tests/scale_test.py {healthcare_url} --label lab --tiers 5,10
+time curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin."}' \
+  | jq .total_ms
 ----
 
-This fires 5 then 10 concurrent pipeline requests and reports:
+== Exercise 2: Concurrent Load
 
-* Completed count
-* Average latency
-* P95 latency
-* Wall clock time
-* Throughput (records/minute)
-* Cost ($0.00)
+Fire 5 concurrent requests and compare:
 
-== Exercise: Check Pod Resource Usage
+[source,bash,role="execute",subs=attributes+]
+----
+for i in $(seq 1 5); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"Record $i: Patient with chest pain and hypertension.\"}" \
+    | jq "{record: $i, total_ms}" &
+done
+wait
+----
+
+Compare latency to your baseline. Latency climbs with concurrency — cost stays at $0.
+
+== Exercise 3: Check Pod Resource Usage
 
 [source,bash,role="execute"]
 ----
-oc adm top pods -n triforce
+oc adm top pods
 ----
 
-See CPU and memory usage across all pods during the scale test.
+See how CPU utilization scales across the healthcare agent replicas during concurrent load.
 
-== The Takeaway
+== Exercise 4: Aggregate Stats
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/stats | jq '{total_requests, avg_latency_ms}'
+----
+
+== What You Measured
 
 Throughput is capped by the model serving layer (MAAS), not the agent pods. Adding agent replicas helps latency (~20-30%), but the real throughput gain comes from model serving replicas and INT8 quantization.
 
 The cost line is flat. The efficiency line is what we engineer.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]

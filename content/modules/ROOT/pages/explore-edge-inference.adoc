@@ -1,0 +1,80 @@
+= Edge Inference
+:navtitle: Edge Inference
+
+*Time: ~10 minutes* · *Terminal*
+
+== The Question
+
+Can you run agentic AI at compressor stations, pump sites, and field offices — on hardware that's already there, without a GPU?
+
+== How It Works
+
+BitNet b1.58 uses ternary weights (+1, 0, -1). This turns multiply-accumulate operations into simple add/subtract — pure CPU integer math. No floating point, no GPU, no special accelerator.
+
+```
+Traditional model:  weight × activation = FP16 multiply-accumulate (needs GPU)
+BitNet model:       weight ∈ {-1, 0, +1} → subtract, skip, or add (CPU integer math)
+```
+
+The edge agent runs `microsoft/BitNet-b1.58-2B4T` via llama.cpp on a 2-core, 4GB container — the kind of hardware that sits idle at field sites.
+
+[cols="1,1,2",options="header"]
+|===
+| Spec | Value | Why It Matters
+
+| Model | BitNet 2B4T | 2B parameters, ternary weights
+| Runtime | llama.cpp | CPU-native, no GPU runtime needed
+| Resources | 2 cores, 4GB RAM | Fits on existing edge hardware
+| Latency | ~5-15 tok/sec | Sufficient for classification, alerts, local triage
+|===
+
+== Exercise 1: Check Edge Agent Status
+
+[source,bash,role="execute"]
+----
+oc get deploy edge-agent 2>/dev/null && echo "DEPLOYED" || echo "Not deployed — edge module is disabled on this cluster"
+----
+
+NOTE: The edge module is optional and deployed per event/city. If it's not enabled on this cluster, the exercises below show the architecture. If enabled, you can interact with the API directly.
+
+== Exercise 2: Review the Configuration
+
+[source,bash,role="execute"]
+----
+oc get deploy edge-agent -o jsonpath='{.spec.template.spec.containers[0].env[*]}' 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "Edge agent not deployed. Helm values: modules.edge.enabled=true"
+----
+
+The edge agent is configured via Helm values:
+
+* `modules.edge.model` — the model to serve (default: `bitnet-2b4t`)
+* `modules.edge.scadaVm.enabled` — optional KubeVirt VM simulating a SCADA compressor station
+
+== Exercise 3: The SCADA Use Case
+
+When the edge module is deployed with `scadaVm.enabled=true`, a KubeVirt virtual machine simulates a SCADA compressor station. The edge agent runs inside the VM's network — the same topology as a real field deployment:
+
+```
+┌──────────────────────────┐
+│  SCADA VM (KubeVirt)     │
+│  Compressor Station Sim  │
+│         │                │
+│    Edge Agent (BitNet)   │
+│    2 cores · 4GB · CPU   │
+│         │                │
+│  Local classification    │
+│  Alert triage            │
+│  Field report generation │
+└──────────────────────────┘
+```
+
+No cloud round-trip. No GPU. Classification and triage happen at the edge on hardware that's already deployed.
+
+== The Intel Story
+
+Intel Xeon runs everywhere — data center, edge, field office. BitNet turns 2B-parameter models into CPU-native workloads with ternary integer math. The same architecture that handles millions of records in the data center handles local triage at the compressor station — both on Intel CPUs, both at $0/token.
+
+== What You Measured
+
+* Edge inference runs on 2 cores / 4GB — hardware that already exists at field sites
+* BitNet ternary weights eliminate the need for GPU at the edge
+* Local processing means no cloud latency, no data egress, no connectivity dependency

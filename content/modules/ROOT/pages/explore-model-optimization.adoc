@@ -1,11 +1,11 @@
-= Explore: Model Optimization
+= Model Optimization
 :navtitle: Model Optimization
 
-*Time: ~10 minutes* · *Role: ML Engineer, Performance Engineer*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-INT8 quantization runs the same model with lower precision on Intel AMX instructions. The speedup is measured per target environment. Same accuracy target for enterprise tasks. Same $0 cost.
+How much faster is INT8 quantization on Intel AMX? The speedup is measured per target environment — same accuracy target, same $0 cost.
 
 == Exercise: FP32 vs INT8 Comparison
 
@@ -25,11 +25,7 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline/compare \
 
 This runs the pipeline twice on the same document — FP32 baseline then INT8 optimized — and shows the real delta.
 
-== Exercise: Via Frontend
-
-In the Triforce demo, navigate to Act 05 (Efficiency Stack). Click through to mechanism #4 (Model Optimization). Click "Prove it — run FP32 vs INT8 comparison" to see the side-by-side table.
-
-NOTE: If INT8 models are not yet deployed, the comparison will show a fallback message. The baseline still runs.
+NOTE: If INT8 models are not yet deployed on this cluster, the comparison will show a fallback message. The baseline still runs.
 
 == The Four Optimization Levers
 
@@ -45,9 +41,6 @@ NOTE: If INT8 models are not yet deployed, the comparison will show a fallback m
 
 Each lever compounds. All on the same $0/token hardware.
 
-== The Takeaway
+== What You Measured
 
 Model selection gave us 5% (measured). INT8 quantization should be measured on the target cluster before publishing a multiplier. Together with prompt optimization, the same hardware can improve throughput without adding metered inference cost.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]

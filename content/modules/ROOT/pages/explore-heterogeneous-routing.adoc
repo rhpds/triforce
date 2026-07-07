@@ -1,0 +1,70 @@
+= Heterogeneous Routing
+:navtitle: Heterogeneous Routing
+
+*Time: ~10 minutes* · *Terminal*
+
+== The Question
+
+What if 80% of your tasks run fine on CPU at $0/token, but 20% need GPU-class reasoning? The system should decide — not the developer.
+
+== How It Works
+
+The semantic router adds a second dimension: hardware selection. Simple and medium tasks stay on Xeon 6 CPU ($0/token). Complex tasks escalate to Intel Gaudi GPU ($/token). Same API, same pipeline — the router decides where to spend compute.
+
+```
+Request → Semantic Router
+              │
+    ┌─────────┼─────────┐
+    │                   │
+  SIMPLE/MEDIUM        COMPLEX
+  Xeon 6 CPU           Intel Gaudi GPU
+  $0/token             $/token
+  granite-2b (2B)      granite-8b (8B)
+  qwen25-3b (3B)       phi-4 (14B)
+                        gpt-oss (20B/120B)
+```
+
+== Exercise 1: Check Current Routing Mode
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {semantic_router_url}/health | jq '{heterogeneous, routes, models}'
+----
+
+If `heterogeneous: false`, all requests route to CPU models. When enabled, complex requests escalate to the GPU tier.
+
+== Exercise 2: See the Full Model Fleet
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/benchmark/models | jq '{cpu: [.cpu_models[].model], gpu: [.gpu_models[].model]}'
+----
+
+The CPU tier has ~9 models from 350M to 8B parameters. The GPU tier (Intel Gaudi) has 4 models from 8B to 120B. Both tiers are available via the same MAAS/LiteLLM endpoint.
+
+== Exercise 3: Compare CPU vs GPU on the Same Task
+
+Run a classification on both tiers:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"models": ["granite-2b-cpu", "granite-3-2-8b-instruct-cpu"], "task": "classification", "text": "DISCHARGE SUMMARY: Patient with diabetes and hypertension."}' \
+  | jq '.results[] | {model, hardware, latency_ms}'
+----
+
+For simple classification, the 2B CPU model is fast and accurate. The 8B model may be more accurate but takes longer — heterogeneous routing avoids paying that cost on easy tasks.
+
+== The Intel Story
+
+Intel provides both sides of this equation:
+
+* *Xeon 6 (CPU)* — 80% of tasks at $0/token. Classification, NER, fraud scoring, summarization.
+* *Gaudi (GPU)* — 20% of tasks that need frontier reasoning. 120B parameter models, complex multi-step analysis.
+
+The routing threshold is configurable. At 0.7 confidence, the router escalates to GPU. Lowering the threshold sends more to GPU (better quality, higher cost). Raising it keeps more on CPU (lower cost, sufficient quality for most tasks).
+
+== What You Measured
+
+The heterogeneous compute story isn't "CPU or GPU" — it's "CPU and GPU, with the system deciding per request." 80% of enterprise AI runs fine on the CPUs you already own. The other 20% gets GPU when it needs it.

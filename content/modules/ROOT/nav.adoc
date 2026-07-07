@@ -1,23 +1,33 @@
-.Required
+.Getting Started
 * xref:index.adoc[Welcome]
 * xref:01-setup.adoc[Setup]
-* xref:02-inference-pipeline.adoc[Clinical NLP Pipeline]
-* xref:03-fraud-scoring.adoc[Fraud Scoring]
+* xref:architecture.adoc[Architecture]
 
-.Choose Your Path
+.Core Platform
+* xref:02-inference-pipeline.adoc[Healthcare Agent]
+* xref:03-fraud-scoring.adoc[FinServ Agent]
+* xref:explore-semantic-routing.adoc[Semantic Router]
+* xref:explore-mcp-tools.adoc[MCP Tools]
+
+.Experiments
 * xref:explore-model-selection.adoc[Model Selection]
-* xref:explore-conditional-pipeline.adoc[Conditional Pipeline]
-* xref:explore-mcp-tools.adoc[MCP Tools vs LLM]
-* xref:explore-cost-analysis.adoc[Cost at Scale]
+* xref:explore-benchmarking.adoc[Benchmarking]
+* xref:explore-cost-analysis.adoc[Cost Analysis]
 * xref:explore-scale-test.adoc[Scale Test]
+
+.Optimization
+* xref:explore-conditional-pipeline.adoc[Conditional Pipeline]
 * xref:explore-model-optimization.adoc[Model Optimization]
+* xref:explore-adaptive-classification.adoc[Adaptive Cache]
+* xref:explore-speculative-decoding.adoc[Speculative Decoding]
+* xref:explore-multi-model-fusion.adoc[Multi-Model Fusion]
 * xref:explore-batch-processing.adoc[Batch Processing]
 * xref:explore-replica-scaling.adoc[Replica Scaling]
+
+.Advanced
+* xref:explore-heterogeneous-routing.adoc[Heterogeneous Routing]
 * xref:explore-llmd-inference.adoc[llm-d Inference]
-* xref:explore-adaptive-classification.adoc[Adaptive Classification]
+* xref:explore-edge-inference.adoc[Edge Inference]
 
 .Wrap Up
 * xref:99-conclusion.adoc[Conclusion]
-
-.Reference
-* xref:architecture.adoc[Architecture Overview]

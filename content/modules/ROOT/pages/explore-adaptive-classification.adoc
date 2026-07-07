@@ -1,11 +1,11 @@
-= Explore: Adaptive Classification
-:navtitle: Adaptive Classification
+= Adaptive Cache
+:navtitle: Adaptive Cache
 
-*Time: ~10 minutes* · *Role: Data Engineer, ML Engineer*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-The other 7 efficiency mechanisms are switches — flip them and the improvement is immediate. This one is different. It's a trajectory. The system caches every LLM classification result. On re-encounter, it returns the cached answer in <1ms. The more records it processes, the fewer LLM calls it needs. The improvement compounds with volume.
+Can the system get cheaper per record over time? The adaptive cache stores every LLM classification result. On re-encounter, it returns the cached answer in <1ms. The improvement compounds with volume.
 
 == Exercise 1: Check Current Cache Stats
 
@@ -51,11 +51,8 @@ curl -s {healthcare_url}/api/v1/stats | jq '{total_requests, kv_cache_hit_rate}'
 
 The `kv_cache_hit_rate` in the PostgreSQL inference log reflects all cached classifications across the system.
 
-== The Takeaway
+== What You Measured
 
-The system gets cheaper per record over time. Day 1: 100% LLM. Week 2: ~60% deterministic. Month 1: ~95% deterministic. Every classification the LLM processes once, the cache handles forever after. At scale (1M+ records/month), this reduces LLM calls by 20x.
+Day 1: 100% LLM. Week 2: ~60% deterministic. Month 1: ~95% deterministic. At scale (1M+ records/month), this reduces LLM calls by 20x.
 
 This is only possible at $0/token. Paying per token gives no incentive to cache — every record costs the same whether it's the first or the ten millionth. On Xeon 6, every cached classification frees inference capacity for records that actually need intelligence.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]

@@ -1,11 +1,11 @@
-= Explore: Disaggregated Inference (llm-d)
+= llm-d Inference
 :navtitle: llm-d Inference
 
-*Time: ~10 minutes* · *Role: ML Engineer, Performance Engineer*
+*Time: ~10 minutes* · *Terminal*
 
-== What You'll Learn
+== The Question
 
-llm-d separates the two phases of LLM inference — prefill (compute-heavy) and decode (memory-bound) — across specialized nodes. An SLO-based planner routes requests to nodes with capacity.
+Can you get sub-2s pipeline latency by splitting prefill and decode across specialized nodes? llm-d separates the two phases of LLM inference — prefill (compute-heavy) and decode (memory-bound) — with SLO-based routing.
 
 == How It Works
 
@@ -49,11 +49,8 @@ ls /opt/triforce/infrastructure/llm-d/ 2>/dev/null || echo "llm-d manifests avai
 
 The manifests define InferenceGateway + vLLM pool resources. They're ready to deploy when RHAIIS is available on the cluster.
 
-== The Takeaway
+== What You Measured
 
 Beyond identical replicas — llm-d specializes nodes for different phases of inference. The prefill burst goes to high-core nodes. Token streaming goes to memory-optimized nodes. The planner routes based on latency SLO targets.
 
-This is the future of CPU inference at scale. Today's 7.8s pipeline → 1.4s with full disaggregation. Same $0/token.
-
-[.next-nav]
-xref:99-conclusion.adoc[Back to module list →]
+Today's 7.8s pipeline → 1.4s projected with full disaggregation. Same $0/token.
