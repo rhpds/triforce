@@ -18,73 +18,103 @@
 ╱───────────╳───────────╲
 ```
 
-Polyglot multi-agent AI platform for enterprise inference across Healthcare and Financial Services. Start on Intel Xeon 6 CPU at $0/token, scale to GPU where quality and speed justify the cost. The system routes for you.
+Polyglot multi-agent AI platform for enterprise inference across Healthcare, Financial Services, Telecommunications, and Energy verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
 
 | Pillar | Technology | Role |
 |--------|-----------|------|
-| **Power** (Intel) | Xeon 6 + AMX via MAAS/LiteLLM | CPU inference at $0/token — classification, NER, fraud scoring, summarization |
+| **Power** (Intel) | Xeon 6 CPU + Gaudi GPU via MAAS/LiteLLM | Heterogeneous compute — $0 CPU + $/token GPU |
 | **Wisdom** (IBM) | Kagenti + A2A + MCP + SPIFFE | Agent governance — discovery, identity, tool control, audit trails |
 | **Courage** (Red Hat) | OpenShift + AMQ Streams + vLLM Semantic Router | Enterprise platform with intelligent routing and batch processing at scale |
+
+## Key Results (Measured, Oberon Xeon 6767P)
+
+| Metric | Result | How |
+|--------|--------|-----|
+| **Speculative decoding** | 6.52x speedup | Draft model (granite-350m) vs target (granite-2b-cpu) |
+| **Heterogeneous routing** | <25ms decision | Semantic router → CPU or GPU tier |
+| **MCP tools vs LLM** | 85x faster | Drug interaction lookup (44ms vs 3742ms) |
+| **Semantic routing** | <1ms per decision | Embedding similarity, no LLM call |
+| **Multi-model fusion** | Structured synthesis | 3-model panel + judge with consensus/contradictions/blind_spots |
+| **BitNet edge** | 0.4GB, ~70ms/tok | 1.58-bit ternary weights, self-contained pod |
 
 ## Architecture
 
 ```
-vLLM Semantic Router (classify complexity → route to right hardware)
-              │
-    ┌─────────┼─────────┐
-    │         │         │
-Healthcare  FinServ   Orchestrator
-(Python)    (Quarkus)  (Go)
-LangGraph   Rules+LLM  A2A dispatch
-    │         │         │
-    └─────────┼─────────┘
-              │
-     ┌────────┼────────┐
-     │        │        │
-  MCP Gateway  AMQ Streams  PostgreSQL
-  8 tools     streaming    audit + inference log
-              │
-     MAAS / LiteLLM
-     CPU pool (Xeon 6, $0) + Gaudi pool (Intel Gaudi, $/token)
+┌──────────────────────────────────────────────────────────┐
+│  React 19 Frontend (Zustand + React Flow + Motion)       │
+│  PipelineFlow · AgentTopology · RoutingFlow              │
+└─────────────────────┬────────────────────────────────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+   Semantic      Healthcare     FinServ
+   Router        Agent          Agent
+   (<1ms)        (Python)       (Quarkus)
+        │             │             │
+        │        ┌────┼────┐        │
+        │        │    │    │        │
+        │     MCP  Kafka  PostgreSQL
+        │   Gateway Streams  audit log
+        │   (8 tools)        │
+        │        │            │
+        └────────┼────────────┘
+                 │
+          ┌──────┼──────┐
+          │      │      │
+        CPU    GPU    Edge
+       OVMS   LiteLLM  BitNet
+    (9 models) (tier)  (0.4GB)
 ```
 
-- **Healthcare Agent** — Python/FastAPI + LangGraph 4-node pipeline (classify → NER → drug interactions → summarize) with adaptive classification cache
-- **FinServ Agent** — Java/Quarkus with real LLM fraud risk assessment + rule-based signal detection
+- **Healthcare Agent** — Python/FastAPI + LangGraph 4-node pipeline with adaptive cache, heterogeneous routing, speculative decoding, multi-model fusion
+- **FinServ Agent** — Java/Quarkus with LLM fraud scoring + rule-based signals
 - **Orchestrator** — Go, A2A workflow coordination, agent discovery (zero inference)
-- **Semantic Router** — Embedding-based request routing (all-MiniLM-L6-v2), heterogeneous CPU→GPU
+- **Semantic Router** — Embedding-based complexity routing (<1ms), heterogeneous CPU→GPU
 - **MCP Gateway** — 8 federated tools via JSON-RPC 2.0
+- **Edge Agent** — BitNet b1.58 2B4T, self-contained pod (0.4GB, no MAAS dependency)
 
-## Models (via MAAS/LiteLLM)
+### Frontend Stack
 
-**CPU models (Xeon 6, $0/token):**
-| Model | Params | Use Case | Measured Latency |
-|-------|--------|----------|-----------------|
-| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification | ~4.5s (not CPU-optimized yet) |
-| granite-2b-cpu | 2B | NER, fraud scoring | 770ms (NER), 858ms (classify) |
-| qwen25-3b-cpu | 3B | Classification, summarization | 779ms (classify), 5.2s (summarize) |
-| phi3-mini-cpu | 3.8B | Complex reasoning | ~1.8s |
-| granite-3-2-8b-instruct-cpu | 8B | Complex reasoning | ~1.1s (classify), 10s (summarize) |
+- **Zustand** — 3 stores (demo, module, vertical) replacing React Context providers
+- **React Flow** (@xyflow/react) — Interactive DAG visualizations:
+  - PipelineFlow: 4-node clinical NLP pipeline with animated edges and hardware badges
+  - AgentTopology: Agent/gateway/router graph for governance variant
+  - RoutingFlow: CPU/GPU routing flow with active path highlighting
+- **Motion** (v12) — 600+ animation instances for slide-deck transitions
 
-**Gaudi models (Intel Gaudi, $/token):**
-| Model | Params | Use Case | Measured Latency |
-|-------|--------|----------|-----------------|
-| granite-3-2-8b-instruct | 8B | Reasoning, NER | 500ms (classify) |
-| microsoft-phi-4 | 14B | General reasoning | 622ms (classify), 1.7s (compliance) |
-| gpt-oss-20b | 20B | Summarization | 1.6s (summarize) |
-| gpt-oss-120b | 120B | Frontier reasoning | 1.5s (differential diagnosis) |
+## Models
 
-**CPU vs GPU speedup:** 3.8x throughput, 10.5x TTFT (time to first token). Classification doesn't need GPU. Summarization and reasoning benefit significantly.
+**Oberon (Intel lab, 10 local models via OVMS + bitnet.cpp):**
+| Model | Params | Role |
+|-------|--------|------|
+| granite-350m | 350M | Speculative draft, fast classification |
+| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification |
+| granite-2b-cpu | 2B | NER, fraud scoring, speculative target |
+| granite-2b-int8 | 2B | INT8 optimization comparison |
+| qwen25-3b-cpu | 3B | Classification, summarization |
+| granite-4.1-3b | 3B | Next-gen classification |
+| phi3-mini-cpu | 3.8B | Complex reasoning |
+| granite-3-2-8b-instruct-cpu | 8B | Fusion judge |
+| granite-4.1-8b | 8B | Simulated GPU tier |
+| bitnet-2b4t | 2B | Edge inference (1.58-bit ternary) |
 
-## Pluggable Module Architecture
+**RHDP (5 MAAS models, $0/token):**
+| Model | Role on RHDP |
+|-------|-------------|
+| granite-4-0-h-tiny-cpu | Speculative draft |
+| granite-2b-cpu | NER, fraud scoring, speculative target |
+| qwen25-3b-cpu | Classification, summarization |
+| phi3-mini-cpu | Complex reasoning |
+| granite-3-2-8b-instruct-cpu | Fusion judge + heterogeneous "GPU" tier |
 
-15 optimization modules — each city/event picks their set:
+## 15 Pluggable Modules
 
 ```
 modules/
 ├── Per-Record Efficiency
 │   ├── semantic-routing         LIVE     right model per request in <1ms
 │   ├── conditional-pipeline     LIVE     skip unneeded inference steps
-│   └── mcp-tools                LIVE     database lookup vs LLM call
+│   └── mcp-tools                LIVE     database lookup vs LLM call (85x faster)
 ├── Model Optimization
 │   └── model-optimization       LIVE     INT8, AMX, optimized variants
 ├── Fleet-Scale Throughput
@@ -95,19 +125,13 @@ modules/
 │   └── adaptive-classification  LIVE     cache learns from LLM results
 ├── Heterogeneous Compute
 │   ├── benchmarking             LIVE     model × task × hardware matrix
-│   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing
-│   ├── multi-model-fusion       LIVE     panel + judge for critical decisions
-│   ├── speculative-decoding     LIVE     measured draft/target path
-│   └── edge-inference           LIVE     BitNet service alias + edge demo
+│   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing (end-to-end)
+│   ├── multi-model-fusion       LIVE     3-model panel + judge synthesis
+│   ├── speculative-decoding     LIVE     6.52x draft/target speedup
+│   └── edge-inference           LIVE     BitNet 0.4GB self-contained pod
 └── Analysis
     ├── cost-analysis            LIVE     CPU vs GPU vs Cloud comparison
     └── scale-testing            LIVE     concurrent load, throughput ceiling
-```
-
-Select modules per deployment:
-```bash
-make deploy MODULES_ENABLED=benchmarking,fusion,cost-analysis \
-  EXTRA_HELM_ARGS="--set litellm.apiKey=$KEY"
 ```
 
 ## Quick Start
@@ -118,25 +142,19 @@ source .env && export LITELLM_API_BASE LITELLM_API_KEY
 make up                           # Start PostgreSQL + Redpanda + all agents
 
 # Test endpoints
-curl -s http://localhost:8081/health                    # Healthcare agent
-curl -s http://localhost:8081/api/v1/benchmark/models   # Available models
-curl -s http://localhost:8081/api/v1/modules            # Active modules
-curl -s http://localhost:8081/api/v1/adaptive/stats     # Classification cache
+curl -s http://localhost:8081/health
+curl -s http://localhost:8081/api/v1/modules
+curl -s http://localhost:8081/api/v1/speculative/status
 
 # Run the pipeline
 curl -s -X POST http://localhost:8081/api/v1/pipeline \
   -H "Content-Type: application/json" \
   -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin and Lisinopril."}' | jq .
 
-# Run a benchmark comparison
-curl -s -X POST http://localhost:8081/api/v1/benchmark/run \
-  -H "Content-Type: application/json" \
-  -d '{"task":"classification","text":"DISCHARGE SUMMARY: patient...","models":["granite-2b-cpu","qwen25-3b-cpu"]}' | jq .
-
 # Run multi-model fusion
 curl -s -X POST http://localhost:8081/api/v1/fusion \
   -H "Content-Type: application/json" \
-  -d '{"task":"compliance","prompt":"Is this AML structuring?"}' | jq .
+  -d '{"task":"compliance","prompt":"Is this AML structuring? Three deposits of $9,500 in 48 hours."}' | jq .
 
 # Measure speculative decoding
 curl -s -X POST http://localhost:8081/api/v1/speculative/run \
@@ -146,74 +164,66 @@ curl -s -X POST http://localhost:8081/api/v1/speculative/run \
 
 ## Testing
 
-**CDD → TDD → EDD** methodology. 11-stage validation matrix gates deployment.
-
-Prerequisites for the full local suite: Python 3.11, Node.js/npm, Go, Java 21,
-Maven, and Helm. The FinServ Quarkus service expects `mvn` on PATH; this repo
-does not vendor Maven wrapper files.
+**CDD → TDD → EDD** methodology. 11-stage validation matrix + frontend smoke tests.
 
 ```bash
-make test-contracts              # Stage 0: 120 contract validation tests
-make test-infra                  # Stage 1: containers + health checks
-make test-unit                   # Stage 2: 49 healthcare + 13 finserv + 3 Go + 29 frontend
-make test-contracts-compliance   # Stage 3: response schema compliance
-make test-integration            # Stage 4: cross-service workflows
-make test-scale                  # Stage 5: synthetic load
-make test-frontend               # Stage 6: live numbers, no hardcoded values
-make test-multinode              # Stage 7: horizontal scaling
-make test-modules                # Stage 8: 11 module validation tests
-make test-benchmarks             # Stage 9: model benchmark rubric validation
-make test-workflows              # Stage 10: end-to-end workflow tests
+make test-contracts              # Stage 0: 122 contract tests
+make test-unit                   # Stage 2: 54 healthcare + 14 router + 13 finserv + 3 Go + 29 frontend
+make test-modules                # Stage 8: 13 module manifest + Helm tests
+make test-smoke                  # 19 live endpoint tests (no NaN, no empty, no crash)
 make test-platform               # ALL stages — platform green light
 ```
 
-## Deployment
-
-```bash
-# Local dev
-make up                          # podman-compose with all services
-
-# OpenShift (infra01)
-make deploy EXTRA_HELM_ARGS="--set litellm.apiKey=$KEY --set postgres.password=$PW"
-
-# City-specific with selected modules
-make deploy MODULES_ENABLED=benchmarking,fusion \
-  EXTRA_HELM_ARGS="--set modules.benchmarking.enabled=true --set modules.fusion.enabled=true"
-```
+**Preflight (Oberon):** 330+ passed, DarkScope Grade B, Brand Audit Grade A, NovaScan Tier 1.
 
 ## Demo Variants
 
-| Variant | URL Param | Story |
-|---------|-----------|-------|
-| **Triforce AI** | (default) | Can I afford AI at scale? Start on CPU, scale to GPU. |
-| **Triforce Secure** | `?demo=secure` | Can I trust it with my data? Intel TDX + Confidential Containers. |
-| **Triforce Virt** | `?demo=virt` | Can I run AI alongside my VMs? OpenShift Virtualization. |
-| **Triforce Govern** | `?demo=govern` | Can I govern agents at scale? IBM Kagenti. |
+| Variant | Story | Technology |
+|---------|-------|-----------|
+| **Triforce AI** | Can I afford AI at scale? | CPU inference, heterogeneous routing, 15 modules |
+| **Triforce Secure** | Can I trust it with my data? | Intel TDX, Confidential Containers, hardware attestation |
+| **Triforce Virt** | Can I run AI alongside VMs? | OpenShift Virtualization, BitNet edge inference |
+| **Triforce Govern** | Can I govern agents at scale? | IBM Kagenti, SPIFFE identity, MCP tools |
+
+4 industry verticals per variant: Healthcare, Financial Services, Telecommunications, Energy.
+
+## RHDP Marketplace Deployment
+
+5 AgnosticV catalog items (PR: `rhpds/agnosticv#27038`):
+
+| Item | Purpose |
+|---|---|
+| `ai-qs-triforce-cluster` | Base cluster infra (operators via GitOps) |
+| `ai-qs-triforce-tenant` | Base AI — 5 modules enabled |
+| `ai-qs-triforce-secure-tenant` | + Confidential Containers (TDX) |
+| `ai-qs-triforce-virt-tenant` | + OpenShift Virtualization + BitNet |
+| `ai-qs-triforce-govern-tenant` | + Kagenti agent governance |
+
+All modules work on RHDP using existing MAAS models — no new model deployments needed.
 
 ## Project Structure
 
 ```
 contracts/           # CDD: OpenAPI, AsyncAPI, MCP, A2A schemas
 services/
-  healthcare-agent/  # Python/FastAPI + LangGraph + adaptive cache + benchmark + fusion
+  healthcare-agent/  # Python/FastAPI + LangGraph + speculative + fusion + routing
   finserv-agent/     # Java/Quarkus + LLM fraud scoring + Kafka
   orchestrator/      # Go + A2A client + workflow engine
   semantic-router/   # Python + sentence-transformers + heterogeneous routing
   mcp-gateway/       # Python/FastAPI + 8 JSON-RPC tools
+  edge-agent/        # BitNet b1.58 2B4T (bitnet.cpp, self-contained)
 modules/             # 15 pluggable optimization modules with manifests + lab content
 infrastructure/
   podman-compose.yaml  # Local dev stack (8 services)
   helm/              # Helm chart for OpenShift with module flags
-  kagenti/           # Kagenti CRDs + deploy script
-  llm-d/             # Disaggregated inference manifests
-frontend/            # React 19 + TypeScript + Motion + ModuleContext
+  oberon/            # Intel lab overrides (10 OVMS models + LiteLLM)
+frontend/            # React 19 + Zustand + React Flow + Motion
 content/             # Showroom lab guide (Antora) — base variant
 content-secure/      # Showroom — TDX variant
 content-virt/        # Showroom — Virtualization variant
 content-govern/      # Showroom — Governance variant
-scripts/             # generate-nav.py, utilities
-synthetic/           # Data generators + cost model
-tests/               # Validation matrix (11 stages) + benchmark rubric
+tests/               # Validation matrix (11 stages) + benchmark rubric + smoke tests
+docs/                # Whitepapers + benchmark data (external + internal)
 ```
 
 ## Container Images
@@ -224,10 +234,11 @@ quay.io/redhat-gpte/triforce-finserv-agent:latest
 quay.io/redhat-gpte/triforce-orchestrator:latest
 quay.io/redhat-gpte/triforce-mcp-gateway:latest
 quay.io/redhat-gpte/triforce-semantic-router:latest
-quay.io/redhat-gpte/triforce-frontend:v6
+quay.io/redhat-gpte/triforce-frontend:latest
+quay.io/redhat-gpte/triforce-edge-agent:latest
 ```
 
-CI builds images on push to main via GitHub Actions (`.github/workflows/build-images.yaml`).
+CI builds images on push to main via GitHub Actions.
 
 ## License
 
