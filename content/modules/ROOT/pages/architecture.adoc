@@ -8,8 +8,8 @@ The platform has five layers. Each exists because of a real workload problem.
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  vLLM Semantic Router (Red Hat)                              │
-│  Classifies request complexity → routes to right-sized model │
-│  SIMPLE → 3B  ·  MEDIUM → 3B  ·  COMPLEX → 3.8B            │
+│  Classifies complexity → routes to right model + hardware    │
+│  SIMPLE → CPU 2B  ·  MEDIUM → CPU 3B  ·  COMPLEX → GPU 8B+ │
 └──────────────────────────┬──────────────────────────────────┘
                            │
      ┌─────────────────────┼─────────────────────┐
@@ -39,25 +39,40 @@ The platform has five layers. Each exists because of a real workload problem.
                             │
               ┌─────────────▼──────────────┐
               │  MAAS / LiteLLM            │
-              │  Intel Xeon 6 CPU          │
-              │  128 cores · AMX · $0/token │
+              │  ├── Xeon 6 CPU  ($0/token)│
+              │  └── Gaudi GPU   ($/token) │
               └────────────────────────────┘
 ```
 
-== Models on MAAS/LiteLLM (Intel Xeon 6 CPU)
+== Models on MAAS/LiteLLM
+
+=== CPU Tier — Intel Xeon 6 ($0/token)
 
 [cols="2,1,2",options="header"]
 |===
-| Model | Parameters | Task in Pipeline
+| Model | Parameters | Task
 
-| qwen25-3b-cpu | 3B | Classification, Summarization
-| granite-2b-cpu | 2B | NER / Entity extraction
-| phi3-mini-cpu | 3.8B | Complex reasoning (fraud analysis, compliance)
+| granite-350m | 350M | Draft model (speculative decoding)
+| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification, semantic routing
+| granite-2b-cpu | 2B | NER, entity extraction, fraud scoring
+| qwen25-3b-cpu | 3B | Classification, summarization
+| phi3-mini-cpu | 3.8B | Complex reasoning, compliance
+| granite-3-2-8b-instruct-cpu | 8B | Fusion judge, deep reasoning
 |===
 
-All models run on Intel Xeon 6 CPU via MAAS/LiteLLM. No GPU. $0/token.
+=== GPU Tier — Intel Gaudi ($/token)
 
-The vLLM Semantic Router classifies each incoming request by complexity and routes to the right-sized model — simple tasks go to the smallest model, complex reasoning goes to the largest.
+[cols="2,1,2",options="header"]
+|===
+| Model | Parameters | Task
+
+| granite-3-2-8b-instruct | 8B | Reasoning, NER (GPU-accelerated)
+| qwen3-14b | 14B | Multilingual reasoning
+| gpt-oss-20b | 20B | Summarization at scale
+| gpt-oss-120b | 120B | Frontier reasoning
+|===
+
+The vLLM Semantic Router classifies each request by complexity and routes to the right model on the right hardware. Simple tasks stay on CPU at $0. Complex tasks escalate to Gaudi GPU when the quality difference justifies the cost.
 
 == Healthcare Agent Pipeline (LangGraph)
 

@@ -1,11 +1,13 @@
-= Triforce — AI Inference at Scale on Intel Xeon 6
+= Triforce — AI Inference at Scale on Intel Hardware
 :navtitle: Welcome
 
 == What This Lab Is
 
-A hands-on platform for running, measuring, and tuning AI inference on Intel Xeon 6 CPUs. You have a live multi-agent system deployed on OpenShift — healthcare NLP, financial fraud scoring, semantic routing, MCP tool federation — all running real LLM inference at $0/token on hardware you already own.
+A hands-on platform for running, measuring, and tuning AI inference across Intel's compute spectrum — Xeon 6 CPU at $0/token for the 80% of tasks that don't need a GPU, and Intel Gaudi GPU for the 20% that do. You have a live multi-agent system deployed on OpenShift — healthcare NLP, financial fraud scoring, semantic routing, MCP tool federation — with 13 models spanning both tiers.
 
-This is not a demo walkthrough. You will call APIs, run experiments, swap models, measure latency, and decide for yourself whether CPU inference works for your use case.
+This is not a demo walkthrough. You will call APIs, run experiments, swap models, measure latency, and decide for yourself where CPU is enough and where GPU adds value.
+
+TIP: Looking for the guided demo walkthrough instead? The Triforce demo script is available in the `demo/engineer/` directory of the repo — run `triforce_demo.py` for the full narrated experience with Rich terminal visualization.
 
 == What You Can Explore
 
@@ -17,10 +19,13 @@ This is not a demo walkthrough. You will call APIs, run experiments, swap models
 | Call the Healthcare and FinServ APIs directly. Run clinical NLP pipelines, score transactions, discover agents via A2A, use MCP tools — all against live services.
 
 | *Experiments*
-| Compare models head-to-head. Calculate your break-even vs cloud APIs. Fire concurrent load and watch throughput vs latency. Run the benchmark suite.
+| Compare models head-to-head across CPU and GPU. Calculate your break-even vs cloud APIs. Fire concurrent load and watch throughput vs latency. Run the benchmark suite.
 
 | *Optimization*
-| Enable the adaptive cache and watch it learn. Try batch processing. Scale replicas and measure improvement. Explore disaggregated inference with llm-d.
+| Enable the adaptive cache and watch it learn. Try speculative decoding. Run multi-model fusion. Scale replicas and measure improvement.
+
+| *Advanced*
+| Explore heterogeneous routing (CPU + GPU per request). Disaggregated inference with llm-d. Edge inference with BitNet on 2-core hardware.
 |===
 
 Every exercise produces real numbers from the deployed system. Nothing is hardcoded.
@@ -29,7 +34,7 @@ Every exercise produces real numbers from the deployed system. Nothing is hardco
 
 ```
 vLLM Semantic Router (Red Hat)
-     classify request complexity
+     classify request complexity + select hardware
               │
     ┌─────────┼─────────┐
     │         │         │
@@ -44,7 +49,9 @@ LangGraph   Fraud+LLM  A2A dispatch
   MCP Gateway  AMQ Streams  PostgreSQL
   (tool fed.)  (streaming)  (audit log)
               │
-     MAAS / LiteLLM → Intel Xeon 6 CPU
+     MAAS / LiteLLM
+     ├── Intel Xeon 6 CPU ($0/token)
+     └── Intel Gaudi GPU  ($/token)
 ```
 
 == The Partnership
@@ -54,8 +61,8 @@ LangGraph   Fraud+LLM  A2A dispatch
 | Partner | Pillar | Role
 
 | *Intel* (Power)
-| Xeon 6 + AMX
-| CPU inference at $0/token — classification, NER, fraud scoring, summarization
+| Xeon 6 + Gaudi + AMX
+| Heterogeneous compute — CPU inference at $0/token, GPU for frontier reasoning
 
 | *Red Hat* (Courage)
 | OpenShift + vLLM Semantic Router + AMQ Streams
@@ -68,22 +75,42 @@ LangGraph   Fraud+LLM  A2A dispatch
 
 == Models Available
 
-All models run on Intel Xeon 6 via MAAS/LiteLLM at $0/token:
+=== CPU Tier — Intel Xeon 6 ($0/token)
 
 [cols="1,1,2",options="header"]
 |===
 | Model | Parameters | Use Case
 
+| granite-350m | 350M | Ultra-fast draft model (speculative decoding)
+| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification, semantic routing
 | granite-2b-cpu | 2B | NER, entity extraction, fraud scoring
+| granite-2b-int8 | 2B (INT8) | Quantized — same model, AMX acceleration
 | qwen25-3b-cpu | 3B | Classification, summarization
+| granite-4.1-3b | 3B | Next-gen Granite classification
 | phi3-mini-cpu | 3.8B | Complex reasoning, compliance analysis
 | granite-3-2-8b-instruct-cpu | 8B | Fusion judge, deep reasoning
-| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification, semantic routing
+| granite-4.1-8b | 8B | Next-gen Granite reasoning
 |===
+
+=== GPU Tier — Intel Gaudi ($/token)
+
+[cols="1,1,2",options="header"]
+|===
+| Model | Parameters | Use Case
+
+| granite-3-2-8b-instruct | 8B | Reasoning, NER (GPU-accelerated)
+| qwen3-14b | 14B | Multilingual reasoning
+| gpt-oss-20b | 20B | Summarization at scale
+| gpt-oss-120b | 120B | Frontier reasoning, complex multi-step analysis
+|===
+
+The semantic router decides per request: simple tasks stay on CPU ($0), complex tasks escalate to GPU when the quality difference justifies the cost.
 
 == How to Use This Lab
 
 Start with *Setup*, then go to *Architecture* to understand what's deployed. After that, pick any module — they're all standalone. Spend 10-15 minutes on each, or go deep on the ones that matter to your use case.
+
+For the full narrated demo experience, see the demo scripts in `demo/engineer/`.
 
 [.next-nav]
 xref:01-setup.adoc[Next: Setup →]
