@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { PipelineAnimation, type PipelineNode } from '../../components/PipelineAnimation'
-import { useDemoMetrics } from '../../DemoContext'
+import { useDemoMetrics } from '../../stores/demoStore'
 
 interface Props { onComplete?: () => void }
 

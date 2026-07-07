@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { useDemoMetrics } from '../../DemoContext'
+import { useDemoMetrics } from '../../stores/demoStore'
 
 interface Props { onComplete?: () => void }
 

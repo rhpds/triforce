@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
+import { AgentTopology } from '../../components/AgentTopology'
 
 interface Props { onComplete?: () => void }
 
@@ -53,6 +54,12 @@ export function Act02AgentDiscovery({ onComplete }: Props) {
 
         {agents.length > 0 && (
           <div style={{ marginTop: 16 }}>
+            <AgentTopology agents={agents.map(a => ({
+              name: a.name,
+              skills: (a.skills || []).map((s: any) => s.name || s.id),
+              protocol: a.spiffe ? 'A2A + SPIFFE' : 'A2A',
+              status: a.status === 'active' ? 'healthy' : undefined,
+            }))} />
             {!live && (
               <div style={{ fontSize: 10, color: 'var(--text-disabled)', textAlign: 'center', marginBottom: 8 }}>
                 simulated — backend not connected

@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion } from 'motion/react'
-import { PipelineAnimation, type PipelineNode } from '../components/PipelineAnimation'
-import { useDemoMetrics } from '../DemoContext'
+import { PipelineFlow } from '../components/PipelineFlow'
+import { type PipelineNode } from '../components/PipelineAnimation'
+import { useDemoMetrics } from '../stores/demoStore'
 
 interface Props { onComplete?: () => void }
 
@@ -267,7 +268,7 @@ export function Act02Inference({ onComplete }: Props) {
           </button>
         </div>
 
-        <PipelineAnimation nodes={nodes} />
+        <PipelineFlow nodes={nodes} />
 
         {result && (
           <motion.div

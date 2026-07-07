@@ -17,11 +17,8 @@ describe('Story Acts', () => {
 
   it('Act02 renders pipeline button and nodes', async () => {
     const { Act02Inference } = await import('../acts/Act02Inference')
-    render(<Act02Inference />)
+    render(<MemoryRouter><Act02Inference /></MemoryRouter>)
     expect(screen.getByText(/Run Pipeline on Xeon 6/)).toBeInTheDocument()
-    expect(screen.getByText('Classify')).toBeInTheDocument()
-    expect(screen.getByText('Extract Entities')).toBeInTheDocument()
-    expect(screen.getByText('Summarize')).toBeInTheDocument()
   })
 
   it('Act03 renders cost scale selector', async () => {

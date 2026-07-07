@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { ModuleLayout, StepCard, CpuGpuBadge } from '../../components/ModuleLayout'
+import { RoutingFlow } from '../../components/RoutingFlow'
 
 const SAMPLE_PROMPTS = [
   { label: 'Simple — Classification', text: 'Classify this clinical document: DISCHARGE SUMMARY', expected: 'simple' },
@@ -83,6 +84,9 @@ export default function ModuleHeterogeneous() {
       {results.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <StepCard num={2} title="Routing Decisions">
+            <div style={{ marginBottom: 16 }}>
+              <RoutingFlow routeResult={results[results.length - 1]?.result} />
+            </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useDemoMetrics } from '../DemoContext'
-import { useModules } from '../ModuleContext'
+import { useDemoMetrics } from '../stores/demoStore'
+import { useModules } from '../stores/moduleStore'
 
 interface Props { onComplete?: () => void }
 

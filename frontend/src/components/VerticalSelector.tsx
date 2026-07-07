@@ -1,4 +1,4 @@
-import { VERTICALS, getVerticalFromUrl, type VerticalId } from '../VerticalContext'
+import { VERTICALS, getVerticalFromUrl, type VerticalId } from '../stores/verticalStore'
 
 export function VerticalSelector() {
   const current = getVerticalFromUrl()
