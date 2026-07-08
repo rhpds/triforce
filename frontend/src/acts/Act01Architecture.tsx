@@ -8,7 +8,7 @@ const LAYERS = [
     id: 'router',
     label: 'Intelligent Routing',
     customerQuestion: '"Not every task needs the same hardware."',
-    workload: 'A discharge summary classification is simple — a 2B model on CPU handles it in 800ms at $0. A differential diagnosis needs frontier reasoning — that routes to a 120B model on GPU. The semantic router classifies complexity in <1ms and sends each request to the right compute.',
+    workload: 'A discharge summary classification is simple — a 3.8B model on CPU handles it in 372ms at $0. A differential diagnosis needs frontier reasoning — that routes to a 120B model on GPU. The semantic router classifies complexity in <1ms and sends each request to the right compute.',
     color: 'var(--rh-red)',
     render: () => (
       <motion.div
@@ -132,7 +132,7 @@ const LAYERS = [
     id: 'cpu',
     label: 'CPU Pool (Xeon 6)',
     customerQuestion: '"80% of our AI tasks are classification, NER, and scoring. Do those really need a GPU?"',
-    workload: 'No. Classification at 779ms on CPU vs 500ms on GPU — same accuracy. NER, fraud scoring, document routing — all run on the Xeon 6 CPUs already in your data center. $0 per token. No procurement. This is where 80% of your workload lives.',
+    workload: 'No. Classification at 372ms on CPU vs 188ms on GPU — same accuracy. NER, fraud scoring, document routing — all run on the Xeon 6 CPUs already in your data center. $0 per token. No procurement. This is where 80% of your workload lives.',
     color: 'var(--intel-cyan)',
     render: () => (
       <motion.div

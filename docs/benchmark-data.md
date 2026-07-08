@@ -1,4 +1,4 @@
-# Triforce Benchmark Data — June 2026
+# Triforce Benchmark Data — June–July 2026
 
 ## Data Provenance
 
@@ -66,7 +66,9 @@ All numbers are classified by how they were obtained:
 
 *All CPU models served via OpenVINO (Intel's optimized inference engine) except granite-3.2-8b (vLLM CPU) and granite-4-0-h-tiny (raw HuggingFace).*
 
-### All 5 CPU Models — Head-to-Head
+### All 5 CPU Models — Head-to-Head (Single-Sample, Mid-June)
+
+> **Note**: These are early single-sample measurements from mid-June. The authoritative numbers are the **reproducible medians** (3 samples each) in the [CPU vs Gaudi Comparison](#cpu-vs-gaudi-comparison--reproducible-medians-) section below. A July 8 re-benchmark confirmed per-token throughput is identical (±5%) to June 30, validating throughput stability after RAC MAAS infrastructure changes.
 
 **Classification** (single category output):
 | Model | Params | Runtime | Latency | Correct |

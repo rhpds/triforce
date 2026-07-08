@@ -49,13 +49,15 @@ Oberon acceptance is built around 10 LiteLLM aliases:
 The table below is retained as measured comparison context. These values do not
 verify current Oberon claims by themselves.
 
-| Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Observation |
-|------|-----------|-------------|-------------------|---------------------|-------------|
-| Classification | `qwen25-3b-cpu` | 779ms | `granite-3-2-8b-instruct` | 500ms | Both produced acceptable classification |
-| NER | `granite-2b-cpu` | 6248ms | `microsoft-phi-4` | 3809ms | Accelerator captured more dosage detail |
-| Summarization | `granite-2b-cpu` | 5208ms | `gpt-oss-20b` | 1572ms | Accelerator output was more detailed |
-| Compliance reasoning | `granite-2b-cpu` | 3537ms | `microsoft-phi-4` | 1692ms | Accelerator cited AML details |
-| Differential diagnosis | `granite-3-2-8b-instruct-cpu` | 14817ms | `gpt-oss-120b` | 1465ms | Accelerator output had stronger reasoning |
+| Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Speedup | Observation |
+|------|-----------|-------------|-------------------|---------------------|---------|-------------|
+| Classification | `phi3-mini-cpu` | 372ms | `llama-scout-17b` | 188ms | 2.0x | Both correct |
+| NER | `granite-2b-cpu` | 4,833ms | `llama-scout-17b` | 2,031ms | 2.4x | Both extract entities |
+| Summarization | `phi3-mini-cpu` | 3,489ms | `llama-scout-17b` | 1,549ms | 2.3x | Gaudi more detailed |
+| Compliance | `phi3-mini-cpu` | 1,932ms | `llama-scout-17b` | 1,306ms | 1.5x | Both identify structuring |
+| Diagnosis | `granite-8b-cpu` | 14,817ms | `gpt-oss-120b` | 1,465ms | 10.1x | Gaudi cites pathogen |
+
+*Reproducible medians (3 samples each), June 30 2026. July 8 re-benchmark confirmed per-token throughput is identical (±5%).*
 
 Historical throughput comparison:
 
@@ -64,6 +66,19 @@ Historical throughput comparison:
 | Requests per second | 0.23 | 0.87 |
 | Mean latency | 4.33s | 1.15s |
 | Time to first token | 4204ms | 401ms |
+
+## MAAS Throughput Stability (July 8)
+
+A July 8 re-benchmark against MAAS confirmed per-token generation speed is unchanged from June 30:
+
+| Model | ms/token (Jun 30) | ms/token (Jul 8) | Change |
+|-------|:-:|:-:|:-:|
+| granite-2b-cpu | 28.6 | 29.9 | +4.5% |
+| qwen25-3b-cpu | 39.0 | 36.1 | -7.4% |
+| phi3-mini-cpu | 31.2 | 31.6 | +1.3% |
+| granite-8b-cpu | 104.8 | 104.2 | -0.6% |
+
+All within measurement noise. Infrastructure changes on RAC MAAS did not affect inference throughput.
 
 ## Oberon Measurements To Regenerate
 

@@ -598,9 +598,15 @@ benchmark_rubric:
         int8_speedup: 1.5
         adaptive_warm_cache_ms: 5
       benchmark_placeholders:
-        classification_ms: null
-        ner_ms: null
-        summarization_ms: null
+        classification_ms: 408
+        ner_ms: 4833
+        summarization_ms: 3868
+        ms_per_token_2b: 29.9
+        ms_per_token_3b: 36.1
+        ms_per_token_3_8b: 31.6
+        ms_per_token_8b: 104.2
         speculative_speedup: null
         int8_speedup: null
         bitnet_ms_per_token: null
+        measurement_date: "2026-07-08"
+        measurement_source: "MAAS cpu-sweep (granite-2b-cpu median, 3 samples)"
