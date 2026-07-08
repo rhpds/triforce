@@ -136,13 +136,13 @@ does not replace Oberon acceptance.
 
 | Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Speedup | Notes |
 |------|-----------|-------------|-------------------|---------------------|---------|-------|
-| Classification | `phi3-mini-cpu` | 372ms | `llama-scout-17b` | 188ms | 2.0x | Both correct |
-| NER | `granite-2b-cpu` | 4,833ms | `llama-scout-17b` | 2,031ms | 2.4x | Both extract entities |
-| Summarization | `phi3-mini-cpu` | 3,489ms | `llama-scout-17b` | 1,549ms | 2.3x | Gaudi more detailed |
-| Compliance | `phi3-mini-cpu` | 1,932ms | `llama-scout-17b` | 1,306ms | 1.5x | Both identify structuring |
+| Classification | `granite-2b-cpu` | 389ms | `llama-scout-17b` | 188ms | 2.1x | Both correct |
+| NER | `qwen25-3b-cpu` | 4,602ms | `llama-scout-17b` | 2,031ms | 2.3x | Both extract entities |
+| Summarization | `phi3-mini-cpu` | 3,448ms | `llama-scout-17b` | 1,549ms | 2.2x | Gaudi more detailed |
+| Compliance | `phi3-mini-cpu` | 1,901ms | `llama-scout-17b` | 1,306ms | 1.5x | Both identify structuring |
 | Diagnosis | `granite-8b-cpu` | 14,817ms | `gpt-oss-120b` | 1,465ms | 10.1x | Gaudi cites pathogen |
 
-*Updated to reproducible medians (3 samples each, June 30 2026). July 8 re-benchmark confirmed per-token throughput unchanged (±5%).*
+*CPU: reproducible medians (3 samples each), July 8 2026. Gaudi: June 30 2026.*
 
 Throughput comparison from the same historical data:
 

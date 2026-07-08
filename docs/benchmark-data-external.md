@@ -51,13 +51,13 @@ verify current Oberon claims by themselves.
 
 | Task | CPU Model | CPU Latency | Accelerator Model | Accelerator Latency | Speedup | Observation |
 |------|-----------|-------------|-------------------|---------------------|---------|-------------|
-| Classification | `phi3-mini-cpu` | 372ms | `llama-scout-17b` | 188ms | 2.0x | Both correct |
-| NER | `granite-2b-cpu` | 4,833ms | `llama-scout-17b` | 2,031ms | 2.4x | Both extract entities |
-| Summarization | `phi3-mini-cpu` | 3,489ms | `llama-scout-17b` | 1,549ms | 2.3x | Gaudi more detailed |
-| Compliance | `phi3-mini-cpu` | 1,932ms | `llama-scout-17b` | 1,306ms | 1.5x | Both identify structuring |
+| Classification | `granite-2b-cpu` | 389ms | `llama-scout-17b` | 188ms | 2.1x | Both correct |
+| NER | `qwen25-3b-cpu` | 4,602ms | `llama-scout-17b` | 2,031ms | 2.3x | Both extract entities |
+| Summarization | `phi3-mini-cpu` | 3,448ms | `llama-scout-17b` | 1,549ms | 2.2x | Gaudi more detailed |
+| Compliance | `phi3-mini-cpu` | 1,901ms | `llama-scout-17b` | 1,306ms | 1.5x | Both identify structuring |
 | Diagnosis | `granite-8b-cpu` | 14,817ms | `gpt-oss-120b` | 1,465ms | 10.1x | Gaudi cites pathogen |
 
-*Reproducible medians (3 samples each), June 30 2026. July 8 re-benchmark confirmed per-token throughput is identical (±5%).*
+*CPU: reproducible medians (3 samples each), July 8 2026. Gaudi: June 30 2026.*
 
 Historical throughput comparison:
 
@@ -71,12 +71,12 @@ Historical throughput comparison:
 
 A July 8 re-benchmark against MAAS confirmed per-token generation speed is unchanged from June 30:
 
-| Model | ms/token (Jun 30) | ms/token (Jul 8) | Change |
+| Model | Jun 30 median | Jul 8 median | Change |
 |-------|:-:|:-:|:-:|
-| granite-2b-cpu | 28.6 | 29.9 | +4.5% |
-| qwen25-3b-cpu | 39.0 | 36.1 | -7.4% |
-| phi3-mini-cpu | 31.2 | 31.6 | +1.3% |
-| granite-8b-cpu | 104.8 | 104.2 | -0.6% |
+| granite-2b-cpu | 412ms (classify) | 389ms | -5.6% |
+| qwen25-3b-cpu | 4,916ms (NER) | 4,602ms | -6.4% |
+| phi3-mini-cpu | 3,489ms (summarize) | 3,448ms | -1.2% |
+| granite-8b-cpu | 17,821ms (NER) | 17,690ms | -0.7% |
 
 All within measurement noise. Infrastructure changes on RAC MAAS did not affect inference throughput.
 

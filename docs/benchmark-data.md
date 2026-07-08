@@ -171,30 +171,32 @@ All numbers are classified by how they were obtained:
 
 ## CPU vs Gaudi Comparison — Reproducible Medians ✓
 
-*All numbers are medians from 3 independent samples per model per task. Raw data in `test-receipts/benchmark-suite-20260630-*.json`. Reproducible via `python3 scripts/benchmark-suite.py --samples 3 --gaudi`.*
+*All CPU numbers are medians from 3 independent samples per model per task (July 8 2026). Gaudi medians from June 30 2026. Raw data in `test-receipts/benchmark-suite-*.json`. Reproducible via `python3 scripts/benchmark-suite.py --samples 3 --gaudi`.*
 
 | Task | Best CPU Model | Runtime | CPU Median | Best Gaudi Model | Gaudi Median | Speedup | Quality |
 |------|---------------|---------|------------|------------------|--------------|---------|---------|
-| Classification | phi3-mini (3.8B) | OpenVINO | 372ms | llama-scout (17B) | **188ms** | 2.0x | Both correct |
-| NER | granite-2b (2B) | OpenVINO | 4,833ms | llama-scout (17B) | **2,031ms** | 2.4x | Both extract entities |
-| Summarization | phi3-mini (3.8B) | OpenVINO | 3,489ms | llama-scout (17B) | **1,549ms** | 2.3x | Gaudi more detailed |
-| Compliance | phi3-mini (3.8B) | OpenVINO | 1,932ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
+| Classification | granite-2b (2B) | OpenVINO | 389ms | llama-scout (17B) | **188ms** | 2.1x | Both correct |
+| NER | qwen25-3b (3B) | OpenVINO | 4,602ms | llama-scout (17B) | **2,031ms** | 2.3x | Both extract entities |
+| Summarization | phi3-mini (3.8B) | OpenVINO | 3,448ms | llama-scout (17B) | **1,549ms** | 2.2x | Gaudi more detailed |
+| Compliance | phi3-mini (3.8B) | OpenVINO | 1,901ms | llama-scout (17B) | **1,306ms** | 1.5x | Both identify structuring |
 | Diagnosis† | granite-8b (8B) | vLLM CPU | 14,817ms | gpt-oss-120b (120B) | **1,465ms** | 10.1x | Gaudi cites pathogen |
 
 *† Diagnosis is from single-sample measurement (June 23). Not yet re-run in reproducible suite because gpt-oss-120b was not included in the automated run. Will be added in next benchmark cycle.*
 
-### Variance Assessment
+### Variance Assessment (July 8 CPU, June 30 Gaudi)
 | Model | Task | Min | Median | Max | Variance |
 |-------|------|-----|--------|-----|----------|
-| phi3-mini-cpu | Classification | 371ms | 372ms | 613ms | Low (cold start on #1) |
-| granite-2b-cpu | NER | 4,736ms | 4,833ms | 5,096ms | Low (7.6%) |
+| granite-2b-cpu | Classification | 387ms | 389ms | 876ms | Low (cold start on #1) |
+| qwen25-3b-cpu | NER | 4,565ms | 4,602ms | 4,640ms | Low (1.6%) |
+| granite-2b-cpu | NER | 5,075ms | 5,091ms | 5,092ms | Low (0.3%) |
 | llama-scout-17b | Classification | 187ms | 188ms | 247ms | Low (32% but 60ms range) |
 | gpt-oss-20b | NER | 2,407ms | 4,574ms | 5,525ms | **HIGH (129%)** — unreliable |
+| granite-8b-cpu | Compliance | 6,815ms | 9,060ms | 9,392ms | **HIGH (38%)** — vLLM CPU variance |
 
 **Note on gpt-oss-20b**: This model showed extreme variance (984ms-5,525ms across tasks). Single-sample measurements made it appear fastest, but median measurements show llama-scout-17b is consistently faster across all tasks. The white paper now uses llama-scout-17b as the best Gaudi model.
 
 ### When CPU (Xeon 6 + OpenVINO) is Sufficient
-- **Classification**: CPU at 372ms vs Gaudi at 188ms — 2x faster on Gaudi but CPU quality is identical. For batch document classification, CPU at $0 incremental cost is the right choice.
+- **Classification**: CPU at 389ms vs Gaudi at 188ms — 2.1x faster on Gaudi but CPU quality is identical. For batch document classification, CPU at $0 incremental cost is the right choice.
 - **Compliance**: CPU at 1.9s vs Gaudi at 1.3s — 1.5x difference. Both produce correct answers. CPU is adequate for non-real-time compliance checks.
 
 ### When Gaudi 3 is the Right Choice

@@ -845,9 +845,9 @@ function FusionVisual() {
 function BenchmarkVisual() {
   const D = 0.5
   const data = [
-    { task: 'Classification', cpu: '372ms', gpu: '188ms', speedup: '2.0x', verdict: 'CPU fine' },
-    { task: 'NER', cpu: '4.8s', gpu: '2.0s', speedup: '2.4x', verdict: 'GPU better quality' },
-    { task: 'Summarization', cpu: '3.5s', gpu: '1.5s', speedup: '2.3x', verdict: 'GPU wins' },
+    { task: 'Classification', cpu: '389ms', gpu: '188ms', speedup: '2.1x', verdict: 'CPU fine' },
+    { task: 'NER', cpu: '4.6s', gpu: '2.0s', speedup: '2.3x', verdict: 'GPU better quality' },
+    { task: 'Summarization', cpu: '3.4s', gpu: '1.5s', speedup: '2.2x', verdict: 'GPU wins' },
     { task: 'Diagnosis', cpu: '14.8s', gpu: '1.5s', speedup: '10.1x', verdict: 'GPU essential' },
   ]
   return (
@@ -877,7 +877,7 @@ function BenchmarkVisual() {
       </table>
       <motion.div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.2 }}>
-        MAAS reproducible medians · June 30 2026
+        MAAS reproducible medians · July 8 2026
       </motion.div>
     </div>
   )

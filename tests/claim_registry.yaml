@@ -72,27 +72,26 @@ claims:
     notes: "Measured on MAAS — oberon may differ"
 
   - id: latency-classification-cpu-maas
-    value: "378ms"
+    value: "389ms"
     file: frontend/src/acts/Act04Efficiency.tsx
     line: 848
-    source: "MAAS reproducible median 2026-06-30 (phi3-mini-cpu, 3 samples)"
+    source: "MAAS reproducible median 2026-07-08 (granite-2b-cpu, 3 samples)"
     verified: true
     verified_date: "2026-07-08"
-    notes: "Updated to June 30 reproducible median. Jul 8 confirmed ms/token stable (±5%)."
 
   - id: latency-ner-cpu-maas
-    value: "4,833ms"
+    value: "4,602ms"
     file: frontend/src/acts/Act04Efficiency.tsx
     line: 849
-    source: "MAAS reproducible median 2026-06-30 (granite-2b-cpu, 3 samples)"
+    source: "MAAS reproducible median 2026-07-08 (qwen25-3b-cpu, 3 samples)"
     verified: true
     verified_date: "2026-07-08"
 
   - id: latency-summarization-cpu-maas
-    value: "3,489ms"
+    value: "3,448ms"
     file: frontend/src/acts/Act04Efficiency.tsx
     line: 850
-    source: "MAAS reproducible median 2026-06-30 (phi3-mini-cpu, 3 samples)"
+    source: "MAAS reproducible median 2026-07-08 (phi3-mini-cpu, 3 samples)"
     verified: true
     verified_date: "2026-07-08"
 
