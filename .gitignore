@@ -19,6 +19,8 @@ infrastructure/kagenti/secrets.yaml
 agnosticv/
 test-receipts/
 .claude/
+docs/2026 1H SAR*
+docs/maas-model-request.md
 www/
 /package.json
 /package-lock.json
