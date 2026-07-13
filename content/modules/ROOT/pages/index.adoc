@@ -1,116 +1,58 @@
-= Triforce — AI Inference at Scale on Intel Hardware
+= AI Inference on Intel Xeon 6 — Hands-On Lab
 :navtitle: Welcome
 
-== What This Lab Is
+== What You'll Do
 
-A hands-on platform for running, measuring, and tuning AI inference across Intel's compute spectrum — Xeon 6 CPU at $0/token for the 80% of tasks that don't need a GPU, and Intel Gaudi GPU for the 20% that do. You have a live multi-agent system deployed on OpenShift — healthcare NLP, financial fraud scoring, semantic routing, MCP tool federation — with 13 models spanning both tiers.
+In this lab you will measure, compare, and optimize AI inference workloads running on Intel Xeon 6 CPUs. By the end, you will have a decision framework: given a workload, which model goes on which hardware, and which optimizations make CPU inference fast enough that GPU becomes optional.
 
-This is not a demo walkthrough. You will call APIs, run experiments, swap models, measure latency, and decide for yourself where CPU is enough and where GPU adds value.
+You will not watch a demo. You will run the experiments yourself, record the numbers, and make the calls.
 
-TIP: Looking for the guided demo walkthrough instead? The Triforce demo script is available in the `demo/engineer/` directory of the repo — run `triforce_demo.py` for the full narrated experience with Rich terminal visualization.
+== Learning Objectives
 
-== What You Can Explore
+* Measure inference latency across multiple CPU models on real-world tasks
+* Right-size model selection per task -- find the smallest model that produces acceptable output
+* Apply optimization techniques (caching, conditional pipeline, semantic routing, tool offloading) and measure their impact
+* Decide where CPU is sufficient and where GPU acceleration is worth the cost
+* Build a cost model for your workload at scale
 
-[cols="1,3",options="header"]
+== What's Running
+
+Your environment has 10 pods in a single OpenShift namespace:
+
+[cols="2,1,2",options="header"]
 |===
-| Section | What You'll Do
-
-| *Core Platform*
-| Call the Healthcare and FinServ APIs directly. Run clinical NLP pipelines, score transactions, discover agents via A2A, use MCP tools — all against live services.
-
-| *Experiments*
-| Compare models head-to-head across CPU and GPU. Calculate your break-even vs cloud APIs. Fire concurrent load and watch throughput vs latency. Run the benchmark suite.
-
-| *Optimization*
-| Enable the adaptive cache and watch it learn. Try speculative decoding. Run multi-model fusion. Scale replicas and measure improvement.
-
-| *Advanced*
-| Explore heterogeneous routing (CPU + GPU per request). Disaggregated inference with llm-d. Edge inference with BitNet on 2-core hardware.
-|===
-
-Every exercise produces real numbers from the deployed system. Nothing is hardcoded.
-
-== The Platform
-
-```
-vLLM Semantic Router (Red Hat)
-     classify request complexity + select hardware
-              │
-    ┌─────────┼─────────┐
-    │         │         │
-Healthcare  FinServ   Orchestrator
-(Python)    (Quarkus)  (Go)
-LangGraph   Fraud+LLM  A2A dispatch
-    │         │         │
-    └─────────┼─────────┘
-              │
-     ┌────────┼────────┐
-     │        │        │
-  MCP Gateway  AMQ Streams  PostgreSQL
-  (tool fed.)  (streaming)  (audit log)
-              │
-     MAAS / LiteLLM
-     ├── Intel Xeon 6 CPU ($0/token)
-     └── Intel Gaudi GPU  ($/token)
-```
-
-== The Partnership
-
-[cols="1,1,3",options="header"]
-|===
-| Partner | Pillar | Role
-
-| *Intel* (Power)
-| Xeon 6 + Gaudi + AMX
-| Heterogeneous compute — CPU inference at $0/token, GPU for frontier reasoning
-
-| *Red Hat* (Courage)
-| OpenShift + vLLM Semantic Router + AMQ Streams
-| Enterprise platform with intelligent routing, batch processing, and scale
-
-| *IBM* (Wisdom)
-| Kagenti + A2A + MCP + SPIFFE
-| Agent governance — discovery, identity, tool control, full audit trail
+| Service | Language | Role
+| Healthcare Agent (×2) | Python / FastAPI | Clinical NLP pipeline -- classify, extract entities, check interactions, summarize
+| FinServ Agent (×2) | Java / Quarkus | Fraud scoring -- rule engine + LLM hybrid
+| Orchestrator | Go | A2A agent discovery + workflow coordination
+| Semantic Router | Python | Embedding-based complexity routing (<1ms)
+| MCP Gateway | Python | 8 federated tools via JSON-RPC
+| Frontend | React / nginx | Visual demo interface
+| PostgreSQL | -- | Inference audit trail
+| Redpanda | -- | Event streaming (Kafka-compatible)
 |===
 
-== Models Available
+All inference runs remotely on Intel Xeon 6 via MAAS/LiteLLM. No GPU or model-serving pods are in your namespace -- the models are shared infrastructure.
 
-=== CPU Tier — Intel Xeon 6 ($0/token)
+== Lab Structure
 
-[cols="1,1,2",options="header"]
-|===
-| Model | Parameters | Use Case
+*Core path* (~75 minutes, do these in order):
 
-| granite-350m | 350M | Ultra-fast draft model (speculative decoding)
-| granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification, semantic routing
-| granite-2b-cpu | 2B | NER, entity extraction, fraud scoring
-| granite-2b-int8 | 2B (INT8) | Quantized — same model, AMX acceleration
-| qwen25-3b-cpu | 3B | Classification, summarization
-| granite-4.1-3b | 3B | Next-gen Granite classification
-| phi3-mini-cpu | 3.8B | Complex reasoning, compliance analysis
-| granite-3-2-8b-instruct-cpu | 8B | Fusion judge, deep reasoning
-| granite-4.1-8b | 8B | Next-gen Granite reasoning
-|===
+. *Orient* -- Log in, verify services, discover the model fleet
+. *Baseline* -- Measure default latency across all tasks
+. *Right-Size the Model* -- Swap models per task, find the optimal assignment
+. *Engineer Down for CPU* -- Apply optimizations and measure their impact
+. *When CPU Isn't Enough* -- Benchmark CPU vs GPU and draw the line
+. *Scale and Cost* -- Load test and build a cost model
 
-=== GPU Tier — Intel Gaudi ($/token)
+*Go Deeper* (~15 min each, pick any that interest you):
 
-[cols="1,1,2",options="header"]
-|===
-| Model | Parameters | Use Case
-
-| granite-3-2-8b-instruct | 8B | Reasoning, NER (GPU-accelerated)
-| qwen3-14b | 14B | Multilingual reasoning
-| gpt-oss-20b | 20B | Summarization at scale
-| gpt-oss-120b | 120B | Frontier reasoning, complex multi-step analysis
-|===
-
-The semantic router decides per request: simple tasks stay on CPU ($0), complex tasks escalate to GPU when the quality difference justifies the cost.
-
-== How to Use This Lab
-
-Start with *Setup*, then go to *Architecture* to understand what's deployed. After that, pick any module — they're all standalone. Spend 10-15 minutes on each, or go deep on the ones that matter to your use case.
-
-For the full narrated demo experience, see the demo scripts in `demo/engineer/`.
+* MCP Tools Deep Dive
+* Multi-Model Fusion
+* Speculative Decoding
+* Load Testing
+* A2A Agent Discovery
+* Audit Trail Queries
 
 [.next-nav]
-xref:01-setup.adoc[Next: Setup →]
+xref:01-orient.adoc[Start: Module 1 — Orient →]

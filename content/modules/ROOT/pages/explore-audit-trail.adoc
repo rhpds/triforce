@@ -1,0 +1,80 @@
+= Go Deeper: Audit Trail Queries
+:navtitle: Audit Trail Queries
+
+== What You'll Do
+
+Query the PostgreSQL inference log directly to answer operational questions about model performance over time.
+
+== Exercise 1: Connect to PostgreSQL
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c "\dt"
+----
+
+This shows the tables. The `inference_log` table records every LLM call.
+
+== Exercise 2: Recent Inference History
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT model, task_type, latency_ms, accelerator, created_at
+   FROM inference_log
+   ORDER BY created_at DESC
+   LIMIT 20;"
+----
+
+== Exercise 3: Average Latency Per Model
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT model,
+          task_type,
+          COUNT(*) as calls,
+          ROUND(AVG(latency_ms)) as avg_ms,
+          MIN(latency_ms) as min_ms,
+          MAX(latency_ms) as max_ms
+   FROM inference_log
+   GROUP BY model, task_type
+   ORDER BY avg_ms DESC;"
+----
+
+== Exercise 4: P95 Latency
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT model,
+          task_type,
+          COUNT(*) as calls,
+          ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY latency_ms)) as p50_ms,
+          ROUND(PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY latency_ms)) as p95_ms
+   FROM inference_log
+   GROUP BY model, task_type
+   HAVING COUNT(*) >= 3
+   ORDER BY p95_ms DESC;"
+----
+
+== Exercise 5: Cache Hit Rate Over Time
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT
+     COUNT(*) as total_calls,
+     SUM(CASE WHEN kv_cache_hit THEN 1 ELSE 0 END) as cache_hits,
+     ROUND(100.0 * SUM(CASE WHEN kv_cache_hit THEN 1 ELSE 0 END) / COUNT(*), 1) as hit_rate_pct
+   FROM inference_log
+   WHERE task_type = 'classify';"
+----
+
+[sidebar]
+****
+*Operational questions you can now answer:*
+
+* What is the P95 latency for your highest-traffic task? ___
+* Which model has the most variance (biggest gap between min and max)? ___
+* What is the cache hit rate for classification? ___%
+****

@@ -1,0 +1,57 @@
+= Go Deeper: A2A Agent Discovery
+:navtitle: A2A Agent Discovery
+
+== What You'll Do
+
+Query the A2A (Agent-to-Agent) protocol endpoints to understand how agents discover each other's capabilities. Both the healthcare and finserv agents publish agent cards at a well-known URL.
+
+== Exercise 1: Discover Healthcare Agent Capabilities
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/.well-known/agent-card.json | jq .
+----
+
+What skills does the healthcare agent advertise? What input/output schemas does it declare?
+
+== Exercise 2: Discover FinServ Agent Capabilities
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {finserv_url}/.well-known/agent-card.json | jq .
+----
+
+How does the finserv card differ from the healthcare card?
+
+== Exercise 3: Send an A2A Task
+
+The A2A protocol uses JSON-RPC `tasks/send` to dispatch work to an agent:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/a2a \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tasks/send", "params": {"id": "lab-task-001", "message": {"parts": [{"text": "Patient presents with chest pain and elevated troponin I at 8.2."}]}}}' \
+  | jq .
+----
+
+The response contains artifacts -- the classification, entities, interactions, and summary. This is how one agent invokes another without knowing its internal API.
+
+== Exercise 4: Agent Discovery via Orchestrator
+
+The orchestrator discovers agents by querying their well-known URLs:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {orchestrator_url}/api/v1/agents | jq .
+----
+
+How many agents did it discover? What URLs did it find them at?
+
+[sidebar]
+****
+*Reflection:*
+
+* How would you add a new agent to this system? ___
+* What does the A2A protocol give you that direct API calls don't? ___
+****

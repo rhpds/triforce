@@ -1,0 +1,82 @@
+= Go Deeper: Load Testing
+:navtitle: Load Testing
+
+== What You'll Do
+
+Generate concurrent load at increasing levels and observe how latency degrades. Find the saturation point.
+
+== Exercise 1: Single Request Baseline
+
+Time a single request:
+
+[source,bash,role="execute",subs=attributes+]
+----
+time curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+  | jq -r '"Latency: \(.total_ms)ms"'
+----
+
+== Exercise 2: Concurrency Sweep
+
+Run 1, 5, 10, and 20 concurrent requests and record the average latency:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for concurrent in 1 5 10 20; do
+  echo "=== $concurrent concurrent ==="
+  start=$(date +%s%N)
+  for i in $(seq 1 $concurrent); do
+    curl -s -X POST {healthcare_url}/api/v1/pipeline \
+      -H "Content-Type: application/json" \
+      -d '{"text": "Patient with hypertension on Lisinopril.", "skip_cache": true}' \
+      -o /dev/null &
+  done
+  wait
+  end=$(date +%s%N)
+  total_ms=$(( (end - start) / 1000000 ))
+  avg_ms=$(( total_ms / concurrent ))
+  echo "  Wall clock: ${total_ms}ms  |  Avg per request: ${avg_ms}ms"
+  echo
+done
+----
+
+[sidebar]
+****
+*Record your latency curve:*
+
+[cols="1,1,1",options="header"]
+|===
+| Concurrent | Wall Clock (ms) | Avg Per Request (ms)
+| 1 | ___ | ___
+| 5 | ___ | ___
+| 10 | ___ | ___
+| 20 | ___ | ___
+|===
+
+*Where does latency start degrading significantly?* ___ concurrent requests
+
+*Is the bottleneck in the agent pods or in model serving (MAAS)?* ___
+****
+
+== Exercise 3: Check Resource Usage
+
+During or after the load test:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc adm top pods 2>/dev/null || oc get pods -o wide
+----
+
+== Exercise 4: Throughput Estimate
+
+From your concurrency sweep, calculate:
+
+[sidebar]
+****
+* Requests per second at 5 concurrent: ___
+* Requests per second at 10 concurrent: ___
+* Extrapolated max throughput: ___ requests/second
+* Records per hour at max: ___
+* Records per 8-hour day at max: ___
+****

@@ -1,33 +1,19 @@
-.Getting Started
+.Lab
 * xref:index.adoc[Welcome]
-* xref:01-setup.adoc[Setup]
-* xref:architecture.adoc[Architecture]
+* xref:01-orient.adoc[Module 1: Orient]
+* xref:02-baseline.adoc[Module 2: Baseline]
+* xref:03-right-size.adoc[Module 3: Right-Size the Model]
+* xref:04-engineer-down.adoc[Module 4: Engineer Down for CPU]
+* xref:05-cpu-vs-gpu.adoc[Module 5: When CPU Isn't Enough]
+* xref:06-scale-cost.adoc[Module 6: Scale and Cost]
 
-.Core Platform
-* xref:02-inference-pipeline.adoc[Healthcare Agent]
-* xref:03-fraud-scoring.adoc[FinServ Agent]
-* xref:explore-semantic-routing.adoc[Semantic Router]
-* xref:explore-mcp-tools.adoc[MCP Tools]
-
-.Experiments
-* xref:explore-model-selection.adoc[Model Selection]
-* xref:explore-benchmarking.adoc[Benchmarking]
-* xref:explore-cost-analysis.adoc[Cost Analysis]
-* xref:explore-scale-test.adoc[Scale Test]
-
-.Optimization
-* xref:explore-conditional-pipeline.adoc[Conditional Pipeline]
-* xref:explore-model-optimization.adoc[Model Optimization]
-* xref:explore-adaptive-classification.adoc[Adaptive Cache]
+.Go Deeper
+* xref:explore-mcp-tools.adoc[MCP Tools Deep Dive]
+* xref:explore-fusion.adoc[Multi-Model Fusion]
 * xref:explore-speculative-decoding.adoc[Speculative Decoding]
-* xref:explore-multi-model-fusion.adoc[Multi-Model Fusion]
-* xref:explore-batch-processing.adoc[Batch Processing]
-* xref:explore-replica-scaling.adoc[Replica Scaling]
-
-.Advanced
-* xref:explore-heterogeneous-routing.adoc[Heterogeneous Routing]
-* xref:explore-llmd-inference.adoc[llm-d Inference]
-* xref:explore-edge-inference.adoc[Edge Inference]
+* xref:explore-load-testing.adoc[Load Testing]
+* xref:explore-a2a-discovery.adoc[A2A Agent Discovery]
+* xref:explore-audit-trail.adoc[Audit Trail Queries]
 
 .Wrap Up
-* xref:99-conclusion.adoc[Conclusion]
+* xref:99-conclusion.adoc[Your Decision Framework]

@@ -1,0 +1,117 @@
+= Module 3: Right-Size the Model
+:navtitle: Right-Size the Model
+
+== Objective
+
+Find the smallest model that produces acceptable output for each task. Bigger models are slower and cost more at scale -- you want the minimum viable model per task.
+
+== Exercise 1: Swap the Classification Model
+
+The default pipeline uses `qwen25-3b-cpu` for classification. Try a smaller model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.", "classify_model": "granite-2b-cpu", "skip_cache": true}' \
+  | jq '{classification, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+Now try the larger model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.", "classify_model": "granite-3-2-8b-instruct-cpu", "skip_cache": true}' \
+  | jq '{classification, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+[sidebar]
+****
+*Compare:*
+
+[cols="2,1,1",options="header"]
+|===
+| Model | Classify Latency | Correct?
+| granite-2b-cpu (2B) | ___ ms | ___
+| qwen25-3b-cpu (3B, default) | ___ ms (from baseline) | ___
+| granite-3-2-8b-instruct-cpu (8B) | ___ ms | ___
+|===
+
+*Is the 8B model more accurate than the 2B for classification?* ___
+
+*Is the extra latency justified?* ___
+****
+
+== Exercise 2: Swap the NER Model
+
+NER (entity extraction) is more demanding than classification. Try all three models and compare output quality -- not just speed:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for model in granite-2b-cpu qwen25-3b-cpu phi3-mini-cpu; do
+  echo "=== $model ==="
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg, Clopidogrel 75mg, Atorvastatin 80mg. BP 128/76, HR 68.\", \"ner_model\": \"$model\", \"skip_cache\": true}" \
+    | jq "{model: \"$model\", entities: (.entities | length), ner_ms: (.inference_log[] | select(.node==\"extract_entities\") | .latency_ms)}"
+  echo
+done
+----
+
+[sidebar]
+****
+*Compare:*
+
+[cols="2,1,1",options="header"]
+|===
+| Model | Entities Found | NER Latency (ms)
+| granite-2b-cpu | ___ | ___
+| qwen25-3b-cpu | ___ | ___
+| phi3-mini-cpu | ___ | ___
+|===
+
+*Which model found the most entities?* ___
+
+*Which model had the best latency-to-quality ratio?* ___
+****
+
+== Exercise 3: Benchmark All Models on All Tasks
+
+Run a systematic comparison -- 3 models across 4 tasks:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for task in classification ner summarization compliance_reasoning; do
+  echo "=== $task ==="
+  curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+    -H "Content-Type: application/json" \
+    -d "{\"task\": \"$task\", \"text\": \"72-year-old male with Type 2 Diabetes on Metformin 500mg. Recent STEMI with PCI to RCA. Aspirin 81mg.\", \"models\": [\"granite-2b-cpu\", \"qwen25-3b-cpu\", \"phi3-mini-cpu\"]}" \
+    | jq '{task, fastest: .fastest.model, results: [.results[] | {model, latency_ms}]}'
+  echo
+done
+----
+
+[sidebar]
+****
+*Your model assignment decision:*
+
+Fill this in based on what you measured. For each task, pick the model you would deploy in production:
+
+[cols="2,2,2",options="header"]
+|===
+| Task | Your Pick | Why
+| Classification | ___ | ___
+| NER | ___ | ___
+| Summarization | ___ | ___
+| Compliance/Fraud | ___ | ___
+|===
+
+*Key question: Did you pick the same model for every task, or different models for different tasks?* ___
+
+This is the first decision in your framework: model selection is per-task, not per-system.
+****
+
+[.next-nav]
+xref:04-engineer-down.adoc[Next: Module 4 — Engineer Down for CPU →]

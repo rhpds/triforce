@@ -1,0 +1,80 @@
+= Module 1: Orient
+:navtitle: Orient
+
+== Objective
+
+Log in, confirm everything is running, and understand what models you have to work with.
+
+== Exercise 1: Log In
+
+. Open the Terminal tab and log in:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
+----
+
+. Switch to your project:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc project {user}-triforce
+----
+
+== Exercise 2: Verify Services
+
+. Check that all pods are running:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pods
+----
++
+You should see 10 pods in `Running` status. If any pod shows `CrashLoopBackOff` or `Error`, flag it -- that service will not respond in later exercises.
+
+. Quick health check on each service:
++
+[source,bash,role="execute",subs=attributes+]
+----
+echo "Healthcare:" && curl -s {healthcare_url}/health | jq -r .status
+echo "FinServ:" && curl -s {finserv_url}/health | jq -r .status
+echo "Orchestrator:" && curl -s {orchestrator_url}/health | jq -r .status
+echo "Semantic Router:" && curl -s {semantic_router_url}/health | jq -r .status
+echo "MCP Gateway:" && curl -s {mcp_gateway_url}/health | jq -r .status
+----
+
+== Exercise 3: Discover the Model Fleet
+
+The healthcare agent has a benchmark endpoint that lists every model available for inference. Call it:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/benchmark/models | jq .
+----
+
+[sidebar]
+****
+*Record your answers:*
+
+* How many CPU models are available? ___
+* How many GPU models are available? ___
+* What is the smallest CPU model? ___
+* What is the largest CPU model? ___
+****
+
+== Exercise 4: First Inference Call
+
+Send a clinical note through the full pipeline to confirm inference is working:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient presents with chest pain and shortness of breath. History of Type 2 Diabetes on Metformin 500mg."}' \
+  | jq '{classification, entity_count: (.entities | length), total_ms}'
+----
+
+You should see a classification, entity count, and total latency in milliseconds. This is your first data point -- you will collect many more in the next module.
+
+[.next-nav]
+xref:02-baseline.adoc[Next: Module 2 — Baseline →]

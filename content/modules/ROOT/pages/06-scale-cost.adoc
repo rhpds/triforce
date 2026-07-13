@@ -1,0 +1,107 @@
+= Module 6: Scale and Cost
+:navtitle: Scale and Cost
+
+== Objective
+
+Test how the system behaves under concurrent load and build a cost model for your workload at scale.
+
+== Exercise 1: Scale Replicas
+
+Check the current replica count:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get deploy healthcare-agent -o jsonpath='{.spec.replicas}'
+echo " replicas"
+----
+
+Scale to 3 replicas:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc scale deploy healthcare-agent --replicas=3
+oc rollout status deploy healthcare-agent --timeout=60s
+----
+
+== Exercise 2: Concurrent Load
+
+Fire 5 concurrent pipeline requests and compare latency to your baseline:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "Starting 5 concurrent requests..."
+for i in 1 2 3 4 5; do
+  (time curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+    | jq -r '"Request '$i': \(.total_ms)ms"') &
+done
+wait
+echo "All done."
+----
+
+Check pod resource usage:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc adm top pods -l app=healthcare-agent 2>/dev/null || echo "Metrics server not available -- check pod status with: oc get pods -l app=healthcare-agent"
+----
+
+Restore to 2 replicas:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc scale deploy healthcare-agent --replicas=2
+----
+
+[sidebar]
+****
+*Record:*
+
+* Single request latency (from baseline): ___ ms
+* Average latency under 5 concurrent: ___ ms
+* Degradation: ___x slower
+* Where is the bottleneck? (agent pods or model serving?) ___
+****
+
+== Exercise 3: Build Your Cost Model
+
+Using your measurements, calculate the cost for 1,000,000 records/month.
+
+[sidebar]
+****
+*Your numbers:*
+
+* Average pipeline latency (your optimized stack): ___ ms
+* Records per second per replica: ___ (1000 / latency_ms)
+* Records per hour per replica: ___ (× 3600)
+* Records per month per replica (8h/day, 22 days): ___ (× 176)
+* Replicas needed for 1M records/month: ___
+
+*Cost comparison:*
+
+[cols="2,2,2",options="header"]
+|===
+| Platform | Monthly Cost | How
+| Xeon 6 CPU (RHDP MAAS) | $0 incremental | Hardware is owned
+| Cloud API (e.g. $0.15/M input + $0.60/M output tokens) | $___ | Estimate: ~1500 tokens/record × 1M records
+| GPU-only (all tasks on Gaudi) | $___ | Your GPU % × estimated GPU cost
+| *Your hybrid (CPU + GPU routing)* | *$___* | CPU % at $0 + GPU % at cost
+|===
+
+*Savings vs all-GPU: $___/month*
+
+*Savings vs cloud API: $___/month*
+****
+
+== What You've Built
+
+You now have a decision framework with your own measured data:
+
+. *Model assignment* -- which model for which task (Module 3)
+. *Optimization stack* -- which techniques apply to your workload (Module 4)
+. *Routing policy* -- which tasks stay on CPU, which go to GPU (Module 5)
+. *Cost model* -- what this costs at scale vs alternatives (this module)
+
+[.next-nav]
+xref:99-conclusion.adoc[Next: Your Decision Framework →]

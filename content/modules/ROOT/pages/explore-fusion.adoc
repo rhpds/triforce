@@ -1,0 +1,62 @@
+= Go Deeper: Multi-Model Fusion
+:navtitle: Multi-Model Fusion
+
+== What You'll Do
+
+Run multi-model fusion -- 3 panel models answer in parallel, a judge synthesizes consensus and contradictions. Compare to single-model output and decide when fusion is worth 4x the inference calls.
+
+== Exercise 1: Run Fusion
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A 72-year-old male with Type 2 Diabetes on Metformin and Warfarin presents with chest pain. Troponin elevated at 8.2. What are the key clinical considerations?"}' \
+  --max-time 60 | jq '{status, panel: {models: .panel.models, latency_ms: .panel.latency_ms}, judge: {model: .judge.model, latency_ms: .judge.latency_ms, consensus: .judge.consensus, contradictions: .judge.contradictions, blind_spots: .judge.blind_spots}, total_ms}'
+----
+
+NOTE: Allow up to 60 seconds -- fusion runs 4 inference calls (3 panel + 1 judge).
+
+== Exercise 2: Compare Single vs Fusion
+
+Same question, single model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/summarize \
+  -H "Content-Type: application/json" \
+  -d '{"text": "72-year-old male with Type 2 Diabetes on Metformin and Warfarin. Chest pain. Troponin 8.2. Key clinical considerations?"}' \
+  | jq '{summary: .summary[:200], model, inference_ms}'
+----
+
+[sidebar]
+****
+*Compare:*
+
+* Single model latency: ___ ms
+* Fusion total latency: ___ ms
+* Did the judge catch anything the single model missed? ___
+* Did any panel models contradict each other? ___
+****
+
+== Exercise 3: Try Your Own Prompt
+
+Run fusion on a question relevant to your domain:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "YOUR QUESTION HERE"}' \
+  --max-time 60 | jq '{consensus: .judge.consensus, contradictions: .judge.contradictions, blind_spots: .judge.blind_spots}'
+----
+
+[sidebar]
+****
+*Decision: When would you use fusion in production?*
+
+* For routine classification: single / fusion? ___
+* For compliance decisions: single / fusion? ___
+* For clinical recommendations: single / fusion? ___
+* Cost of being wrong vs cost of 4x inference at $0/token: ___
+****

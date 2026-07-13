@@ -1,0 +1,118 @@
+= Module 2: Baseline
+:navtitle: Baseline
+
+== Objective
+
+Measure the default latency for every task type with the default model assignments. These are your baseline numbers -- every optimization you apply later will be compared against them.
+
+== Exercise 1: Healthcare Pipeline
+
+Run the full 4-step clinical NLP pipeline and record the per-step latency:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg, Atorvastatin 80mg. BP 128/76, HR 68. CKD stage 3, eGFR 42. Monitor for bleeding risk given dual antiplatelet therapy.", "skip_cache": true}' \
+  | jq '{classification, entities: (.entities | length), drug_interactions: (.drug_interactions | length), total_ms, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+[sidebar]
+****
+*Record your baseline:*
+
+[cols="2,2,1",options="header"]
+|===
+| Step | Model | Latency (ms)
+| Classify | ___ | ___
+| Extract Entities | ___ | ___
+| Check Interactions | ___ | ___
+| Summarize | ___ | ___
+| *Total* | | ___
+|===
+****
+
+== Exercise 2: Fraud Scoring
+
+Score a suspicious transaction:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {finserv_url}/api/v1/score-transaction \
+  -H "Content-Type: application/json" \
+  -d '{"id": "tx-baseline-001", "amount": 15000, "currency": "USD", "merchant_category": "wire_transfer", "country": "NG", "customer_id": "cust-042"}' \
+  | jq '{risk_score, risk_level, model, inference_ms, recommendation}'
+----
+
+Now score a routine transaction:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {finserv_url}/api/v1/score-transaction \
+  -H "Content-Type: application/json" \
+  -d '{"id": "tx-baseline-002", "amount": 89.50, "currency": "USD", "merchant_category": "retail", "country": "US", "customer_id": "cust-042"}' \
+  | jq '{risk_score, risk_level, model, inference_ms, recommendation}'
+----
+
+[sidebar]
+****
+*Record your baseline:*
+
+[cols="2,1,1,1",options="header"]
+|===
+| Transaction | Risk Level | Latency (ms) | Recommendation
+| $15K wire to Nigeria | ___ | ___ | ___
+| $89.50 US retail | ___ | ___ | ___
+|===
+****
+
+== Exercise 3: Benchmark Default Models
+
+Use the benchmark endpoint to compare the default CPU models on classification:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-2b-cpu", "qwen25-3b-cpu", "phi3-mini-cpu"]}' \
+  | jq '{task, results: [.results[] | {model, latency_ms, output: .output[:40]}], fastest: .fastest.model}'
+----
+
+Now the same models on NER (a harder task):
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "ner", "text": "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg, Clopidogrel 75mg.", "models": ["granite-2b-cpu", "qwen25-3b-cpu", "phi3-mini-cpu"]}' \
+  | jq '{task, results: [.results[] | {model, latency_ms, output_tokens}], fastest: .fastest.model}'
+----
+
+[sidebar]
+****
+*Record your baseline:*
+
+[cols="2,1,1,1",options="header"]
+|===
+| Model | Classify (ms) | NER (ms) | Fastest Task
+| granite-2b-cpu | ___ | ___ | ___
+| qwen25-3b-cpu | ___ | ___ | ___
+| phi3-mini-cpu | ___ | ___ | ___
+|===
+
+*Does the fastest model change between tasks?* ___
+****
+
+== Exercise 4: Check Aggregate Stats
+
+Query the inference statistics to see how the system tracks performance:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/stats | jq .
+----
+
+This is the audit trail in PostgreSQL -- every inference call is logged with model, latency, and accelerator. You will query this directly in a later module.
+
+[.next-nav]
+xref:03-right-size.adoc[Next: Module 3 — Right-Size the Model →]

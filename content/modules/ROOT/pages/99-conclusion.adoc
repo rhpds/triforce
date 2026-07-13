@@ -1,66 +1,55 @@
-= Conclusion
-:navtitle: Conclusion
+= Your Decision Framework
+:navtitle: Your Decision Framework
 
-== What You Explored
+== What You Built
 
-=== Core Platform
+Over the last 2 hours, you measured, compared, and optimized AI inference on Intel Xeon 6. The numbers below are yours -- not slides, not marketing, not someone else's benchmarks.
 
-* *Healthcare Agent* — multi-step LangGraph pipeline with real model provenance
-* *FinServ Agent* — LLM inference + rule-based fraud scoring on the same transaction
-* *Semantic Router* — embedding-based routing to right-sized model in <2ms
-* *MCP Tools* — 8 federated tools, 15ms data lookups vs 3000ms LLM calls
+[sidebar]
+****
+*1. Model Assignment (Module 3)*
 
-=== Experiments
-
-* *Model Selection* — right-sized models per task, measured ~5% improvement
-* *Benchmarking* — 13 models across CPU and GPU, side-by-side comparison
-* *Cost Analysis* — break-even at ~149K records/month vs cheapest API
-* *Scale Test* — concurrent load, latency vs throughput tradeoff
-
-=== Optimization
-
-* *Conditional Pipeline* — skip unnecessary inference steps per record
-* *Model Optimization* — INT8 quantization on Intel AMX
-* *Adaptive Cache* — classification hit rate compounds with volume
-* *Speculative Decoding* — draft model proposes, target verifies in batch
-* *Multi-Model Fusion* — 3 CPU models + judge for critical decisions
-* *Batch Processing* — AMQ Streams event streaming at scale
-* *Replica Scaling* — agent replicas for latency, model replicas for throughput
-
-=== Advanced
-
-* *Heterogeneous Routing* — CPU ($0) for simple, GPU ($/token) for complex — system decides
-* *llm-d Inference* — disaggregated prefill + decode across specialized nodes
-* *Edge Inference* — BitNet 1-bit on edge hardware, pure CPU integer math
-
-== The Honest Answer
-
-GPU inference is faster. But for 80% of enterprise AI — classification, NER, fraud scoring, summarization — the question was never "is it the fastest?"
-
-*The question is: "is it fast enough at $0?"*
-
-Every number you saw was real, from live API calls on Intel Xeon 6 CPU. Every model name came from the actual inference log. Every latency was measured, not hardcoded.
-
-== The Intel Compute Story
-
-[cols="1,2,2",options="header"]
+[cols="2,2,1",options="header"]
 |===
-| Tier | Hardware | Use Case
-
-| *CPU ($0/token)*
-| Intel Xeon 6 + AMX
-| 80% of tasks — classification, NER, fraud scoring, summarization, triage
-
-| *GPU ($/token)*
-| Intel Gaudi
-| 20% of tasks — frontier reasoning, 120B models, complex multi-step analysis
-
-| *Edge ($0/token)*
-| Intel Xeon (any) + BitNet
-| Field sites — local classification, alerts, no cloud dependency
+| Task | Your Model | Your Latency
+| Classification | ___ | ___ ms
+| NER | ___ | ___ ms
+| Summarization | ___ | ___ ms
+| Compliance / Fraud | ___ | ___ ms
 |===
 
-The platform runs all three tiers. The semantic router decides per request. You pay only for the compute that needs paying for.
+*2. Optimization Stack (Module 4)*
+
+[cols="2,1,1",options="header"]
+|===
+| Optimization | Your Measured Savings | Applies?
+| Adaptive caching | ___ ms per repeat | ___
+| Conditional pipeline | ___ ms per skip | ___
+| Semantic routing | ___ ms overhead | ___
+| MCP tool offload | ___x faster | ___
+|===
+
+*3. Routing Policy (Module 5)*
+
+* Tasks on CPU ($0): ___
+* Tasks on GPU (justified): ___
+* Your CPU percentage: ___%
+
+*4. Cost at Scale (Module 6)*
+
+* Your optimized per-record latency: ___ ms
+* 1M records/month on CPU: $___
+* 1M records/month on cloud API: $___
+* Annual savings: $___
+****
+
+== The Takeaway
+
+Most enterprise AI does not need a GPU. With the right model selection, the right optimizations, and intelligent routing, Intel Xeon 6 CPUs handle 80% or more of real-world inference at zero incremental cost.
+
+The 20% that genuinely needs GPU acceleration -- complex reasoning, frontier models, latency-critical generation -- routes to Intel Gaudi. The rest stays on the CPUs already in your data center.
+
+That is not a pitch. You measured it.
 
 == What's Next
 
@@ -68,19 +57,19 @@ Triforce tells three more stories:
 
 [cols="1,2,2",options="header"]
 |===
-| Demo | Question | Technology
+| Lab Variant | Question | Technology
 
 | *Triforce Secure*
 | Can I trust it with my data?
-| Intel TDX · Confidential Containers · Hardware-encrypted inference
+| Intel TDX, Confidential Containers, hardware-encrypted inference
 
 | *Triforce Virt*
 | Can I run AI alongside my VMs?
-| OpenShift Virtualization · KubeVirt · VM + container coexistence
+| OpenShift Virtualization, KubeVirt, VM + container coexistence
 
 | *Triforce Govern*
 | Can I govern agents at scale?
-| IBM Kagenti · SPIFFE identity · MCP Gateway · Agent audit trails
+| IBM Kagenti, SPIFFE identity, MCP Gateway, agent audit trails
 |===
 
 == Resources

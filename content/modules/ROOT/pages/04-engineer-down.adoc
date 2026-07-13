@@ -1,0 +1,178 @@
+= Module 4: Engineer Down for CPU
+:navtitle: Engineer Down for CPU
+
+== Objective
+
+Apply four optimization techniques that make CPU inference faster -- without changing models. Measure each one and calculate how they compound.
+
+== Exercise 1: Adaptive Caching
+
+The adaptive cache learns from LLM results. After seeing a document's text hash once, it returns the cached classification in <1ms instead of calling the LLM.
+
+First, reset the cache so you start clean:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/adaptive/reset | jq .
+----
+
+Check the cache stats -- should be empty:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/adaptive/stats | jq .
+----
+
+Now run the same clinical text 5 times and watch the cache learn:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for i in 1 2 3 4 5; do
+  echo "--- Run $i ---"
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg."}' \
+    | jq '{run: '$i', classify_ms: (.inference_log[] | select(.node=="classify") | .latency_ms), cache_hit: (.inference_log[] | select(.node=="classify") | .kv_cache_hit)}'
+done
+----
+
+Check the cache stats again:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/adaptive/stats | jq '{cache_size, hit_rate, llm_reduction_pct}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Run 1 classify latency (cold): ___ ms
+* Run 2 classify latency (cached): ___ ms
+* Speedup from caching: ___x
+* Hit rate after 5 runs: ___%
+****
+
+== Exercise 2: Conditional Pipeline
+
+When a clinical note mentions fewer than 2 medications, the drug interaction check is skipped entirely. Compare:
+
+Text with *4 medications* (interaction check fires):
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient on Metformin 500mg, Lisinopril 10mg, Aspirin 81mg, and Warfarin 5mg. Monitor INR closely.", "skip_cache": true}' \
+  | jq '{total_ms, steps: [.inference_log[] | {node, latency_ms}], interactions: (.drug_interactions | length)}'
+----
+
+Text with *1 medication* (interaction check skipped):
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient diagnosed with hypertension. Started on Lisinopril 10mg daily.", "skip_cache": true}' \
+  | jq '{total_ms, steps: [.inference_log[] | {node, latency_ms}], interactions: (.drug_interactions | length)}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Total ms with interaction check: ___
+* Total ms without (skipped): ___
+* Time saved by skipping: ___ ms
+****
+
+== Exercise 3: Semantic Routing
+
+The semantic router classifies request complexity in <1ms using embeddings -- no LLM call. It decides which model should handle the request.
+
+Send a simple query:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "What type of document is this?"}' \
+  | jq '{route, model, confidence, latency_ms, method}'
+----
+
+Send a complex query:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Analyze the drug interactions between Warfarin and Aspirin considering the patients renal function and provide a differential diagnosis"}' \
+  | jq '{route, model, confidence, latency_ms, method}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Simple query → route: ___, model: ___, latency: ___ ms
+* Complex query → route: ___, model: ___, latency: ___ ms
+* Routing overhead vs inference time: ___ ms vs ___ ms
+****
+
+== Exercise 4: MCP Tools vs LLM
+
+Some questions don't need an LLM at all. The MCP Gateway provides 8 tools that answer with deterministic database lookups.
+
+Call the drug interaction tool directly via JSON-RPC:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "drug_interaction_check", "arguments": {"medications": ["Warfarin", "Aspirin", "Metformin"]}}}' \
+  | jq .
+----
+
+Now compare: how long does the LLM take to answer the same question?
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient on Warfarin, Aspirin, and Metformin. Check for drug interactions.", "skip_cache": true}' \
+  | jq '{total_ms, interaction_step: (.inference_log[] | select(.node=="check_interactions") | {tool: .tool, latency_ms})}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* MCP tool lookup: ___ ms
+* LLM inference for same question: ___ ms
+* Speedup factor: ___x
+****
+
+== Your Optimization Stack
+
+[sidebar]
+****
+*Decision point -- which optimizations apply to your workload?*
+
+Consider a workload that processes *10,000 records/day*:
+
+[cols="2,1,2",options="header"]
+|===
+| Optimization | Your Measured Savings | Applies to Your Workload?
+| Adaptive caching | ___ ms per repeat | Yes / No (what % of your records are repeats?)
+| Conditional pipeline | ___ ms per skip | Yes / No (what % of records skip a step?)
+| Semantic routing | ___ ms routing overhead | Yes / No (do you have varying complexity?)
+| MCP tool offload | ___x faster | Yes / No (do you have deterministic lookups?)
+|===
+
+*Estimated total savings per record: ___ ms*
+
+*At 10,000 records/day, that is ___ minutes of saved compute per day.*
+****
+
+[.next-nav]
+xref:05-cpu-vs-gpu.adoc[Next: Module 5 — When CPU Isn't Enough →]
