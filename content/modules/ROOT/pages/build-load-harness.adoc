@@ -1,0 +1,295 @@
+= Build: Load Test Harness
+:navtitle: Build: Load Harness
+
+*Time: ~20 minutes* · *Terminal*
+
+== What You'll Build
+
+You will write a mixed-workload load script from scratch, run it before and after an optimization, tune speculative decoding parameters to find the sweet spot, and query the PostgreSQL audit trail to analyze your own results. By the end, you will have a reusable load harness and the SQL skills to answer operational questions about any model deployment.
+
+== Exercise 1: Build a Load Profile
+
+Write a bash script that sends N requests at C concurrency with a realistic workload mix. The distribution should reflect production traffic patterns:
+
+* 60% classification (simple, fast)
+* 25% NER / entity extraction (medium complexity)
+* 10% summarization (heavy, long output)
+* 5% compliance reasoning (heaviest, requires multi-step reasoning)
+
+Here is the skeleton. Fill in the request bodies and the logic to select a workload type based on the percentage distribution:
+
+[source,bash,subs=attributes+]
+----
+#!/bin/bash
+# Mixed-workload load test
+TOTAL=20
+CONCURRENT=5
+URL="{healthcare_url}"
+
+send_request() {
+  local request_num=$1
+  # Use modular arithmetic or $RANDOM to pick workload type:
+  #   60% -> POST /api/v1/classify with a clinical document
+  #   25% -> POST /api/v1/extract-entities with a clinical note
+  #   10% -> POST /api/v1/summarize with a longer clinical narrative
+  #    5% -> POST /api/v1/pipeline with a complex multi-medication case
+  #
+  # YOUR CODE HERE: pick the endpoint and body based on workload type
+  # Hint: roll=$(( RANDOM % 100 ))
+  #       if (( roll < 60 )); then ... classify ...
+  #       elif (( roll < 85 )); then ... extract-entities ...
+  #       elif (( roll < 95 )); then ... summarize ...
+  #       else ... pipeline ...
+
+  curl -s -X POST "$URL/YOUR_ENDPOINT" \
+    -H "Content-Type: application/json" \
+    -d 'YOUR_JSON_BODY' \
+    -o /dev/null -w "%\{http_code} %\{time_total}\n"
+}
+
+echo "=== Load test: $TOTAL requests, $CONCURRENT concurrent ==="
+start=$(date +%s%N)
+active=0
+for i in $(seq 1 $TOTAL); do
+  send_request $i &
+  active=$(( active + 1 ))
+  if (( active >= CONCURRENT )); then
+    wait -n
+    active=$(( active - 1 ))
+  fi
+done
+wait
+end=$(date +%s%N)
+total_ms=$(( (end - start) / 1000000 ))
+echo "=== Complete: $\{total_ms}ms total, $(( total_ms / TOTAL ))ms avg ==="
+----
+
+Save your script to `/tmp/load-test.sh` and make it executable. Test it with a small run first:
+
+[source,bash,role="execute",subs=attributes+]
+----
+# Verify the healthcare agent is responding before you run your script
+curl -s {healthcare_url}/health | jq .
+----
+
+TIP: Start with `TOTAL=4 CONCURRENT=2` to debug, then scale up to `TOTAL=20 CONCURRENT=5` for real measurements.
+
+== Exercise 2: Run Before and After
+
+Run your load profile against the current (default) configuration and record the results:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== BEFORE optimization ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent HbA1c 8.2%. Presenting with fatigue and polyuria.", "skip_cache": true}' \
+    -o /dev/null &
+done
+wait
+end=$(date +%s%N)
+before_ms=$(( (end - start) / 1000000 ))
+echo "  Wall clock: $\{before_ms}ms  |  Avg: $(( before_ms / 10 ))ms"
+----
+
+If you completed Path A (right-sizing models), apply your optimized model configuration now. Otherwise, use a known-good optimization -- enable the adaptive classification cache:
+
+[source,bash,role="execute",subs=attributes+]
+----
+# Skip this if you already have Path A optimizations applied
+oc set env deploy/healthcare-agent ADAPTIVE_CACHE_ENABLED=true
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+Run the same load profile again. The first run primes the cache; run it twice:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Priming cache ==="
+for i in $(seq 1 5); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent HbA1c 8.2%. Presenting with fatigue and polyuria.", "skip_cache": true}' \
+    -o /dev/null &
+done
+wait
+
+echo "=== AFTER optimization ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent HbA1c 8.2%. Presenting with fatigue and polyuria."}' \
+    -o /dev/null &
+done
+wait
+end=$(date +%s%N)
+after_ms=$(( (end - start) / 1000000 ))
+echo "  Wall clock: $\{after_ms}ms  |  Avg: $(( after_ms / 10 ))ms"
+----
+
+[sidebar]
+****
+*Before vs after:*
+
+[cols="2,1,1",options="header"]
+|===
+| Metric | Before | After
+| Wall clock (10 requests) | ___ ms | ___ ms
+| Avg per request | ___ ms | ___ ms
+| Improvement | | ___%
+|===
+
+*What changed?* ___
+
+*Is the improvement consistent across request types, or only for repeated classifications?* ___
+****
+
+== Exercise 3: Tune Speculative Decoding
+
+Speculative decoding uses a tiny draft model (granite-350M) to propose tokens that a larger target model (granite-2b) verifies in batch. The `SPECULATIVE_NUM_TOKENS` environment variable controls how many tokens the draft proposes per batch.
+
+Check the current configuration:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {healthcare_url}/api/v1/speculative/status | jq .
+----
+
+Run the baseline vs speculative comparison on a summarization task:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/speculative/run \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Summarize: 68-year-old female with COPD exacerbation, on Prednisone taper, Albuterol nebulizer q4h, home O2 2L. Admitted for hypoxia with SpO2 84% on room air. CT chest shows bilateral ground glass opacities. Started on BiPAP and IV methylprednisolone."}' \
+  --max-time 30 | jq '{baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup, mode}'
+----
+
+Now tune the number of speculative tokens. Test 3 values and find the sweet spot:
+
+*3 tokens* (conservative -- fewer proposals, higher acceptance rate):
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent SPECULATIVE_NUM_TOKENS=3
+oc rollout status deploy/healthcare-agent --timeout=90s
+curl -s -X POST {healthcare_url}/api/v1/speculative/run \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Summarize: 68-year-old female with COPD exacerbation, on Prednisone taper, Albuterol nebulizer q4h, home O2 2L. Admitted for hypoxia with SpO2 84% on room air. CT chest shows bilateral ground glass opacities. Started on BiPAP and IV methylprednisolone."}' \
+  --max-time 30 | jq '{tokens: 3, baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup}'
+----
+
+*7 tokens* (aggressive -- more proposals, lower acceptance rate):
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent SPECULATIVE_NUM_TOKENS=7
+oc rollout status deploy/healthcare-agent --timeout=90s
+curl -s -X POST {healthcare_url}/api/v1/speculative/run \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Summarize: 68-year-old female with COPD exacerbation, on Prednisone taper, Albuterol nebulizer q4h, home O2 2L. Admitted for hypoxia with SpO2 84% on room air. CT chest shows bilateral ground glass opacities. Started on BiPAP and IV methylprednisolone."}' \
+  --max-time 30 | jq '{tokens: 7, baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup}'
+----
+
+NOTE: Speculative decoding requires the draft model (granite-350M) to be available on MAAS. If any of these calls return an error for the speculative run, the baseline will still complete -- record what you can and skip to Exercise 4.
+
+[sidebar]
+****
+*Speculative decoding tuning results:*
+
+[cols="1,1,1,1",options="header"]
+|===
+| Num Tokens | Baseline (ms) | Speculative (ms) | Speedup
+
+| 3 | ___ | ___ | ___x
+| 5 (default) | ___ | ___ | ___x
+| 7 | ___ | ___ | ___x
+|===
+
+*Sweet spot: ___ tokens*
+
+*Why?* More tokens means the draft model does more work per batch, but the acceptance rate drops because the draft is more likely to diverge from the target. The optimal value depends on the task -- structured output (NER, classification) has higher acceptance rates than free-form summarization.
+****
+
+== Exercise 4: Query Your Own Data
+
+Every inference call is logged to PostgreSQL. You will write your own SQL queries to analyze the data your load test generated.
+
+First, check the table schema:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT column_name, data_type
+   FROM information_schema.columns
+   WHERE table_name = 'inference_log'
+   ORDER BY ordinal_position;"
+----
+
+The key columns are:
+
+* `model` -- which model handled the request
+* `task_type` -- classify, ner, summarize, pipeline
+* `latency_ms` -- end-to-end inference time
+* `created_at` -- timestamp
+* `kv_cache_hit` -- boolean, whether the KV cache was used
+* `accelerator` -- cpu or gpu
+
+*Query 1:* Which model had the worst P95 latency during your load test?
+
+Write the SQL yourself using `PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY latency_ms)`. Filter to recent data only.
+
+[source,bash,subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "YOUR SQL QUERY HERE"
+----
+
+TIP: You will need `GROUP BY model`, `HAVING COUNT(*) >= 3` to exclude models with too few samples, and `ORDER BY p95 DESC LIMIT 1` to find the worst.
+
+*Query 2:* What is the cache hit rate for classification tasks?
+
+Write the SQL yourself. You need `COUNT(*)`, `SUM(CASE WHEN kv_cache_hit THEN 1 ELSE 0 END)`, and a percentage calculation. Filter to `task_type = 'classify'`.
+
+[source,bash,subs=attributes+]
+----
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "YOUR SQL QUERY HERE"
+----
+
+[sidebar]
+****
+*Your audit trail findings:*
+
+* Worst P95 model: ___ at ___ ms
+* Classification cache hit rate: ___%
+* Total inference calls logged during your session: ___
+* Most-used model: ___
+* Most-used task type: ___
+****
+
+== Restore Defaults
+
+Reset all environment variables to their defaults:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent \
+  SPECULATIVE_NUM_TOKENS=5 \
+  ADAPTIVE_CACHE_ENABLED=true
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+== What's Next
+
+[sidebar]
+****
+*Choose your next build module:*
+
+* Want to explore MCP tool routing in depth? -> xref:build-mcp-tool.adoc[Build: MCP Tool Deep Dive]
+* Want to tune multi-model fusion panels? -> xref:build-fusion-panel.adoc[Build: Fusion Panel Tuning]
+* Done building? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

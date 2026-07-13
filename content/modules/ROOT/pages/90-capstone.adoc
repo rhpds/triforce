@@ -1,0 +1,176 @@
+= Capstone: Deploy Your Optimized Stack
+:navtitle: Capstone
+
+== Objective
+
+Take every decision you've made -- model assignments, optimization choices, routing policy, scaling config -- and deploy them as a single configuration. Then validate against your baseline and write a recommendation.
+
+== Exercise 1: Write Your Values Override
+
+Create a Helm values file with your optimizations. Fill in each blank with the value you measured as optimal. If you skipped a path, leave that section at the default.
+
+[source,bash,subs=attributes+]
+----
+cat << 'EOF' > /tmp/my-values.yaml
+# Triforce Optimization Config
+# Student: ___
+
+# --- From Path A: Right-Size Your Models ---
+healthcareAgent:
+  classifyModel: "___"            # default: qwen25-3b-cpu
+  nerModel: "___"                 # default: granite-2b-cpu
+  summarizeModel: "___"           # default: qwen25-3b-cpu
+
+# --- From Path D: Scale & Cost ---
+  replicas: ___                   # default: 2
+
+finservAgent:
+  replicas: ___                   # default: 2
+
+# --- From Build: Fusion Panel ---
+modules:
+  fusion:
+    enabled: ___                  # true or false
+    panelModels: "___,___,___"    # default: granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu
+    judgeModel: "___"             # default: granite-3-2-8b-instruct-cpu
+
+# --- From Build: Load Harness ---
+  speculative:
+    enabled: ___                  # true or false
+    numSpeculativeTokens: ___     # default: 5, your measured sweet spot
+
+# --- From Path C: Route & Split ---
+  heterogeneous:
+    enabled: ___                  # true or false
+    routingThreshold: ___         # default: 0.7
+EOF
+----
+
+Review your file:
+
+[source,bash,role="execute",subs=attributes+]
+----
+cat /tmp/my-values.yaml
+----
+
+== Exercise 2: Deploy
+
+[source,bash,role="execute",subs=attributes+]
+----
+helm upgrade triforce infrastructure/helm \
+  --namespace $(oc project -q) \
+  --values /tmp/my-values.yaml \
+  --reuse-values
+----
+
+Wait for the rollout:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/healthcare-agent --timeout=120s
+oc rollout status deploy/finserv-agent --timeout=120s
+----
+
+Verify all pods are running:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pods
+----
+
+== Exercise 3: Validate Against Baseline
+
+Run the same tests you ran in Module 2 (Baseline) against your optimized stack.
+
+Healthcare pipeline:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Started on Aspirin 81mg, Clopidogrel 75mg, Atorvastatin 80mg. BP 128/76, HR 68. CKD stage 3, eGFR 42. Monitor for bleeding risk given dual antiplatelet therapy.", "skip_cache": true}' \
+  | jq '{classification, total_ms, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+Fraud scoring:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {finserv_url}/api/v1/score-transaction \
+  -H "Content-Type: application/json" \
+  -d '{"id": "tx-capstone-001", "amount": 15000, "currency": "USD", "merchant_category": "wire_transfer", "country": "NG", "customer_id": "cust-042"}' \
+  | jq '{risk_score, risk_level, model, inference_ms}'
+----
+
+Concurrent load (5 requests):
+
+[source,bash,role="execute",subs=attributes+]
+----
+start=$(date +%s%N)
+for i in 1 2 3 4 5; do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+    -o /dev/null &
+done
+wait
+end=$(date +%s%N)
+echo "5 concurrent: $(( (end - start) / 1000000 ))ms wall clock"
+----
+
+== Exercise 4: Score Your Stack
+
+[sidebar]
+****
+*Compare to your Module 2 baseline:*
+
+[cols="2,1,1,1",options="header"]
+|===
+| Metric | Baseline (Module 2) | Your Stack | Delta
+| Pipeline total_ms | ___ | ___ | ___ ms faster
+| Classify model | ___ | ___ |
+| NER model | ___ | ___ |
+| Summarize model | ___ | ___ |
+| Fraud scoring ms | ___ | ___ | ___ ms faster
+| 5-concurrent wall clock ms | ___ | ___ | ___ ms faster
+|===
+
+*Percentage improvement on pipeline: ___% faster*
+
+*Monthly cost at 1M records:*
+
+* Baseline (default models, no optimizations): $___
+* Your stack: $___
+* Annual savings: $___
+****
+
+== Exercise 5: Write Your Recommendation
+
+You are presenting to a CTO who wants to know: should we use CPU inference, GPU inference, or both?
+
+Write 3-5 sentences that include:
+
+* What you measured (specific numbers)
+* What you configured (which optimizations, which models)
+* What the cost impact is
+* What stays on CPU and what goes to GPU
+
+[sidebar]
+****
+*Your recommendation:*
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+****
+
+This is the deliverable. Not a filled-in table -- a recommendation backed by your own data.
+
+[.next-nav]
+xref:99-conclusion.adoc[Next: Your Decision Framework →]

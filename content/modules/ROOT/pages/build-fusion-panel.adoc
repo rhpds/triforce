@@ -1,0 +1,207 @@
+= Build: Fusion Panel Tuning
+:navtitle: Build: Fusion Panel
+
+*Time: ~20 minutes* · *Terminal*
+
+== What You'll Build
+
+You will change which models sit on the fusion panel and which model acts as judge, then measure how panel composition affects quality and latency. By the end, you will have a decision table for when fusion is worth its cost.
+
+Multi-model fusion runs 3 panel models in parallel, then a judge model synthesizes consensus and surfaces contradictions. The system is configured through two environment variables:
+
+* `FUSION_PANEL_MODELS` -- the comma-separated list of models that answer in parallel (default: `granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu`)
+* `FUSION_JUDGE_MODEL` -- the model that synthesizes the panel's answers (default: `granite-3-2-8b-instruct-cpu`)
+
+== Exercise 1: Run Default Fusion
+
+Run fusion with the default panel (granite-2b, qwen-3b, phi3-mini) judged by granite-8b:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A 72-year-old male with Type 2 Diabetes on Metformin 500mg and Warfarin 5mg presents with acute chest pain radiating to the left arm. Troponin elevated at 8.2 ng/mL. eGFR 38 mL/min. What are the key clinical considerations for immediate management, medication interactions, and renal-adjusted dosing?"}' \
+  --max-time 60 | jq '{status, panel: {models: .panel.models, latency_ms: .panel.latency_ms}, judge: {model: .judge.model, latency_ms: .judge.latency_ms, consensus: .judge.consensus, contradictions: .judge.contradictions, blind_spots: .judge.blind_spots}, total_ms}'
+----
+
+NOTE: Allow up to 60 seconds -- fusion runs 4 inference calls (3 panel + 1 judge).
+
+[sidebar]
+****
+*Record your baseline:*
+
+[cols="2,1",options="header"]
+|===
+| Metric | Value
+| Panel models | ___
+| Panel latency (ms) | ___
+| Judge model | ___
+| Judge latency (ms) | ___
+| Consensus length (words) | ___
+| Number of contradictions | ___
+| Total latency (ms) | ___
+|===
+****
+
+== Exercise 2: Swap the Panel
+
+Replace the default 3-small panel with 2 small + 1 medium model. This adds an 8B model to the panel alongside the existing 2B and 3.8B:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent \
+  FUSION_PANEL_MODELS="granite-2b-cpu,phi3-mini-cpu,granite-3-2-8b-instruct-cpu"
+----
+
+Wait for the rollout:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+Re-run the same prompt:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A 72-year-old male with Type 2 Diabetes on Metformin 500mg and Warfarin 5mg presents with acute chest pain radiating to the left arm. Troponin elevated at 8.2 ng/mL. eGFR 38 mL/min. What are the key clinical considerations for immediate management, medication interactions, and renal-adjusted dosing?"}' \
+  --max-time 60 | jq '{status, panel: {models: .panel.models, latency_ms: .panel.latency_ms}, judge: {model: .judge.model, latency_ms: .judge.latency_ms, consensus: .judge.consensus, contradictions: .judge.contradictions, blind_spots: .judge.blind_spots}, total_ms}'
+----
+
+[sidebar]
+****
+*Compare default vs modified panel:*
+
+[cols="2,1,1",options="header"]
+|===
+| Metric | Default Panel | Modified Panel
+| Panel models | 2B, 3B, 3.8B | 2B, 3.8B, 8B
+| Panel latency (ms) | ___ | ___
+| Consensus length (words) | ___ | ___
+| Number of contradictions | ___ | ___
+| Total latency (ms) | ___ | ___
+|===
+
+*Did adding the 8B model to the panel change the consensus?* ___
+
+*Did the judge find different contradictions?* ___
+
+*What was the latency cost of adding the larger model?* ___
+****
+
+== Exercise 3: Swap the Judge
+
+Keep the modified panel and change the judge to a smaller model. This tests whether a 3.8B judge can synthesize as well as the default 8B:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent \
+  FUSION_JUDGE_MODEL="phi3-mini-cpu"
+----
+
+Wait for the rollout:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+Re-run the same prompt:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/fusion \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A 72-year-old male with Type 2 Diabetes on Metformin 500mg and Warfarin 5mg presents with acute chest pain radiating to the left arm. Troponin elevated at 8.2 ng/mL. eGFR 38 mL/min. What are the key clinical considerations for immediate management, medication interactions, and renal-adjusted dosing?"}' \
+  --max-time 60 | jq '{status, panel: {models: .panel.models, latency_ms: .panel.latency_ms}, judge: {model: .judge.model, latency_ms: .judge.latency_ms, consensus: .judge.consensus, contradictions: .judge.contradictions, blind_spots: .judge.blind_spots}, total_ms}'
+----
+
+[sidebar]
+****
+*Compare judge quality:*
+
+[cols="2,1,1",options="header"]
+|===
+| Metric | 8B Judge (default) | 3.8B Judge (phi3-mini)
+| Judge latency (ms) | ___ | ___
+| Consensus length (words) | ___ | ___
+| Contradictions identified | ___ | ___
+| Blind spots identified | ___ | ___
+|===
+
+*Does the smaller judge miss nuances the 8B caught?* ___
+
+*Is the synthesis still clinically useful?* ___
+
+*If the judge is the bottleneck, does a smaller judge significantly reduce total latency?* ___
+****
+
+== Exercise 4: Design Your Fusion Policy
+
+Not every task needs multi-model consensus. Fusion runs 4 inference calls -- 3 panel + 1 judge -- so it costs 4x a single model call. At $0/token on CPU that cost is pure latency. Decide where the latency is worth it.
+
+[sidebar]
+****
+*Your fusion deployment policy:*
+
+[cols="2,2,2,2",options="header"]
+|===
+| Task | Panel Composition | Judge Model | Justification
+
+| Routine classification
+| Single model (no fusion)
+| ---
+| Low risk, speed matters
+
+| Compliance decisions
+| ___
+| ___
+| ___
+
+| Clinical recommendations
+| ___
+| ___
+| ___
+
+| Fraud detection
+| ___
+| ___
+| ___
+
+| Patient discharge summary
+| ___
+| ___
+| ___
+|===
+
+*Key trade-off: For which tasks is the cost of being wrong higher than the cost of 4x latency?* ___
+****
+
+== Restore Defaults
+
+Reset both environment variables to their defaults:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/healthcare-agent \
+  FUSION_PANEL_MODELS="granite-2b-cpu,qwen25-3b-cpu,phi3-mini-cpu" \
+  FUSION_JUDGE_MODEL="granite-3-2-8b-instruct-cpu"
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+== What's Next
+
+[sidebar]
+****
+*Choose your next build module:*
+
+* Want to add custom routes to the semantic router? -> xref:build-routing-config.adoc[Build: Custom Routing Config]
+* Want to stress test your stack under load? -> xref:build-load-harness.adoc[Build: Load Test Harness]
+* Done building? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

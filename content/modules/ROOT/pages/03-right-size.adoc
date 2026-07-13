@@ -1,9 +1,9 @@
-= Module 3: Right-Size the Model
-:navtitle: Right-Size the Model
+= Path A: Right-Size Your Models
+:navtitle: Path A: Right-Size
 
 == Objective
 
-Find the smallest model that produces acceptable output for each task. Bigger models are slower and cost more at scale -- you want the minimum viable model per task.
+Find the smallest model that produces acceptable output for each task, then apply your choices to the running system and verify the results. Bigger models are slower and cost more at scale -- you want the minimum viable model per task, deployed and proven.
 
 == Exercise 1: Swap the Classification Model
 
@@ -113,5 +113,105 @@ Fill this in based on what you measured. For each task, pick the model you would
 This is the first decision in your framework: model selection is per-task, not per-system.
 ****
 
-[.next-nav]
-xref:04-engineer-down.adoc[Next: Module 4 — Engineer Down for CPU →]
+== Exercise 4: Apply Your Decision
+
+You have measured and chosen. Now apply your model assignments to the running deployment and see the impact end-to-end.
+
+Set the model environment variables on the healthcare agent using the models you selected in Exercise 3. Replace each `<your-pick>` with the model name you chose for that task:
+
+[source,bash,subs=attributes+]
+----
+oc set env deploy/healthcare-agent \
+  CLASSIFY_MODEL=<your-pick> \
+  NER_MODEL=<your-pick> \
+  SUMMARIZE_MODEL=<your-pick>
+----
+
+Wait for the new pods to roll out:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/healthcare-agent --timeout=90s
+----
+
+Once the rollout completes, re-run the full pipeline with the same clinical text you used in Exercise 1. The `skip_cache` flag ensures you get a fresh inference -- no cached results:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA.", "skip_cache": true}' \
+  | jq '{classification, entities: (.entities | length), total_ms, steps: [.inference_log[] | {node, model, latency_ms}]}'
+----
+
+[sidebar]
+****
+*Measure the improvement:*
+
+[cols="2,1",options="header"]
+|===
+| Metric | Value
+| Baseline total_ms (from Module 2) | ___
+| Optimized total_ms | ___
+| Improvement | ___ms faster (___%)
+|===
+
+*Did every pipeline stage still produce correct output?* ___
+
+*If not, which stage degraded?* ___
+****
+
+== Exercise 5: Verify Quality
+
+Speed gains mean nothing if the output is wrong. Run the same clinical text through your smallest chosen model AND the original larger model to check whether quality dropped.
+
+First, run classification with the smaller model you selected:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg.", "model": "granite-2b-cpu"}' | jq .
+----
+
+Now run the same text with the original default model:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg.", "model": "qwen25-3b-cpu"}' | jq .
+----
+
+Compare the two outputs side by side.
+
+[sidebar]
+****
+*Quality check:*
+
+[cols="2,1,1",options="header"]
+|===
+| Question | Smaller Model | Original Model
+| Classification label | ___ | ___
+| Confidence score | ___ | ___
+| Labels match? | ___ | ---
+|===
+
+*If the labels differ, is the smaller model's answer acceptable for your use case?* ___
+
+*Decision: Would you deploy the smaller model in production?* ___
+
+This is the core trade-off in right-sizing: latency vs. quality. There is no universal right answer -- it depends on whether the task is safety-critical (use the bigger model) or latency-sensitive with tolerance for approximation (use the smaller one).
+****
+
+== What's Next?
+
+[sidebar]
+****
+*Choose your next path:*
+
+* Want to reduce latency further without changing models? -> xref:04-engineer-down.adoc[Path B: Engineer Down for CPU]
+* Want to split traffic between CPU and GPU? -> xref:05-route-and-split.adoc[Path C: Route & Split Traffic]
+* Ready to build? -> xref:build-fusion-panel.adoc[Build: Fusion Panel Tuning] (uses your model assignments in a multi-model panel)
+* Done with paths? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

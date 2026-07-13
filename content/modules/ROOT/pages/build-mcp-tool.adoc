@@ -1,0 +1,264 @@
+= Build: MCP Tool Deep Dive
+:navtitle: Build: MCP Tools
+
+*Time: ~18 minutes* · *Terminal*
+
+== What You'll Build
+
+The MCP Gateway federates 8 tools across 3 contract domains -- healthcare (FHIR), financial services (risk/compliance), and platform (observability). Every tool call is a JSON-RPC request that returns structured data in milliseconds, while an equivalent LLM call takes seconds.
+
+You will inventory all 8 tools, call each healthcare tool and measure its latency, construct your own JSON-RPC call to a tool you choose, quantify tool overhead at scale, and design a tool routing strategy for production.
+
+The gateway API is a single endpoint: `POST {mcp_gateway_url}/mcp` with a JSON-RPC body. Two methods matter:
+
+* `tools/list` -- returns all registered tools and their input schemas
+* `tools/call` -- invokes a tool by name with arguments
+
+== Exercise 1: Inventory All Tools
+
+List every tool the gateway exposes:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
+  | jq '.result.tools[] | {name, description}'
+----
+
+[sidebar]
+****
+*Record all 8 tools:*
+
+[cols="1,2,2",options="header"]
+|===
+| # | Tool Name | Domain
+
+| 1 | ___ | fhir-tools
+| 2 | ___ | fhir-tools
+| 3 | ___ | fhir-tools
+| 4 | ___ | risk-tools
+| 5 | ___ | risk-tools
+| 6 | ___ | risk-tools
+| 7 | ___ | platform-tools
+| 8 | ___ | platform-tools
+|===
+****
+
+Now inspect the input schema for one tool to see what arguments it expects:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"2","method":"tools/list","params":{}}' \
+  | jq '.result.tools[] | select(.name == "drug_interaction_check") | .inputSchema'
+----
+
+== Exercise 2: Call Each Healthcare Tool
+
+Call all 3 FHIR tools and record the latency for each. These are data lookups -- no LLM inference involved.
+
+*Drug interaction check* -- 3 medications, checking for pairwise interactions:
+
+[source,bash,role="execute",subs=attributes+]
+----
+time curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"3","method":"tools/call","params":{"name":"drug_interaction_check","arguments":{"medications":["Warfarin","Aspirin","Metformin"]}}}' \
+  | jq '.result.structuredContent'
+----
+
+*Patient lookup* -- retrieve a synthetic patient record:
+
+[source,bash,role="execute",subs=attributes+]
+----
+time curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"4","method":"tools/call","params":{"name":"fhir_patient_lookup","arguments":{"patient_id":"P-001"}}}' \
+  | jq '.result.structuredContent | {patient_id, name, age, conditions: [.conditions[].display], medications: [.medications[].name]}'
+----
+
+*Clinical code search* -- find ICD-10 codes for a condition:
+
+[source,bash,role="execute",subs=attributes+]
+----
+time curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"5","method":"tools/call","params":{"name":"clinical_code_search","arguments":{"query":"Type 2 Diabetes","code_system":"icd10"}}}' \
+  | jq '.result.structuredContent.results[] | {code, display}'
+----
+
+[sidebar]
+****
+*Record tool latencies:*
+
+[cols="2,1",options="header"]
+|===
+| Tool | Latency (ms)
+| drug_interaction_check | ___
+| fhir_patient_lookup | ___
+| clinical_code_search | ___
+|===
+
+*Compare to the LLM inference steps you saw in Module 2 (typically 500-4000ms). What is the speed ratio?* ___
+****
+
+== Exercise 3: Call a Tool You Choose
+
+Pick one of the 5 remaining tools and construct the JSON-RPC call yourself. Here are the tools and their required arguments:
+
+* `risk_profile_lookup` -- requires `customer_id` (string)
+* `regulatory_rule_check` -- requires `transaction_id` (string, UUID format) and `regulation` (one of: aml, kyc, ofac, pci_dss, gdpr, sox)
+* `sanction_list_search` -- requires `entity_name` (string)
+* `get_agent_status` -- requires `agent_name` (string)
+* `get_inference_stats` -- optional filters: `agent_name`, `model`, `window_minutes`
+
+Fill in the template with the tool name and arguments you choose:
+
+[source,bash,subs=attributes+]
+----
+time curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"6","method":"tools/call","params":{"name":"YOUR_TOOL_NAME","arguments":\{YOUR_ARGUMENTS}}}' \
+  | jq '.result.structuredContent'
+----
+
+[sidebar]
+****
+*Your call:*
+
+* Tool chosen: ___
+* Arguments used: ___
+* Latency (ms): ___
+* What did the response contain? ___
+****
+
+== Exercise 4: Tool vs LLM at Scale
+
+When the pipeline runs with medications, the `check_interactions` step fires an MCP tool call. When there are no medications, that step is skipped. Measure the difference at scale.
+
+First, run 10 requests WITH medications (tools fire):
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== 10 requests WITH medications (tools fire) ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Patient on Aspirin 81mg, Clopidogrel 75mg, and Metformin 1000mg. History of Type 2 Diabetes and coronary artery disease.", "skip_cache": true}' \
+    -o /dev/null &
+done
+wait
+end=$(date +%s%N)
+with_tools_ms=$(( (end - start) / 1000000 ))
+echo "  Wall clock: $\{with_tools_ms}ms  |  Avg per request: $(( with_tools_ms / 10 ))ms"
+----
+
+Now run 10 requests WITHOUT medications (no tool calls, short text with 0 meds):
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== 10 requests WITHOUT medications (tools skip) ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "Routine checkup. Vitals normal.", "skip_cache": true}' \
+    -o /dev/null &
+done
+wait
+end=$(date +%s%N)
+without_tools_ms=$(( (end - start) / 1000000 ))
+echo "  Wall clock: $\{without_tools_ms}ms  |  Avg per request: $(( without_tools_ms / 10 ))ms"
+----
+
+[sidebar]
+****
+*Tool overhead analysis:*
+
+[cols="2,1,1",options="header"]
+|===
+| Metric | With Medications | Without Medications
+| Wall clock (10 requests) | ___ ms | ___ ms
+| Avg per request | ___ ms | ___ ms
+|===
+
+* Tool overhead per request (difference): ___ ms
+* Percentage of pipeline time spent on tools vs LLM: ___%
+* At 1000 requests/hour, total time added by tool calls: ___ seconds
+* Is the tool overhead negligible compared to LLM inference? ___
+****
+
+== Exercise 5: Design Your Tool Strategy
+
+Not all 8 tools need to fire on every request. Some are mandatory for safety, some are optional for enrichment, and some only matter at scale.
+
+[sidebar]
+****
+*Your tool deployment strategy:*
+
+[cols="2,1,1,2",options="header"]
+|===
+| Tool | Mandatory? | Avg Latency | Justification
+
+| drug_interaction_check
+| Yes
+| ~15ms
+| Patient safety -- must always check
+
+| fhir_patient_lookup
+| ___
+| ___
+| ___
+
+| clinical_code_search
+| ___
+| ___
+| ___
+
+| risk_profile_lookup
+| ___
+| ___
+| ___
+
+| regulatory_rule_check
+| ___
+| ___
+| ___
+
+| sanction_list_search
+| ___
+| ___
+| ___
+
+| get_agent_status
+| ___
+| ___
+| ___
+
+| get_inference_stats
+| ___
+| ___
+| ___
+|===
+
+*Key questions:*
+
+* Which tools save the most time compared to an LLM doing the same work? ___
+* Which tools provide data the LLM cannot generate (e.g., live patient records)? ___
+* When would you NOT use a tool -- even if one exists? ___
+* If you could add a 9th tool, what would it do? ___
+****
+
+== What's Next
+
+[sidebar]
+****
+*Choose your next build module:*
+
+* Want to stress test your stack under load? -> xref:build-load-harness.adoc[Build: Load Test Harness]
+* Want to tune multi-model fusion panels? -> xref:build-fusion-panel.adoc[Build: Fusion Panel Tuning]
+* Done building? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

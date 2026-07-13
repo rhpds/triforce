@@ -1,21 +1,40 @@
-= Module 6: Scale and Cost
-:navtitle: Scale and Cost
+= Path D: Scale & Cost
+:navtitle: Path D: Scale & Cost
 
 == Objective
 
-Test how the system behaves under concurrent load and build a cost model for your workload at scale.
+Test how the system behaves under increasing concurrent load, find the saturation point, and build a cost model from your measured data.
 
-== Exercise 1: Scale Replicas
+== Exercise 1: Scale Up and Down
 
-Check the current replica count:
+Check the current replica count, then test at 1, 2, and 3 replicas:
 
 [source,bash,role="execute",subs=attributes+]
 ----
+echo "Current replicas:"
 oc get deploy healthcare-agent -o jsonpath='{.spec.replicas}'
-echo " replicas"
+echo
 ----
 
-Scale to 3 replicas:
+Scale to 1 replica (intentionally under-provision):
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc scale deploy healthcare-agent --replicas=1
+oc rollout status deploy healthcare-agent --timeout=60s
+----
+
+Run a single baseline request at 1 replica:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+  | jq '\{total_ms}'
+----
+
+Now scale to 3 replicas:
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -23,50 +42,129 @@ oc scale deploy healthcare-agent --replicas=3
 oc rollout status deploy healthcare-agent --timeout=60s
 ----
 
-== Exercise 2: Concurrent Load
-
-Fire 5 concurrent pipeline requests and compare latency to your baseline:
+Run the same request:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-echo "Starting 5 concurrent requests..."
-for i in 1 2 3 4 5; do
-  (time curl -s -X POST {healthcare_url}/api/v1/pipeline \
-    -H "Content-Type: application/json" \
-    -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
-    | jq -r '"Request '$i': \(.total_ms)ms"') &
-done
-wait
-echo "All done."
-----
-
-Check pod resource usage:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc adm top pods -l app=healthcare-agent 2>/dev/null || echo "Metrics server not available -- check pod status with: oc get pods -l app=healthcare-agent"
-----
-
-Restore to 2 replicas:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc scale deploy healthcare-agent --replicas=2
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+  | jq '\{total_ms}'
 ----
 
 [sidebar]
 ****
 *Record:*
 
-* Single request latency (from baseline): ___ ms
-* Average latency under 5 concurrent: ___ ms
-* Degradation: ___x slower
-* Where is the bottleneck? (agent pods or model serving?) ___
+* Single request at 1 replica: ___ ms
+* Single request at 3 replicas: ___ ms
+* Did more replicas help a single request? ___
 ****
 
-== Exercise 3: Build Your Cost Model
+== Exercise 2: Concurrency Sweep
 
-Using your measurements, calculate the cost for 1,000,000 records/month.
+Keep 3 replicas running. Fire 1, 5, 10, and 20 concurrent requests and measure wall-clock time and per-request average:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for concurrent in 1 5 10 20; do
+  echo "=== $concurrent concurrent ==="
+  start=$(date +%s%N)
+  for i in $(seq 1 $concurrent); do
+    curl -s -X POST {healthcare_url}/api/v1/pipeline \
+      -H "Content-Type: application/json" \
+      -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+      -o /dev/null &
+  done
+  wait
+  end=$(date +%s%N)
+  total_ms=$(( (end - start) / 1000000 ))
+  avg_ms=$(( total_ms / concurrent ))
+  echo "  Wall clock: $\{total_ms}ms  |  Avg per request: $\{avg_ms}ms"
+  echo
+done
+----
+
+Check pod resource usage during or after the sweep:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc adm top pods -l app=healthcare-agent 2>/dev/null || echo "Metrics server not available -- check pod status with: oc get pods -l app=healthcare-agent -o wide"
+----
+
+[sidebar]
+****
+*Record your latency curve:*
+
+[cols="1,1,1",options="header"]
+|===
+| Concurrent | Wall Clock (ms) | Avg Per Request (ms)
+| 1 | ___ | ___
+| 5 | ___ | ___
+| 10 | ___ | ___
+| 20 | ___ | ___
+|===
+****
+
+== Exercise 3: Find the Saturation Point
+
+Your saturation point is the concurrency level where per-request latency exceeds *2x your single-request baseline*.
+
+[sidebar]
+****
+*Calculate:*
+
+* Single-request baseline (1 concurrent): ___ ms
+* 2x threshold: ___ ms
+* Saturation point (concurrency where avg exceeds 2x): ___ concurrent
+* At saturation, throughput = concurrent / (wall_clock_ms / 1000) = ___ requests/second
+* Requests per hour at saturation: ___ (× 3600)
+****
+
+Now scale back to 1 replica and re-run the sweep at 1 and 5 concurrent:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc scale deploy healthcare-agent --replicas=1
+oc rollout status deploy healthcare-agent --timeout=60s
+for concurrent in 1 5; do
+  echo "=== $concurrent concurrent (1 replica) ==="
+  start=$(date +%s%N)
+  for i in $(seq 1 $concurrent); do
+    curl -s -X POST {healthcare_url}/api/v1/pipeline \
+      -H "Content-Type: application/json" \
+      -d '{"text": "Patient with hypertension on Lisinopril 10mg.", "skip_cache": true}' \
+      -o /dev/null &
+  done
+  wait
+  end=$(date +%s%N)
+  total_ms=$(( (end - start) / 1000000 ))
+  avg_ms=$(( total_ms / concurrent ))
+  echo "  Wall clock: $\{total_ms}ms  |  Avg per request: $\{avg_ms}ms"
+done
+----
+
+[sidebar]
+****
+*Compare saturation:*
+
+* Saturation point at 1 replica: ___ concurrent
+* Saturation point at 3 replicas: ___ concurrent
+* Did 3x replicas give 3x throughput? ___
+* Where is the bottleneck -- agent pods or model serving (MAAS)? ___
+****
+
+Restore to 2 replicas:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc scale deploy healthcare-agent --replicas=2
+oc rollout status deploy healthcare-agent --timeout=60s
+----
+
+== Exercise 4: Build Your Cost Model
+
+Using your measured numbers, calculate the cost for 1,000,000 records/month.
 
 [sidebar]
 ****
@@ -86,22 +184,19 @@ Using your measurements, calculate the cost for 1,000,000 records/month.
 | Xeon 6 CPU (RHDP MAAS) | $0 incremental | Hardware is owned
 | Cloud API (e.g. $0.15/M input + $0.60/M output tokens) | $___ | Estimate: ~1500 tokens/record × 1M records
 | GPU-only (all tasks on Gaudi) | $___ | Your GPU % × estimated GPU cost
-| *Your hybrid (CPU + GPU routing)* | *$___* | CPU % at $0 + GPU % at cost
+| *Your hybrid stack (CPU + GPU routing)* | *$___* | CPU % at $0 + GPU % at cost
 |===
 
-*Savings vs all-GPU: $___/month*
-
-*Savings vs cloud API: $___/month*
+*Annual savings vs cloud API: $___*
 ****
 
-== What You've Built
+== What's Next?
 
-You now have a decision framework with your own measured data:
+[sidebar]
+****
+*Choose your next step:*
 
-. *Model assignment* -- which model for which task (Module 3)
-. *Optimization stack* -- which techniques apply to your workload (Module 4)
-. *Routing policy* -- which tasks stay on CPU, which go to GPU (Module 5)
-. *Cost model* -- what this costs at scale vs alternatives (this module)
-
-[.next-nav]
-xref:99-conclusion.adoc[Next: Your Decision Framework →]
+* Want to customize the routing config? → xref:build-routing-config.adoc[Build: Custom Routing Config]
+* Want to stress test with mixed workloads? → xref:build-load-harness.adoc[Build: Load Test Harness]
+* Ready to deploy everything? → xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

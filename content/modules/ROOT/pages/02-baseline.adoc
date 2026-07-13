@@ -1,9 +1,9 @@
-= Module 2: Baseline
-:navtitle: Baseline
+= Module 2: Baseline & Choose Your Path
+:navtitle: Baseline & Choose Your Path
 
 == Objective
 
-Measure the default latency for every task type with the default model assignments. These are your baseline numbers -- every optimization you apply later will be compared against them.
+Measure the default latency for every task type with the default model assignments. These are your baseline numbers -- every optimization you apply later will be compared against them. At the end, you'll choose your path through the rest of the lab.
 
 == Exercise 1: Healthcare Pipeline
 
@@ -68,14 +68,17 @@ curl -s -X POST {finserv_url}/api/v1/score-transaction \
 
 == Exercise 3: Benchmark Default Models
 
-Use the benchmark endpoint to compare the default CPU models on classification:
+Run classification 3 times and take the median (shared infrastructure means variance):
 
 [source,bash,role="execute",subs=attributes+]
 ----
-curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
-  -H "Content-Type: application/json" \
-  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-2b-cpu", "qwen25-3b-cpu", "phi3-mini-cpu"]}' \
-  | jq '{task, results: [.results[] | {model, latency_ms, output: .output[:40]}], fastest: .fastest.model}'
+for run in 1 2 3; do
+  echo "--- Run $run ---"
+  curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+    -H "Content-Type: application/json" \
+    -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-2b-cpu", "qwen25-3b-cpu", "phi3-mini-cpu"]}' \
+    | jq '[.results[] | {model, latency_ms}]'
+done
 ----
 
 Now the same models on NER (a harder task):
@@ -90,29 +93,54 @@ curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
 
 [sidebar]
 ****
-*Record your baseline:*
+*Record your baseline (use median from 3 classification runs):*
 
-[cols="2,1,1,1",options="header"]
+[cols="2,1,1",options="header"]
 |===
-| Model | Classify (ms) | NER (ms) | Fastest Task
-| granite-2b-cpu | ___ | ___ | ___
-| qwen25-3b-cpu | ___ | ___ | ___
-| phi3-mini-cpu | ___ | ___ | ___
+| Model | Classify (ms) | NER (ms)
+| granite-2b-cpu | ___ | ___
+| qwen25-3b-cpu | ___ | ___
+| phi3-mini-cpu | ___ | ___
 |===
 
 *Does the fastest model change between tasks?* ___
 ****
 
-== Exercise 4: Check Aggregate Stats
+== Exercise 4: Find Your Slowest Step
 
-Query the inference statistics to see how the system tracks performance:
+Query the audit trail to find which pipeline step is your bottleneck. Fill in the task_type for your slowest step from Exercise 1:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,subs=attributes+]
 ----
-curl -s {healthcare_url}/api/v1/stats | jq .
+oc exec deploy/postgres -- psql -U triforce -d triforce -c \
+  "SELECT model, task_type, COUNT(*) as calls,
+          ROUND(AVG(latency_ms)) as avg_ms, MAX(latency_ms) as max_ms
+   FROM inference_log
+   WHERE task_type = 'YOUR_SLOWEST_STEP'
+   GROUP BY model, task_type
+   ORDER BY avg_ms DESC;"
 ----
 
-This is the audit trail in PostgreSQL -- every inference call is logged with model, latency, and accelerator. You will query this directly in a later module.
+Replace `YOUR_SLOWEST_STEP` with the task type that had the highest latency in your pipeline run (e.g. `summarize`, `classify`, `extract_entities`).
 
-[.next-nav]
-xref:03-right-size.adoc[Next: Module 3 — Right-Size the Model →]
+== Exercise 5: Choose Your Path
+
+Look at your baseline numbers. Where is the biggest opportunity?
+
+[sidebar]
+****
+*Choose 2-3 paths based on what you measured:*
+
+[cols="2,2,1",options="header"]
+|===
+| If your bottleneck is... | Start with... | Time
+| Classification uses a 3B model but might work with 2B | xref:03-right-size.adoc[Path A: Right-Size Your Models] | ~20 min
+| Pipeline spends time on steps it could skip (e.g. interaction check with 0 results) | xref:04-engineer-down.adoc[Path B: Engineer Down for CPU] | ~20 min
+| Summarization is slow and might benefit from GPU | xref:05-route-and-split.adoc[Path C: Route & Split Traffic] | ~20 min
+| Single request latency is acceptable but you need throughput | xref:06-scale-cost.adoc[Path D: Scale & Cost] | ~20 min
+|===
+
+*Not sure?* Start with xref:03-right-size.adoc[Path A] -- model selection is the single biggest lever.
+
+*My path:* ___ → ___ → ___
+****

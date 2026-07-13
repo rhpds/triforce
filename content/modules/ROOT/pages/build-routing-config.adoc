@@ -1,0 +1,304 @@
+= Build: Custom Routing Config
+:navtitle: Build: Routing Config
+
+*Time: ~20 minutes* · *Terminal*
+
+== What You'll Build
+
+The semantic router classifies every request into a complexity tier and sends it to the right model -- all driven by a YAML ConfigMap. No code changes required.
+
+You will add a 4th route to the router for high-stakes clinical decisions, test it with real traffic, and tune the scoring weights. By the end, the router will classify text into 4 tiers instead of 3, and you will understand how anchor sentences and scoring weights control routing accuracy.
+
+== Exercise 1: Read the Current Config
+
+Inspect the live ConfigMap that drives the semantic router:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' | head -40
+----
+
+Now view the full route definitions:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' | grep -A 3 'name:'
+----
+
+[sidebar]
+****
+*Record the current state:*
+
+[cols="1,1,1",options="header"]
+|===
+| Route | Model | Anchor Count
+| simple | ___ | ___
+| medium | ___ | ___
+| complex | ___ | ___
+|===
+****
+
+== Exercise 2: Test Current Classification
+
+Back up the current config, then send 6 texts of varying complexity and record which route each hits:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' > /tmp/routes-original.yaml
+echo "Backup saved to /tmp/routes-original.yaml"
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+for text in \
+  "Classify this document as a lab report or discharge summary" \
+  "What type of record is this" \
+  "Summarize the patient history and list all current medications" \
+  "Extract the key findings from this radiology report" \
+  "Analyze the drug interactions between Warfarin Aspirin and Metformin considering the patients renal function and provide a differential diagnosis" \
+  "Evaluate the cardiovascular risk factors and recommend a treatment plan considering comorbidities and contraindications"; do
+  echo "=== ${text:0:60}..."
+  curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$text\"}" \
+    | jq '{route, model, confidence}'
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+[cols="3,1,1",options="header"]
+|===
+| Text (first 60 chars) | Route | Confidence
+| "Classify this document as a lab report..." | ___ | ___
+| "What type of record is this" | ___ | ___
+| "Summarize the patient history..." | ___ | ___
+| "Extract the key findings..." | ___ | ___
+| "Analyze the drug interactions..." | ___ | ___
+| "Evaluate the cardiovascular risk..." | ___ | ___
+|===
+
+Do the routes match the complexity you would expect? Any surprises?
+****
+
+== Exercise 3: Add a 4th Route
+
+You will add a `critical` route for high-stakes decisions that require the largest CPU model -- situations where the cost of a wrong answer outweighs the cost of extra inference time.
+
+Export the current config for editing:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' > /tmp/routes.yaml
+----
+
+Edit the file to add a 4th route. Open it in your terminal editor, or use the template below as a guide. Add this block after the `complex` route in the `routes:` list:
+
+[source,yaml,subs=attributes+]
+----
+  - name: critical
+    model: granite-3-2-8b-instruct-cpu
+    params: "8B"
+    description: "High-stakes clinical decisions requiring maximum reasoning depth"
+    anchors:
+      - "Evaluate whether this patient should be taken off life support given their advance directive and current prognosis"
+      - "Determine if this combination of medications poses an immediate life-threatening interaction"
+      # Add at least 2 more anchors -- think about what makes a request "critical"
+      # Hint: life-or-death decisions, legal liability, irreversible actions
+      - "YOUR ANCHOR HERE"
+      - "YOUR ANCHOR HERE"
+    keywords:
+      - "life-threatening"
+      - "immediate danger"
+      # Add at least 2 more keywords
+      - "YOUR KEYWORD HERE"
+      - "YOUR KEYWORD HERE"
+----
+
+Write your own anchors and keywords. Good anchors are full sentences that represent the kind of request this route should catch. Good keywords are terms that appear in critical requests but not in simple or medium ones.
+
+TIP: The router uses embedding similarity against anchors as the primary signal. Keywords are a fallback when embedding confidence is low. Write anchors that are semantically distinct from the existing routes.
+
+Once you have edited `/tmp/routes.yaml`, apply it:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc create configmap semantic-router-config \
+  --from-file=routes.yaml=/tmp/routes.yaml \
+  --dry-run=client -o yaml | oc apply -f -
+----
+
+Restart the router to pick up the new config:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout restart deploy/semantic-router && \
+oc rollout status deploy/semantic-router --timeout=120s
+----
+
+NOTE: The router takes up to 2 minutes to restart. It loads the `all-MiniLM-L6-v2` embedding model into memory and precomputes embeddings for all anchor sentences on startup.
+
+== Exercise 4: Test Your New Route
+
+Re-run the original 6 texts plus 2 new texts that should hit the `critical` route:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for text in \
+  "Classify this document as a lab report or discharge summary" \
+  "What type of record is this" \
+  "Summarize the patient history and list all current medications" \
+  "Extract the key findings from this radiology report" \
+  "Analyze the drug interactions between Warfarin Aspirin and Metformin considering the patients renal function and provide a differential diagnosis" \
+  "Evaluate the cardiovascular risk factors and recommend a treatment plan considering comorbidities and contraindications" \
+  "Determine if this patient with acute renal failure should continue Metformin given the immediate risk of lactic acidosis and pending dialysis decision" \
+  "Assess whether the benefits of emergency thrombolytic therapy outweigh the bleeding risk in this 85-year-old patient with a history of hemorrhagic stroke"; do
+  echo "=== ${text:0:60}..."
+  curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$text\"}" \
+    | jq '{route, model, confidence}'
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+[cols="3,1,1,1",options="header"]
+|===
+| Text (first 60 chars) | Route | Model | Confidence
+
+| "Classify this document..." | ___ | ___ | ___
+| "What type of record..." | ___ | ___ | ___
+| "Summarize the patient history..." | ___ | ___ | ___
+| "Extract the key findings..." | ___ | ___ | ___
+| "Analyze the drug interactions..." | ___ | ___ | ___
+| "Evaluate the cardiovascular risk..." | ___ | ___ | ___
+| "Determine if this patient with acute renal failure..." | ___ | ___ | ___
+| "Assess whether the benefits of emergency..." | ___ | ___ | ___
+|===
+
+*Analysis:*
+
+* Did the 2 new texts hit your `critical` route? ___
+* Did any of the original 6 texts change routes? Which ones? ___
+* If a text moved from `complex` to `critical`, is that the right call? ___
+* If your critical texts landed in `complex` instead, what anchors would you add to fix it? ___
+****
+
+== Exercise 5: Tune Scoring Weights
+
+The scoring section controls how the router combines embedding signals:
+
+* `embedding_max: 0.7` -- weight given to the highest single-anchor similarity
+* `embedding_avg: 0.3` -- weight given to average similarity across all anchors
+
+Increasing `embedding_max` makes the router more decisive -- a single strong anchor match dominates. Increasing `embedding_avg` makes it more conservative -- the text must be broadly similar to many anchors.
+
+Edit the scoring weights in `/tmp/routes.yaml`:
+
+[source,yaml,subs=attributes+]
+----
+scoring:
+  weights:
+    embedding_max: 0.9
+    embedding_avg: 0.1
+----
+
+Apply and restart:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc create configmap semantic-router-config \
+  --from-file=routes.yaml=/tmp/routes.yaml \
+  --dry-run=client -o yaml | oc apply -f -
+oc rollout restart deploy/semantic-router && \
+oc rollout status deploy/semantic-router --timeout=120s
+----
+
+Re-run the 8 test texts:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for text in \
+  "Classify this document as a lab report or discharge summary" \
+  "What type of record is this" \
+  "Summarize the patient history and list all current medications" \
+  "Extract the key findings from this radiology report" \
+  "Analyze the drug interactions between Warfarin Aspirin and Metformin considering the patients renal function and provide a differential diagnosis" \
+  "Evaluate the cardiovascular risk factors and recommend a treatment plan considering comorbidities and contraindications" \
+  "Determine if this patient with acute renal failure should continue Metformin given the immediate risk of lactic acidosis and pending dialysis decision" \
+  "Assess whether the benefits of emergency thrombolytic therapy outweigh the bleeding risk in this 85-year-old patient with a history of hemorrhagic stroke"; do
+  echo "=== ${text:0:60}..."
+  curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$text\"}" \
+    | jq '{route, model, confidence}'
+done
+----
+
+[sidebar]
+****
+*Compare results:*
+
+[cols="3,1,1",options="header"]
+|===
+| Text (first 60 chars) | Route (0.7/0.3) | Route (0.9/0.1)
+| "Classify this document..." | ___ | ___
+| "What type of record..." | ___ | ___
+| "Summarize the patient history..." | ___ | ___
+| "Extract the key findings..." | ___ | ___
+| "Analyze the drug interactions..." | ___ | ___
+| "Evaluate the cardiovascular risk..." | ___ | ___
+| "Determine if this patient..." | ___ | ___
+| "Assess whether the benefits..." | ___ | ___
+|===
+
+* How many texts changed routes? ___
+* Did accuracy improve or degrade? ___
+* Which weight ratio would you use in production? ___
+****
+
+== Exercise 6: Restore Original Config
+
+Restore the original 3-route config so the lab environment is clean for others:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc create configmap semantic-router-config \
+  --from-file=routes.yaml=/tmp/routes-original.yaml \
+  --dry-run=client -o yaml | oc apply -f -
+oc rollout restart deploy/semantic-router && \
+oc rollout status deploy/semantic-router --timeout=120s
+----
+
+Verify the restore:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' | grep 'name:'
+----
+
+You should see 3 routes: `simple`, `medium`, `complex`. The `critical` route is gone.
+
+== What You Learned
+
+* The semantic router is fully data-driven -- adding a route is a YAML change, not a code change
+* Anchor sentences are the primary signal -- the router embeds them and compares via cosine similarity
+* Scoring weights control how decisive vs conservative the router is
+* A 4th tier lets you reserve expensive models for high-stakes decisions while keeping simple requests on cheap, fast models
+* Configuration changes require a pod restart because embeddings are precomputed at startup
+
+== What's Next
+
+[sidebar]
+****
+*Choose your next path:*
+
+* Want to split traffic between CPU and GPU? -> xref:05-route-and-split.adoc[Path C: Route & Split Traffic]
+* Need throughput and scaling? -> xref:06-scale-cost.adoc[Path D: Scale & Cost]
+* Ready to deploy everything? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

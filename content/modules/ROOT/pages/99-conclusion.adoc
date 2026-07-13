@@ -7,7 +7,7 @@ Over the last 2 hours, you measured, compared, and optimized AI inference on Int
 
 [sidebar]
 ****
-*1. Model Assignment (Module 3)*
+*1. Model Assignment (Path A)*
 
 [cols="2,2,1",options="header"]
 |===
@@ -18,7 +18,7 @@ Over the last 2 hours, you measured, compared, and optimized AI inference on Int
 | Compliance / Fraud | ___ | ___ ms
 |===
 
-*2. Optimization Stack (Module 4)*
+*2. Optimization Stack (Path B)*
 
 [cols="2,1,1",options="header"]
 |===
@@ -29,19 +29,23 @@ Over the last 2 hours, you measured, compared, and optimized AI inference on Int
 | MCP tool offload | ___x faster | ___
 |===
 
-*3. Routing Policy (Module 5)*
+*3. Routing Policy (Path C)*
 
 * Tasks on CPU ($0): ___
 * Tasks on GPU (justified): ___
 * Your CPU percentage: ___%
 
-*4. Cost at Scale (Module 6)*
+*4. Cost at Scale (Path D)*
 
 * Your optimized per-record latency: ___ ms
 * 1M records/month on CPU: $___
 * 1M records/month on cloud API: $___
 * Annual savings: $___
 ****
+
+== What You Deployed
+
+If you completed the xref:90-capstone.adoc[Capstone], your optimized stack is running right now with your measured-optimal configuration. The Helm values file at `/tmp/my-values.yaml` is your artifact -- it encodes every decision you made.
 
 == The Takeaway
 

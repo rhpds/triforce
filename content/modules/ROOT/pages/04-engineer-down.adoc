@@ -1,5 +1,5 @@
-= Module 4: Engineer Down for CPU
-:navtitle: Engineer Down for CPU
+= Path B: Engineer Down for CPU
+:navtitle: Path B: Engineer Down
 
 == Objective
 
@@ -119,6 +119,43 @@ curl -s -X POST {semantic_router_url}/classify \
 * Routing overhead vs inference time: ___ ms vs ___ ms
 ****
 
+=== Misrouting: When the Router Gets It Wrong
+
+Now send 5 texts of varying complexity and record the route for each. Some of these are trivially simple, some are moderately complex, and one is deliberately dense:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for text in \
+  "What type of document is this?" \
+  "Patient on Metformin." \
+  "Evaluate the interaction profile of concurrent administration of Warfarin and Aspirin in a patient with compromised hepatic function and recent mechanical valve replacement" \
+  "A patient has a headache." \
+  "Summarize this note briefly."; do
+  echo "=== Text: ${text:0:50}..."
+  curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$text\"}" \
+    | jq '{route: .route, model: .model, confidence: .confidence}'
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+[cols="3,1,1,1",options="header"]
+|===
+| Text (first 50 chars) | Route | Model | Confidence
+| "What type of document is this?" | ___ | ___ | ___
+| "Patient on Metformin." | ___ | ___ | ___
+| "Evaluate the interaction profile..." | ___ | ___ | ___
+| "A patient has a headache." | ___ | ___ | ___
+| "Summarize this note briefly." | ___ | ___ | ___
+|===
+
+Did any text get routed to a model that seems too big or too small for it? That is the cost of classification error. A 1B model handling complex pharmacology will hallucinate. A 14B model answering "What type of document is this?" wastes GPU tokens at $0.0X/request.
+****
+
 == Exercise 4: MCP Tools vs LLM
 
 Some questions don't need an LLM at all. The MCP Gateway provides 8 tools that answer with deterministic database lookups.
@@ -152,6 +189,101 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
 * Speedup factor: ___x
 ****
 
+=== Build Your Own Tool Call
+
+List all available tools on the MCP Gateway:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
+  | jq '.result.tools[] | {name, description}'
+----
+
+Now pick a tool from that list that you have not called yet. Write the JSON-RPC call yourself using this template -- fill in the tool name and arguments based on the tool's description:
+
+[source,bash,subs=attributes+]
+----
+curl -s -X POST {mcp_gateway_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "<TOOL_NAME_HERE>",
+      "arguments": {
+        "<ARG_NAME>": "<ARG_VALUE>"
+      }
+    }
+  }' | jq .
+----
+
+[sidebar]
+****
+*Record:*
+
+* Tool you chose: ___
+* Arguments you passed: ___
+* Did you get a valid result? Yes / No
+* How many ms did the tool call take vs what an LLM would need? ___
+****
+
+== Exercise 5: Compound Savings
+
+Optimizations compound. Caching alone saves milliseconds -- but caching plus conditional skipping plus routing adds up fast. Measure the difference end-to-end.
+
+First, reset the cache so the cold run is truly cold:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/adaptive/reset | jq .
+----
+
+Now run 10 pipeline requests cold (no cache), then 10 warm (cache enabled), and compare total wall-clock time:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Cold (no cache) ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "skip_cache": true}' -o /dev/null
+done
+cold_ms=$(( ($(date +%s%N) - start) / 1000000 ))
+
+echo "=== Warm (cache enabled) ==="
+start=$(date +%s%N)
+for i in $(seq 1 10); do
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg."}' -o /dev/null
+done
+warm_ms=$(( ($(date +%s%N) - start) / 1000000 ))
+echo "Cold: $\{cold_ms}ms  |  Warm: $\{warm_ms}ms  |  Savings: $(( cold_ms - warm_ms ))ms"
+----
+
+[sidebar]
+****
+*Record:*
+
+* Cold total (10 requests): ___ ms
+* Warm total (10 requests): ___ ms
+* Savings per request: ___ ms
+* Savings percentage: ___%
+
+*Scale it up:*
+
+At 10,000 records/day with ___% cache hit rate:
+
+* Daily cold compute: ___ seconds
+* Daily warm compute: ___ seconds
+* Daily savings: ___ seconds = ___ minutes
+* Monthly savings (30 days): ___ hours
+****
+
 == Your Optimization Stack
 
 [sidebar]
@@ -174,5 +306,14 @@ Consider a workload that processes *10,000 records/day*:
 *At 10,000 records/day, that is ___ minutes of saved compute per day.*
 ****
 
-[.next-nav]
-xref:05-cpu-vs-gpu.adoc[Next: Module 5 — When CPU Isn't Enough →]
+== What's Next?
+
+[sidebar]
+****
+*Choose your next path:*
+
+* Need to split traffic between CPU and GPU? -> xref:05-route-and-split.adoc[Path C: Route & Split Traffic]
+* Need throughput and scaling? -> xref:06-scale-cost.adoc[Path D: Scale & Cost]
+* Ready to build? -> xref:build-routing-config.adoc[Build: Custom Routing Config] (customize the router you just tested)
+* Done with paths? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

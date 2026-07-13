@@ -5,15 +5,15 @@
 
 In this lab you will measure, compare, and optimize AI inference workloads running on Intel Xeon 6 CPUs. By the end, you will have a decision framework: given a workload, which model goes on which hardware, and which optimizations make CPU inference fast enough that GPU becomes optional.
 
-You will not watch a demo. You will run the experiments yourself, record the numbers, and make the calls.
+You will not watch a demo. You will run the experiments, configure the system, and make the calls yourself.
 
 == Learning Objectives
 
 * Measure inference latency across multiple CPU models on real-world tasks
-* Right-size model selection per task -- find the smallest model that produces acceptable output
-* Apply optimization techniques (caching, conditional pipeline, semantic routing, tool offloading) and measure their impact
+* Right-size model selection per task and apply your choices to the running system
+* Configure optimization techniques (caching, routing, fusion, speculative decoding) and measure their impact
 * Decide where CPU is sufficient and where GPU acceleration is worth the cost
-* Build a cost model for your workload at scale
+* Deploy your optimized stack and compare against baseline
 
 == What's Running
 
@@ -34,25 +34,50 @@ Your environment has 10 pods in a single OpenShift namespace:
 
 All inference runs remotely on Intel Xeon 6 via MAAS/LiteLLM. No GPU or model-serving pods are in your namespace -- the models are shared infrastructure.
 
-== Lab Structure
+== Lab Structure (~2 hours)
 
-*Core path* (~75 minutes, do these in order):
+This lab is *choose your own adventure*. Everyone starts with Orient and Baseline to get measurements. Then you pick your path based on where you see the biggest opportunity.
 
-. *Orient* -- Log in, verify services, discover the model fleet
-. *Baseline* -- Measure default latency across all tasks
-. *Right-Size the Model* -- Swap models per task, find the optimal assignment
-. *Engineer Down for CPU* -- Apply optimizations and measure their impact
-. *When CPU Isn't Enough* -- Benchmark CPU vs GPU and draw the line
-. *Scale and Cost* -- Load test and build a cost model
+=== Required Start (~25 minutes)
 
-*Go Deeper* (~15 min each, pick any that interest you):
+[cols="1,3",options="header"]
+|===
+| Module | What You'll Do
+| xref:01-orient.adoc[Orient] | Log in, verify services, discover the model fleet, run your first inference
+| xref:02-baseline.adoc[Baseline & Choose Your Path] | Measure default latency across all tasks, then pick your path
+|===
 
-* MCP Tools Deep Dive
-* Multi-Model Fusion
-* Speculative Decoding
-* Load Testing
-* A2A Agent Discovery
-* Audit Trail Queries
+=== Choose Your Path (~35-50 minutes, pick 2-3)
+
+After Baseline, you'll have numbers. Use them to decide where to focus:
+
+[cols="2,2,1",options="header"]
+|===
+| If your bottleneck is... | Start with... | Time
+| Models are too big for the task | xref:03-right-size.adoc[Path A: Right-Size Your Models] | ~20 min
+| Pipeline runs unnecessary steps | xref:04-engineer-down.adoc[Path B: Engineer Down for CPU] | ~20 min
+| Some tasks need GPU-class speed | xref:05-route-and-split.adoc[Path C: Route & Split Traffic] | ~20 min
+| Single request is fine, need throughput | xref:06-scale-cost.adoc[Path D: Scale & Cost] | ~20 min
+|===
+
+Not sure? Start with *Path A* -- model selection is the single biggest lever.
+
+=== Build (~15-35 minutes, pick 1-2)
+
+These go beyond measurement. You will modify the running system -- change configs, tune parameters, and measure the effect.
+
+[cols="2,2,1",options="header"]
+|===
+| Exercise | What You'll Build | Time
+| xref:build-routing-config.adoc[Custom Routing Config] | Add a 4th route to the semantic router, tune scoring weights | ~20 min
+| xref:build-fusion-panel.adoc[Fusion Panel Tuning] | Swap panel and judge models, compare quality vs latency | ~20 min
+| xref:build-mcp-tool.adoc[MCP Tool Deep Dive] | Explore all 8 tools at scale, design a tool routing strategy | ~18 min
+| xref:build-load-harness.adoc[Load Test Harness] | Write a load script, tune speculative decoding, query the audit trail | ~20 min
+|===
+
+=== Capstone (~25 minutes)
+
+xref:90-capstone.adoc[Deploy Your Optimized Stack] -- Take every decision you've made, write a Helm values override, deploy it, and validate against your baseline numbers. End with a recommendation you'd present to a CTO.
 
 [.next-nav]
 xref:01-orient.adoc[Start: Module 1 — Orient →]

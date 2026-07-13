@@ -1,0 +1,276 @@
+= Path C: Route & Split Traffic
+:navtitle: Path C: Route & Split
+
+== Objective
+
+Benchmark CPU vs GPU on different tasks, test how the semantic router classifies request complexity, and configure where the routing line is drawn.
+
+== Exercise 1: CPU vs GPU Benchmark
+
+Run classification on CPU and GPU to measure the hardware gap. Start with two CPU models:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["qwen25-3b-cpu", "granite-3-2-8b-instruct-cpu"]}' \
+  | jq '{task, results: [.results[] | {model, hardware, latency_ms, output: .output[:30]}]}'
+----
+
+Now try the same task on GPU (if Gaudi accelerators are available on this cluster):
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-3-2-8b-instruct"]}' \
+  | jq '{task, results: [.results[] | {model, hardware, latency_ms, output: .output[:30]}]}'
+----
+
+Now run summarization -- a generation-heavy task where the hardware gap widens:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "summarization", "text": "72-year-old male with Type 2 Diabetes, hypertension, CKD stage 3. Admitted for STEMI, underwent PCI with stent to RCA. On dual antiplatelet, Atorvastatin 80mg, Metformin 500mg, Lisinopril 10mg. EF 45% with inferior hypokinesis. Renal function stable. Monitor for bleeding risk.", "models": ["qwen25-3b-cpu", "granite-3-2-8b-instruct-cpu"]}' \
+  | jq '{task, results: [.results[] | {model, hardware, latency_ms, output_tokens}]}'
+----
+
+And summarization on GPU:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
+  -H "Content-Type: application/json" \
+  -d '{"task": "summarization", "text": "72-year-old male with Type 2 Diabetes, hypertension, CKD stage 3. Admitted for STEMI, underwent PCI with stent to RCA. On dual antiplatelet, Atorvastatin 80mg, Metformin 500mg, Lisinopril 10mg. EF 45% with inferior hypokinesis. Renal function stable. Monitor for bleeding risk.", "models": ["granite-3-2-8b-instruct"]}' \
+  | jq '{task, results: [.results[] | {model, hardware, latency_ms, output_tokens}]}'
+----
+
+NOTE: If GPU models return errors, Gaudi accelerators are not available on this cluster. Use these reference numbers for comparison:
+
+[cols="2,1,1,1",options="header"]
+|===
+| Task | CPU (8B) | GPU (8B) | Speedup
+| Classification | ~800ms | ~200ms | ~4x
+| Summarization | ~4000ms | ~900ms | ~4.4x
+| NER | ~1200ms | ~350ms | ~3.4x
+|===
+
+[sidebar]
+****
+*Record your measurements:*
+
+[cols="2,1,1,1",options="header"]
+|===
+| Task | CPU Latency | GPU Latency | Speedup
+| Classification | ___ ms | ___ ms | ___x
+| Summarization | ___ ms | ___ ms | ___x
+|===
+
+*Does the speedup justify the cost difference for classification?* ___
+
+*What about for summarization?* ___
+****
+
+== Exercise 2: Test the Router
+
+The semantic router classifies request complexity using embeddings and decides which model and hardware should handle the request. Check the current routing configuration:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {semantic_router_url}/routes | jq .
+----
+
+Now send 5 texts of varying complexity and record where each one routes:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "--- Text 1: Simple ---"
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "What type of document is this?"}' \
+  | jq '{route, model, confidence}'
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "--- Text 2: Short clinical ---"
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient diagnosed with hypertension. Started on Lisinopril 10mg daily."}' \
+  | jq '{route, model, confidence}'
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "--- Text 3: Medium clinical ---"
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg daily."}' \
+  | jq '{route, model, confidence}'
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "--- Text 4: Multi-drug interaction ---"
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient on Warfarin 5mg, Aspirin 81mg, Clopidogrel 75mg, and Metformin 500mg. Recent STEMI with PCI to RCA. CKD stage 3 with eGFR 42. Monitor INR closely and adjust anticoagulation therapy."}' \
+  | jq '{route, model, confidence}'
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "--- Text 5: Complex reasoning ---"
+curl -s -X POST {semantic_router_url}/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Analyze the drug interactions between Warfarin and dual antiplatelet therapy considering the patients renal function with eGFR 42 and recent coronary stenting. Provide a risk-benefit assessment of continuing triple therapy versus de-escalating to dual therapy given the bleeding risk profile and stent thrombosis risk within the first 30 days post-PCI."}' \
+  | jq '{route, model, confidence}'
+----
+
+[sidebar]
+****
+*Record the routing decisions:*
+
+[cols="1,3,1,1",options="header"]
+|===
+| Text | Description | Route | Model
+| 1 | Simple question | ___ | ___
+| 2 | Short clinical | ___ | ___
+| 3 | Medium clinical | ___ | ___
+| 4 | Multi-drug interaction | ___ | ___
+| 5 | Complex reasoning | ___ | ___
+|===
+
+*Where does the router draw the line between simple and complex?* ___
+
+*Do you agree with the boundary?* ___
+****
+
+== Exercise 3: Configure the Routing Threshold
+
+The router's word count threshold determines when a request escalates from the simple route (small/CPU model) to the complex route (larger/GPU model). You are going to lower the threshold to make the router more aggressive about escalating.
+
+First, back up the current configuration:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' > /tmp/routes-backup.yaml
+----
+
+Check the current `word_count_thresholds.medium` value:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o jsonpath='{.data.routes\.yaml}' | grep -A2 word_count
+----
+
+Patch the threshold from 40 words to 25 words. This means more requests will be classified as complex:
+
+[source,bash,subs=attributes+]
+----
+oc get configmap semantic-router-config -o json \
+  | jq '.data["routes.yaml"] |= gsub("medium: 40"; "medium: 25")' \
+  | oc apply -f -
+----
+
+Restart the semantic router to pick up the new configuration:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout restart deploy/semantic-router
+oc rollout status deploy/semantic-router --timeout=120s
+----
+
+NOTE: The router takes ~2 minutes to restart because it loads an embedding model at startup. This is expected.
+
+Now re-test the same 5 texts and see if any moved to a different route:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for text in \
+  "What type of document is this?" \
+  "Patient diagnosed with hypertension. Started on Lisinopril 10mg daily." \
+  "72-year-old male with Type 2 Diabetes on Metformin 500mg and Lisinopril 10mg. Recent STEMI with PCI to RCA. Aspirin 81mg daily." \
+  "Patient on Warfarin 5mg, Aspirin 81mg, Clopidogrel 75mg, and Metformin 500mg. Recent STEMI with PCI to RCA. CKD stage 3 with eGFR 42. Monitor INR closely and adjust anticoagulation therapy." \
+  "Analyze the drug interactions between Warfarin and dual antiplatelet therapy considering the patients renal function with eGFR 42 and recent coronary stenting. Provide a risk-benefit assessment of continuing triple therapy versus de-escalating to dual therapy given the bleeding risk profile and stent thrombosis risk within the first 30 days post-PCI."; do
+  echo "--- $(echo "$text" | head -c 50)... ---"
+  curl -s -X POST {semantic_router_url}/classify \
+    -H "Content-Type: application/json" \
+    -d "{\"text\": \"$text\"}" \
+    | jq '{route, model, confidence}'
+done
+----
+
+[sidebar]
+****
+*Record the changes:*
+
+[cols="1,1,1",options="header"]
+|===
+| Text | Route Before (threshold=40) | Route After (threshold=25)
+| 1 | ___ | ___
+| 2 | ___ | ___
+| 3 | ___ | ___
+| 4 | ___ | ___
+| 5 | ___ | ___
+|===
+
+*Which texts changed routes?* ___
+
+*What is the trade-off of a lower threshold?* (More requests hit the bigger model -- higher quality but higher cost/latency.)
+****
+
+Now restore the original configuration:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap semantic-router-config -o json \
+  | jq '.data["routes.yaml"] |= gsub("medium: 25"; "medium: 40")' \
+  | oc apply -f -
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout restart deploy/semantic-router
+oc rollout status deploy/semantic-router --timeout=120s
+----
+
+== Exercise 4: Draw the CPU/GPU Line
+
+You have benchmark numbers and routing data. Now make the call: for each task in your workload, which hardware should handle it?
+
+[sidebar]
+****
+*Decision table -- fill in from your measurements:*
+
+[cols="2,1,1,1,1",options="header"]
+|===
+| Task | CPU Latency | GPU Latency | Speedup | Your Call: CPU or GPU?
+| Classification | ___ | ___ | ___x | ___
+| NER | ___ | ___ | ___x | ___
+| Summarization | ___ | ___ | ___x | ___
+| Compliance Reasoning | ___ | ___ | ___x | ___
+| Fraud Scoring | ___ | ___ | ___x | ___
+|===
+
+*What percentage of your workload stays on CPU?* ___% CPU / ___% GPU
+
+The semantic router automates this split -- simple tasks stay on free CPU inference, complex tasks escalate to GPU. But the threshold is yours to set. A lower threshold means more GPU usage (higher quality, higher cost). A higher threshold means more CPU usage (lower cost, potentially lower quality on complex tasks).
+
+*What threshold would you set for your workload?* ___ words
+
+*What is your estimated cost split?* CPU is $0/token, GPU is billed per token. If ___% of your traffic stays on CPU, your effective cost is ___% of the full GPU price.
+****
+
+== What's Next?
+
+[sidebar]
+****
+*Choose your next path:*
+
+* Want to test how this scales under load? -> xref:06-scale-cost.adoc[Path D: Scale & Cost]
+* Want to build a custom routing configuration? -> xref:build-routing-config.adoc[Build: Custom Routing Config]
+* Done with paths? -> xref:90-capstone.adoc[Capstone: Deploy Your Optimized Stack]
+****

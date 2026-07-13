@@ -74,7 +74,44 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
   | jq '{classification, entity_count: (.entities | length), total_ms}'
 ----
 
-You should see a classification, entity count, and total latency in milliseconds. This is your first data point -- you will collect many more in the next module.
+You should see a classification, entity count, and total latency in milliseconds.
+
+== Exercise 5: Your Own Note + Variance Check
+
+Write your own 1-2 sentence clinical note that mentions at least 2 medications. Run it through the pipeline:
+
+[source,bash,subs=attributes+]
+----
+curl -s -X POST {healthcare_url}/api/v1/pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"text": "YOUR CLINICAL NOTE HERE"}' \
+  | jq '{classification, entity_count: (.entities | length), total_ms}'
+----
+
+Now run the *same* request 3 times with caching disabled and record all 3 latencies:
+
+[source,bash,subs=attributes+]
+----
+for i in 1 2 3; do
+  echo "--- Run $i ---"
+  curl -s -X POST {healthcare_url}/api/v1/pipeline \
+    -H "Content-Type: application/json" \
+    -d '{"text": "YOUR SAME NOTE HERE", "skip_cache": true}' \
+    | jq '{run: '$i', total_ms}'
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+* Run 1: ___ ms
+* Run 2: ___ ms
+* Run 3: ___ ms
+* Range (max - min): ___ ms
+
+If your 3 runs vary by more than 20%, that is normal -- inference latency on shared infrastructure has variance. In Baseline, you will take medians to account for this.
+****
 
 [.next-nav]
-xref:02-baseline.adoc[Next: Module 2 — Baseline →]
+xref:02-baseline.adoc[Next: Module 2 — Baseline & Choose Your Path →]
