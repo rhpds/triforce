@@ -21,7 +21,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: edge-agent
-          image: quay.io/redhat-gpte/triforce-edge-agent:latest
+          image: {{ .Values.modules.edge.image | default "quay.io/redhat-gpte/triforce-edge-agent:latest" }}
           args:
             - --model
             - /models/ggml-model-i2_s.gguf
