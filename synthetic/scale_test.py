@@ -99,7 +99,7 @@ async def main():
 
     print("=" * 70)
     print("  TRIFORCE SCALE TEST")
-    print("  Red Hat (OpenShift) + IBM (Kagenti) + Intel (Xeon 6)")
+    print("  Red Hat (OpenShift) + Intel (Xeon 6)")
     print("=" * 70)
 
     async with httpx.AsyncClient() as client:

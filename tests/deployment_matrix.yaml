@@ -542,35 +542,3 @@ stages:
         points: 10
         required: false
 
-  stage_d10_govern:
-    description: "Kagenti agentic governance — Triforce Govern variant"
-    threshold: 80
-    criteria:
-      kagenti_crds_installed:
-        description: "AgentRuntime, AgentTask, AgentPolicy CRDs exist"
-        points: 15
-        required: true
-      spiffe_identity:
-        description: "Agents have SPIFFE identities assigned via Kagenti"
-        points: 15
-        required: true
-      agent_runtime_registered:
-        description: "Healthcare and FinServ agents registered as AgentRuntime CRs"
-        points: 15
-        required: true
-      a2a_via_kagenti:
-        description: "Agent-to-agent communication routed through Kagenti mesh"
-        points: 15
-        required: true
-      policy_enforcement:
-        description: "AgentPolicy blocks unauthorized model access"
-        points: 10
-        required: false
-      tracing_enabled:
-        description: "Kagenti provides distributed tracing across agent workflows"
-        points: 10
-        required: false
-      governance_dashboard:
-        description: "Kagenti dashboard shows agent registry, health, and policy status"
-        points: 10
-        required: false

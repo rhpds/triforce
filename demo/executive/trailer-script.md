@@ -8,13 +8,13 @@
 
 ## Scene 1: The Hook (0:00–0:10)
 
-**Screen:** Black → Triforce logo fades in (Power / Wisdom / Courage)
+**Screen:** Black → Triforce logo fades in (Power / Courage)
 **VO:** "What if 80 percent of your AI didn't need a GPU?"
 
 ## Scene 2: The Pillars (0:10–0:25)
 
-**Screen:** Three logos resolve below the Triforce: Intel → IBM → Red Hat
-**VO:** "Intel Xeon 6 for the inference. IBM Kagenti for the governance. Red Hat OpenShift for the platform. This is Triforce."
+**Screen:** Two logos resolve below the Triforce: Intel → Red Hat
+**VO:** "Intel Xeon 6 for the inference. Red Hat OpenShift for the platform. This is Triforce."
 
 ## Scene 3: The Race Begins — 10 Records (0:25–0:45)
 
@@ -38,7 +38,7 @@
 
 ## Scene 7: The Close (2:00–2:30)
 
-**Screen:** Dashboard — summary panel with three pillars and key numbers
-**VO:** "Power. Wisdom. Courage. Enterprise AI at scale. No GPU required. That's Triforce."
+**Screen:** Dashboard — summary panel with key numbers
+**VO:** "Power. Courage. Enterprise AI at scale. No GPU required. That's Triforce."
 
 **Screen:** URL + QR code → github.com/rhpds/triforce

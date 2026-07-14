@@ -57,27 +57,22 @@ That is not a pitch. You measured it.
 
 == What's Next
 
-Triforce tells three more stories:
+Two more lab variants explore different dimensions of this platform:
 
 [cols="1,2,2",options="header"]
 |===
 | Lab Variant | Question | Technology
 
-| *Triforce Secure*
+| *Secure*
 | Can I trust it with my data?
 | Intel TDX, Confidential Containers, hardware-encrypted inference
 
-| *Triforce Virt*
+| *Virt*
 | Can I run AI alongside my VMs?
 | OpenShift Virtualization, KubeVirt, VM + container coexistence
-
-| *Triforce Govern*
-| Can I govern agents at scale?
-| IBM Kagenti, SPIFFE identity, MCP Gateway, agent audit trails
 |===
 
 == Resources
 
-* https://github.com/rhpds/triforce[Triforce Repository]
+* https://github.com/rhpds/triforce[Source Repository]
 * https://maas-rhdp.apps.maas.redhatworkshops.io[RHDP MAAS Platform]
-* https://kagenti.github.io/.github/[Kagenti Documentation]

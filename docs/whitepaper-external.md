@@ -1,6 +1,6 @@
 # Triforce: Evidence-Backed Enterprise AI Inference on OpenShift and Intel Hardware
 
-**Red Hat + Intel + IBM Technical White Paper**
+**Red Hat + Intel Technical White Paper**
 **External-Safe Draft - July 2026**
 
 ## Executive Summary

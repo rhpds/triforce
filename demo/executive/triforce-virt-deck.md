@@ -71,7 +71,7 @@ One Helm chart. One flag. VMs and AI agents deploy together.
 
 # TRIFORCE VIRT
 
-### ▲ Power · Wisdom · Courage
+### ▲ Power · Courage
 
 One Xeon 6 server. VMs and AI. No GPU required.
 

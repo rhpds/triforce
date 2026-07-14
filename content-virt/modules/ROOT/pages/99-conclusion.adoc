@@ -28,7 +28,6 @@ VMs and AI on the same server. No forklift migration. No new hardware. No separa
 |===
 | Demo | Question
 
-| *Triforce AI* | Can I afford AI at scale?
-| *Triforce Secure* | Can I trust it with my data?
-| *Triforce Govern* | Can I govern agents at enterprise scale?
+| *AI Inference* | Can I afford AI at scale?
+| *Secure* | Can I trust it with my data?
 |===

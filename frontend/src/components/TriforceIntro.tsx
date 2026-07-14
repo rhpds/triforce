@@ -15,8 +15,6 @@ const BOT_Y = MID_Y + TRI_H
 const TOP_CY = Math.round((TOP_Y + MID_Y + MID_Y) / 3)
 const BL_CX = Math.round((CX - TRI_W / 2 + CX - TRI_W + CX) / 3)
 const BL_CY = Math.round((MID_Y + BOT_Y + BOT_Y) / 3)
-const BR_CX = Math.round((CX + TRI_W / 2 + CX + CX + TRI_W) / 3)
-const BR_CY = BL_CY
 
 const TRIANGLES = [
   {
@@ -38,16 +36,6 @@ const TRIANGLES = [
     label: 'POWER',
     sub: 'Xeon 6 · AMX · $0/token',
     labelCX: BL_CX, labelCY: BL_CY,
-  },
-  {
-    id: 'ibm',
-    points: `${CX + TRI_W / 2},${MID_Y} ${CX},${BOT_Y} ${CX + TRI_W},${BOT_Y}`,
-    color: '#0F62FE',
-    logo: '/logos/ibm.png',
-    logoCX: BR_CX, logoCY: BR_CY - 10, logoW: 80, logoH: 32,
-    label: 'WISDOM',
-    sub: 'Kagenti · Governance · Audit',
-    labelCX: BR_CX, labelCY: BR_CY,
   },
 ]
 

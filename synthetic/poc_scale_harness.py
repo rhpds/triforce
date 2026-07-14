@@ -138,7 +138,7 @@ async def main():
 
     print("=" * 78)
     print("  TRIFORCE POC SCALE HARNESS")
-    print("  Red Hat (OpenShift) + IBM (Kagenti) + Intel (Xeon 6)")
+    print("  Red Hat (OpenShift) + Intel (Xeon 6)")
     print("=" * 78)
 
     # Pre-generate all data

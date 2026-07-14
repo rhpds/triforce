@@ -1,6 +1,6 @@
 """Triforce Demo — Rich terminal experience for live presentations.
 
-6 acts telling the Intel + IBM + Red Hat story with live inference.
+6 acts telling the Intel + Red Hat story with live inference.
 
 Usage:
   python3 demo/engineer/triforce_demo.py                # Full demo
@@ -44,14 +44,13 @@ TRIFORCE = """[bold cyan]            ▲
      ╱ ╲         ╱ ╲
 [bold blue]    ╱   ╲       ╱   ╲
    ╱     ╲     ╱     ╲
-  ╱ INTEL ╲   ╱  IBM  ╲
- ╱  POWER  ╲ ╱ WISDOM  ╲
+  ╱ INTEL ╲   ╱      ╲
+ ╱  POWER  ╲ ╱        ╲
 [bold cyan]╱───────────╳───────────╲[/]"""
 
 THEMES = {
     "intel": {"primary": "cyan", "accent": "blue", "tagline": "Enterprise AI inference on Intel Xeon 6 — no GPU required"},
     "redhat": {"primary": "red", "accent": "yellow", "tagline": "Polyglot AI agents at scale on Red Hat OpenShift"},
-    "ibm": {"primary": "blue", "accent": "magenta", "tagline": "AI agent governance with IBM Kagenti on Kubernetes"},
 }
 
 
@@ -253,7 +252,7 @@ async def act6_race(theme, scale=10):
 async def main():
     parser = argparse.ArgumentParser(description="Triforce Demo")
     parser.add_argument("--act", type=int, help="Run a specific act (1-6)")
-    parser.add_argument("--theme", default="intel", choices=["intel", "redhat", "ibm"])
+    parser.add_argument("--theme", default="intel", choices=["intel", "redhat"])
     parser.add_argument("--scale", type=int, default=10, help="Records for the race (act 6)")
     args = parser.parse_args()
 
@@ -286,7 +285,6 @@ async def main():
         console.print()
         console.print(Panel(
             f"[bold {theme['primary']}]Power[/] — Intel Xeon 6 CPU inference. 600ms classification. $0/token.\n"
-            f"[bold {theme['primary']}]Wisdom[/] — IBM Kagenti agent governance. A2A + MCP + SPIFFE.\n"
             f"[bold {theme['primary']}]Courage[/] — Red Hat OpenShift platform. Kafka + PostgreSQL + Helm.\n\n"
             f"[bold]That's Triforce.[/]",
             title="[bold]TRIFORCE[/]", border_style=theme["primary"],

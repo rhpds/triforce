@@ -24,9 +24,9 @@
   --intel-blue: #0071C5;
   --intel-cyan-dim: rgba(0, 174, 239, 0.12);
 
-  /* IBM palette */
-  --ibm-blue: #0F62FE;
-  --ibm-blue-dim: rgba(15, 98, 254, 0.12);
+  /* Accent palette */
+  --accent-blue: #0F62FE;
+  --accent-blue-dim: rgba(15, 98, 254, 0.12);
 
   /* GPU palette */
   --gpu-amber: #F5A623;
@@ -133,7 +133,7 @@ code, pre, .mono {
 
 .card-accent-intel { border-left: 3px solid var(--intel-cyan); }
 .card-accent-redhat { border-left: 3px solid var(--rh-red); }
-.card-accent-ibm { border-left: 3px solid var(--ibm-blue); }
+.card-accent-blue { border-left: 3px solid var(--accent-blue); }
 
 /* Step cards */
 .step-card {

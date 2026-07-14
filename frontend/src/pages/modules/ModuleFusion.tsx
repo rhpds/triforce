@@ -110,8 +110,8 @@ export default function ModuleFusion() {
                 </div>
               )}
               {result && result.status === 'complete' && (
-                <div className="card" style={{ padding: 16, borderLeft: '3px solid var(--ibm-blue)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)', marginBottom: 8 }}>Fusion ({result.panel.count} + judge)</div>
+                <div className="card" style={{ padding: 16, borderLeft: '3px solid var(--accent-blue)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)', marginBottom: 8 }}>Fusion ({result.panel.count} + judge)</div>
                   <div className="mono" style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>
                     Panel: {result.panel.latency_ms}ms · Judge: {result.judge.latency_ms}ms · Total: {result.total_ms}ms
                   </div>
@@ -143,14 +143,14 @@ export default function ModuleFusion() {
                     <td className="mono" style={{ padding: '6px 8px', fontWeight: 600 }}>{r.model}</td>
                     <td className="mono" style={{ padding: '6px 8px', textAlign: 'right' }}>{r.latency_ms}ms</td>
                     <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text-dim)' }}>{r.tokens}</td>
-                    <td style={{ padding: '6px 8px', color: 'var(--ibm-blue)' }}>Panel #{i + 1}</td>
+                    <td style={{ padding: '6px 8px', color: 'var(--accent-blue)' }}>Panel #{i + 1}</td>
                   </tr>
                 ))}
                 <tr style={{ background: 'var(--surface-2)' }}>
                   <td className="mono" style={{ padding: '6px 8px', fontWeight: 700 }}>{result.judge.model}</td>
                   <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700 }}>{result.judge.latency_ms}ms</td>
                   <td className="mono" style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text-dim)' }}>{result.judge.tokens}</td>
-                  <td style={{ padding: '6px 8px', fontWeight: 700, color: 'var(--ibm-blue)' }}>Judge</td>
+                  <td style={{ padding: '6px 8px', fontWeight: 700, color: 'var(--accent-blue)' }}>Judge</td>
                 </tr>
               </tbody>
             </table>
@@ -177,7 +177,7 @@ export default function ModuleFusion() {
 function JudgeField({ label, value }: { label: string; value: string }) {
   return (
     <div className="card" style={{ padding: 12 }}>
-      <div style={{ fontSize: 11, color: 'var(--ibm-blue)', fontWeight: 700, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 11, color: 'var(--accent-blue)', fontWeight: 700, marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.5, maxHeight: 120, overflow: 'auto' }}>
         {value || 'No field returned'}
       </div>

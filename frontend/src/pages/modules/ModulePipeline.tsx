@@ -163,8 +163,8 @@ export default function ModulePipeline() {
                   {result.entities.map((e, i) => (
                     <span key={i} style={{
                       padding: '3px 8px', borderRadius: 4, fontSize: 11,
-                      background: e.type === 'medication' ? 'var(--ibm-blue-dim)' : e.type === 'condition' ? 'var(--rh-orange-dim)' : 'var(--rh-teal-dim)',
-                      color: e.type === 'medication' ? 'var(--ibm-blue)' : e.type === 'condition' ? 'var(--rh-orange)' : 'var(--rh-teal)',
+                      background: e.type === 'medication' ? 'var(--accent-blue-dim)' : e.type === 'condition' ? 'var(--rh-orange-dim)' : 'var(--rh-teal-dim)',
+                      color: e.type === 'medication' ? 'var(--accent-blue)' : e.type === 'condition' ? 'var(--rh-orange)' : 'var(--rh-teal)',
                     }}>
                       {e.text} <span style={{ opacity: 0.6 }}>({e.type})</span>
                     </span>

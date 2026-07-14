@@ -28,7 +28,6 @@ For healthcare AI processing PHI, for financial services handling PII — data e
 |===
 | Demo | Question
 
-| *Triforce AI* | Can I afford AI at scale?
-| *Triforce Virt* | Can I run AI alongside my existing VMs?
-| *Triforce Govern* | Can I govern agents at enterprise scale?
+| *AI Inference* | Can I afford AI at scale?
+| *Virt* | Can I run AI alongside my existing VMs?
 |===

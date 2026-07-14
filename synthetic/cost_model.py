@@ -275,7 +275,7 @@ async def main():
 
     print("=" * 90)
     print("  TRIFORCE COST MODEL — RHDP MAAS Real Pricing")
-    print("  Red Hat (OpenShift) + IBM (Kagenti) + Intel (Xeon 6)")
+    print("  Red Hat (OpenShift) + Intel (Xeon 6)")
     print("=" * 90)
 
     # ── Live telemetry ────────────────────────────────────────────────

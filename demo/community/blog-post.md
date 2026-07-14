@@ -1,6 +1,6 @@
 # Building a Multi-Agent AI Platform on Intel Xeon 6 — No GPU Required
 
-*How Red Hat, IBM, and Intel built a polyglot AI inference platform that processes clinical documents and financial transactions at enterprise scale — entirely on CPU.*
+*How Red Hat and Intel built a polyglot AI inference platform that processes clinical documents and financial transactions at enterprise scale — entirely on CPU.*
 
 ## The Problem
 
@@ -8,10 +8,9 @@ AI inference costs are unsustainable at scale. Running Claude Opus for 100,000 r
 
 ## The Architecture
 
-Triforce is a polyglot multi-agent platform with three pillars:
+Triforce is a polyglot multi-agent platform with two pillars:
 
 - **Intel (Power):** Xeon 6 CPU with AMX acceleration runs `granite-2b-cpu` (sub-3B) and `granite-2b-cpu` (8B) via MAAS/LiteLLM
-- **IBM (Wisdom):** Kagenti provides A2A agent discovery, MCP tool federation, and SPIFFE zero-trust identity
 - **Red Hat (Courage):** OpenShift runs three polyglot agents (Python, Java, Go) with Kafka event streaming and PostgreSQL telemetry
 
 ## The Healthcare Agent (Python/LangGraph)
@@ -96,22 +95,13 @@ Intel TDX encrypts all memory inside a Trust Domain. The cluster admin cannot re
 
 OpenShift Virtualization runs legacy VMs alongside AI containers on the same Xeon 6 node. The legacy database VM consumes AI services via standard Kubernetes networking — no separate GPU cluster, no re-architecture. One Helm flag: `--set virtualization.enabled=true`.
 
-## Triforce Govern: Agent Governance with Kagenti
-
-IBM Kagenti provides Kubernetes-native agent governance:
-- **AgentRuntime CRDs** manage agent lifecycle like Deployments
-- **SPIFFE identity** provides zero-trust agent-to-agent authentication
-- **MCP Gateway** federates tools with access policies
-- **Audit trail** logs every inference, every tool call, every workflow
-
-## Four Demos, One Platform
+## Three Demos, One Platform
 
 | Demo | Helm Flag | Story |
 |------|-----------|-------|
 | AI | default | Multi-agent inference + routing, no GPU |
 | Secure | `confidential.enabled=true` | Hardware-encrypted AI |
 | Virt | `virtualization.enabled=true` | VMs + AI coexistence |
-| Govern | `governance.enabled=true` | Agent governance at scale |
 
 ## Try It Yourself
 

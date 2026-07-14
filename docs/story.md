@@ -13,13 +13,13 @@ Not if AI requires a separate GPU cluster, a separate team, a separate budget. B
 **Can I trust it with my data?**
 Not if inference data sits unencrypted in shared memory. Not if agents call tools without governance. Not if there's no audit trail. But with hardware encryption, attestation-gated secrets, and complete provenance — yes.
 
-Three questions. Three pillars. One platform.
+Three questions. Two pillars. One platform.
 
 | Question | Pillar | Answer |
 |----------|--------|--------|
 | Can I afford it? | Intel (Power) | $0/token on Xeon 6 CPU |
 | Can I run it myself? | Red Hat (Courage) | OpenShift + intelligent routing + scale |
-| Can I trust it? | IBM (Wisdom) | Governance + encryption + audit |
+| Can I trust it? | Intel + Red Hat | TDX encryption + attestation + audit |
 
 ---
 
@@ -58,14 +58,12 @@ These are reasonable objections. They're also wrong — for 80% of workloads.
      ╱ ╲         ╱ ╲
     ╱   ╲       ╱   ╲
    ╱     ╲     ╱     ╲
-  ╱ INTEL ╲   ╱  IBM  ╲
- ╱  POWER  ╲ ╱ WISDOM  ╲
+  ╱ INTEL ╲   ╱      ╲
+ ╱  POWER  ╲ ╱        ╲
 ╱───────────╳───────────╲
 ```
 
 **Power (Intel):** Your Xeon 6 CPUs have AMX — advanced matrix extensions built for AI inference. The silicon is already in your data center.
-
-**Wisdom (IBM):** Your agents need governance. Who's acting, what authority do they hold, what did they decide, and can you prove it? Kagenti makes agent authority observable.
 
 **Courage (Red Hat):** Your platform is OpenShift. Your routing is intelligent. Your infrastructure scales. You already have the courage to run production workloads — now add AI to them.
 
@@ -94,8 +92,6 @@ Kafka streams the workloads. PostgreSQL logs every decision. Helm deploys everyt
 ### Can I trust it?
 
 One YAML line — `runtimeClassName: kata-cc` — and Intel TDX encrypts every byte of inference data in hardware. The cluster admin can't read it. The hypervisor can't read it. The API key is released only to pods that prove they're running inside genuine TDX hardware.
-
-Every agent enrolled in Kagenti. SPIFFE cryptographic identity between agents — no static credentials. MCP Gateway controls which agents can call which tools. Every inference, every tool call, every workflow decision — logged, queryable, exportable.
 
 The compliance team sees hardware encryption. The security team sees zero-trust identity. The audit team sees complete provenance.
 
@@ -137,8 +133,8 @@ That's Triforce.
 
 ---
 
-*Power. Wisdom. Courage.*
+*Power. Courage.*
 
-*Intel. IBM. Red Hat.*
+*Intel. Red Hat.*
 
 *github.com/rhpds/triforce*

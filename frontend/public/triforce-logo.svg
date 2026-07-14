@@ -40,13 +40,6 @@
   <text x="185" y="325" text-anchor="middle" fill="#00AEEF" font-family="Red Hat Display, sans-serif" font-size="18" font-weight="800" letter-spacing="3">POWER</text>
   <text x="185" y="345" text-anchor="middle" fill="#00AEEF" font-family="Red Hat Text, sans-serif" font-size="10" opacity="0.6">Xeon 6 · AMX · $0/token</text>
 
-  <!-- BOTTOM-RIGHT triangle — IBM (Wisdom) — pointing UP -->
-  <polygon points="415,210 300,410 530,410" fill="#0F62FE" opacity="0.08"/>
-  <polygon points="415,210 300,410 530,410" fill="none" stroke="#0F62FE" stroke-width="2" filter="url(#glow-blue)"/>
-  <image href="logos/ibm.png" x="370" y="268" width="90" height="35" opacity="0.85"/>
-  <text x="415" y="325" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Display, sans-serif" font-size="18" font-weight="800" letter-spacing="3">WISDOM</text>
-  <text x="415" y="345" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Text, sans-serif" font-size="10" opacity="0.6">Kagenti · Governance · Audit</text>
-
   <!-- Title -->
   <text x="300" y="458" text-anchor="middle" fill="#ffffff" font-family="Red Hat Display, sans-serif" font-size="32" font-weight="800" letter-spacing="5">TRIFORCE</text>
   <text x="300" y="483" text-anchor="middle" fill="#a3a3a3" font-family="Red Hat Text, sans-serif" font-size="11" letter-spacing="2">ENTERPRISE AI ON CPUS YOU ALREADY OWN</text>

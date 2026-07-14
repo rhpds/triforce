@@ -2,13 +2,12 @@
 
 ## What This Is
 
-Polyglot multi-agent demo platform showcasing the Red Hat + IBM + Intel partnership:
+Polyglot multi-agent demo platform showcasing the Red Hat + Intel partnership:
 - **Intel** (Power): Xeon 6 CPU + GPU inferencing via MAAS/LiteLLM — heterogeneous compute routing
-- **IBM** (Wisdom): Kagenti agentic orchestration — A2A protocol, MCP tools, SPIFFE identity, K8s-native agent governance
 - **Red Hat** (Courage): OpenShift + AMQ Streams + vLLM Semantic Router + llm-d — enterprise platform at scale
 
 Two industry verticals: Healthcare (clinical NLP) and Financial Services (fraud/compliance).
-Four demo variants: AI (base), Secure (TDX), Virt (KubeVirt), Govern (Kagenti).
+Three demo variants: AI (base), Secure (TDX), Virt (KubeVirt).
 15 pluggable optimization modules — cities/events select their subset.
 
 ## Architecture
@@ -105,13 +104,11 @@ modules/             # 15 pluggable optimization modules
 infrastructure/
   podman-compose.yaml  # Local dev (8 services)
   helm/              # Helm chart with module flags
-  kagenti/           # Kagenti CRDs
   llm-d/             # Disaggregated inference manifests
 frontend/            # React 19, TypeScript, Motion, ModuleContext
 content/             # Showroom lab (base variant)
 content-secure/      # Showroom (TDX variant)
 content-virt/        # Showroom (Virtualization variant)
-content-govern/      # Showroom (Governance variant)
 scripts/             # generate-nav.py — builds nav from module manifests
 tests/               # Validation matrix (11 stages) + benchmark rubric
 ```

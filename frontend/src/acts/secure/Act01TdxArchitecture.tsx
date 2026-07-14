@@ -80,7 +80,7 @@ const LAYERS = [
     label: 'Trustee Operator on OpenShift',
     position: 'Platform',
     question: '"How do I verify the hardware is genuine before releasing secrets?"',
-    color: 'var(--ibm-blue)',
+    color: 'var(--accent-blue)',
     detail: 'The Trustee operator runs on OpenShift and manages three components: the Key Broker Service (KBS) holds secrets, the Attestation Service (AS) verifies hardware state, and the Reference Value Provider (RVPS) stores known-good measurements. Before releasing an API key, Trustee verifies the pod is inside a genuine TDX Trust Domain.',
     visual: () => (
       <div style={{ textAlign: 'center' }}>
@@ -92,9 +92,9 @@ const LAYERS = [
           ].map((svc, i) => (
             <motion.div key={svc.abbr} style={{
               padding: '10px 14px', borderRadius: 8, background: 'var(--surface-2)',
-              border: '1px solid var(--ibm-blue)', textAlign: 'center', minWidth: 140,
+              border: '1px solid var(--accent-blue)', textAlign: 'center', minWidth: 140,
             }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)' }}>{svc.abbr}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)' }}>{svc.abbr}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{svc.name}</div>
               <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>{svc.sub}</div>
             </motion.div>

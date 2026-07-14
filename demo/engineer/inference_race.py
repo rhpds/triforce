@@ -42,8 +42,8 @@ TRIFORCE_LOGO = """
 [bold cyan]     ╱ ╲         ╱ ╲[/]
 [bold blue]    ╱   ╲       ╱   ╲[/]
 [bold blue]   ╱     ╲     ╱     ╲[/]
-[bold blue]  ╱ INTEL ╲   ╱  IBM  ╲[/]
-[bold blue] ╱  POWER  ╲ ╱ WISDOM  ╲[/]
+[bold blue]  ╱ INTEL ╲   ╱      ╲[/]
+[bold blue] ╱  POWER  ╲ ╱        ╲[/]
 [bold cyan]╱───────────╳───────────╲[/]
 """
 
@@ -258,7 +258,7 @@ async def run_progressive():
 def main():
     parser = argparse.ArgumentParser(description="Triforce Inference Race")
     parser.add_argument("--scale", default="10", help="Number of records: 10, 100, 1000, or 'all' for progressive")
-    parser.add_argument("--theme", default="intel", choices=["intel", "redhat", "ibm"])
+    parser.add_argument("--theme", default="intel", choices=["intel", "redhat"])
     args = parser.parse_args()
 
     if args.scale == "all":

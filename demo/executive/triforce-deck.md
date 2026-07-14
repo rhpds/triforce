@@ -10,9 +10,9 @@ color: #E8F0FE
 
 # TRIFORCE
 
-### ▲ Power · Wisdom · Courage
+### ▲ Power · Courage
 
-**Intel** · **IBM** · **Red Hat**
+**Intel** · **Red Hat**
 
 Enterprise AI Inference at Scale — No GPU Required
 
@@ -52,10 +52,8 @@ All on CPU. Zero GPU.
 # Architecture
 
 ```
-        KAGENTI (A2A + MCP + SPIFFE)
-                 │
-          ┌──────┼──────┐
-          │      │      │
+          ┌──────────────┐
+          │              │
      Healthcare FinServ Orchestrator
      (Python)  (Quarkus)   (Go)
           │      │      │
@@ -154,16 +152,6 @@ Orchestrator → A2A tasks/send → Healthcare Agent
 
 ---
 
-# The Governance — IBM Kagenti
-
-- **A2A Protocol** — Agents discover each other automatically
-- **MCP Gateway** — Tool federation across agents
-- **SPIFFE Identity** — Zero-trust agent-to-agent security
-- **AgentRuntime CRDs** — Kubernetes-native agent lifecycle
-- **Audit Trail** — Every inference, every tool call, logged
-
----
-
 # Live Demo
 
 ### Open the dashboard →
@@ -179,7 +167,7 @@ Watch the cost counter tick for alternatives.
 
 # TRIFORCE
 
-### ▲ Power · Wisdom · Courage
+### ▲ Power · Courage
 
 **$15,000/year.** 600ms classification. Zero GPU.
 

@@ -88,7 +88,7 @@ async def main():
         "• [green]No re-architecture[/] — legacy VMs consume AI via standard networking\n"
         "• [green]One platform[/] — OpenShift manages VMs and containers together\n"
         "• [green]One Helm chart[/] — --set virtualization.enabled=true adds the VM\n\n"
-        "[bold]Intel Xeon 6. Red Hat OpenShift Virtualization. IBM Granite model.[/]",
+        "[bold]Intel Xeon 6. Red Hat OpenShift Virtualization. Granite model.[/]",
         title="[bold]Triforce Virt[/]", border_style="red",
     ))
 

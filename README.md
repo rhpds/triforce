@@ -13,8 +13,8 @@
      ╱ ╲         ╱ ╲
     ╱   ╲       ╱   ╲
    ╱     ╲     ╱     ╲
-  ╱ INTEL ╲   ╱  IBM  ╲
- ╱  POWER  ╲ ╱ WISDOM  ╲
+  ╱ INTEL ╲   ╱      ╲
+ ╱  POWER  ╲ ╱        ╲
 ╱───────────╳───────────╲
 ```
 
@@ -23,7 +23,6 @@ Polyglot multi-agent AI platform for enterprise inference across Healthcare, Fin
 | Pillar | Technology | Role |
 |--------|-----------|------|
 | **Power** (Intel) | Xeon 6 CPU + Gaudi GPU via MAAS/LiteLLM | Heterogeneous compute — $0 CPU + $/token GPU |
-| **Wisdom** (IBM) | Kagenti + A2A + MCP + SPIFFE | Agent governance — discovery, identity, tool control, audit trails |
 | **Courage** (Red Hat) | OpenShift + AMQ Streams + vLLM Semantic Router | Enterprise platform with intelligent routing and batch processing at scale |
 
 ## Key Results (Measured, Oberon Xeon 6767P)
@@ -78,7 +77,7 @@ Polyglot multi-agent AI platform for enterprise inference across Healthcare, Fin
 - **Zustand** — 3 stores (demo, module, vertical) replacing React Context providers
 - **React Flow** (@xyflow/react) — Interactive DAG visualizations:
   - PipelineFlow: 4-node clinical NLP pipeline with animated edges and hardware badges
-  - AgentTopology: Agent/gateway/router graph for governance variant
+  - AgentTopology: Agent/gateway/router/tool graph
   - RoutingFlow: CPU/GPU routing flow with active path highlighting
 - **Motion** (v12) — 600+ animation instances for slide-deck transitions
 
@@ -183,13 +182,12 @@ make test-platform               # ALL stages — platform green light
 | **Triforce AI** | Can I afford AI at scale? | CPU inference, heterogeneous routing, 15 modules |
 | **Triforce Secure** | Can I trust it with my data? | Intel TDX, Confidential Containers, hardware attestation |
 | **Triforce Virt** | Can I run AI alongside VMs? | OpenShift Virtualization, BitNet edge inference |
-| **Triforce Govern** | Can I govern agents at scale? | IBM Kagenti, SPIFFE identity, MCP tools |
 
 4 industry verticals per variant: Healthcare, Financial Services, Telecommunications, Energy.
 
 ## RHDP Marketplace Deployment
 
-5 AgnosticV catalog items (PR: `rhpds/agnosticv#27038`):
+4 AgnosticV catalog items (PR: `rhpds/agnosticv#27038`):
 
 | Item | Purpose |
 |---|---|
@@ -197,7 +195,6 @@ make test-platform               # ALL stages — platform green light
 | `ai-qs-triforce-tenant` | Base AI — 5 modules enabled |
 | `ai-qs-triforce-secure-tenant` | + Confidential Containers (TDX) |
 | `ai-qs-triforce-virt-tenant` | + OpenShift Virtualization + BitNet |
-| `ai-qs-triforce-govern-tenant` | + Kagenti agent governance |
 
 All modules work on RHDP using existing MAAS models — no new model deployments needed.
 
@@ -221,7 +218,6 @@ frontend/            # React 19 + Zustand + React Flow + Motion
 content/             # Showroom lab guide (Antora) — base variant
 content-secure/      # Showroom — TDX variant
 content-virt/        # Showroom — Virtualization variant
-content-govern/      # Showroom — Governance variant
 tests/               # Validation matrix (11 stages) + benchmark rubric + smoke tests
 docs/                # Whitepapers + benchmark data (external + internal)
 ```

@@ -1,6 +1,6 @@
 # Heterogeneous AI Inference at Enterprise Scale
 
-**Red Hat + Intel + IBM Technical White Paper**
+**Red Hat + Intel Technical White Paper**
 **Technical Draft — July 2026**
 
 ## Evidence Model
@@ -123,7 +123,7 @@ For RHDP marketplace deployment, Triforce uses 5 models already available on MAA
 
 No new model deployments needed for the base demo. All modules work using models already provisioned.
 
-### AgnosticV Integration (5 Catalog Items)
+### AgnosticV Integration (4 Catalog Items)
 
 | Catalog Item | Purpose | Variant-Specific |
 |---|---|---|
@@ -131,7 +131,6 @@ No new model deployments needed for the base demo. All modules work using models
 | `ai-qs-triforce-tenant` | Base AI variant | 5 modules: benchmarking, speculative, fusion, heterogeneous, edge |
 | `ai-qs-triforce-secure-tenant` | Secure variant | + `confidential.enabled=true` (TDX/kata runtime) |
 | `ai-qs-triforce-virt-tenant` | Virt variant | + `virtualization.enabled=true` (KubeVirt VMs) |
-| `ai-qs-triforce-govern-tenant` | Govern variant | Kagenti agent governance (parked) |
 
 **PR:** `rhpds/agnosticv#27038` — dev.yaml only. Prod.yaml in follow-up after validation.
 
@@ -245,7 +244,7 @@ Deployed as standalone pod on both oberon and RHDP. No MAAS dependency. Frontend
 ### Preflight Summary (Oberon, latest)
 
 ```text
-Total: 330+ passed, 1 soft failure (helm lint env), 3 skipped (Kagenti/Trustee parked)
+Total: 330+ passed, 1 soft failure (helm lint env), 1 skipped (Trustee parked)
 DarkScope: Grade B (0 HIGH findings)
 Brand Audit: Grade A (170/170)
 NovaScan: Tier 1 Self-Serve
@@ -284,4 +283,4 @@ make test-platform # All 11 stages + benchmarks + workflows
 
 Triforce demonstrates that enterprise AI inference doesn't require choosing between cost and capability. The heterogeneous routing pattern — where a <1ms embedding classifier decides CPU vs GPU before the model call — lets 80% of workloads run at $0/token on Intel Xeon 6 while complex reasoning escalates to a configured tier.
 
-Every claim in this paper has a measured result, a test that validates it, and a live endpoint that produces it. The 15-module architecture is pluggable per city and event, the 4 demo variants tell industry-specific stories, and the 5 RHDP catalog items are ready for marketplace deployment.
+Every claim in this paper has a measured result, a test that validates it, and a live endpoint that produces it. The 15-module architecture is pluggable per city and event, the 3 demo variants tell industry-specific stories, and the 4 RHDP catalog items are ready for marketplace deployment.

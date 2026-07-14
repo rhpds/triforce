@@ -63,7 +63,7 @@ Show the orchestrator logs, the A2A calls, the workflow completion.
 
 ## Chapter 6: Deploying to OpenShift (20:00–23:00)
 
-Show the Helm chart, CI/CD pipeline, Kagenti manifests.
+Show the Helm chart and CI/CD pipeline.
 ```bash
 helm template triforce infrastructure/helm/ --set ...
 ```

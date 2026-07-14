@@ -325,7 +325,7 @@ export function Act02Inference({ onComplete }: Props) {
             {result.summary && (
               <motion.div
                 className="card"
-                style={{ marginTop: 12, borderLeft: '3px solid var(--ibm-blue)' }}
+                style={{ marginTop: 12, borderLeft: '3px solid var(--accent-blue)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -349,8 +349,8 @@ export function Act02Inference({ onComplete }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
         >
-          <div className="step-card" style={{ borderLeft: '3px solid var(--ibm-blue)' }}>
-            <span className="step-num" style={{ background: 'var(--ibm-blue)' }}>2</span>
+          <div className="step-card" style={{ borderLeft: '3px solid var(--accent-blue)' }}>
+            <span className="step-num" style={{ background: 'var(--accent-blue)' }}>2</span>
             <strong>FinServ: Fraud Scoring</strong>
             <div className="step-question">Java · Quarkus · Score transactions for fraud risk in real time</div>
 
@@ -371,7 +371,7 @@ export function Act02Inference({ onComplete }: Props) {
 
             <div style={{ marginTop: 12, textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={runFraudScoring} disabled={fraudLoading}
-                style={{ background: 'var(--ibm-blue)' }}>
+                style={{ background: 'var(--accent-blue)' }}>
                 {fraudLoading ? 'Scoring transactions...' : 'Score Transactions on Xeon 6'}
               </button>
             </div>

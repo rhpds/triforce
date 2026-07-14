@@ -160,7 +160,7 @@ class AgentCard(BaseModel):
     version: str = "0.1.0"
     url: str = "http://localhost:8081"
     protocolVersion: str = "0.2.6"
-    provider: str = "Red Hat / IBM / Intel"
+    provider: str = "Red Hat / Intel"
     capabilities: AgentCapabilities = AgentCapabilities()
     defaultInputModes: list[str] = ["text"]
     defaultOutputModes: list[str] = ["text"]

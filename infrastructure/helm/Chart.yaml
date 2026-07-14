@@ -1,6 +1,6 @@
 apiVersion: v2
 name: triforce
-description: Triforce — Red Hat + IBM + Intel Multi-Agent AI Platform
+description: AI Inference on Intel Xeon 6 — Red Hat + Intel Multi-Agent Platform
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
@@ -8,6 +8,6 @@ keywords:
   - ai
   - inference
   - intel
-  - kagenti
+  - xeon-6
   - langgraph
   - multi-agent

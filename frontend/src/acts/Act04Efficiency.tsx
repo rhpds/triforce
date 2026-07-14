@@ -35,7 +35,7 @@ const MECHANISMS = [
     what: 'Skips inference steps that aren\'t needed for the current record',
     gain: 'If <2 medications found, the drug interaction check is skipped entirely. No inference call, no latency, no compute. The pipeline adapts per record.',
     visual: 'pipeline',
-    color: 'var(--ibm-blue)',
+    color: 'var(--accent-blue)',
     status: 'live',
     before: '4 inference calls per record (always)',
     after: '2-4 calls per record (adaptive) — 25% fewer calls on average',
@@ -161,7 +161,7 @@ const MECHANISMS = [
     what: 'For critical decisions, send the same question to 3 models in parallel. A judge model compares their responses: consensus, contradictions, blind spots. Cost: 4x one call. Value: confidence for decisions with consequences.',
     gain: 'Single model: one perspective, one set of blind spots. Panel of 3 + judge: consensus validated, contradictions caught, gaps identified. On CPU at $0/token, the extra calls are literally free.',
     visual: 'fusion',
-    color: 'var(--ibm-blue)',
+    color: 'var(--accent-blue)',
     status: 'live',
     before: 'One model, one answer — hope it\'s right',
     after: '3 models + judge → consensus synthesis — confidence for critical decisions',
@@ -808,22 +808,22 @@ function FusionVisual() {
           <motion.div key={m} style={{ padding: '8px 12px', borderRadius: 6, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 11, textAlign: 'center' }}
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: D + i * 0.2 }}>
-            <div style={{ fontWeight: 700, color: 'var(--ibm-blue)' }}>{m}</div>
+            <div style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>{m}</div>
             <div style={{ color: 'var(--text-dim)', marginTop: 2 }}>answers</div>
           </motion.div>
         ))}
       </div>
       <motion.div style={{ fontSize: 16, color: 'var(--text-dim)' }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.8 }}>↓</motion.div>
-      <motion.div style={{ padding: '8px 16px', borderRadius: 6, background: 'var(--surface-2)', border: '2px solid var(--ibm-blue)', fontSize: 12, textAlign: 'center' }}
+      <motion.div style={{ padding: '8px 16px', borderRadius: 6, background: 'var(--surface-2)', border: '2px solid var(--accent-blue)', fontSize: 12, textAlign: 'center' }}
         initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: D + 1.0 }}>
-        <div style={{ fontWeight: 700, color: 'var(--ibm-blue)' }}>Judge (granite-8b)</div>
+        <div style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>Judge (granite-8b)</div>
         <div style={{ color: 'var(--text-dim)', marginTop: 2 }}>consensus · contradictions · gaps</div>
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.5 }}>
-        <button className="btn btn-secondary" style={{ borderColor: 'var(--ibm-blue)', fontSize: 12, padding: '6px 14px' }}
+        <button className="btn btn-secondary" style={{ borderColor: 'var(--accent-blue)', fontSize: 12, padding: '6px 14px' }}
           onClick={fetchStats} disabled={loading}>
           {loading ? 'Running fusion...' : 'Prove it — run 3-model panel'}
         </button>

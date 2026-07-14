@@ -806,30 +806,3 @@ class TestD9Virt:
         # Connection to postgres port — even a refused/reset is proof of reachability
         assert result.returncode == 0 or "Connection refused" not in result.stderr
 
-
-# ---------------------------------------------------------------------------
-# Stage D10: Govern Variant — Kagenti
-# ---------------------------------------------------------------------------
-
-@pytest.mark.skip(reason="Kagenti CRDs require IBM — not available on Intel lab cluster")
-class TestD10Govern:
-    """stage_d10: Kagenti agentic governance."""
-
-    def test_kagenti_crds_installed(self):
-        result = oc("get", "crd", "agentruntimes.kagenti.ibm.com")
-        assert result.returncode == 0, "Kagenti AgentRuntime CRD not found"
-
-    def test_agent_runtime_registered(self):
-        result = oc_json("get", "agentruntime", "-l", "app=healthcare-agent",
-                         namespace=NAMESPACE)
-        assert result is not None and len(result.get("items", [])) > 0, (
-            "Healthcare agent not registered as AgentRuntime"
-        )
-
-    def test_spiffe_identity(self):
-        pods = oc_json("get", "pods", "-l", "app=healthcare-agent", namespace=NAMESPACE)
-        assert pods and len(pods.get("items", [])) > 0
-        pod = pods["items"][0]
-        annotations = pod.get("metadata", {}).get("annotations", {})
-        has_spiffe = any("spiffe" in k.lower() for k in annotations)
-        assert has_spiffe, "Healthcare agent pod has no SPIFFE identity annotation"

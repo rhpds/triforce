@@ -41,7 +41,7 @@ const STEPS = [
     id: 'cdh',
     title: 'Agent Needs Its API Key',
     narrator: 'The healthcare agent starts but has no API key — it can\'t call MAAS for inference. The Confidential Data Hub (CDH) agent inside the VM reaches out to the Trustee Key Broker Service on the cluster to request the secret.',
-    color: 'var(--ibm-blue)',
+    color: 'var(--accent-blue)',
     visual: () => (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
         <motion.div style={{
@@ -53,25 +53,25 @@ const STEPS = [
             <div style={{ padding: '4px 10px', borderRadius: 6, background: 'var(--surface-2)', border: '1px solid var(--rh-red)', fontSize: 10, color: 'var(--rh-red)' }}>
               Agent <span style={{ color: 'var(--rh-orange)' }}>no key</span>
             </div>
-            <div style={{ padding: '4px 10px', borderRadius: 6, background: 'var(--surface-2)', border: '1px solid var(--ibm-blue)', fontSize: 10, color: 'var(--ibm-blue)' }}>CDH</div>
+            <div style={{ padding: '4px 10px', borderRadius: 6, background: 'var(--surface-2)', border: '1px solid var(--accent-blue)', fontSize: 10, color: 'var(--accent-blue)' }}>CDH</div>
           </div>
         </motion.div>
 
         <motion.div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-          <div className="mono" style={{ fontSize: 9, color: 'var(--ibm-blue)', marginBottom: 2 }}>request secret</div>
+          <div className="mono" style={{ fontSize: 9, color: 'var(--accent-blue)', marginBottom: 2 }}>request secret</div>
           <svg width="60" height="16" viewBox="0 0 60 16">
-            <motion.line x1="0" y1="8" x2="48" y2="8" stroke="var(--ibm-blue)" strokeWidth="2"
+            <motion.line x1="0" y1="8" x2="48" y2="8" stroke="var(--accent-blue)" strokeWidth="2"
               initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.6, duration: 0.5 }} />
-            <polygon points="46,4 54,8 46,12" fill="var(--ibm-blue)" />
+            <polygon points="46,4 54,8 46,12" fill="var(--accent-blue)" />
           </svg>
         </motion.div>
 
         <motion.div style={{
-          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--ibm-blue)',
+          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--accent-blue)',
           background: 'var(--surface-2)', textAlign: 'center',
         }} initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)' }}>Trustee KBS</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)' }}>Trustee KBS</div>
           <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>Key Broker Service</div>
           <motion.div className="mono" style={{ fontSize: 10, color: 'var(--rh-orange)', marginTop: 4 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
@@ -116,10 +116,10 @@ const STEPS = [
         </motion.div>
 
         <motion.div style={{
-          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--ibm-blue)',
+          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--accent-blue)',
           background: 'var(--surface-2)', textAlign: 'center',
         }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)' }}>Attestation Service</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)' }}>Attestation Service</div>
           <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>receives quote</div>
           <motion.div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 2 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}>
@@ -140,9 +140,9 @@ const STEPS = [
       <div style={{ textAlign: 'center' }}>
         <motion.div style={{
           display: 'inline-block', padding: '16px 24px', borderRadius: 10,
-          border: '2px solid var(--ibm-blue)', background: 'var(--surface-2)',
+          border: '2px solid var(--accent-blue)', background: 'var(--surface-2)',
         }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)', marginBottom: 10 }}>Attestation Service</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)', marginBottom: 10 }}>Attestation Service</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
               { check: 'CPU is genuine Intel Xeon 6', delay: 0.3 },
@@ -182,10 +182,10 @@ const STEPS = [
     visual: () => (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
         <motion.div style={{
-          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--ibm-blue)',
+          padding: '12px 18px', borderRadius: 10, border: '2px solid var(--accent-blue)',
           background: 'var(--surface-2)', textAlign: 'center',
         }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ibm-blue)' }}>Trustee KBS</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)' }}>Trustee KBS</div>
           <motion.div className="mono" style={{ fontSize: 10, color: 'var(--rh-green)', marginTop: 4 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
             attestation: verified

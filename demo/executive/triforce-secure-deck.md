@@ -92,7 +92,7 @@ AMX acceleration works inside TDX Trust Domains.
 | Memory encryption | Intel TDX (Xeon 6) |
 | Runtime isolation | Red Hat Sandboxed Containers 1.12 |
 | Attestation | Red Hat build of Trustee 1.1 |
-| AI agents | IBM Granite on LangGraph |
+| AI agents | Granite on LangGraph |
 | Platform | Red Hat OpenShift |
 
 ---
@@ -101,7 +101,7 @@ AMX acceleration works inside TDX Trust Domains.
 
 # TRIFORCE SECURE
 
-### ▲ Power · Wisdom · Courage
+### ▲ Power · Courage
 
 Your AI inference is now hardware-encrypted. Zero code changes.
 

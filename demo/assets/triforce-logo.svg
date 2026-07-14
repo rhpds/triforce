@@ -34,14 +34,6 @@
   <circle cx="165" cy="315" r="20" fill="none" stroke="#00AEEF" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
   <text x="165" y="319" text-anchor="middle" fill="#00AEEF" font-family="Red Hat Mono, monospace" font-size="7" opacity="0.4">LOGO</text>
 
-  <!-- BOTTOM-RIGHT triangle — IBM (Wisdom) — pointing UP -->
-  <polygon points="260,355 355,190 450,355" fill="#0F62FE" opacity="0.08"/>
-  <polygon points="260,355 355,190 450,355" fill="none" stroke="#0F62FE" stroke-width="2.5" filter="url(#glow-blue)"/>
-  <text x="355" y="265" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Display, sans-serif" font-size="12" font-weight="700" letter-spacing="1">IBM</text>
-  <text x="355" y="285" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Display, sans-serif" font-size="16" font-weight="800" letter-spacing="3">WISDOM</text>
-  <circle cx="355" cy="315" r="20" fill="none" stroke="#0F62FE" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-  <text x="355" y="319" text-anchor="middle" fill="#0F62FE" font-family="Red Hat Mono, monospace" font-size="7" opacity="0.4">LOGO</text>
-
   <!-- Title -->
   <text x="260" y="405" text-anchor="middle" fill="#ffffff" font-family="Red Hat Display, sans-serif" font-size="28" font-weight="800" letter-spacing="5">TRIFORCE</text>
   <text x="260" y="430" text-anchor="middle" fill="#a3a3a3" font-family="Red Hat Text, sans-serif" font-size="11" letter-spacing="2">ENTERPRISE AI INFERENCE AT SCALE</text>

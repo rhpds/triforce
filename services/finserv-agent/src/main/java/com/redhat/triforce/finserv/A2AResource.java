@@ -74,7 +74,7 @@ public class A2AResource {
         card.put("version", "0.1.0");
         card.put("url", "http://localhost:8082");
         card.put("protocolVersion", "0.2.6");
-        card.put("provider", "Red Hat / IBM / Intel");
+        card.put("provider", "Red Hat / Intel");
         card.put("capabilities", Map.of("streaming", false, "pushNotifications", false, "stateTransitionHistory", true));
         card.put("defaultInputModes", List.of("text"));
         card.put("defaultOutputModes", List.of("text"));

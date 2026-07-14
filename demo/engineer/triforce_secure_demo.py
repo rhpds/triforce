@@ -85,7 +85,7 @@ async def main():
         "• [green]Attestation-gated secrets[/] — API keys released only to verified TDX\n"
         "• [green]Zero code changes[/] — same container, same model, one YAML line\n"
         "• [green]AMX still works[/] — no performance penalty inside TDX\n\n"
-        "[bold]Intel Xeon 6 + TDX. Red Hat Sandboxed Containers. IBM Granite model.[/]",
+        "[bold]Intel Xeon 6 + TDX. Red Hat Sandboxed Containers. Granite model.[/]",
         title="[bold]Triforce Secure[/]", border_style="green",
     ))
 

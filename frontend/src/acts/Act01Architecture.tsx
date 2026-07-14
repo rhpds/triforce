@@ -33,7 +33,7 @@ const LAYERS = [
     label: 'Polyglot Agents',
     customerQuestion: '"Our teams use different languages. AI shouldn\'t force everyone into Python."',
     workload: 'Healthcare uses Python/LangGraph. Finance uses Java/Quarkus. Platform ops uses Go. Each team builds agents in the language they know — and they discover each other via A2A protocol. The agents don\'t care what hardware runs the inference.',
-    color: 'var(--ibm-blue)',
+    color: 'var(--accent-blue)',
     render: () => (
       <motion.div
         style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}
@@ -42,8 +42,8 @@ const LAYERS = [
         transition={{ duration: 0.4 }}
       >
         {[
-          { name: 'Healthcare', sub: 'Python · LangGraph', detail: 'Classify · NER · Summarize', accent: 'card-accent-ibm' },
-          { name: 'FinServ', sub: 'Java · Quarkus', detail: 'Fraud · Compliance · Risk', accent: 'card-accent-ibm' },
+          { name: 'Healthcare', sub: 'Python · LangGraph', detail: 'Classify · NER · Summarize', accent: 'card-accent-blue' },
+          { name: 'FinServ', sub: 'Java · Quarkus', detail: 'Fraud · Compliance · Risk', accent: 'card-accent-blue' },
           { name: 'Orchestrator', sub: 'Go · A2A', detail: 'Discover · Dispatch · Coordinate', accent: 'card-accent-redhat' },
         ].map((agent, i) => (
           <motion.div

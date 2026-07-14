@@ -22,10 +22,10 @@ export function Act06SecurePunchline({ onComplete }: Props) {
 
   const sovereignty = [
     { check: 'Data stays on-premise', detail: 'No cloud API calls. Inference runs on your hardware.', pass: true },
-    { check: 'Models are open-weight', detail: 'IBM Granite, Qwen, Phi — inspectable, auditable, replaceable.', pass: true },
+    { check: 'Models are open-weight', detail: 'Granite, Qwen, Phi — inspectable, auditable, replaceable.', pass: true },
     { check: 'Hardware is Intel-owned', detail: 'Xeon 6 + Gaudi 3. Single-vendor, no third-party accelerator.', pass: true },
     { check: 'Memory is hardware-encrypted', detail: 'Intel TDX. Data never exists in plaintext during inference.', pass: true },
-    { check: 'Every inference is audited', detail: 'PostgreSQL inference log + IBM Kagenti agent governance.', pass: true },
+    { check: 'Every inference is audited', detail: 'PostgreSQL inference log + agent governance.', pass: true },
   ]
 
   return (
