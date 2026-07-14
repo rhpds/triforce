@@ -264,6 +264,22 @@ The semantic router automates this split -- simple tasks stay on free CPU infere
 *What is your estimated cost split?* CPU is $0/token, GPU is billed per token. If ___% of your traffic stays on CPU, your effective cost is ___% of the full GPU price.
 ****
 
+== Verify
+
+* [ ] Router classifies texts into different routes based on complexity
+* [ ] ConfigMap patch applied and router restarted successfully
+* [ ] Routing threshold change moved at least one text to a different route
+* [ ] Original config restored
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* The semantic router classifies complexity in <1ms using embeddings, not LLM calls
+* CPU handles most tasks at $0; GPU is only justified for specific task types
+* Routing thresholds are configurable -- small changes shift which requests go where
+* The CPU/GPU decision depends on the task, not the model
+
 == What's Next?
 
 [sidebar]

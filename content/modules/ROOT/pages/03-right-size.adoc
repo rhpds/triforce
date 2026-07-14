@@ -204,6 +204,21 @@ Compare the two outputs side by side.
 This is the core trade-off in right-sizing: latency vs. quality. There is no universal right answer -- it depends on whether the task is safety-critical (use the bigger model) or latency-sensitive with tolerance for approximation (use the smaller one).
 ****
 
+== Verify
+
+* [ ] Pipeline re-run with your optimized models shows lower total_ms
+* [ ] `oc get deploy healthcare-agent -o jsonpath='{.spec.template.spec.containers[0].env}'` shows your model assignments
+* [ ] Quality check completed -- smallest model still produces acceptable classification
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* Smaller models can match larger models on simple tasks (classification, NER) with significant latency savings
+* Model assignment is per-task, not one-size-fits-all
+* How to apply model changes to a running deployment with `oc set env` and verify rollout
+* The quality/speed tradeoff boundary -- when smaller models start producing wrong answers
+
 == What's Next?
 
 [sidebar]

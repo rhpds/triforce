@@ -113,5 +113,14 @@ done
 If your 3 runs vary by more than 20%, that is normal -- inference latency on shared infrastructure has variance. In Baseline, you will take medians to account for this.
 ****
 
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* How many models are available on the MAAS fleet and their parameter sizes
+* That inference latency has variance on shared infrastructure — single measurements are unreliable
+* What the 4-step healthcare pipeline does (classify → extract → interactions → summarize)
+* How to use `oc` and `curl` to verify services and run inference
+
 [.next-nav]
 xref:02-baseline.adoc[Next: Module 2 — Baseline & Choose Your Path →]

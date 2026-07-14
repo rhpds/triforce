@@ -252,6 +252,21 @@ Not all 8 tools need to fire on every request. Some are mandatory for safety, so
 * If you could add a 9th tool, what would it do? ___
 ****
 
+== Verify
+
+* [ ] All 8 tools listed via tools/list
+* [ ] At least 3 healthcare tools called with recorded latencies
+* [ ] Tool vs LLM scale comparison completed (10 requests each)
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* MCP tools provide deterministic, auditable answers in milliseconds vs seconds for LLM
+* The MCP Gateway federates tools across domains via JSON-RPC -- agents access them through a single endpoint
+* Not everything needs inference -- data lookups, code searches, and rule checks are tool problems
+* Tool overhead at scale is negligible compared to LLM inference time
+
 == What's Next
 
 [sidebar]

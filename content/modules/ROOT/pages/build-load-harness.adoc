@@ -283,6 +283,21 @@ oc set env deploy/healthcare-agent \
 oc rollout status deploy/healthcare-agent --timeout=90s
 ----
 
+== Verify
+
+* [ ] Load profile script runs and produces timing output
+* [ ] Speculative decoding comparison completed (at least 2 token settings tested)
+* [ ] At least one custom SQL query executed against the audit trail
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* Realistic load profiles mix different task types at different ratios
+* Speculative decoding speedup depends on acceptance rate -- structured tasks benefit most
+* The audit trail in PostgreSQL provides operational visibility into model performance over time
+* How to write SQL queries for P95 latency and cache hit rate analysis
+
 == What's Next
 
 [sidebar]

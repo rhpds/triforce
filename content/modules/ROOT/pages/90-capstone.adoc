@@ -172,5 +172,21 @@ Write 3-5 sentences that include:
 
 This is the deliverable. Not a filled-in table -- a recommendation backed by your own data.
 
+== Verify
+
+* [ ] Helm values file created at /tmp/my-values.yaml with your measured-optimal values
+* [ ] `helm upgrade` completed successfully and all pods are running
+* [ ] Pipeline and fraud scoring tests ran against your optimized stack
+* [ ] Comparison table shows measurable improvement over baseline
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* How to encode optimization decisions as a deployable Helm values override
+* The difference between baseline and optimized inference is measurable and reproducible
+* A recommendation must be backed by measured data, not assumptions
+* The full optimization lifecycle: measure, decide, configure, deploy, validate
+
 [.next-nav]
 xref:99-conclusion.adoc[Next: Your Decision Framework →]

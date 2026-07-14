@@ -306,6 +306,22 @@ Consider a workload that processes *10,000 records/day*:
 *At 10,000 records/day, that is ___ minutes of saved compute per day.*
 ****
 
+== Verify
+
+* [ ] Adaptive cache shows a hit rate > 0% after repeated requests
+* [ ] Conditional pipeline skips interaction check when fewer than 2 medications
+* [ ] Compound test shows measurable savings (warm < cold)
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* Four optimization techniques that reduce latency without changing models
+* Caching eliminates repeat inference calls for identical input
+* Conditional pipeline skips unnecessary steps based on input characteristics
+* MCP tool lookups are 100-200x faster than equivalent LLM calls
+* How optimizations compound -- each technique stacks on the previous
+
 == What's Next?
 
 [sidebar]

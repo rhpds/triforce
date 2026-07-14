@@ -195,6 +195,21 @@ oc set env deploy/healthcare-agent \
 oc rollout status deploy/healthcare-agent --timeout=90s
 ----
 
+== Verify
+
+* [ ] Fusion ran successfully with modified panel models
+* [ ] Judge swap completed and fusion still produced a synthesis
+* [ ] Default configuration restored
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* Panel composition affects what contradictions and blind spots the judge can find
+* A larger model on the panel improves synthesis quality but increases latency
+* A smaller judge is faster but may miss nuances in panel disagreements
+* Fusion is worth the 4x inference cost only for high-stakes decisions
+
 == What's Next
 
 [sidebar]

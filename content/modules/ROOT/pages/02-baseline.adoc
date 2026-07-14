@@ -144,3 +144,22 @@ Look at your baseline numbers. Where is the biggest opportunity?
 
 *My path:* ___ → ___ → ___
 ****
+
+== Verify
+
+Before moving on, confirm you have:
+
+* [ ] Pipeline baseline recorded (total_ms and per-step latency)
+* [ ] Fraud scoring baseline recorded (suspicious + routine)
+* [ ] Benchmark results for 3 models on classification and NER
+* [ ] Your slowest pipeline step identified via the audit trail query
+* [ ] 2-3 paths chosen for the next section
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* The default latency profile for each pipeline step and model
+* Which model is fastest varies by task — there is no single "best" model
+* How to use the benchmark endpoint to compare models on the same task
+* How to query the PostgreSQL audit trail for operational data

@@ -190,6 +190,21 @@ Using your measured numbers, calculate the cost for 1,000,000 records/month.
 *Annual savings vs cloud API: $___*
 ****
 
+== Verify
+
+* [ ] Concurrency sweep shows increasing per-request latency as load increases
+* [ ] Saturation point identified (concurrency where latency > 2x baseline)
+* [ ] Replicas restored to 2
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* More replicas help concurrent throughput but not single-request latency
+* The saturation point depends on both agent pod capacity and MAAS model serving
+* How to calculate records/hour, replicas needed, and monthly cost from measured data
+* The cost advantage of CPU inference at scale -- $0/token vs cloud API pricing
+
 == What's Next?
 
 [sidebar]

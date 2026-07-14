@@ -292,6 +292,22 @@ You should see 3 routes: `simple`, `medium`, `complex`. The `critical` route is 
 * A 4th tier lets you reserve expensive models for high-stakes decisions while keeping simple requests on cheap, fast models
 * Configuration changes require a pod restart because embeddings are precomputed at startup
 
+== Verify
+
+* [ ] 4th route appears in router config after ConfigMap patch
+* [ ] At least one test text hits the new "critical" route
+* [ ] Scoring weight change produced a measurable difference in classification
+* [ ] Original config restored
+
+== Learning Outcomes
+
+By completing this module, you should now understand:
+
+* The semantic router is fully data-driven -- adding routes is a YAML change, not a code change
+* Anchor sentences define what each route catches via embedding similarity
+* Scoring weights control how similarity is blended -- small changes affect classification
+* How to patch ConfigMaps and restart deployments in OpenShift
+
 == What's Next
 
 [sidebar]
