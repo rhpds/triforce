@@ -16,14 +16,14 @@ healthcareAgent:
 
 finservAgent:
   image: quay.io/redhat-gpte/triforce-finserv-agent:latest
-  replicas: 2
+  replicas: 1
   resources:
     requests:
-      cpu: 500m
-      memory: 768Mi
+      cpu: 250m
+      memory: 512Mi
     limits:
-      cpu: "2"
-      memory: 1536Mi
+      cpu: "1"
+      memory: 1Gi
 
 orchestrator:
   image: quay.io/redhat-gpte/triforce-orchestrator:latest
@@ -41,13 +41,13 @@ postgres:
   image: docker.io/pgvector/pgvector:pg15
   user: triforce
   database: triforce
-  storage: 10Gi
+  storage: 2Gi
   resources:
     requests:
-      cpu: 250m
+      cpu: 100m
       memory: 256Mi
     limits:
-      cpu: "1"
+      cpu: 500m
       memory: 512Mi
 
 kafka:
@@ -55,10 +55,10 @@ kafka:
   image: docker.io/redpandadata/redpanda:v24.3.1
   resources:
     requests:
-      cpu: 500m
+      cpu: 200m
       memory: 512Mi
     limits:
-      cpu: "2"
+      cpu: "1"
       memory: 1Gi
 
 mcpGateway:

@@ -6,7 +6,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir \
     torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir onnxruntime optimum
+    pip install --no-cache-dir onnxruntime optimum && \
+    pip uninstall -y onnxruntime-gpu 2>/dev/null; true
 
 FROM registry.access.redhat.com/ubi9/python-311:1
 
