@@ -59,16 +59,16 @@ const VIRT_ACTS: ActEntry[] = [
 
 const VARIANT_TEASERS = {
   base: [
-    { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
-    { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
+    { title: 'Secure AI', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
+    { title: 'VMs + AI', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
   ],
   secure: [
-    { title: 'Triforce AI', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
-    { title: 'Triforce Virt', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
+    { title: 'AI Inference', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
+    { title: 'VMs + AI', question: 'Can I run AI alongside my existing VMs?', tech: 'OpenShift Virtualization · KubeVirt · VM + Container coexistence', color: 'var(--rh-red)', param: 'virt' },
   ],
   virt: [
-    { title: 'Triforce AI', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
-    { title: 'Triforce Secure', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
+    { title: 'AI Inference', question: 'Can I afford AI at scale?', tech: 'Intel Xeon 6 · CPU inference · $0/token', color: 'var(--intel-cyan)', param: '' },
+    { title: 'Secure AI', question: 'Can I trust it with my data?', tech: 'Intel TDX · Confidential Containers · Hardware-encrypted memory', color: 'var(--intel-cyan)', param: 'secure' },
   ],
 }
 
@@ -127,11 +127,8 @@ function Footer({ variant }: { variant: string }) {
       </div>
 
       <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 16 }}>
-        <span style={{ color: 'var(--intel-cyan)' }}>Power</span> ·{' '}
-        <span style={{ color: 'var(--rh-red)' }}>Courage</span>
-      </div>
-      <div style={{ fontSize: 13, color: 'var(--text-disabled)', marginTop: 8 }}>
-        github.com/rhpds/triforce
+        <span style={{ color: 'var(--rh-red)' }}>Red Hat</span> ×{' '}
+        <span style={{ color: 'var(--intel-cyan)' }}>Intel</span>
       </div>
     </div>
   )

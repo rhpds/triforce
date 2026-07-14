@@ -3,10 +3,10 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 describe('Story Acts', () => {
-  it('Act00 renders triforce intro', async () => {
+  it('Act00 renders intro', async () => {
     const { Act00Story } = await import('../acts/Act00Story')
     render(<Act00Story />)
-    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+    expect(screen.getByText(/click to begin/)).toBeInTheDocument()
   })
 
   it('Act01 renders architecture with click-through layers', async () => {
@@ -57,10 +57,10 @@ describe('Story Acts', () => {
 })
 
 describe('Secure Acts', () => {
-  it('Act00 Secure renders triforce intro', async () => {
+  it('Act00 Secure renders intro', async () => {
     const { Act00SecureStory } = await import('../acts/secure/Act00SecureStory')
     render(<Act00SecureStory />)
-    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+    expect(screen.getByText(/click to begin/)).toBeInTheDocument()
   })
 
   it('Act01 TDX renders architecture layers', async () => {
@@ -108,7 +108,7 @@ describe('Virt Acts', () => {
   it('Act00 Virt renders intro', async () => {
     const { Act00VirtStory } = await import('../acts/virt/Act00VirtStory')
     render(<Act00VirtStory />)
-    expect(screen.getByText(/click to continue/)).toBeInTheDocument()
+    expect(screen.getByText(/click to begin/)).toBeInTheDocument()
   })
 
   it('Act01 Virt renders coexistence stack', async () => {
