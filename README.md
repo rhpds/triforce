@@ -2,21 +2,6 @@
 
 **Enterprise AI Inference — Heterogeneous Compute, Modular Optimization**
 
-```
-            ▲
-           ╱ ╲
-          ╱   ╲
-         ╱ RED ╲
-        ╱  HAT  ╲
-       ╱ COURAGE ╲
-      ╱───────────╲
-     ╱ ╲         ╱ ╲
-    ╱   ╲       ╱   ╲
-   ╱     ╲     ╱     ╲
-  ╱ INTEL ╲   ╱      ╲
- ╱  POWER  ╲ ╱        ╲
-╱───────────╳───────────╲
-```
 
 Polyglot multi-agent AI platform for enterprise inference across Healthcare, Financial Services, Telecommunications, and Energy verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
 
