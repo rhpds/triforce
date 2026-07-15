@@ -1,14 +1,23 @@
-# Triforce
+# AI Inference on Intel Xeon 6
 
-**Enterprise AI Inference — Heterogeneous Compute, Modular Optimization**
+**Red Hat × Intel — Heterogeneous Compute, Modular Optimization**
 
+```
+        ▲ Red Hat            ▲ Intel
+       ╱ ╲                  ╱ ╲
+      ╱   ╲                ╱   ╲
+     ╱     ╲              ╱     ╲
+    ╱ OpenShift ╲        ╱ Xeon 6  ╲
+   ╱  Platform   ╲      ╱   Gaudi   ╲
+  ╱───────────────╲    ╱─────────────╲
+```
 
-Polyglot multi-agent AI platform for enterprise inference across Healthcare, Financial Services, Telecommunications, and Energy verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
+Polyglot multi-agent AI platform for enterprise inference across Healthcare and Financial Services verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
 
 | Pillar | Technology | Role |
 |--------|-----------|------|
-| **Power** (Intel) | Xeon 6 CPU + Gaudi GPU via MAAS/LiteLLM | Heterogeneous compute — $0 CPU + $/token GPU |
-| **Courage** (Red Hat) | OpenShift + AMQ Streams + vLLM Semantic Router | Enterprise platform with intelligent routing and batch processing at scale |
+| **Intel** | Xeon 6 CPU + Gaudi GPU via MAAS/LiteLLM | Heterogeneous compute — $0 CPU + $/token GPU |
+| **Red Hat** | OpenShift + AMQ Streams + vLLM Semantic Router | Enterprise platform with intelligent routing at scale |
 
 ## Key Results (Measured, Oberon Xeon 6767P)
 
@@ -57,21 +66,34 @@ Polyglot multi-agent AI platform for enterprise inference across Healthcare, Fin
 - **MCP Gateway** — 8 federated tools via JSON-RPC 2.0
 - **Edge Agent** — BitNet b1.58 2B4T, self-contained pod (0.4GB, no MAAS dependency)
 
-### Frontend Stack
+## Hands-On Lab (~2 hours)
 
-- **Zustand** — 3 stores (demo, module, vertical) replacing React Context providers
-- **React Flow** (@xyflow/react) — Interactive DAG visualizations:
-  - PipelineFlow: 4-node clinical NLP pipeline with animated edges and hardware badges
-  - AgentTopology: Agent/gateway/router/tool graph
-  - RoutingFlow: CPU/GPU routing flow with active path highlighting
-- **Motion** (v12) — 600+ animation instances for slide-deck transitions
+Choose-your-own-adventure structure. Students measure, configure, and deploy — not just observe.
+
+| Section | Content | Time |
+|---------|---------|------|
+| **Orient + Baseline** | Login, discover models, measure defaults, choose your path | ~25 min |
+| **Choose Your Path** (pick 2-3) | Right-Size Models, Engineer Down, Route & Split, Scale & Cost | ~20 min each |
+| **Build** (pick 1-2) | Custom Routing Config, Fusion Panel, MCP Tools, Load Harness | ~20 min each |
+| **Capstone** | Write Helm values, deploy optimized stack, validate, write CTO recommendation | ~25 min |
+
+Each module ends with Verify checklists and Learning Outcomes.
 
 ## Models
+
+**RHDP (5 MAAS models, $0/token):**
+| Model | Role |
+|-------|------|
+| granite-4-0-h-tiny-cpu | Speculative draft, fast classification |
+| granite-2b-cpu | NER, fraud scoring, speculative target |
+| qwen25-3b-cpu | Classification, summarization |
+| phi3-mini-cpu | Complex reasoning |
+| granite-3-2-8b-instruct-cpu | Fusion judge + heterogeneous "GPU" tier |
 
 **Oberon (Intel lab, 10 local models via OVMS + bitnet.cpp):**
 | Model | Params | Role |
 |-------|--------|------|
-| granite-350m | 350M | Speculative draft, fast classification |
+| granite-350m | 350M | Speculative draft |
 | granite-4-0-h-tiny-cpu | ~1B | Ultra-fast classification |
 | granite-2b-cpu | 2B | NER, fraud scoring, speculative target |
 | granite-2b-int8 | 2B | INT8 optimization comparison |
@@ -81,15 +103,6 @@ Polyglot multi-agent AI platform for enterprise inference across Healthcare, Fin
 | granite-3-2-8b-instruct-cpu | 8B | Fusion judge |
 | granite-4.1-8b | 8B | Simulated GPU tier |
 | bitnet-2b4t | 2B | Edge inference (1.58-bit ternary) |
-
-**RHDP (5 MAAS models, $0/token):**
-| Model | Role on RHDP |
-|-------|-------------|
-| granite-4-0-h-tiny-cpu | Speculative draft |
-| granite-2b-cpu | NER, fraud scoring, speculative target |
-| qwen25-3b-cpu | Classification, summarization |
-| phi3-mini-cpu | Complex reasoning |
-| granite-3-2-8b-instruct-cpu | Fusion judge + heterogeneous "GPU" tier |
 
 ## 15 Pluggable Modules
 
@@ -109,7 +122,7 @@ modules/
 │   └── adaptive-classification  LIVE     cache learns from LLM results
 ├── Heterogeneous Compute
 │   ├── benchmarking             LIVE     model × task × hardware matrix
-│   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing (end-to-end)
+│   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing
 │   ├── multi-model-fusion       LIVE     3-model panel + judge synthesis
 │   ├── speculative-decoding     LIVE     6.52x draft/target speedup
 │   └── edge-inference           LIVE     BitNet 0.4GB self-contained pod
@@ -139,11 +152,6 @@ curl -s -X POST http://localhost:8081/api/v1/pipeline \
 curl -s -X POST http://localhost:8081/api/v1/fusion \
   -H "Content-Type: application/json" \
   -d '{"task":"compliance","prompt":"Is this AML structuring? Three deposits of $9,500 in 48 hours."}' | jq .
-
-# Measure speculative decoding
-curl -s -X POST http://localhost:8081/api/v1/speculative/run \
-  -H "Content-Type: application/json" \
-  -d '{"task":"summarization","text":"Patient admitted with chest pain.","max_tokens":64}' | jq .
 ```
 
 ## Testing
@@ -158,30 +166,24 @@ make test-smoke                  # 19 live endpoint tests (no NaN, no empty, no 
 make test-platform               # ALL stages — platform green light
 ```
 
-**Preflight (Oberon):** 330+ passed, DarkScope Grade B, Brand Audit Grade A, NovaScan Tier 1.
-
 ## Demo Variants
 
 | Variant | Story | Technology |
 |---------|-------|-----------|
-| **Triforce AI** | Can I afford AI at scale? | CPU inference, heterogeneous routing, 15 modules |
-| **Triforce Secure** | Can I trust it with my data? | Intel TDX, Confidential Containers, hardware attestation |
-| **Triforce Virt** | Can I run AI alongside VMs? | OpenShift Virtualization, BitNet edge inference |
+| **AI Inference** | Can I afford AI at scale? | CPU inference, heterogeneous routing, 15 modules |
+| **Secure AI** | Can I trust it with my data? | Intel TDX, Confidential Containers, hardware attestation |
+| **VMs + AI** | Can I run AI alongside VMs? | OpenShift Virtualization, BitNet edge inference |
 
-4 industry verticals per variant: Healthcare, Financial Services, Telecommunications, Energy.
+## RHDP Catalog
 
-## RHDP Marketplace Deployment
-
-4 AgnosticV catalog items (PR: `rhpds/agnosticv#27038`):
+3 catalog items under `ai-quickstarts/ai-lab-xeon6-inference-*`:
 
 | Item | Purpose |
-|---|---|
-| `ai-qs-triforce-cluster` | Base cluster infra (operators via GitOps) |
-| `ai-qs-triforce-tenant` | Base AI — 5 modules enabled |
-| `ai-qs-triforce-secure-tenant` | + Confidential Containers (TDX) |
-| `ai-qs-triforce-virt-tenant` | + OpenShift Virtualization + BitNet |
-
-All modules work on RHDP using existing MAAS models — no new model deployments needed.
+|------|---------|
+| `ai-lab-xeon6-inference-cluster` | Base cluster infra (operators via GitOps) |
+| `ai-lab-xeon6-inference-tenant` | Base AI lab — all modules enabled |
+| `ai-lab-xeon6-inference-secure-tenant` | + Confidential Containers (TDX) |
+| `ai-lab-xeon6-inference-virt-tenant` | + OpenShift Virtualization + BitNet |
 
 ## Project Structure
 
@@ -200,14 +202,15 @@ infrastructure/
   helm/              # Helm chart for OpenShift with module flags
   oberon/            # Intel lab overrides (10 OVMS models + LiteLLM)
 frontend/            # React 19 + Zustand + React Flow + Motion
-content/             # Showroom lab guide (Antora) — base variant
-content-secure/      # Showroom — TDX variant
-content-virt/        # Showroom — Virtualization variant
+content/             # Showroom lab (base variant)
+content-secure/      # Showroom (TDX variant)
+content-virt/        # Showroom (Virtualization variant)
 tests/               # Validation matrix (11 stages) + benchmark rubric + smoke tests
-docs/                # Whitepapers + benchmark data (external + internal)
 ```
 
 ## Container Images
+
+All built on push to main via GitHub Actions (`--platform linux/amd64`).
 
 ```
 quay.io/redhat-gpte/triforce-healthcare-agent:latest
@@ -218,8 +221,6 @@ quay.io/redhat-gpte/triforce-semantic-router:latest
 quay.io/redhat-gpte/triforce-frontend:latest
 quay.io/redhat-gpte/triforce-edge-agent:latest
 ```
-
-CI builds images on push to main via GitHub Actions.
 
 ## License
 
