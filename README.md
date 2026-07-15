@@ -2,16 +2,6 @@
 
 **Red Hat × Intel — Heterogeneous Compute, Modular Optimization**
 
-```
-        ▲ Red Hat            ▲ Intel
-       ╱ ╲                  ╱ ╲
-      ╱   ╲                ╱   ╲
-     ╱     ╲              ╱     ╲
-    ╱ OpenShift ╲        ╱ Xeon 6  ╲
-   ╱  Platform   ╲      ╱   Gaudi   ╲
-  ╱───────────────╲    ╱─────────────╲
-```
-
 Polyglot multi-agent AI platform for enterprise inference across Healthcare and Financial Services verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
 
 | Pillar | Technology | Role |
