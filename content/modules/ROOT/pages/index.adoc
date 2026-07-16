@@ -25,7 +25,7 @@ Your environment has 10 pods in a single OpenShift namespace:
 | Healthcare Agent (×2) | Python / FastAPI | Clinical NLP pipeline -- classify, extract entities, check interactions, summarize
 | FinServ Agent (×2) | Java / Quarkus | Fraud scoring -- rule engine + LLM hybrid
 | Orchestrator | Go | A2A agent discovery + workflow coordination
-| Semantic Router | Python | Embedding-based complexity routing (<1ms)
+| Semantic Router | Python | Embedding-based complexity routing (<1ms after warm-up)
 | MCP Gateway | Python | 8 federated tools via JSON-RPC
 | Frontend | React / nginx | Visual demo interface
 | PostgreSQL | -- | Inference audit trail

@@ -22,14 +22,14 @@
 **Annotation**: "Triforce: AI inference on Intel Xeon 6 — Red Hat + Intel"
 
 ### Step 2 — The Problem ($684B)
-**What's on screen**: "$684 billion spent on enterprise AI in 2025"
+**What's on screen**: "$307 billion spent on enterprise AI in 2025"
 **Click**: Anywhere to advance
 **Annotation**: "Enterprise AI spending is massive — but most of it goes to GPU infrastructure that sits idle."
 
 ### Step 3 — The Failure Rate
 **What's on screen**: Failure/waste statistics
 **Click**: Advance through 2-3 slides quickly
-**Annotation**: "85% of AI projects stall. The infrastructure cost is a key reason."
+**Annotation**: "More than 80% of AI projects stall (RAND, 2024). The infrastructure cost is a key reason."
 
 ### Step 4 — The Root Cause
 **What's on screen**: Root cause / reframe slide
@@ -91,7 +91,7 @@
 
 ### Step 13 — The Punchline (Act 06)
 **What's on screen**: Summary of what was demonstrated, CPU vs GPU routing decision table
-**Annotation**: "The punchline: right model + right optimizations + right routing = CPU handles 80% at $0. GPU reserved for the 20% that genuinely needs it."
+**Annotation**: "The punchline: right model + right optimizations + right routing = in our measured workloads, CPU handles routine inference at $0. GPU reserved for the tasks that genuinely need it."
 **Click**: **"What's next -->"**
 
 ### Step 14 — Variant Teasers (Footer)

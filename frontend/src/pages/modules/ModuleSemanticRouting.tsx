@@ -41,7 +41,7 @@ export default function ModuleSemanticRouting() {
   }
 
   return (
-    <ModuleLayout title="vLLM Semantic Router" description="Embedding-based classification routes each request to the right-sized model in <1ms. No LLM call — pure vector similarity." status="live">
+    <ModuleLayout title="vLLM Semantic Router" description="Embedding-based classification routes each request to the right-sized model in <1ms (after embedding model warm-up). No LLM call — pure vector similarity." status="live">
       <StepCard num={1} title="Route Sample Prompts">
         <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 12 }}>6 prompts classified by complexity. Watch simple tasks route to 2B model, complex to 3.8B.</p>
         <button className="btn btn-primary" onClick={runAll} disabled={running} style={{ fontSize: 12 }}>{running ? 'Routing...' : 'Route 6 Prompts →'}</button>
@@ -105,7 +105,7 @@ export default function ModuleSemanticRouting() {
                 </span>
               </div>
               <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7, textAlign: 'center' }}>
-                The router classified {results.length} requests in {'<'}1ms each using pure vector similarity — no LLM call.
+                The router classified {results.length} requests in {'<'}1ms each (after embedding model warm-up) using pure vector similarity — no LLM call.
                 Simple tasks stay on the smallest, fastest model. Complex tasks route to larger models or GPU.
                 One API, the system decides.
               </div>

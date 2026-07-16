@@ -33,7 +33,7 @@ AI is stuck in pilot. It can't scale because it can't afford to.
 
 ## The Call
 
-What if 80% of enterprise AI workloads — classification, NER, fraud scoring, summarization, embeddings — didn't need a GPU at all?
+What if the workloads that fill most of your queue — classification, NER, fraud scoring, summarization, embeddings — didn't need a GPU at all?
 
 What if the CPUs already in every data center could do the work?
 
@@ -43,7 +43,7 @@ What if the models were open, the inference was free, and the platform was alrea
 
 "CPU inference is too slow." "Small models aren't good enough." "You can't run production AI without GPUs." "Open-weight models aren't enterprise-ready." "Our security team will never approve it."
 
-These are reasonable objections. They're also wrong — for 80% of workloads.
+These are reasonable objections. They're also wrong — for the workloads we measured.
 
 ## The Alliance
 
@@ -109,13 +109,13 @@ The answer isn't "we're faster." The answer is:
 
 The question was never "is it the fastest?" The question is "is it fast enough at 1/10th the cost?"
 
-For 80% of enterprise AI — yes.
+For the workloads we measured — classification, NER, fraud scoring, summarization — yes.
 
 ## The Remaining 20%
 
 Some workloads need bigger models. 70B parameter reasoning. 235B mixture-of-experts. Frontier model quality.
 
-For those, the same MAAS platform routes to Vertex AI — pay-per-token for the 20% that truly needs it. Same API endpoint, same authentication, seamless. The enterprise doesn't choose between CPU and GPU. It uses both — 80% at $0/token, 20% at market rates.
+For those, the same MAAS platform routes to Vertex AI — pay-per-token for the 20% that truly needs it. Same API endpoint, same authentication, seamless. The enterprise doesn't choose between CPU and GPU. It uses both — routine inference at $0/token, complex reasoning at market rates.
 
 ---
 
@@ -127,7 +127,7 @@ The demo becomes a deployment. The lab guide becomes a training program. The par
 
 ## The Elixir
 
-**80% of enterprise AI doesn't need a GPU. The rest needs a bigger conversation. But that 80% — classification, NER, fraud scoring, summarization, embeddings — runs today on the CPUs you already own, governed by the platform you already trust, at a cost you can actually afford.**
+**In our measured workloads, classification, NER, fraud scoring, summarization, and embeddings all ran within SLA on CPU at $0/token. The rest needs a bigger conversation. But those routine tasks — the ones that fill most enterprise queues — run today on the CPUs you already own, governed by the platform you already trust, at a cost you can actually afford.**
 
 That's Triforce.
 

@@ -88,7 +88,7 @@ curl -s -X POST {healthcare_url}/api/v1/pipeline \
 
 == Exercise 3: Semantic Routing
 
-The semantic router classifies request complexity in <1ms using embeddings -- no LLM call. It decides which model should handle the request.
+The semantic router classifies request complexity in <1ms (after embedding model warm-up) using embeddings -- no LLM call. It decides which model should handle the request.
 
 Send a simple query:
 

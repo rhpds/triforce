@@ -421,7 +421,7 @@ async def main():
     savings_1m_haiku = (haiku_cpr * 1_000_000 * 12) - xeon_annual
 
     print(f"""
-  WHAT XEON 6 DOES (80% of enterprise AI — $0/token):
+  WHAT XEON 6 DOES (routine inference — $0/token):
     Classification, NER, summarization, embeddings, safety guardrails,
     document conversion. 6 models on 1 server. No GPU.
 
@@ -440,7 +440,7 @@ async def main():
   WITH GAUDI SUNSETTING:
     The 14B+ models (deepseek, qwen3, phi-4) need a new home.
     Options: Vertex AI pay-per-token, or larger Xeon 6 with AMX.
-    Either way — Xeon 6 remains the foundation for 80% of workloads.
+    Either way — Xeon 6 remains the foundation for routine inference workloads.
 
   KAGENTI ENABLES:
     Scale horizontally on OpenShift. Agents auto-discover via A2A.

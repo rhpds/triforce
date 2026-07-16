@@ -4,7 +4,7 @@
 
 ## The Problem
 
-AI inference costs are unsustainable at scale. Running Claude Opus for 100,000 records per month costs $50,400 per year. An NVIDIA H100 server costs $119,333 per year. For classification, NER, fraud scoring, and summarization — tasks that make up 80% of enterprise AI workloads — these costs are unnecessary.
+AI inference costs are unsustainable at scale. Running Claude Opus for 100,000 records per month costs $50,400 per year. An NVIDIA H100 server costs $119,333 per year. For classification, NER, fraud scoring, and summarization — tasks that ran within SLA on CPU in our measured workloads — these costs are unnecessary.
 
 ## The Architecture
 
@@ -76,7 +76,7 @@ open demo/executive/dashboard.html
 
 Triforce uses two layers of Red Hat AI routing intelligence:
 
-**Semantic Router** classifies each request as SIMPLE or COMPLEX and routes to the right model. Simple queries go to `granite-2b-cpu` (fast, cheap). Complex reasoning queries go to `qwen25-3b-cpu` (deeper). The router runs on CPU — keyword-based classification in under 1ms, no LLM call required.
+**Semantic Router** classifies each request as SIMPLE or COMPLEX and routes to the right model. Simple queries go to `granite-2b-cpu` (fast, cheap). Complex reasoning queries go to `qwen25-3b-cpu` (deeper). The router runs on CPU — keyword-based classification in under 1ms (after embedding model warm-up), no LLM call required.
 
 **llm-d** distributes inference across multiple vLLM instances. The Endpoint Picker (EPP) monitors KV cache state per instance and routes each request to the instance with the warmest cache — 90% cache hit rate, 63% faster P95 latency. This is Red Hat's open source distributed inference platform, included in Red Hat OpenShift AI.
 

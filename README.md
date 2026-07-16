@@ -12,23 +12,25 @@
   ╱───────────────╲    ╱─────────────╲
 ```
 
-Polyglot multi-agent AI platform for enterprise inference across Healthcare and Financial Services verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms.
+Polyglot multi-agent AI platform for enterprise inference across Healthcare and Financial Services verticals. Routes each request to the right-sized model on the right hardware — CPU at $0/token for simple tasks, GPU/accelerator tier for complex reasoning. The system decides for you in <1ms (after embedding model warm-up).
 
 | Pillar | Technology | Role |
 |--------|-----------|------|
 | **Intel** | Xeon 6 CPU + Gaudi GPU via MAAS/LiteLLM | Heterogeneous compute — $0 CPU + $/token GPU |
 | **Red Hat** | OpenShift + AMQ Streams + vLLM Semantic Router | Enterprise platform with intelligent routing at scale |
 
-## Key Results (Measured, Oberon Xeon 6767P)
+## Key Results
 
-| Metric | Result | How |
-|--------|--------|-----|
-| **Speculative decoding** | 6.52x speedup | Draft model (granite-350m) vs target (granite-2b-cpu) |
-| **Heterogeneous routing** | <25ms decision | Semantic router → CPU or GPU tier |
-| **MCP tools vs LLM** | 85x faster | Drug interaction lookup (44ms vs 3742ms) |
-| **Semantic routing** | <1ms per decision | Embedding similarity, no LLM call |
-| **Multi-model fusion** | Structured synthesis | 3-model panel + judge with consensus/contradictions/blind_spots |
-| **BitNet edge** | 0.4GB, ~70ms/tok | 1.58-bit ternary weights, self-contained pod |
+| Metric | Result | Measured On | Notes |
+|--------|--------|-------------|-------|
+| **Speculative decoding** | 6.52x speedup (measured on local model serving; remote inference via MAAS adds network overhead per speculative token) | Oberon (local OVMS) | Local serving only |
+| **Heterogeneous routing** | <25ms decision | MAAS | Semantic router → CPU or GPU tier |
+| **MCP tools vs LLM** | ~450x faster | MAAS (July 2026) | Drug interaction lookup (9ms vs ~4s LLM) |
+| **Semantic routing** | <1ms per decision | After warm-up | Embedding similarity, no LLM call |
+| **Multi-model fusion** | ~11.6s (3+judge) | MAAS (July 2026) | 3-model panel + judge with consensus/contradictions |
+| **Classification CPU** | ~650ms | MAAS (July 2026) | granite-2b-cpu, qwen25-3b-cpu |
+| **Full pipeline** | ~7.8s | MAAS (July 2026) | classify → NER → interactions → summarize |
+| **BitNet edge** | 0.4GB, ~70ms/tok | Oberon | 1.58-bit ternary weights, self-contained pod |
 
 ## Architecture
 
@@ -62,7 +64,7 @@ Polyglot multi-agent AI platform for enterprise inference across Healthcare and 
 - **Healthcare Agent** — Python/FastAPI + LangGraph 4-node pipeline with adaptive cache, heterogeneous routing, speculative decoding, multi-model fusion
 - **FinServ Agent** — Java/Quarkus with LLM fraud scoring + rule-based signals
 - **Orchestrator** — Go, A2A workflow coordination, agent discovery (zero inference)
-- **Semantic Router** — Embedding-based complexity routing (<1ms), heterogeneous CPU→GPU
+- **Semantic Router** — Embedding-based complexity routing (<1ms after warm-up), heterogeneous CPU→GPU
 - **MCP Gateway** — 8 federated tools via JSON-RPC 2.0
 - **Edge Agent** — BitNet b1.58 2B4T, self-contained pod (0.4GB, no MAAS dependency)
 
@@ -109,7 +111,7 @@ Each module ends with Verify checklists and Learning Outcomes.
 ```
 modules/
 ├── Per-Record Efficiency
-│   ├── semantic-routing         LIVE     right model per request in <1ms
+│   ├── semantic-routing         LIVE     right model per request in <1ms (after warm-up)
 │   ├── conditional-pipeline     LIVE     skip unneeded inference steps
 │   └── mcp-tools                LIVE     database lookup vs LLM call (85x faster)
 ├── Model Optimization
@@ -124,7 +126,7 @@ modules/
 │   ├── benchmarking             LIVE     model × task × hardware matrix
 │   ├── heterogeneous-routing    LIVE     CPU→GPU intelligent routing
 │   ├── multi-model-fusion       LIVE     3-model panel + judge synthesis
-│   ├── speculative-decoding     LIVE     6.52x draft/target speedup
+│   ├── speculative-decoding     LIVE     draft/target speedup (local serving)
 │   └── edge-inference           LIVE     BitNet 0.4GB self-contained pod
 └── Analysis
     ├── cost-analysis            LIVE     CPU vs GPU vs Cloud comparison

@@ -24,10 +24,10 @@ Triforce is a polyglot multi-agent AI platform that demonstrates heterogeneous c
 
 | Module | Result | Evidence |
 |--------|--------|----------|
-| Speculative decoding | **6.52x speedup** — draft model (granite-350m, 485ms) vs target (granite-2b-cpu, 3164ms) | App-layer draft fallback |
+| Speculative decoding | **6.52x speedup** (measured on local model serving; remote inference via MAAS adds network overhead per speculative token) — draft model (granite-350m, 485ms) vs target (granite-2b-cpu, 3164ms) | App-layer draft fallback |
 | Heterogeneous routing | Simple → CPU (granite-2b-cpu), Complex → GPU tier (granite-4.1-8b) in **<25ms** | Semantic router + healthcare agent integration |
 | Multi-model fusion | 3-model panel + judge synthesis with structured fields in **~46s** | Panel parallel, judge sequential |
-| Semantic routing | 6 prompts classified by complexity in **<1ms each** | Embedding similarity, no LLM call |
+| Semantic routing | 6 prompts classified by complexity in **<1ms each** (after warm-up) | Embedding similarity, no LLM call |
 | MCP tools vs LLM | Drug interaction lookup **85x faster** than LLM (44ms vs 3742ms) | MCP gateway JSON-RPC |
 | BitNet edge inference | 0.4GB model, ~70ms/token on Xeon 6767P | Self-contained pod, no MAAS dependency |
 | Pipeline (4-node) | Classify → NER → Interactions → Summarize in **~11s** total | With heterogeneous GPU routing |
@@ -77,7 +77,7 @@ The frontend uses **Zustand** for state management (3 stores replacing React Con
 The healthcare agent now calls the semantic router before every inference:
 
 ```text
-Request → Semantic Router (/classify, <1ms)
+Request → Semantic Router (/classify, <1ms after warm-up)
   │
   ├── route=simple  → CPU tier (LITELLM_API_BASE, granite-2b-cpu)
   ├── route=medium  → CPU tier (LITELLM_API_BASE, qwen25-3b-cpu)
@@ -136,12 +136,12 @@ No new model deployments needed for the base demo. All modules work using models
 
 ## Live Benchmark Results (Measured, Oberon)
 
-### Speculative Decoding — 6.52x Speedup
+### Speculative Decoding — 6.52x Speedup (measured on local model serving; remote inference via MAAS adds network overhead per speculative token)
 
 ```text
 Target:  granite-2b-cpu     → 3164ms (baseline)
 Draft:   granite-350m       →  485ms (app-layer fallback)
-Speedup: 6.52x
+Speedup: 6.52x (measured on local model serving; remote inference via MAAS adds network overhead per speculative token)
 Mode:    app-layer-draft (vLLM speculative not viable on CPU)
 ```
 
@@ -198,13 +198,13 @@ Deployed as standalone pod on both oberon and RHDP. No MAAS dependency. Frontend
 | Module | Oberon | RHDP | Evidence |
 |--------|--------|------|----------|
 | Benchmarking | YES | YES | 5-10 models benchmarked per task |
-| Speculative | YES (6.52x) | YES (granite-4-0-h-tiny-cpu draft) | `/api/v1/speculative/run` |
+| Speculative | YES (6.52x, measured on local model serving; remote inference via MAAS adds network overhead per speculative token) | YES (granite-4-0-h-tiny-cpu draft) | `/api/v1/speculative/run` |
 | Fusion | YES (structured) | YES | `/api/v1/fusion` with judge fields |
 | Heterogeneous | YES (CPU→GPU) | YES (CPU→8B tier) | Semantic router + agent integration |
 | Edge (BitNet) | YES | YES | Self-contained pod |
 | Adaptive Cache | YES | YES | Cache hit <5ms after warmup |
 | MCP Tools | YES | YES | 44ms vs 3742ms (85x) |
-| Semantic Routing | YES | YES | <1ms per decision |
+| Semantic Routing | YES | YES | <1ms per decision (after warm-up) |
 | Confidential (TDX) | YES | NO (needs TDX hardware) | kata runtime + TDX kernel params |
 | Virtualization | YES | NO (needs KubeVirt operator) | Legacy VM + SCADA VM |
 | Cost Analysis | YES | YES | Estimated, labeled |
@@ -281,6 +281,6 @@ make test-platform # All 11 stages + benchmarks + workflows
 
 ## Conclusion
 
-Triforce demonstrates that enterprise AI inference doesn't require choosing between cost and capability. The heterogeneous routing pattern — where a <1ms embedding classifier decides CPU vs GPU before the model call — lets 80% of workloads run at $0/token on Intel Xeon 6 while complex reasoning escalates to a configured tier.
+Triforce demonstrates that enterprise AI inference doesn't require choosing between cost and capability. The heterogeneous routing pattern — where a <1ms (after warm-up) embedding classifier decides CPU vs GPU before the model call — lets routine inference tasks run at $0/token on Intel Xeon 6 while complex reasoning escalates to a configured tier.
 
 Every claim in this paper has a measured result, a test that validates it, and a live endpoint that produces it. The 15-module architecture is pluggable per city and event, the 3 demo variants tell industry-specific stories, and the 4 RHDP catalog items are ready for marketplace deployment.

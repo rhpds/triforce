@@ -73,7 +73,7 @@ const VARIANT_TEASERS = {
 }
 
 const VARIANT_HEADLINES = {
-  base: { line1: '80% of enterprise AI doesn\'t need a GPU.', line2: 'That 80% runs today on the CPUs you already own.' },
+  base: { line1: 'In our measured workloads, classification, NER, fraud scoring, and summarization all ran within SLA on CPU.', line2: 'At $0 per token — on the CPUs you already own.' },
   secure: { line1: 'AI processes your most sensitive data.', line2: 'Now that data is hardware-encrypted in silicon.' },
   virt: { line1: 'You have hundreds of VMs you can\'t containerize overnight.', line2: 'AI runs alongside them today — on the same hardware.' },
 }

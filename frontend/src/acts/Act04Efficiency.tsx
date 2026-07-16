@@ -18,7 +18,7 @@ const MECHANISMS = [
     group: 'per-record',
     title: 'vLLM Semantic Router',
     owner: 'Red Hat · vLLM',
-    what: 'Embedding-based classification routes each request to the right-sized model in <1ms',
+    what: 'Embedding-based classification routes each request to the right-sized model in <1ms (after embedding model warm-up)',
     gain: 'Simple tasks use 2B model (fast). Complex tasks use 3.8B model (accurate). Avoids wasting large model capacity on classification tasks.',
     visual: 'router',
     color: 'var(--rh-red)',
@@ -38,7 +38,7 @@ const MECHANISMS = [
     color: 'var(--accent-blue)',
     status: 'live',
     before: '4 inference calls per record (always)',
-    after: '2-4 calls per record (adaptive) — 25% fewer calls on average',
+    after: '2-4 calls per record (adaptive) — fewer calls on average (workload-dependent)',
   },
   {
     num: 3,
@@ -117,12 +117,12 @@ const MECHANISMS = [
     title: 'Adaptive Classification',
     owner: 'LangGraph · Triforce',
     what: 'Unlike the 7 levers above, this one isn\'t a switch — it\'s a trajectory. The system caches every LLM classification result. On re-encounter, it returns the cached answer in <1ms. The more records it processes, the fewer LLM calls it needs.',
-    gain: 'Day 1: every classification calls the LLM. Week 2: 60% come from cache. Month 1: 95% deterministic. The system teaches itself what it\'s already seen — and reserves inference capacity for documents it hasn\'t. Only possible at $0/token — cloud APIs give no incentive to cache.',
+    gain: 'Day 1: every classification calls the LLM. As volume grows, the system is projected to reach ~60% cache hit rate within weeks, and ~95% over time. It teaches itself what it\'s already seen — and reserves inference capacity for documents it hasn\'t. Only possible at $0/token — cloud APIs give no incentive to cache.',
     visual: 'adaptive',
     color: 'var(--rh-green)',
     status: 'live',
     before: 'Every record calls the LLM for classification',
-    after: 'Volume-dependent: 95% cached after warmup — cost per record drops with scale',
+    after: 'Volume-dependent: projected to reach ~95% cached after warmup — cost per record drops with scale',
   },
   {
     num: 9,
@@ -442,7 +442,7 @@ function LlmdVisual() {
     <div style={{ textAlign: 'center' }}>
       <motion.div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        Inference request arrives with SLO target: 2s latency
+        Target architecture: inference request arrives with SLO latency target
       </motion.div>
 
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -454,7 +454,7 @@ function LlmdVisual() {
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-purple)' }}>llm-d Planner</div>
           <motion.div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 4 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.4 }}>
-            SLO: 2s · capacity check
+            SLO-aware · capacity check
           </motion.div>
           <motion.div style={{
             marginTop: 6, padding: '2px 10px', borderRadius: 4,
@@ -482,10 +482,10 @@ function LlmdVisual() {
           }} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: D + 1.6, duration: 0.5 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-purple)' }}>Prefill Node</div>
-            <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>compute-heavy · 128 cores</div>
-            <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--intel-cyan)', marginTop: 4 }}
+            <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>compute-heavy · high-core</div>
+            <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-disabled)', marginTop: 4 }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.2 }}>
-              200ms
+              TBD
             </motion.div>
           </motion.div>
 
@@ -496,9 +496,9 @@ function LlmdVisual() {
             transition={{ delay: D + 2.0, duration: 0.5 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--rh-purple)' }}>Decode Node</div>
             <div className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>memory-bound · stream</div>
-            <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--intel-cyan)', marginTop: 4 }}
+            <motion.div className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-disabled)', marginTop: 4 }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 2.6 }}>
-              1.2s
+              TBD
             </motion.div>
           </motion.div>
         </div>
@@ -506,8 +506,8 @@ function LlmdVisual() {
 
       <motion.div style={{ marginTop: 12 }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 3.0 }}>
-        <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: 'var(--rh-green)' }}>Total: 1.4s</span>
-        <span style={{ fontSize: 12, color: 'var(--text-dim)', marginLeft: 8 }}>within 2s SLO target</span>
+        <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-disabled)' }}>Planned — latency targets TBD</span>
+        <span style={{ fontSize: 12, color: 'var(--text-dim)', marginLeft: 8 }}>SLO-aware routing</span>
       </motion.div>
     </div>
   )
@@ -845,9 +845,9 @@ function FusionVisual() {
 function BenchmarkVisual() {
   const D = 0.5
   const data = [
-    { task: 'Classification', cpu: '389ms', gpu: '188ms', speedup: '2.1x', verdict: 'CPU fine' },
-    { task: 'NER', cpu: '4.6s', gpu: '2.0s', speedup: '2.3x', verdict: 'GPU better quality' },
-    { task: 'Summarization', cpu: '3.4s', gpu: '1.5s', speedup: '2.2x', verdict: 'GPU wins' },
+    { task: 'Classification', cpu: '650ms', gpu: '188ms', speedup: '3.5x', verdict: 'CPU fine for SLA >1s' },
+    { task: 'NER', cpu: '7.5s', gpu: '2.0s', speedup: '3.7x', verdict: 'GPU if latency-critical' },
+    { task: 'Summarization', cpu: '3.3s', gpu: '1.5s', speedup: '2.2x', verdict: 'GPU wins' },
     { task: 'Diagnosis', cpu: '14.8s', gpu: '1.5s', speedup: '10.1x', verdict: 'GPU essential' },
   ]
   return (

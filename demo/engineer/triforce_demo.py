@@ -236,7 +236,7 @@ async def act5_economics(theme):
 
     console.print(Panel(
         "[bold green]Xeon 6 handles classification, NER, summarization, embeddings[/]\n"
-        "80% of enterprise AI workloads — at [bold]$15,000/year[/] infrastructure cost.\n"
+        "In our measured workloads, these tasks all ran within SLA on CPU — at [bold]$15,000/year[/] infrastructure cost.\n"
         "No per-token charges. No GPU hardware to manage.\n\n"
         "[bold]At 1M records/month, saves $85K–$489K/year vs cloud APIs.[/]",
         title="[bold]The Triforce Value[/]", border_style="green",

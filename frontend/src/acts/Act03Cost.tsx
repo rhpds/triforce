@@ -63,7 +63,7 @@ export function Act03Cost({ onComplete }: Props) {
 
   return (
     <div className="demo-section">
-      <h3><span className="section-num">03</span> The Proof: Cost at Scale</h3>
+      <h3><span className="section-num">03</span> The Proof: Cost at Scale <span style={{ fontSize: '0.55em', fontWeight: 400, color: 'var(--text-dim)' }}>(as of July 2026)</span></h3>
       <div className="section-context">
         "Can I afford it?" Click through four volume tiers and watch the lines diverge.
         Xeon 6 is a flat cost — it doesn't scale with volume. Everything else does.

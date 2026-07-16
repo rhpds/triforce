@@ -215,7 +215,7 @@ export default function ModuleAdaptiveCache() {
             <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
               {stats.hit_rate > 0.5
                 ? `${stats.llm_reduction_pct}% fewer LLM calls. The system learned from ${stats.cache_size} unique classifications. At 1M records/month, this means ${Math.round(stats.llm_reduction_pct / 100 * 1000000)} records skip the LLM entirely. Only possible at $0/token — cloud APIs give no incentive to cache.`
-                : `Cache is warming up. Run more records to see the hit rate climb. After ~50 unique document types, 95%+ of classifications come from cache.`}
+                : `Cache is warming up. Run more records to see the hit rate climb. After ~50 unique document types, the system is projected to reach ~95%+ cache hit rate for classifications.`}
             </div>
           </StepCard>
         </motion.div>

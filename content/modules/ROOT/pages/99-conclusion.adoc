@@ -49,7 +49,7 @@ If you completed the xref:90-capstone.adoc[Capstone], your optimized stack is ru
 
 == The Takeaway
 
-Most enterprise AI does not need a GPU. With the right model selection, the right optimizations, and intelligent routing, Intel Xeon 6 CPUs handle 80% or more of real-world inference at zero incremental cost.
+Most enterprise AI does not need a GPU. With the right model selection, the right optimizations, and intelligent routing, Intel Xeon 6 CPUs handle routine inference -- classification, NER, fraud scoring, summarization -- at zero incremental cost.
 
 The 20% that genuinely needs GPU acceleration -- complex reasoning, frontier models, latency-critical generation -- routes to Intel Gaudi. The rest stays on the CPUs already in your data center.
 

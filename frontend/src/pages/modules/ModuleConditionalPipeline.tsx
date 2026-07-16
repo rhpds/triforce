@@ -72,7 +72,7 @@ export default function ModuleConditionalPipeline() {
             <StepCard num={3} title="Insight">
               <div style={{ fontSize: 14, color: 'var(--rh-green)', fontWeight: 600, lineHeight: 1.7 }}>
                 Documents with {'<'}2 medications skip the drug interaction check entirely — no inference call, no latency, no compute.
-                At scale, ~25% of records skip at least one step. That's 25% fewer LLM calls on the same $0 hardware.
+                At scale, some records skip at least one step — fewer LLM calls on the same $0 hardware (actual skip rate is workload-dependent).
               </div>
             </StepCard>
           )}

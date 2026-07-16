@@ -21,18 +21,18 @@ export function Act00Story({ onComplete }: Props) {
     // Step 0: The Spending
     <div key="spending" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 80, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--text-primary)', lineHeight: 1 }}>
-        $684 billion
+        $307 billion
       </div>
       <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12 }}>
         spent on enterprise AI in 2025
       </div>
-      <div style={sourceStyle}>Industry aggregate, 2025</div>
+      <div style={sourceStyle}>IDC Worldwide AI Spending Guide, 2025</div>
     </div>,
 
     // Step 1: The Failure
     <div key="failure" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 80, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)', lineHeight: 1 }}>
-        $547 billion
+        $246 billion
       </div>
       <div style={{ fontSize: 24, color: 'var(--rh-red)', marginTop: 12 }}>
         produced no measurable results
@@ -42,12 +42,12 @@ export function Act00Story({ onComplete }: Props) {
     // Step 2: RAND stat
     <div key="rand" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 80, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)', lineHeight: 1 }}>
-        80.3%
+        80%+
       </div>
       <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12 }}>
         of enterprise AI projects failed to deliver value
       </div>
-      <div style={sourceStyle}>RAND Corporation, 2025</div>
+      <div style={sourceStyle}>RAND Corporation, 2024</div>
     </div>,
 
     // Step 3: MIT stat
@@ -65,15 +65,15 @@ export function Act00Story({ onComplete }: Props) {
     <div key="grid" style={{ textAlign: 'center' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 520, margin: '0 auto' }}>
         <div>
-          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--text-primary)' }}>$684B</div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--text-primary)' }}>$307B</div>
           <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>spent on AI in 2025</div>
         </div>
         <div>
-          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>$547B</div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>$246B</div>
           <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>produced nothing</div>
         </div>
         <div>
-          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>80.3%</div>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: "'Red Hat Mono', monospace", color: 'var(--rh-red)' }}>80%+</div>
           <div style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>projects failed — RAND</div>
         </div>
         <div>
@@ -101,7 +101,7 @@ export function Act00Story({ onComplete }: Props) {
       <div style={{ fontSize: 24, color: 'var(--text-secondary)', marginTop: 12 }}>
         average server CPU utilization — the rest is idle
       </div>
-      <div style={sourceStyle}>McKinsey & Company</div>
+      <div style={sourceStyle}>NRDC / McKinsey</div>
     </div>,
 
     // Step 6: GPU idle
@@ -132,10 +132,10 @@ export function Act00Story({ onComplete }: Props) {
         What if you right-sized your inference to the workload?
       </div>
       <div style={{ fontSize: 16, color: 'var(--text-secondary)', marginTop: 16, lineHeight: 1.6 }}>
-        CPU for the 80% — at $0 per token on hardware you already own.
+        CPU for routine inference — at $0 per token on hardware you already own.
       </div>
       <div style={{ fontSize: 16, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.6 }}>
-        GPU for the 20% that needs it — when the task demands it.
+        GPU for the tasks that need it — when quality or speed demands it.
       </div>
       <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--rh-green)', marginTop: 16 }}>
         Both. On the same platform. Routed automatically.

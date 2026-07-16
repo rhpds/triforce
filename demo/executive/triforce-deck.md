@@ -30,7 +30,7 @@ AI inference costs are **unsustainable** at scale.
 
 <br>
 
-> 80% of enterprise AI workloads — classification, NER, embeddings, summarization — don't need a GPU.
+> In our measured workloads, classification, NER, embeddings, and summarization all ran within SLA on CPU at $0/token.
 
 ---
 

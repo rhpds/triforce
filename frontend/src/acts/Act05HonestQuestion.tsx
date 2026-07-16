@@ -120,7 +120,7 @@ export function Act05HonestQuestion({ onComplete }: Props) {
             The semantic router makes that decision in {'<'}1ms per request.
           </span><br /><br />
           <strong style={{ color: 'var(--rh-green)', fontSize: 16 }}>
-            80% of your workload runs at $0. 20% pays for GPU where it matters. The system decides for you.
+            Most inference tasks ran within SLA on CPU at $0/token. GPU pays for itself where quality or speed demands it. The system decides for you.
           </strong>
         </p>
       </motion.div>

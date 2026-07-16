@@ -275,7 +275,7 @@ The semantic router automates this split -- simple tasks stay on free CPU infere
 
 By completing this module, you should now understand:
 
-* The semantic router classifies complexity in <1ms using embeddings, not LLM calls
+* The semantic router classifies complexity in <1ms (after embedding model warm-up) using embeddings, not LLM calls
 * CPU handles most tasks at $0; GPU is only justified for specific task types
 * Routing thresholds are configurable -- small changes shift which requests go where
 * The CPU/GPU decision depends on the task, not the model
