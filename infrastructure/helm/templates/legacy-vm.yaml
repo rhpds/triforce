@@ -3,7 +3,7 @@ apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
   name: {{ .Values.virtualization.vm.name }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ .Values.virtualization.vm.name }}
     app.kubernetes.io/part-of: triforce
@@ -57,7 +57,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.virtualization.vm.name }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: {{ .Values.virtualization.vm.name }}

@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: semantic-router
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: semantic-router
     app.kubernetes.io/part-of: triforce
@@ -72,7 +72,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: semantic-router
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: semantic-router
@@ -85,7 +85,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: semantic-router
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   annotations:
     haproxy.router.openshift.io/timeout: "120s"
 spec:
