@@ -15,33 +15,6 @@ ui:
     snapshot: true
   supplemental_files:
     - path: ./content/supplemental-ui
-    - path: partials/footer-scripts.hbs
-      contents: |
-        <script src="{{uiRootPath}}/js/vendor/clipboard.js"></script>
-        <script src="{{uiRootPath}}/js/site.js"></script>
-        <script async src="{{uiRootPath}}/js/vendor/highlight.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-          document.querySelectorAll('.imageblock').forEach(function (el) {
-            if (el.querySelector('.lightbox-hint')) return;
-            var hint = document.createElement('span');
-            hint.className = 'lightbox-hint';
-            hint.textContent = '🔍 Click to enlarge';
-            hint.style.cssText = 'font-size:11px;color:#666;cursor:pointer;display:block;margin-top:4px;';
-            el.appendChild(hint);
-          });
-        });
-        </script>
-    - path: partials/head-styles.hbs
-      contents: |
-        <style>
-        .doc .imageblock { align-items: flex-start; }
-        .doc .bordershadow .content {
-          border: solid 1px #383838;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19);
-        }
-        .doc { max-width: none; }
-        </style>
 
 antora:
   extensions:
