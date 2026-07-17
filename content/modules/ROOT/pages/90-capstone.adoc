@@ -25,7 +25,7 @@ healthcareAgent:
   replicas: ___                   # default: 2
 
 finservAgent:
-  replicas: ___                   # default: 2
+  replicas: ___                   # default: 1
 
 # --- From Build: Fusion Panel ---
 modules:
@@ -36,13 +36,17 @@ modules:
 
 # --- From Build: Load Harness ---
   speculative:
-    enabled: ___                  # true or false
-    numSpeculativeTokens: ___     # default: 5, your measured sweet spot
+    enabled: ___                  # true or false (requires vLLM speculative alias on MAAS)
+    numSpeculativeTokens: ___     # default: 5
 
 # --- From Path C: Route & Split ---
-  heterogeneous:
-    enabled: ___                  # true or false
-    routingThreshold: ___         # default: 0.7
+# NOTE: Heterogeneous routing requires a separate GPU API endpoint.
+# Uncomment and configure when Gaudi accelerators are available.
+#  heterogeneous:
+#    enabled: true
+#    gpuApiBase: "<gaudi-maas-endpoint>"
+#    gpuModel: "granite-3-2-8b-instruct"
+#    routingThreshold: 0.7
 EOF
 ----
 

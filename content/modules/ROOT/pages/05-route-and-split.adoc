@@ -17,17 +17,17 @@ curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
   | jq '{task, results: [.results[] | {model, hardware, latency_ms, output: .output[:30]}]}'
 ----
 
-Now try the same task on GPU (if Gaudi accelerators are available on this cluster):
+Now compare the same task on the largest CPU model to see how model size affects latency:
 
 [source,bash,role="execute",subs=attributes+]
 ----
 curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
   -H "Content-Type: application/json" \
-  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-3-2-8b-instruct"]}' \
+  -d '{"task": "classification", "text": "DISCHARGE SUMMARY: 72-year-old male with Type 2 Diabetes on Metformin 500mg.", "models": ["granite-3-2-8b-instruct-cpu"]}' \
   | jq '{task, results: [.results[] | {model, hardware, latency_ms, output: .output[:30]}]}'
 ----
 
-Now run summarization -- a generation-heavy task where the hardware gap widens:
+Now run summarization -- a generation-heavy task where the model size gap widens:
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -37,17 +37,7 @@ curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
   | jq '{task, results: [.results[] | {model, hardware, latency_ms, output_tokens}]}'
 ----
 
-And summarization on GPU:
-
-[source,bash,role="execute",subs=attributes+]
-----
-curl -s -X POST {healthcare_url}/api/v1/benchmark/run \
-  -H "Content-Type: application/json" \
-  -d '{"task": "summarization", "text": "72-year-old male with Type 2 Diabetes, hypertension, CKD stage 3. Admitted for STEMI, underwent PCI with stent to RCA. On dual antiplatelet, Atorvastatin 80mg, Metformin 500mg, Lisinopril 10mg. EF 45% with inferior hypokinesis. Renal function stable. Monitor for bleeding risk.", "models": ["granite-3-2-8b-instruct"]}' \
-  | jq '{task, results: [.results[] | {model, hardware, latency_ms, output_tokens}]}'
-----
-
-NOTE: If GPU models return errors, Gaudi accelerators are not available on this cluster. Use these reference numbers for comparison:
+When GPU accelerators (Intel Gaudi) are configured, the same 8B model runs significantly faster. These reference numbers show what GPU routing achieves when available:
 
 [cols="2,1,1,1",options="header"]
 |===

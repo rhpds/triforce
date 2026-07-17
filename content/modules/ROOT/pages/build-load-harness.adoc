@@ -147,18 +147,18 @@ echo "  Wall clock: $\{after_ms}ms  |  Avg: $(( after_ms / 10 ))ms"
 *Is the improvement consistent across request types, or only for repeated classifications?* ___
 ****
 
-== Exercise 3: Tune Speculative Decoding
+== Exercise 3: Explore Speculative Decoding (Reference)
 
-Speculative decoding uses a tiny draft model (granite-350M) to propose tokens that a larger target model (granite-2b) verifies in batch. The `SPECULATIVE_NUM_TOKENS` environment variable controls how many tokens the draft proposes per batch.
+Speculative decoding uses a tiny draft model (granite-4-0-h-tiny-cpu) to propose tokens that a larger target model (granite-2b-cpu) verifies in batch. When configured with a vLLM speculative serving alias, the verification happens inside the serving engine — no extra API calls needed.
 
-Check the current configuration:
+Check the current speculative configuration:
 
 [source,bash,role="execute",subs=attributes+]
 ----
 curl -s {healthcare_url}/api/v1/speculative/status | jq .
 ----
 
-Run the baseline vs speculative comparison on a summarization task:
+Run the baseline vs speculative comparison. The speculative module compares the target model alone against the draft+target path:
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -168,50 +168,17 @@ curl -s -X POST {healthcare_url}/api/v1/speculative/run \
   --max-time 30 | jq '{baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup, mode}'
 ----
 
-Now tune the number of speculative tokens. Test 3 values and find the sweet spot:
-
-*3 tokens* (conservative -- fewer proposals, higher acceptance rate):
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc set env deploy/healthcare-agent SPECULATIVE_NUM_TOKENS=3
-oc rollout status deploy/healthcare-agent --timeout=90s
-curl -s -X POST {healthcare_url}/api/v1/speculative/run \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Summarize: 68-year-old female with COPD exacerbation, on Prednisone taper, Albuterol nebulizer q4h, home O2 2L. Admitted for hypoxia with SpO2 84% on room air. CT chest shows bilateral ground glass opacities. Started on BiPAP and IV methylprednisolone."}' \
-  --max-time 30 | jq '{tokens: 3, baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup}'
-----
-
-*7 tokens* (aggressive -- more proposals, lower acceptance rate):
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc set env deploy/healthcare-agent SPECULATIVE_NUM_TOKENS=7
-oc rollout status deploy/healthcare-agent --timeout=90s
-curl -s -X POST {healthcare_url}/api/v1/speculative/run \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Summarize: 68-year-old female with COPD exacerbation, on Prednisone taper, Albuterol nebulizer q4h, home O2 2L. Admitted for hypoxia with SpO2 84% on room air. CT chest shows bilateral ground glass opacities. Started on BiPAP and IV methylprednisolone."}' \
-  --max-time 30 | jq '{tokens: 7, baseline_ms: .baseline.latency_ms, speculative_ms: .speculative.latency_ms, speedup}'
-----
-
-NOTE: Speculative decoding requires the draft model (granite-350M) to be available on MAAS. If any of these calls return an error for the speculative run, the baseline will still complete -- record what you can and skip to Exercise 4.
+NOTE: Speculative decoding requires a dedicated vLLM serving alias (`granite-2b-cpu-speculative`) configured with draft-model workers on the MAAS platform. If this alias is not available, the module falls back to an app-layer comparison using the draft and target models separately — the speedup may be less than 1.0x in this mode, which is expected. The real gains come from vLLM-native speculative serving where draft and target run in the same engine.
 
 [sidebar]
 ****
-*Speculative decoding tuning results:*
+*Speculative decoding observations:*
 
-[cols="1,1,1,1",options="header"]
-|===
-| Num Tokens | Baseline (ms) | Speculative (ms) | Speedup
+* What `mode` did the result report? (`vllm-speculative` or `app-layer-draft`)
+* If app-layer: the draft model runs a full separate inference — no speedup is expected. This is a measurement, not an optimization.
+* If vllm-speculative: the draft proposes tokens inside vLLM's engine and the target verifies in batch — this is where real speedup appears.
 
-| 3 | ___ | ___ | ___x
-| 5 (default) | ___ | ___ | ___x
-| 7 | ___ | ___ | ___x
-|===
-
-*Sweet spot: ___ tokens*
-
-*Why?* More tokens means the draft model does more work per batch, but the acceptance rate drops because the draft is more likely to diverge from the target. The optimal value depends on the task -- structured output (NER, classification) has higher acceptance rates than free-form summarization.
+*Why does app-layer draft mode exist?* It lets you measure the draft model's quality and latency independently, so you can decide whether to request a vLLM speculative alias from your platform team.
 ****
 
 == Exercise 4: Query Your Own Data

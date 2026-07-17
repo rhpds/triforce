@@ -17,13 +17,13 @@ You will not watch a demo. You will run the experiments, configure the system, a
 
 == What's Running
 
-Your environment has 10 pods in a single OpenShift namespace:
+Your environment has 9 pods in a single OpenShift namespace:
 
 [cols="2,1,2",options="header"]
 |===
 | Service | Language | Role
 | Healthcare Agent (×2) | Python / FastAPI | Clinical NLP pipeline -- classify, extract entities, check interactions, summarize
-| FinServ Agent (×2) | Java / Quarkus | Fraud scoring -- rule engine + LLM hybrid
+| FinServ Agent | Java / Quarkus | Fraud scoring -- rule engine + LLM hybrid
 | Orchestrator | Go | A2A agent discovery + workflow coordination
 | Semantic Router | Python | Embedding-based complexity routing (<1ms after warm-up)
 | MCP Gateway | Python | 8 federated tools via JSON-RPC
@@ -72,7 +72,7 @@ These go beyond measurement. You will modify the running system -- change config
 | xref:build-routing-config.adoc[Custom Routing Config] | Add a 4th route to the semantic router, tune scoring weights | ~20 min
 | xref:build-fusion-panel.adoc[Fusion Panel Tuning] | Swap panel and judge models, compare quality vs latency | ~20 min
 | xref:build-mcp-tool.adoc[MCP Tool Deep Dive] | Explore all 8 tools at scale, design a tool routing strategy | ~18 min
-| xref:build-load-harness.adoc[Load Test Harness] | Write a load script, tune speculative decoding, query the audit trail | ~20 min
+| xref:build-load-harness.adoc[Load Test Harness] | Write a load script, explore speculative decoding, query the audit trail | ~20 min
 |===
 
 === Capstone (~25 minutes)
