@@ -1,0 +1,21 @@
+name: modules
+title: "Intel Xeon 6 201 — Building an AI Agent"
+version: ~
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    experimental: true
+    page-pagination: true
+    showroom-collection-version: v1.6.8
+    guid: "{guid}"
+    user: "{user}"
+    password: "{password}"
+    openshift_api_url: "{openshift_api_url}"
+    openshift_console_url: "{openshift_console_url}"
+    openshift_cluster_ingress_domain: "{openshift_cluster_ingress_domain}"
+    maas_url: "https://maas-rhdp.apps.maas.redhatworkshops.io"
+    litellm_api_key: "{litellm_api_key}"
+    advisor_url: "https://solution-agent-{user}-201.{openshift_cluster_ingress_domain}"
+    mcp_url: "https://solution-tools-{user}-201.{openshift_cluster_ingress_domain}"
+    advisor_ui_url: "https://solution-ui-{user}-201.{openshift_cluster_ingress_domain}"

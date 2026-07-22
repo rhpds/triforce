@@ -1,0 +1,9 @@
+.Lab
+* xref:index.adoc[Welcome]
+* xref:01-orient.adoc[Module 1: Orient]
+* xref:02-first-inference.adoc[Module 2: Your First Inference]
+* xref:03-under-the-hood.adoc[Module 3: Solve a Real Problem]
+* xref:04-deploy-your-model.adoc[Module 4: Deploy and Scale]
+
+.Wrap Up
+* xref:99-conclusion.adoc[What's Next]

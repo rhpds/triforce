@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-cache
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: precache-granite-tiny
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: download
+          image: registry.access.redhat.com/ubi9/python-311:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              pip install -q huggingface-hub
+              python -c "
+              from huggingface_hub import snapshot_download
+              snapshot_download(
+                  repo_id='ibm-granite/granite-4.0-tiny',
+                  local_dir='/mnt/models/granite-tiny',
+                  allow_patterns=['*.safetensors', '*.json', 'tokenizer*'],
+              )
+              print('Model cached successfully')
+              "
+          volumeMounts:
+            - name: model-cache
+              mountPath: /mnt/models
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: model-cache

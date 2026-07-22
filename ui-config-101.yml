@@ -14,13 +14,9 @@ tabs:
     path: /wetty
     port: 443
 
-  # Triforce Demo Frontend
-  - name: Triforce Demo
-    url: 'https://triforce-${USER}-triforce.${DOMAIN}'
-
-  # Inference Observability Dashboard
-  - name: Grafana
-    url: 'https://grafana-${USER}-triforce.${DOMAIN}'
+  # RHOAI Dashboard — visual model serving management
+  - name: RHOAI Dashboard
+    url: 'https://rhods-dashboard-redhat-ods-applications.${DOMAIN}'
 
   # OpenShift Console
   - name: OCP Console

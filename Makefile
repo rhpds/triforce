@@ -222,7 +222,29 @@ build-finserv: ## Build finserv agent container
 build-orchestrator: ## Build orchestrator container
 	podman build --platform linux/amd64 -t triforce/orchestrator:latest -f services/orchestrator/Containerfile services/orchestrator/
 
-build-all: build-healthcare build-finserv build-orchestrator ## Build all containers
+build-solution-tools: ## Build solution-tools MCP server container (201)
+	podman build --platform linux/amd64 -t triforce/solution-tools:latest -f services/solution-tools/Containerfile services/solution-tools/
+
+build-solution-agent: ## Build solution-agent container (201)
+	podman build --platform linux/amd64 -t triforce/solution-agent:latest -f services/solution-agent/Containerfile services/solution-agent/
+
+build-solution-ui: ## Build solution-ui container (201)
+	podman build --platform linux/amd64 -t triforce/solution-ui:latest -f services/solution-ui/Containerfile services/solution-ui/
+
+build-201: build-solution-tools build-solution-agent build-solution-ui ## Build all 201 containers
+
+build-all: build-healthcare build-finserv build-orchestrator ## Build all 301 containers
+
+# --- Showroom Sites ---
+
+build-site-101: ## Build 101 showroom site
+	npx antora site-101.yml
+
+build-site-201: ## Build 201 showroom site
+	npx antora site-201.yml
+
+build-site: ## Build default (301) showroom site
+	npx antora site.yml
 
 clean: ## Remove build artifacts and containers
 	podman-compose -f infrastructure/podman-compose.yaml down -v --remove-orphans 2>/dev/null || true

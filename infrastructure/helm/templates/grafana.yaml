@@ -1,0 +1,177 @@
+{{- if .Values.grafana.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+data:
+  triforce-inference.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "panels": [
+        {
+          "title": "Total Inference Requests",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "targets": [{"refId": "A", "expr": "total_requests"}],
+          "fieldConfig": {"defaults": {"thresholds": {"steps": [{"color": "green", "value": null}]}}}
+        },
+        {
+          "title": "Avg Latency (ms)",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "targets": [{"refId": "A", "expr": "avg_latency_ms"}],
+          "fieldConfig": {"defaults": {"unit": "ms", "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 1000}, {"color": "red", "value": 3000}]}}}
+        },
+        {
+          "title": "p95 Latency (ms)",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "targets": [{"refId": "A", "expr": "p95_latency_ms"}],
+          "fieldConfig": {"defaults": {"unit": "ms", "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 2000}, {"color": "red", "value": 5000}]}}}
+        },
+        {
+          "title": "CPU vs GPU Requests",
+          "type": "piechart",
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "targets": [{"refId": "A", "expr": "cpu_requests"}, {"refId": "B", "expr": "gpu_requests"}],
+          "fieldConfig": {"defaults": {}}
+        },
+        {
+          "title": "KV Cache Hit Rate",
+          "type": "gauge",
+          "gridPos": {"h": 6, "w": 8, "x": 0, "y": 4},
+          "targets": [{"refId": "A", "expr": "kv_cache_hit_rate"}],
+          "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1, "thresholds": {"steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 0.3}, {"color": "green", "value": 0.7}]}}}
+        },
+        {
+          "title": "Estimated Cost Savings ($)",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 8, "x": 8, "y": 4},
+          "targets": [{"refId": "A", "expr": "estimated_cost_savings"}],
+          "fieldConfig": {"defaults": {"unit": "currencyUSD", "thresholds": {"steps": [{"color": "green", "value": null}]}}}
+        },
+        {
+          "title": "Total Tokens Processed",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 8, "x": 16, "y": 4},
+          "targets": [{"refId": "A", "expr": "total_input_tokens + total_output_tokens"}],
+          "fieldConfig": {"defaults": {"thresholds": {"steps": [{"color": "blue", "value": null}]}}}
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["triforce", "inference"],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "title": "Triforce Inference Dashboard",
+      "uid": "triforce-inference"
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Healthcare Agent
+        type: yesoreyeram-infinity-datasource
+        access: proxy
+        url: http://healthcare-agent:8081
+        jsonData:
+          url: http://healthcare-agent:8081
+        isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+    root_url = %(protocol)s://%(domain)s/
+    [security]
+    admin_user = admin
+    admin_password = triforce
+    [auth.anonymous]
+    enabled = true
+    org_role = Viewer
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/triforce-inference.json
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: {{ .Values.grafana.image }}
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: config
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-config
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: grafana
+spec:
+  to:
+    kind: Service
+    name: grafana
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

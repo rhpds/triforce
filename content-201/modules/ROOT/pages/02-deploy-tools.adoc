@@ -1,0 +1,133 @@
+= Module 2: Deploy the MCP Tools
+:navtitle: Deploy the MCP Tools
+
+== Objective
+
+Deploy the Intel MCP tools server and call each tool directly to see the structured data the agent will use.
+
+== Exercise 1: Deploy the MCP Server
+
+Deploy the solution-tools pod in your namespace:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-tools.yaml
+----
+
+Wait for the pod to be ready:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout status deploy/solution-tools --timeout=60s
+----
+
+== Exercise 2: List Available Tools
+
+The MCP server exposes tools via JSON-RPC 2.0 -- the same protocol used by Claude and VS Code:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
+  | jq '.result.tools[] | {name, description}'
+----
+
+[sidebar]
+****
+*Record the 3 tools:*
+
+1. ___
+2. ___
+3. ___
+****
+
+== Exercise 3: Intel Hardware Lookup
+
+Look up Intel Xeon 6 processors optimized for AI inference:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0","id":"2",
+    "method":"tools/call",
+    "params":{"name":"intel_hardware_lookup","arguments":{"family":"xeon6","use_case":"ai_inference"}}
+  }' | jq '.result.structuredContent'
+----
+
+[sidebar]
+****
+*Record:*
+
+* How many Xeon 6 SKUs match AI inference? ___
+* Do they all support AMX? ___
+* Core count range: ___ to ___
+* TDP range: ___ to ___ watts
+****
+
+== Exercise 4: OpenShift Capabilities
+
+Look up the AI/ML capabilities of the OpenShift platform:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0","id":"3",
+    "method":"tools/call",
+    "params":{"name":"openshift_capabilities","arguments":{"capability_area":"ai_ml"}}
+  }' | jq '.result.structuredContent'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Key AI/ML operator: ___
+* What does RHOAI provide for model serving? ___
+****
+
+== Exercise 5: Reference Architectures
+
+Get a joint Red Hat + Intel reference architecture for retail:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {mcp_url}/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0","id":"4",
+    "method":"tools/call",
+    "params":{"name":"reference_architectures","arguments":{"vertical":"retail","scale":"medium"}}
+  }' | jq '.result.structuredContent'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Architecture name: ___
+* Estimated nodes: ___
+* Key Intel hardware tier for edge: ___
+* Key OpenShift operator for the solution: ___
+****
+
+== Verify
+
+[%interactive]
+* [ ] MCP server pod is Running
+* [ ] All 3 tools listed via tools/list
+* [ ] Each tool returns structured data
+* [ ] Tool latency is under 50ms (no LLM involved)
+
+== Learning Outcomes
+
+* MCP tools return structured data in milliseconds -- vs seconds for an LLM call
+* Tools provide facts the model cannot generate: real product specs, platform features, validated architectures
+* The JSON-RPC 2.0 protocol is the same one used by Claude, VS Code, and other AI systems -- it is an industry standard
+
+[.next-nav]
+xref:03-wire-agent.adoc[Next: Module 3 — Wire the Agent →]

@@ -1,0 +1,78 @@
+= Building an AI Agent — Hands-On Lab
+:navtitle: Welcome
+
+== What You'll Build
+
+In this lab you will build, deploy, and tune an AI agent on OpenShift. The *Red Hat + Intel Solution Architect Agent* takes customer workload requirements, looks up Intel hardware specs and OpenShift capabilities via MCP tools, and generates a joint solution brief.
+
+By the end, you will understand what makes an agent different from a model, and how to deploy one as standard Kubernetes infrastructure.
+
+== Learning Objectives
+
+* Understand the difference between a model (answers questions) and an agent (solves problems)
+* Deploy MCP tools that provide structured data to an agent
+* Deploy a LangGraph agent with a configurable system prompt
+* Test the agent with real customer scenarios
+* Tune agent behavior by swapping models and editing prompts
+
+== Why This Matters for You
+
+As a tech seller, you field workload sizing questions daily. This agent does the product lookup, benchmark analysis, and platform recommendation work. You validate the output and present it to the customer.
+
+More broadly: this is how enterprise AI gets built. Not one monolithic model, but a model wrapped in tools and orchestration. This pattern applies to any domain.
+
+== What's Pre-Deployed
+
+Your environment has MAAS (shared model inference) and an empty namespace. You will deploy everything else.
+
+[cols="2,2,2",options="header"]
+|===
+| Component | What It Is | You Deploy?
+| MAAS/LiteLLM | Shared inference (CPU + GPU models) | No -- pre-deployed
+| Your Namespace | Empty, ready for your agent | Yes -- 3 pods
+|===
+
+== The Agent Pattern
+
+```
+Customer Workload Description
+          │
+          ▼
+   ┌──────────────┐
+   │ System Prompt │  ← "You are a Red Hat + Intel Solution Architect..."
+   │  (persona)    │
+   └──────┬───────┘
+          │
+   ┌──────┴───────┐
+   │   LangGraph   │  ← Multi-step workflow
+   │ (orchestration)│
+   └──────┬───────┘
+          │
+     ┌────┼────┐
+     │    │    │
+   Intel  OCP  Ref
+   Specs  Caps Archs
+   (MCP)  (MCP) (MCP)
+     │    │    │
+     └────┼────┘
+          │
+          ▼
+   Solution Brief
+   (with citations)
+```
+
+In 101 you deployed a model. A model answers questions. An *agent* solves problems.
+
+== Lab Structure (~45 minutes)
+
+[cols="1,3,1",options="header"]
+|===
+| Module | What You'll Do | Time
+| xref:01-anatomy.adoc[Anatomy of an Agent] | See why a model alone is not enough | ~8 min
+| xref:02-deploy-tools.adoc[Deploy the MCP Tools] | Deploy and test 3 Intel/OpenShift tools | ~12 min
+| xref:03-wire-agent.adoc[Wire the Agent] | Deploy the agent, get your first solution brief | ~15 min
+| xref:04-test-and-tune.adoc[Make It Yours] | Write your own prompt, test with your customer, build your agent card | ~15 min
+|===
+
+[.next-nav]
+xref:01-anatomy.adoc[Start: Module 1 — Anatomy of an Agent →]

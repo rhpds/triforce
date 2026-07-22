@@ -1,0 +1,189 @@
+{
+  "architectures": {
+    "retail": {
+      "name": "Intelligent Retail — Real-Time Customer Analytics",
+      "description": "Edge-to-core architecture for real-time customer analytics, inventory optimization, and in-store AI experiences. Edge inference on Intel Xeon at each store with centralized model training on Gaudi accelerators.",
+      "openshift_components": ["MicroShift (edge stores)", "OpenShift 4.x (regional hub)", "ACM (fleet management)", "OpenShift AI (model serving)", "Service Mesh (traffic routing)"],
+      "intel_hardware": {
+        "edge": {
+          "sku": "6710E",
+          "role": "In-store inference node",
+          "count_per_site": 1,
+          "notes": "Low-power E-core for always-on inference — product recognition, demand forecasting, customer sentiment"
+        },
+        "core": {
+          "sku": "6766P",
+          "role": "Regional data center",
+          "count_per_site": 3,
+          "notes": "P-core with AMX for model fine-tuning on regional data, aggregated analytics"
+        },
+        "cloud": {
+          "sku": "Gaudi 3",
+          "role": "Central model training",
+          "count_per_site": 4,
+          "notes": "Train foundation models, generate store-specific model variants"
+        }
+      },
+      "estimated_nodes": {
+        "small": "5 (1 edge + 3 core + 1 infra)",
+        "medium": "20 (10 edge + 6 core + 4 infra)",
+        "large": "100+ (50 edge + 30 core + 20 infra/training)"
+      },
+      "key_operators": ["advanced-cluster-management", "rhods-operator", "nfd-operator", "lvms-operator", "serverless-operator"],
+      "highlights": [
+        "Sub-100ms inference at the edge for real-time product recognition using INT8 quantized models on Xeon AMX",
+        "ACM-managed fleet of MicroShift edge nodes with zero-touch provisioning across 50+ store locations",
+        "Federated learning pipeline — store-level data never leaves the edge, only model gradients aggregate centrally",
+        "Scale-to-zero serverless inference on low-traffic stores saves 40% compute cost vs always-on"
+      ]
+    },
+    "financial_services": {
+      "name": "AI-Powered Fraud Detection and Compliance",
+      "description": "Real-time transaction scoring with multi-model fusion for fraud detection and automated regulatory compliance. Confidential computing via Intel TDX protects sensitive financial data during inference.",
+      "openshift_components": ["OpenShift 4.x (primary cluster)", "OpenShift AI (model serving)", "ACS (security scanning)", "Service Mesh (mTLS)", "Trusted Artifact Signer", "Trustee (TDX attestation)"],
+      "intel_hardware": {
+        "edge": {
+          "sku": "6740P",
+          "role": "Branch office inference",
+          "count_per_site": 1,
+          "notes": "Real-time transaction scoring at the branch level, sub-50ms latency requirement"
+        },
+        "core": {
+          "sku": "6780P",
+          "role": "Central fraud detection cluster",
+          "count_per_site": 6,
+          "notes": "128-core P-core nodes with TDX for confidential multi-model fusion — panel of models votes on each transaction"
+        },
+        "cloud": {
+          "sku": "Gaudi 3",
+          "role": "Model training and backtesting",
+          "count_per_site": 8,
+          "notes": "Train fraud detection models on historical transaction data, backtest against known fraud patterns"
+        }
+      },
+      "estimated_nodes": {
+        "small": "6 (3 compute + 3 infra)",
+        "medium": "15 (9 compute + 6 infra)",
+        "large": "50+ (30 compute + 12 infra + 8 training)"
+      },
+      "key_operators": ["rhods-operator", "rhacs-operator", "servicemeshoperator", "trustee-operator", "rhtas-operator", "nfd-operator"],
+      "highlights": [
+        "Multi-model fusion — 3 specialized models (rules, statistical, LLM) vote on each transaction with a judge model synthesizing the verdict",
+        "Intel TDX confidential computing ensures customer financial data is encrypted in memory during inference — hardware-attested",
+        "mTLS service mesh between all scoring microservices with ACS runtime threat detection for SOC2/PCI-DSS compliance",
+        "Adaptive classification cache learns from LLM verdicts — 60% of repeat transaction patterns served from cache at zero LLM cost"
+      ]
+    },
+    "manufacturing": {
+      "name": "Predictive Maintenance and Quality Inspection",
+      "description": "Factory-floor AI for predictive equipment maintenance, visual quality inspection, and supply chain optimization. Edge inference on ruggedized Intel hardware with centralized digital twin simulation.",
+      "openshift_components": ["MicroShift (factory floor)", "OpenShift 4.x (plant hub)", "ACM (multi-plant governance)", "OpenShift AI (model lifecycle)", "Pipelines (CI/CD)", "OpenShift Virtualization (legacy SCADA)"],
+      "intel_hardware": {
+        "edge": {
+          "sku": "6710E",
+          "role": "Factory floor inference",
+          "count_per_site": 4,
+          "notes": "One per production line — vibration analysis, visual inspection, anomaly detection at line speed"
+        },
+        "core": {
+          "sku": "6766P",
+          "role": "Plant data center",
+          "count_per_site": 4,
+          "notes": "Digital twin simulation, historical trend analysis, model retraining on plant-specific failure modes"
+        },
+        "cloud": {
+          "sku": "Gaudi 3",
+          "role": "R&D model development",
+          "count_per_site": 2,
+          "notes": "Train vision models for new product lines, transfer learning across plant locations"
+        }
+      },
+      "estimated_nodes": {
+        "small": "8 (4 edge + 3 core + 1 infra)",
+        "medium": "25 (12 edge + 8 core + 5 infra)",
+        "large": "80+ (40 edge + 25 core + 15 infra/training)"
+      },
+      "key_operators": ["advanced-cluster-management", "rhods-operator", "nfd-operator", "kubevirt-hyperconverged-operator", "openshift-pipelines-operator-rh", "lvms-operator"],
+      "highlights": [
+        "Real-time vibration analysis on Xeon AMX detects bearing wear 72 hours before failure with 94% accuracy",
+        "OpenShift Virtualization runs legacy SCADA/HMI systems as VMs alongside containerized AI — no forklift migration needed",
+        "Automated model retraining pipeline triggers when prediction accuracy drops below threshold — Tekton pipeline retrains and deploys in under 2 hours",
+        "Multi-plant governance via ACM ensures consistent model versions, security policies, and Intel firmware levels across 15+ facilities"
+      ]
+    },
+    "healthcare": {
+      "name": "Clinical NLP and Medical Imaging AI",
+      "description": "AI-assisted clinical decision support combining NLP for clinical notes with medical imaging analysis. Privacy-preserving inference using Intel TDX for HIPAA-regulated patient data.",
+      "openshift_components": ["OpenShift 4.x (hospital data center)", "OpenShift AI (model serving)", "ACS (compliance)", "Trustee (TDX attestation)", "ODF (medical imaging storage)", "Service Mesh (mTLS)"],
+      "intel_hardware": {
+        "edge": {
+          "sku": "6740P",
+          "role": "Department inference node",
+          "count_per_site": 2,
+          "notes": "Real-time clinical NLP at point of care — classification, entity extraction, summarization in exam rooms"
+        },
+        "core": {
+          "sku": "6780P",
+          "role": "Hospital data center",
+          "count_per_site": 4,
+          "notes": "128-core with TDX for confidential medical imaging inference, multi-model clinical pipelines"
+        },
+        "cloud": {
+          "sku": "Gaudi 3",
+          "role": "Model training on de-identified data",
+          "count_per_site": 4,
+          "notes": "Fine-tune clinical LLMs and medical imaging models on de-identified patient datasets"
+        }
+      },
+      "estimated_nodes": {
+        "small": "6 (2 edge + 3 core + 1 infra)",
+        "medium": "14 (4 edge + 6 core + 4 infra)",
+        "large": "40+ (10 edge + 18 core + 12 infra/training)"
+      },
+      "key_operators": ["rhods-operator", "rhacs-operator", "trustee-operator", "odf-operator", "servicemeshoperator", "nfd-operator"],
+      "highlights": [
+        "4-stage clinical NLP pipeline — classify, extract entities, summarize, audit — processes discharge notes in under 3 seconds on Xeon CPU",
+        "Intel TDX hardware enclaves ensure PHI never exists in cleartext memory during inference — meets HIPAA technical safeguard requirements",
+        "Heterogeneous routing sends simple classifications to CPU ($0/token) and complex summarizations to Gaudi ($0.002/token) — 70% cost reduction",
+        "ODF provides WORM-compliant storage for medical images and audit logs with 7-year retention policy enforcement"
+      ]
+    },
+    "telco": {
+      "name": "5G Network Intelligence and Edge AI",
+      "description": "AI-driven network optimization for 5G RAN and core networks. Real-time traffic prediction, anomaly detection, and automated network healing on Intel-powered edge infrastructure.",
+      "openshift_components": ["Single Node OpenShift (far edge)", "OpenShift 4.x (regional core)", "ACM (fleet management)", "OpenShift AI (model serving)", "Serverless (event-driven)", "Service Mesh (control plane)"],
+      "intel_hardware": {
+        "edge": {
+          "sku": "6741E",
+          "role": "Cell site edge node",
+          "count_per_site": 1,
+          "notes": "E-core for power-efficient always-on RAN analytics — traffic prediction, interference detection, energy optimization"
+        },
+        "core": {
+          "sku": "6766P",
+          "role": "Regional mobile core",
+          "count_per_site": 6,
+          "notes": "P-core nodes for UPF, 5G core network functions, and centralized AI model serving"
+        },
+        "cloud": {
+          "sku": "Gaudi 3",
+          "role": "Network AI training",
+          "count_per_site": 4,
+          "notes": "Train network optimization models on aggregated RAN telemetry, spectrum efficiency models"
+        }
+      },
+      "estimated_nodes": {
+        "small": "10 (5 edge + 3 core + 2 infra)",
+        "medium": "50 (30 edge + 12 core + 8 infra)",
+        "large": "500+ (300 edge + 120 core + 80 infra/training)"
+      },
+      "key_operators": ["advanced-cluster-management", "rhods-operator", "nfd-operator", "serverless-operator", "servicemeshoperator", "openshift-pipelines-operator-rh"],
+      "highlights": [
+        "Sub-10ms inference at the cell site for real-time RAN optimization — beam steering, handover prediction, interference mitigation",
+        "ACM manages 300+ SNO edge nodes with policy-based firmware and model version governance across geographic regions",
+        "Serverless event-driven inference scales with network traffic patterns — scale-to-zero during off-peak saves 50% energy at cell sites",
+        "Closed-loop automation — anomaly detection triggers network healing actions via service mesh traffic rerouting within 500ms"
+      ]
+    }
+  }
+}

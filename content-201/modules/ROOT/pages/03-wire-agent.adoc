@@ -1,0 +1,120 @@
+= Module 3: Wire the Agent
+:navtitle: Wire the Agent
+
+== Objective
+
+Deploy the Solution Architect agent, connect it to the model and MCP tools, and get your first solution brief.
+
+== Exercise 1: Inspect the System Prompt
+
+The agent's behavior is defined by a system prompt, mounted as a ConfigMap. Deploy it and read it:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/advisor-prompt-configmap.yaml
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap advisor-prompt -o jsonpath='{.data.system_prompt}' | head -30
+----
+
+The prompt defines:
+
+* *Persona*: "You are a Red Hat + Intel Solution Architect..."
+* *Process*: Understand requirements → look up hardware → check platform → get architecture → generate brief
+* *Output format*: Structured recommendation with executive summary, hardware tiers, platform components, and partnership value
+
+This is the primary control surface. Change the prompt, change the behavior -- no code changes required.
+
+== Exercise 2: Deploy the Agent
+
+Deploy the solution-agent pod. It connects to MAAS for inference and the MCP server for tools:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-agent.yaml
+oc rollout status deploy/solution-agent --timeout=90s
+----
+
+Check the agent's environment:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get deploy/solution-agent -o jsonpath='{.spec.template.spec.containers[0].env[*].name}' | tr ' ' '\n'
+----
+
+Key environment variables:
+
+* `LITELLM_API_BASE` -- where the LLM lives (MAAS)
+* `LITELLM_API_KEY` -- authentication
+* `MCP_SERVER_URL` -- where the tools live (solution-tools pod)
+* `ADVISOR_MODEL` -- which model to use for reasoning
+
+== Exercise 3: Deploy the UI
+
+Deploy the chat interface:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-ui.yaml
+oc rollout status deploy/solution-ui --timeout=60s
+----
+
+Switch to the *Solution Architect* tab to see the chat interface.
+
+== Exercise 4: First Conversation
+
+Send a request via the terminal:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "A retail chain needs real-time inventory prediction across 500 stores. Each store has 2 edge servers running legacy Windows applications. They currently run VMware with Oracle DB. Budget is $2M for the infrastructure refresh. They need sub-second predictions at each store."
+  }' | jq '.'
+----
+
+Examine the response:
+
+* `brief` -- The full solution recommendation
+* `requirements` -- What the agent extracted from your query
+* `hardware_options` -- Intel products the agent looked up
+* `platform_capabilities` -- OpenShift features the agent identified
+* `architecture` -- Reference architecture that matches
+* `inference_log` -- Every LLM call and tool call with latencies
+
+[sidebar]
+****
+*Record:*
+
+* How many LLM calls were made? ___
+* How many MCP tool calls were made? ___
+* Total inference time: ___ ms
+* Does the recommendation cite specific Intel SKUs? ___
+* Does it name specific OpenShift operators? ___
+
+Compare this to the raw model response from Module 1. The agent's response is backed by real data.
+****
+
+Now try the same question in the *Solution Architect* tab using the chat UI.
+
+== Verify
+
+[%interactive]
+* [ ] All 3 pods running (solution-tools, solution-agent, solution-ui)
+* [ ] System prompt reviewed
+* [ ] First query returned a structured recommendation
+* [ ] Tool calls visible in inference_log
+* [ ] Chat UI works in the browser tab
+
+== Learning Outcomes
+
+* An agent is infrastructure: model + tools + prompt, deployed as Kubernetes pods
+* The system prompt defines behavior; the model provides reasoning; the tools provide data
+* LangGraph orchestrates the multi-step workflow automatically
+* Every tool call and LLM call is logged -- you can audit exactly what happened
+
+[.next-nav]
+xref:04-test-and-tune.adoc[Next: Module 4 — Test and Tune →]

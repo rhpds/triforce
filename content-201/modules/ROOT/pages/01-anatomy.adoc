@@ -1,0 +1,84 @@
+= Module 1: Anatomy of an Agent
+:navtitle: Anatomy of an Agent
+
+== Objective
+
+Understand what makes an agent different from a model by seeing where a model alone fails, and previewing the components you will assemble.
+
+== Exercise 1: Ask a Model Directly
+
+Call MAAS with a workload sizing question -- the kind of question a customer would ask you:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {maas_url}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{
+    "model": "qwen25-3b-cpu",
+    "messages": [{"role": "user", "content": "A retail chain wants to run real-time inventory prediction across 500 stores. Each store has 2 edge servers. They are currently on VMware with Oracle DB. What Intel hardware and Red Hat platform should they use? Be specific about SKUs and operators."}],
+    "max_tokens": 300
+  }' | jq '.choices[0].message.content'
+----
+
+Read the response carefully.
+
+[sidebar]
+****
+*Record:*
+
+* Did the model cite specific Intel SKU numbers? ___
+* Did it name specific OpenShift operators? ___
+* Were the specifications plausible or fabricated? ___
+* Could you verify any of the claims? ___
+
+The model _guesses_. It cannot look up current product specs, benchmark data, or reference architectures. It may hallucinate SKU numbers, invent performance figures, or recommend products that do not exist.
+****
+
+== Exercise 2: What an Agent Adds
+
+An agent wraps a model with three additional components:
+
+[cols="2,3",options="header"]
+|===
+| Component | What It Does
+| *MCP Tools* | Return structured data in milliseconds -- product specs, benchmarks, platform capabilities. No guessing.
+| *System Prompt* | Defines the agent's persona, process, and output format. The model follows instructions instead of free-associating.
+| *LangGraph* | Orchestrates a multi-step workflow: understand requirements → look up data → synthesize recommendation.
+|===
+
+The model provides reasoning. The tools provide data. The prompt provides structure. Together, they produce a recommendation backed by real facts instead of hallucinations.
+
+== Exercise 3: Preview the Components
+
+You will deploy three pods in the next modules:
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== Components you will deploy ==="
+echo ""
+echo "1. solution-tools    — MCP server with 3 Intel/OpenShift data tools"
+echo "2. solution-agent    — LangGraph agent that calls the model + tools"
+echo "3. solution-ui       — Web chat interface for the agent"
+echo ""
+echo "Current namespace status:"
+oc get pods
+----
+
+Your namespace should still be empty. You will fill it in Modules 2 and 3.
+
+== Verify
+
+[%interactive]
+* [ ] Model response reviewed -- hallucinations identified
+* [ ] Three components understood: tools, agent, UI
+* [ ] Namespace confirmed empty
+
+== Learning Outcomes
+
+* A model hallucinates when asked for specific product data it was not trained on
+* An agent wraps the model with tools (for data), a system prompt (for structure), and orchestration (for multi-step reasoning)
+* MCP (Model Context Protocol) is the standard for tool-model integration -- the same protocol used by Claude, VS Code, and other AI systems
+
+[.next-nav]
+xref:02-deploy-tools.adoc[Next: Module 2 — Deploy the MCP Tools →]

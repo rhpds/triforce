@@ -1,0 +1,50 @@
+= Model Deployment on OpenShift — Hands-On Lab
+:navtitle: Welcome
+
+== What You'll Do
+
+In this lab you will deploy and call AI models running on Intel Xeon 6 CPUs. By the end, you will have made inference calls to shared models, compared model sizes and quality, and deployed your own model serving endpoint using Red Hat OpenShift AI.
+
+No slides. No watching. You run the commands and see the results yourself.
+
+== Learning Objectives
+
+* Call AI models running on Intel Xeon 6 CPUs via a shared inference endpoint
+* Compare model quality and latency across parameter sizes (2B, 3B, 3.8B)
+* Understand the cost model: CPU inference at $0/token vs GPU vs cloud API
+* Deploy your own model serving endpoint using Red Hat OpenShift AI
+* Compare shared (MAAS) vs self-hosted model serving tradeoffs
+
+== What's Running
+
+Your environment has a shared AI inference service (MAAS/LiteLLM) and an empty OpenShift namespace:
+
+[cols="2,2",options="header"]
+|===
+| Component | What It Does
+| MAAS/LiteLLM (shared) | Proxies inference to models running on Intel Xeon 6 CPUs and Intel Gaudi GPUs
+| RHOAI Operator (cluster) | Provides Kubernetes-native model serving CRDs (ServingRuntime, InferenceService)
+| Your Namespace (empty) | Where you will deploy your own model serving endpoint
+|===
+
+All inference runs on Intel Xeon 6 with AMX acceleration. No GPU required for the models in this lab.
+
+== Lab Structure (~45 minutes)
+
+This lab is linear. Each module builds on the previous one.
+
+[cols="1,3,1",options="header"]
+|===
+| Module | What You'll Do | Time
+| xref:01-orient.adoc[Orient] | Log in, verify your environment, understand model serving paths | ~8 min
+| xref:02-first-inference.adoc[Your First Inference] | Call models, compare sizes, extract entities | ~10 min
+| xref:03-under-the-hood.adoc[Solve a Real Problem] | Classify a batch, compare 3 models, pick the best one | ~15 min
+| xref:04-deploy-your-model.adoc[Deploy and Scale] | Deploy your model, scale to 2 replicas, produce a summary | ~15 min
+|===
+
+== The Big Idea
+
+AI inference does not require a GPU. Intel Xeon 6 CPUs with AMX acceleration serve models at zero incremental cost on hardware you already own. You will prove this yourself.
+
+[.next-nav]
+xref:01-orient.adoc[Start: Module 1 — Orient →]

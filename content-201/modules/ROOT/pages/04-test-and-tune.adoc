@@ -1,0 +1,217 @@
+= Module 4: Make It Yours
+:navtitle: Make It Yours
+
+== Objective
+
+Test the agent with real scenarios, then write your own system prompt for a customer you know. Deploy it, test it, and leave with an agent configured for your territory.
+
+== Exercise 1: Three Customer Scenarios
+
+Run a financial services scenario:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "A mid-size bank needs to score 10,000 transactions per second for fraud detection. They need p99 latency under 200ms. Current stack is mainframe-based batch processing. Budget is $500K for the initial deployment. Regulatory requirements mandate on-premises data processing."
+  }' | jq '.brief'
+----
+
+A manufacturing scenario:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "An automotive manufacturer has 12 factories worldwide. They want predictive maintenance AI on the factory floor — analyzing sensor data from 500 robots per factory. Connectivity is unreliable. They need models that run locally on edge hardware without cloud dependency."
+  }' | jq '.brief'
+----
+
+A cost-savings scenario:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "A 50-person startup classifies 1M customer support tickets per day using GPT-4 at $0.03 per request. They are spending $30K per month on API calls. They want to cut costs by 90% without losing classification accuracy."
+  }' | jq '.brief'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Did the financial services brief address on-premises regulatory requirements? ___
+* Did the manufacturing brief recommend edge hardware? ___
+* Did the cost-savings brief show specific dollar savings? ___
+* Were different Intel hardware tiers recommended for each? ___
+****
+
+== Exercise 2: Write Your Prompt
+
+The system prompt is the agent's expertise. You are going to replace it with one tailored to a customer you know.
+
+First, read the current prompt:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get configmap advisor-prompt -o jsonpath='{.data.system_prompt}'
+----
+
+Now write your own. Pick a customer or industry you work with and fill in this template:
+
+[source,bash,subs=attributes+]
+----
+# Edit this prompt for YOUR customer scenario, then run the block below to deploy it.
+#
+# Replace the bracketed sections with specifics from your territory:
+# - Who is the customer? (industry, size, region)
+# - What is their pain point? (cost, speed, compliance, modernization)
+# - What should the agent emphasize? (edge, security, migration, TCO)
+----
+
+Deploy your custom prompt:
+
+[source,bash,role="execute",subs=attributes+]
+----
+cat << 'PROMPT_EOF' | oc create configmap advisor-prompt --from-literal=system_prompt="$(cat)" --dry-run=client -o yaml | oc apply -f -
+You are a Red Hat + Intel Solution Architect specializing in helping enterprise customers modernize their AI infrastructure.
+
+When a customer describes their workload, follow this process:
+1. Identify the workload type and key constraints
+2. Look up matching Intel hardware using the intel_hardware_lookup tool
+3. Check which OpenShift operators and capabilities apply using openshift_capabilities
+4. Find a reference architecture using reference_architectures
+5. Generate a solution brief
+
+Your recommendation must include:
+- Executive Summary (2-3 sentences)
+- Recommended Intel Hardware by deployment tier
+- OpenShift Platform Components with specific operator names
+- Architecture Overview showing how the pieces connect
+- Cost Considerations comparing on-premises vs cloud
+- Why Red Hat + Intel Together — the specific integration advantages
+
+Always cite specific product names (Xeon 6, Gaudi, OpenShift AI, AMQ Streams).
+Always include a "Migration Path" section for customers on legacy infrastructure.
+Keep the brief under 800 words.
+PROMPT_EOF
+----
+
+Restart the agent to pick up the new prompt:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc rollout restart deploy/solution-agent
+oc rollout status deploy/solution-agent --timeout=90s
+----
+
+== Exercise 3: Test Your Prompt
+
+Write a query that matches your customer scenario and test it:
+
+[source,bash,subs=attributes+]
+----
+# Replace with YOUR customer's situation:
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "YOUR CUSTOMER SCENARIO HERE — describe their workload, constraints, current stack, and budget."
+  }' | jq '.brief'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Does the brief match your customer's situation? ___
+* Did the "Migration Path" section appear (from your prompt edit)? ___
+* What would you change in the prompt to improve the output? ___
+****
+
+== Exercise 4: Swap the Model
+
+Try a larger model to see if the recommendation quality improves:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc set env deploy/solution-agent ADVISOR_MODEL=phi3-mini-cpu
+oc rollout status deploy/solution-agent --timeout=90s
+----
+
+Re-run your customer scenario:
+
+[source,bash,subs=attributes+]
+----
+curl -s -X POST {advisor_url}/api/v1/advise \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "YOUR SAME CUSTOMER SCENARIO"
+  }' | jq '{brief: .brief, inference_log: .inference_log}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* 3B model quality (1-5): ___
+* 3.8B model quality (1-5): ___
+* 3B model inference time: ___ ms
+* 3.8B model inference time: ___ ms
+* Worth the extra latency? ___
+****
+
+== Exercise 5: Your Agent Card
+
+Fill in this summary — it captures what you built and what you would show a customer:
+
+[sidebar]
+****
+*Your Solution Architect Agent*
+
+*Target customer/industry*: ___
+
+*System prompt customization*: What did you add or change from the default? ___
+
+*Model selected*: [ ] qwen25-3b-cpu (3B, faster) [ ] phi3-mini-cpu (3.8B, richer)
+
+*Why*: ___
+
+*MCP tools used*:
+
+* `intel_hardware_lookup` — ___
+* `openshift_capabilities` — ___
+* `reference_architectures` — ___
+
+*Sample query*: ___
+
+*What you would change next*:
+
+* [ ] Add a tool for ___ (e.g., competitive pricing, customer history, compliance rules)
+* [ ] Modify the prompt to emphasize ___
+* [ ] Try a GPU-class model for ___
+* [ ] Other: ___
+****
+
+== Verify
+
+[%interactive]
+* [ ] Three canned scenarios returned different recommendations
+* [ ] Custom system prompt deployed and tested
+* [ ] Customer-specific query returned relevant output
+* [ ] Model swap compared (quality + latency)
+* [ ] Agent card filled in
+
+== Learning Outcomes
+
+* The system prompt is the primary control surface — change the persona, process, and output format without touching code
+* Prompt engineering is iterative: write, test, observe, revise
+* Model selection is a quality/latency tradeoff — test both, pick based on your use case
+* Every change is a ConfigMap or env var — standard Kubernetes operations that any platform team can manage
+* You leave with an agent configured for YOUR customer scenario
+
+[.next-nav]
+xref:99-conclusion.adoc[Next: What's Next →]

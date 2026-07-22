@@ -1,0 +1,175 @@
+= Module 3: Solve a Real Problem
+:navtitle: Solve a Real Problem
+
+== Objective
+
+Classify a batch of real support tickets across three models. Compare accuracy and speed. Pick the best model for the job and calculate what it would cost at enterprise scale.
+
+== Exercise 1: The Batch
+
+Here are 10 customer support tickets. Your job: classify each as `billing`, `technical`, `account`, or `praise`.
+
+[source,bash,role="execute",subs=attributes+]
+----
+cat << 'TICKETS'
+1. "My invoice shows a charge for a service I cancelled last month."
+2. "The dashboard won't load — I get a 502 error every time."
+3. "How do I add a second user to my organization?"
+4. "Your platform saved us 200 hours last quarter. Thank you!"
+5. "I was charged twice for the same subscription period."
+6. "API responses are timing out after the latest update."
+7. "Can I transfer ownership of my account to a colleague?"
+8. "The new reporting feature is exactly what we needed."
+9. "My payment method was declined but the card works everywhere else."
+10. "Pods are stuck in CrashLoopBackOff after upgrading to 4.16."
+TICKETS
+----
+
+Before running any model, write down your own classification for each ticket.
+
+[sidebar]
+****
+*Your classifications (before running models):*
+
+[cols="1,2",options="header"]
+|===
+| Ticket | Your Call
+| 1 |
+| 2 |
+| 3 |
+| 4 |
+| 5 |
+| 6 |
+| 7 |
+| 8 |
+| 9 |
+| 10 |
+|===
+****
+
+== Exercise 2: Three Models, Same Batch
+
+Run all 10 tickets through each model. The script scores each model against a ground truth key:
+
+[source,bash,role="execute",subs=attributes+]
+----
+TICKETS=(
+  "My invoice shows a charge for a service I cancelled last month."
+  "The dashboard won't load — I get a 502 error every time."
+  "How do I add a second user to my organization?"
+  "Your platform saved us 200 hours last quarter. Thank you!"
+  "I was charged twice for the same subscription period."
+  "API responses are timing out after the latest update."
+  "Can I transfer ownership of my account to a colleague?"
+  "The new reporting feature is exactly what we needed."
+  "My payment method was declined but the card works everywhere else."
+  "Pods are stuck in CrashLoopBackOff after upgrading to 4.16."
+)
+TRUTH=(billing technical account praise billing technical account praise billing technical)
+
+for model in granite-2b-cpu qwen25-3b-cpu phi3-mini-cpu; do
+  echo "=== $model ==="
+  correct=0
+  total_ms=0
+  start_all=$(date +%s%3N)
+  for i in $(seq 0 9); do
+    RESULT=$(curl -s -X POST {maas_url}/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer {litellm_api_key}" \
+      -d "{\"model\": \"$model\", \"messages\": [{\"role\": \"user\", \"content\": \"Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: ${TICKETS[$i]}\"}], \"max_tokens\": 10}")
+    answer=$(echo "$RESULT" | jq -r '.choices[0].message.content' | tr '[:upper:]' '[:lower:]' | tr -d ' .')
+    if [ "$answer" = "${TRUTH[$i]}" ]; then
+      correct=$((correct + 1))
+    fi
+    echo "  Ticket $((i+1)): predicted=$answer truth=${TRUTH[$i]}"
+  done
+  end_all=$(date +%s%3N)
+  elapsed=$((end_all - start_all))
+  echo "  Accuracy: $correct/10  Total time: $elapsed ms"
+  echo ""
+done
+----
+
+This takes 1-2 minutes. Watch the results stream in.
+
+[sidebar]
+****
+*Record:*
+
+[cols="2,2,2",options="header"]
+|===
+| Model | Accuracy (/10) | Total Time (ms)
+| granite-2b-cpu (2B) | |
+| qwen25-3b-cpu (3B) | |
+| phi3-mini-cpu (3.8B) | |
+|===
+
+* Which model was most accurate? ___
+* Which was fastest? ___
+* Did any model match your own classifications exactly? ___
+****
+
+== Exercise 3: Pick Your Model
+
+You have data now. Make a decision:
+
+[sidebar]
+****
+*Your recommendation:*
+
+* Best model for this task: ___
+* Why? (accuracy vs speed tradeoff): ___
+* Would you use the same model for a harder task (e.g., summarization)? ___
+****
+
+== Exercise 4: The Cost at Scale
+
+Calculate what your chosen model costs at enterprise volume:
+
+[source,bash,role="execute"]
+----
+echo "=== Cost at scale ==="
+echo ""
+echo "Your workload: 10,000 support ticket classifications per day"
+echo "Tokens per request: ~120 (prompt + response)"
+echo "Total tokens/day: 1,200,000"
+echo ""
+echo "On Intel Xeon 6 (MAAS):     \$0.00/day    \$0/year"
+echo "Cloud API (GPT-4o-mini):    \$0.18/day    \$66/year"
+echo "Cloud API (GPT-4o):         \$6.00/day    \$2,190/year"
+echo "Cloud API (Claude Sonnet):  \$4.80/day    \$1,752/year"
+echo ""
+echo "At 100,000 tickets/day:"
+echo "On Intel Xeon 6 (MAAS):     \$0.00/day    \$0/year"
+echo "Cloud API (GPT-4o-mini):    \$1.80/day    \$657/year"
+echo "Cloud API (GPT-4o):         \$60.00/day   \$21,900/year"
+echo ""
+echo "The model you just tested runs at \$0/token on hardware you already own."
+----
+
+[sidebar]
+****
+*Record:*
+
+* At 100K tickets/day, annual savings vs cheapest cloud API: $___
+* At what volume does running your own model stop being "free" and start requiring dedicated hardware? ___
+* Is the accuracy you measured good enough to deploy, or would you need a larger model? ___
+****
+
+== Verify
+
+[%interactive]
+* [ ] All 10 tickets classified by 3 models
+* [ ] Accuracy and speed compared
+* [ ] Model selected with justification
+* [ ] Cost analysis understood
+
+== Learning Outcomes
+
+* Different models have different accuracy/speed tradeoffs on the same task
+* A 2B model can often match a 3.8B model on simple classification -- model selection matters
+* CPU inference at $0/token means you can run experiments and batch jobs without worrying about API bills
+* You now have a data-backed opinion about which model to deploy -- that is Module 4
+
+[.next-nav]
+xref:04-deploy-your-model.adoc[Next: Module 4 — Deploy Your Own Model →]

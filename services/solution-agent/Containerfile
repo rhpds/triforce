@@ -1,0 +1,19 @@
+FROM registry.access.redhat.com/ubi9/python-311:latest
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY models.py .
+COPY prompts.py .
+COPY graph.py .
+COPY agent.py .
+
+USER 1001
+EXPOSE 8082
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+    CMD curl -f http://localhost:8082/health || exit 1
+
+ENTRYPOINT ["python3", "agent.py"]

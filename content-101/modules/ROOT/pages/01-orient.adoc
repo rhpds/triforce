@@ -1,0 +1,91 @@
+= Module 1: Orient
+:navtitle: Orient
+
+== Objective
+
+Log in, confirm your environment is ready, and understand the two ways models can be served on OpenShift.
+
+== Exercise 1: Log In
+
+. Open the Terminal tab and log in to OpenShift:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
+----
+
+. Switch to your project:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc project {user}-101
+----
+
+. Verify your namespace is empty:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pods
+----
++
+You should see `No resources found`. Your namespace is a blank slate -- you will deploy a model here in Module 4.
+
+== Exercise 2: Check the RHOAI Operator
+
+Red Hat OpenShift AI provides Kubernetes-native model serving. Verify the operator is installed:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get csv -A | grep rhods
+----
+
+You should see the RHOAI operator with `Succeeded` status. This operator provides two key CRDs:
+
+* *ServingRuntime* -- defines how to serve models (which container image, resource limits, supported formats)
+* *InferenceService* -- declares a model to serve (which runtime, which model, how many replicas)
+
+Now switch to the *RHOAI Dashboard* tab. This is the visual management interface for OpenShift AI. Explore:
+
+* *Model Serving* section -- this is where your InferenceService will appear in Module 4
+* *Serving Runtimes* -- see the vLLM runtime that will host your model
+
+[sidebar]
+****
+*Record:*
+
+* RHOAI operator version: ___
+* Status: ___
+* Serving runtimes available in the dashboard: ___
+****
+
+== Exercise 3: Two Paths to Model Serving
+
+There are two ways to serve AI models on OpenShift:
+
+[cols="2,3,3",options="header"]
+|===
+| | Shared (MAAS) | Self-Hosted (RHOAI)
+| *Setup time* | 0 minutes -- already running | ~2 minutes to deploy
+| *Model access* | 10+ models, CPU and GPU | One model per InferenceService
+| *Cost* | Shared infrastructure | Dedicated pods in your namespace
+| *Control* | API key access only | Full Kubernetes control (scale, logs, config)
+| *Best for* | Prototyping, multi-model access | Production, data locality, custom models
+|===
+
+In Modules 2 and 3, you will use the shared MAAS endpoint. In Module 4, you will deploy your own.
+
+== Verify
+
+[%interactive]
+* [ ] `oc login` succeeded
+* [ ] Namespace is empty (no pods)
+* [ ] RHOAI operator is installed and `Succeeded`
+
+== Learning Outcomes
+
+* How to access your OpenShift namespace
+* RHOAI operator provides the platform for model serving
+* Two deployment models: shared (MAAS) vs self-hosted (RHOAI)
+
+[.next-nav]
+xref:02-first-inference.adoc[Next: Module 2 — Your First Inference →]

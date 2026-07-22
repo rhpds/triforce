@@ -1,0 +1,196 @@
+{
+  "capabilities": {
+    "ai_ml": [
+      {
+        "name": "Red Hat OpenShift AI",
+        "description": "End-to-end MLOps platform for training, serving, and monitoring AI/ML models on OpenShift. Includes model serving with vLLM, KServe, and integrated Jupyter notebooks.",
+        "operator": "rhods-operator",
+        "resource_requirements": {
+          "cpu": "4 cores",
+          "memory": "16Gi",
+          "gpu_optional": true,
+          "storage": "100Gi PVC recommended"
+        },
+        "when_to_use": "Any deployment requiring model training, fine-tuning, or LLM serving at scale. Supports Intel Gaudi accelerators natively."
+      },
+      {
+        "name": "Node Feature Discovery",
+        "description": "Detects and advertises hardware features (Intel AMX, AVX-512, Gaudi accelerators) as node labels for intelligent scheduling.",
+        "operator": "nfd-operator",
+        "resource_requirements": {
+          "cpu": "0.5 cores",
+          "memory": "256Mi",
+          "gpu_optional": false,
+          "storage": "None"
+        },
+        "when_to_use": "Heterogeneous clusters with mixed hardware — ensures AI workloads land on nodes with the right accelerators."
+      },
+      {
+        "name": "Intel Gaudi Device Plugin",
+        "description": "Kubernetes device plugin that exposes Intel Gaudi accelerators as schedulable resources in OpenShift.",
+        "operator": "intel-device-plugins-operator",
+        "resource_requirements": {
+          "cpu": "0.5 cores",
+          "memory": "256Mi",
+          "gpu_optional": false,
+          "storage": "None"
+        },
+        "when_to_use": "Clusters with Intel Gaudi accelerators for LLM inference or training workloads."
+      }
+    ],
+    "networking": [
+      {
+        "name": "Red Hat Service Mesh",
+        "description": "Istio-based service mesh for microservice traffic management, mTLS, observability, and canary deployments.",
+        "operator": "servicemeshoperator",
+        "resource_requirements": {
+          "cpu": "2 cores",
+          "memory": "4Gi",
+          "gpu_optional": false,
+          "storage": "None"
+        },
+        "when_to_use": "Multi-service architectures needing mutual TLS, traffic shaping, or A/B routing between model versions."
+      },
+      {
+        "name": "MetalLB",
+        "description": "Bare-metal load balancer for on-premises OpenShift deployments without cloud provider LB integration.",
+        "operator": "metallb-operator",
+        "resource_requirements": {
+          "cpu": "0.5 cores",
+          "memory": "256Mi",
+          "gpu_optional": false,
+          "storage": "None"
+        },
+        "when_to_use": "On-prem or edge deployments on Intel hardware that need external service exposure without a cloud load balancer."
+      }
+    ],
+    "storage": [
+      {
+        "name": "OpenShift Data Foundation",
+        "description": "Software-defined storage providing block, file, and object storage backed by Ceph, integrated with OpenShift.",
+        "operator": "odf-operator",
+        "resource_requirements": {
+          "cpu": "8 cores",
+          "memory": "24Gi",
+          "gpu_optional": false,
+          "storage": "3 nodes minimum, 2Ti raw per node recommended"
+        },
+        "when_to_use": "Persistent storage for model weights, training datasets, and database workloads. Required for multi-node model serving."
+      },
+      {
+        "name": "LVM Storage",
+        "description": "Lightweight local storage provisioner using LVM for single-node or edge deployments.",
+        "operator": "lvms-operator",
+        "resource_requirements": {
+          "cpu": "0.5 cores",
+          "memory": "256Mi",
+          "gpu_optional": false,
+          "storage": "Uses available local disks"
+        },
+        "when_to_use": "Single-node OpenShift (SNO) or edge deployments where ODF is too heavy. Good for Intel-powered edge inference nodes."
+      }
+    ],
+    "security": [
+      {
+        "name": "Red Hat Advanced Cluster Security",
+        "description": "Kubernetes-native security platform for vulnerability management, compliance, network segmentation, and runtime threat detection.",
+        "operator": "rhacs-operator",
+        "resource_requirements": {
+          "cpu": "4 cores",
+          "memory": "8Gi",
+          "gpu_optional": false,
+          "storage": "100Gi PVC"
+        },
+        "when_to_use": "Regulated industries (financial services, healthcare) requiring continuous compliance scanning and runtime protection."
+      },
+      {
+        "name": "Trusted Artifact Signer",
+        "description": "Sigstore-based artifact signing for container images and build attestations, ensuring software supply chain integrity.",
+        "operator": "rhtas-operator",
+        "resource_requirements": {
+          "cpu": "2 cores",
+          "memory": "4Gi",
+          "gpu_optional": false,
+          "storage": "10Gi PVC"
+        },
+        "when_to_use": "Supply chain security requirements — sign and verify container images, SBOMs, and model artifacts."
+      },
+      {
+        "name": "Trustee (Intel TDX Attestation)",
+        "description": "Key Broker Service for Intel TDX confidential computing. Verifies TD quotes and releases secrets only to attested workloads.",
+        "operator": "trustee-operator",
+        "resource_requirements": {
+          "cpu": "1 core",
+          "memory": "1Gi",
+          "gpu_optional": false,
+          "storage": "5Gi PVC"
+        },
+        "when_to_use": "Confidential AI workloads on Intel TDX-enabled Xeon processors. Protects model weights and inference data in hardware-encrypted enclaves."
+      }
+    ],
+    "virtualization": [
+      {
+        "name": "OpenShift Virtualization",
+        "description": "Run and manage virtual machines alongside containers on OpenShift using KubeVirt. Supports live migration, snapshots, and Intel-optimized VM templates.",
+        "operator": "kubevirt-hyperconverged-operator",
+        "resource_requirements": {
+          "cpu": "2 cores per node",
+          "memory": "2Gi overhead + VM allocations",
+          "gpu_optional": true,
+          "storage": "Varies by VM workload"
+        },
+        "when_to_use": "Migrating legacy VM workloads to OpenShift, or running software that requires a full OS environment alongside cloud-native AI services."
+      }
+    ],
+    "edge": [
+      {
+        "name": "MicroShift",
+        "description": "Lightweight OpenShift for edge devices. Runs a single-node Kubernetes with OpenShift APIs on resource-constrained Intel hardware.",
+        "operator": "N/A (RPM-based)",
+        "resource_requirements": {
+          "cpu": "2 cores",
+          "memory": "2Gi",
+          "gpu_optional": false,
+          "storage": "10Gi minimum"
+        },
+        "when_to_use": "Far-edge inference on Intel Xeon or Core Ultra processors. Retail stores, factory floors, remote healthcare clinics."
+      },
+      {
+        "name": "Red Hat Advanced Cluster Management",
+        "description": "Multi-cluster lifecycle management — deploy, configure, and govern OpenShift clusters at scale across data centers and edge sites.",
+        "operator": "advanced-cluster-management",
+        "resource_requirements": {
+          "cpu": "4 cores",
+          "memory": "16Gi",
+          "gpu_optional": false,
+          "storage": "100Gi PVC"
+        },
+        "when_to_use": "Managing fleets of OpenShift clusters across hybrid and edge environments. Policy-based governance for Intel hardware standardization."
+      },
+      {
+        "name": "Red Hat OpenShift Pipelines",
+        "description": "Tekton-based CI/CD pipelines natively integrated with OpenShift for building, testing, and deploying applications.",
+        "operator": "openshift-pipelines-operator-rh",
+        "resource_requirements": {
+          "cpu": "1 core",
+          "memory": "1Gi",
+          "gpu_optional": false,
+          "storage": "10Gi PVC"
+        },
+        "when_to_use": "Automated build and deploy pipelines for AI model serving containers, especially multi-architecture builds targeting Intel platforms."
+      },
+      {
+        "name": "Red Hat OpenShift Serverless",
+        "description": "Knative-based serverless workloads on OpenShift. Scale-to-zero for intermittent AI inference endpoints.",
+        "operator": "serverless-operator",
+        "resource_requirements": {
+          "cpu": "2 cores",
+          "memory": "2Gi",
+          "gpu_optional": false,
+          "storage": "None"
+        },
+        "when_to_use": "Bursty or intermittent inference workloads where scale-to-zero saves compute cost on Intel infrastructure."
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+FROM registry.access.redhat.com/ubi9/nginx-124:latest
+
+COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY index.html /opt/app-root/src/index.html
+
+ENV AGENT_HOST=http://solution-agent:8082
+ENV MCP_HOST=http://solution-tools:8095
+
+USER 1001
+EXPOSE 8080
+CMD ["/bin/bash", "-c", "envsubst '${AGENT_HOST} ${MCP_HOST}' < /etc/nginx/nginx.conf.template > /tmp/nginx.conf && nginx -c /tmp/nginx.conf -g 'daemon off;'"]

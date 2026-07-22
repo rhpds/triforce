@@ -1,0 +1,24 @@
+---
+site:
+  title: "Intel Xeon 6 201: Building an AI Agent"
+  url: https://github.com/rhpds/triforce
+  start_page: modules::index.adoc
+
+content:
+  sources:
+    - url: .
+      start_path: content-201
+
+ui:
+  bundle:
+    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
+    snapshot: true
+  supplemental_files:
+    - path: ./content/supplemental-ui
+
+antora:
+  extensions:
+    - '@sntke/antora-mermaid-extension'
+
+output:
+  dir: ./www-201

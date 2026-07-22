@@ -1,0 +1,240 @@
+= Module 4: Deploy and Scale
+:navtitle: Deploy and Scale
+
+== Objective
+
+Deploy your chosen model in your own namespace, scale it to handle load, and produce a one-page summary of what you learned.
+
+== Exercise 1: Deploy the Model
+
+In Module 3 you picked a model based on data. Now deploy it. The model weights are pre-cached on a PVC:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pvc model-cache
+----
+
+Create the InferenceService — one YAML, one command:
+
+[source,bash,role="execute",subs=attributes+]
+----
+cat << 'EOF' | oc apply -f -
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: granite-tiny
+  annotations:
+    serving.kserve.io/deploymentMode: RawDeployment
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: vLLM
+      runtime: vllm-runtime
+      storageUri: pvc://model-cache/granite-tiny
+    minReplicas: 1
+    maxReplicas: 1
+    resources:
+      requests:
+        cpu: "4"
+        memory: 4Gi
+      limits:
+        cpu: "8"
+        memory: 8Gi
+EOF
+----
+
+Watch it come up:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get inferenceservice granite-tiny -w
+----
+
+Press `Ctrl+C` once `READY: True`. Then verify:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pods
+----
+
+Switch to the *RHOAI Dashboard* tab. Navigate to *Model Serving* -- you should see your `granite-tiny` model listed with status *Ready*. This is the same visual management interface a platform team would use in production.
+
+[sidebar]
+****
+*Record:*
+
+* Time from `oc apply` to Ready: ___ seconds
+* Pod count: ___
+* Visible in RHOAI Dashboard? ___
+****
+
+== Exercise 2: Test It
+
+Call your self-hosted model with one of the support tickets from Module 3:
+
+[source,bash,role="execute"]
+----
+MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
+curl -s -X POST https://${MODEL_URL}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-tiny",
+    "messages": [{"role": "user", "content": "Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: Pods are stuck in CrashLoopBackOff after upgrading to 4.16."}],
+    "max_tokens": 10
+  }' | jq '{model: .model, response: .choices[0].message.content}'
+----
+
+== Exercise 3: Scale to Two Replicas
+
+One pod handles one request at a time. Scale to two:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc patch inferenceservice granite-tiny --type merge -p '{"spec":{"predictor":{"minReplicas":2,"maxReplicas":2}}}'
+----
+
+Watch the second pod come up:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get pods -w
+----
+
+Press `Ctrl+C` once both pods are Running. Now hit the endpoint with a real load test using `hey`:
+
+[source,bash,role="execute"]
+----
+MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
+hey -n 20 -c 5 -m POST \
+  -H "Content-Type: application/json" \
+  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. Respond with one word."}],"max_tokens":5}' \
+  https://${MODEL_URL}/v1/chat/completions
+----
+
+`hey` sends 20 requests with 5 concurrent workers. Look at the output:
+
+* *Requests/sec* -- your throughput
+* *Latency distribution* -- p50, p95, p99 response times
+* *Status code distribution* -- all should be 200
+
+Now scale back to 1 replica and run the same test to see the difference:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc patch inferenceservice granite-tiny --type merge -p '{"spec":{"predictor":{"minReplicas":1,"maxReplicas":1}}}'
+oc rollout status deploy/granite-tiny-predictor --timeout=60s
+----
+
+[source,bash,role="execute"]
+----
+MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
+hey -n 20 -c 5 -m POST \
+  -H "Content-Type: application/json" \
+  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. Respond with one word."}],"max_tokens":5}' \
+  https://${MODEL_URL}/v1/chat/completions
+----
+
+[sidebar]
+****
+*Record:*
+
+[cols="2,2,2",options="header"]
+|===
+| | 1 Replica | 2 Replicas
+| Requests/sec | |
+| p50 latency | |
+| p99 latency | |
+|===
+
+* Throughput improvement with 2 replicas: ___x
+* Scaling was: [ ] one YAML patch [ ] a code change [ ] a container rebuild
+****
+
+== Exercise 4: Compare Self-Hosted vs MAAS
+
+Run the same request against both endpoints:
+
+[source,bash,role="execute"]
+----
+export MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+echo "=== MAAS (shared) ==="
+time curl -s -X POST {maas_url}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{"model":"granite-4-0-h-tiny-cpu","messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
+  | jq '.choices[0].message.content'
+----
+
+[source,bash,role="execute"]
+----
+echo "=== Self-hosted (your namespace, 2 replicas) ==="
+time curl -s -X POST https://${MODEL_URL}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
+  | jq '.choices[0].message.content'
+----
+
+[sidebar]
+****
+[cols="2,2,2",options="header"]
+|===
+| | MAAS (shared) | Self-hosted (2 replicas)
+| Latency | ___ ms | ___ ms
+| Response | |
+|===
+****
+
+== Exercise 5: Your Summary
+
+Fill in this deployment summary — this is what you would present to a decision-maker:
+
+[sidebar]
+****
+*Deployment Summary*
+
+*Task*: Customer support ticket classification
+
+*Model selected*: ___ (from Module 3 evaluation)
+
+*Why this model*: ___ (accuracy, speed, or balance)
+
+*Deployment method*:
+
+[cols="2,3,3",options="header"]
+|===
+| | MAAS (shared) | Self-Hosted (RHOAI)
+| Setup time | 0 min | ___ min
+| Latency | ___ ms | ___ ms
+| Scaling | Managed | ___ replicas via patch
+| Cost | $0/token (shared) | $0/token (dedicated HW)
+| Control | API key only | Full K8s control
+|===
+
+*Recommendation*: For this workload, I would use [ ] MAAS [ ] Self-hosted because: ___
+
+*At 100K tickets/day*: Annual cloud API savings = $___
+****
+
+== Verify
+
+[%interactive]
+* [ ] InferenceService deployed and Ready
+* [ ] Model responds to inference requests
+* [ ] Scaled to 2 replicas, parallel requests handled
+* [ ] MAAS vs self-hosted compared
+* [ ] Deployment summary filled in
+
+== Learning Outcomes
+
+* An InferenceService is one YAML — deploy, scale, and manage with standard `oc` commands
+* Scaling is a patch, not a rebuild — Kubernetes handles the rest
+* Self-hosted gives you dedicated capacity and data locality; MAAS gives you zero-config multi-model access
+* You now have a deployment recommendation backed by accuracy data, latency measurements, and cost analysis
+
+[.next-nav]
+xref:99-conclusion.adoc[Next: What's Next →]

@@ -1,0 +1,108 @@
+= Module 2: Your First Inference
+:navtitle: Your First Inference
+
+== Objective
+
+Call a shared model, compare three models on the same task, and extract entities from a product description. All inference runs on Intel Xeon 6 CPUs at $0/token.
+
+== Exercise 1: Call a Shared Model
+
+The MAAS endpoint provides an OpenAI-compatible API. Any tool that speaks the OpenAI chat completions protocol can use it.
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {maas_url}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{
+    "model": "granite-2b-cpu",
+    "messages": [{"role": "user", "content": "What is Intel AMX and why does it matter for AI inference? Answer in 2 sentences."}],
+    "max_tokens": 100
+  }' | jq '{model: .model, content: .choices[0].message.content, tokens: .usage}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Model: ___
+* Response quality (1-5): ___
+* Total tokens used: ___
+****
+
+== Exercise 2: Compare Three CPU Models
+
+Run the same classification task across three models of different sizes:
+
+[source,bash,role="execute",subs=attributes+]
+----
+TEXT="The new Intel Xeon 6 processors deliver exceptional AI inference performance at lower power consumption than the previous generation."
+
+for model in granite-2b-cpu qwen25-3b-cpu phi3-mini-cpu; do
+  echo "=== $model ==="
+  RESULT=$(curl -s -X POST {maas_url}/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {litellm_api_key}" \
+    -d "{\"model\": \"$model\", \"messages\": [{\"role\": \"user\", \"content\": \"Classify this text as positive, negative, or neutral. Respond with only the classification.\n\nText: $TEXT\"}], \"max_tokens\": 10}")
+  echo "$RESULT" | jq '{model: .model, response: .choices[0].message.content}'
+done
+----
+
+All three models should return the same classification. The difference is in latency and confidence.
+
+[sidebar]
+****
+*Record:*
+
+[cols="2,2,2",options="header"]
+|===
+| Model | Params | Response
+| granite-2b-cpu | 2B |
+| qwen25-3b-cpu | 3B |
+| phi3-mini-cpu | 3.8B |
+|===
+
+* Did all three agree? ___
+* Which responded fastest? ___
+****
+
+== Exercise 3: Entity Extraction
+
+Ask a larger model to extract structured entities from a product description:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s -X POST {maas_url}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{
+    "model": "qwen25-3b-cpu",
+    "messages": [{"role": "user", "content": "Extract all product names, companies, and technical specifications from this text. Return as a JSON array of objects with fields: text, type (product, company, or spec).\n\nText: The Intel Xeon 6 processor with 128 cores supports Intel AMX for bfloat16 and int8 matrix operations. Running Red Hat OpenShift 4.16 with RHOAI 2.12, it outperforms the previous generation Xeon Scalable by 3x on inference workloads."}],
+    "max_tokens": 300
+  }' | jq '.choices[0].message.content'
+----
+
+[sidebar]
+****
+*Record:*
+
+* How many entities were extracted? ___
+* Did the model find all products (Xeon 6, OpenShift, RHOAI, Xeon Scalable)? ___
+* Were the types (product, company, spec) correct? ___
+****
+
+== Verify
+
+[%interactive]
+* [ ] Single model call returned a response
+* [ ] Three models compared on the same task
+* [ ] Entity extraction returned structured data
+
+== Learning Outcomes
+
+* MAAS provides an OpenAI-compatible API -- any tool that speaks OpenAI can use it
+* Smaller models (2B) can handle simple classification; larger models (3B+) produce richer structured output
+* All inference ran on Intel Xeon 6 CPUs at $0/token -- no GPU required
+
+[.next-nav]
+xref:03-under-the-hood.adoc[Next: Module 3 — Under the Hood →]

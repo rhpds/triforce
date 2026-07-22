@@ -1,0 +1,167 @@
+{
+  "name": "solution-tools",
+  "description": "MCP tools for Intel + Red Hat Solution Architect Agent — hardware lookup, OpenShift capabilities, and joint reference architectures",
+  "tools": [
+    {
+      "name": "intel_hardware_lookup",
+      "description": "Look up Intel hardware product specifications by family. Filter by use case or minimum core count to find the right SKU for a workload.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["family"],
+        "properties": {
+          "family": {
+            "type": "string",
+            "enum": ["xeon6", "gaudi3"],
+            "description": "Intel product family to search"
+          },
+          "use_case": {
+            "type": "string",
+            "description": "Filter by use case (e.g., ai_inference, cloud_native, hpc)"
+          },
+          "min_cores": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Minimum core count filter"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["products"],
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["sku", "family", "cores", "base_freq_ghz", "max_turbo_ghz", "tdp_watts", "amx_support", "memory_channels", "max_memory_gb", "socket", "msrp_range", "use_cases"],
+              "properties": {
+                "sku": { "type": "string" },
+                "family": { "type": "string" },
+                "variant": { "type": "string" },
+                "cores": { "type": "integer" },
+                "base_freq_ghz": { "type": "number" },
+                "max_turbo_ghz": { "type": "number" },
+                "tdp_watts": { "type": "integer" },
+                "amx_support": { "type": "boolean" },
+                "memory_channels": { "type": "integer" },
+                "max_memory_gb": { "type": "integer" },
+                "socket": { "type": "string" },
+                "msrp_range": { "type": "string" },
+                "use_cases": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "openshift_capabilities",
+      "description": "Look up Red Hat OpenShift platform capabilities by area. Returns operators, resource requirements, and guidance on when to use each capability.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["capability_area"],
+        "properties": {
+          "capability_area": {
+            "type": "string",
+            "enum": ["ai_ml", "networking", "storage", "security", "virtualization", "edge"],
+            "description": "OpenShift capability area to query"
+          },
+          "detail_level": {
+            "type": "string",
+            "enum": ["summary", "detailed"],
+            "default": "summary",
+            "description": "Level of detail in the response"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["capability_area", "capabilities"],
+        "properties": {
+          "capability_area": { "type": "string" },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "description", "when_to_use"],
+              "properties": {
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "operator": { "type": "string" },
+                "resource_requirements": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": { "type": "string" },
+                    "memory": { "type": "string" },
+                    "gpu_optional": { "type": "boolean" },
+                    "storage": { "type": "string" }
+                  }
+                },
+                "when_to_use": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "reference_architectures",
+      "description": "Retrieve joint Red Hat + Intel reference architectures by industry vertical. Returns the full stack definition including OpenShift topology, Intel hardware per tier, required operators, and solution highlights.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["vertical"],
+        "properties": {
+          "vertical": {
+            "type": "string",
+            "enum": ["retail", "financial_services", "manufacturing", "healthcare", "telco"],
+            "description": "Industry vertical"
+          },
+          "scale": {
+            "type": "string",
+            "enum": ["small", "medium", "large"],
+            "description": "Deployment scale for node estimates"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["vertical", "architecture"],
+        "properties": {
+          "vertical": { "type": "string" },
+          "architecture": {
+            "type": "object",
+            "required": ["name", "description", "openshift_components", "intel_hardware", "estimated_nodes", "key_operators", "highlights"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "openshift_components": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "intel_hardware": {
+                "type": "object",
+                "properties": {
+                  "edge": { "type": "object" },
+                  "core": { "type": "object" },
+                  "cloud": { "type": "object" }
+                }
+              },
+              "estimated_nodes": { "type": "object" },
+              "key_operators": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "highlights": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

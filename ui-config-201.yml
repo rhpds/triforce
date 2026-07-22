@@ -14,13 +14,9 @@ tabs:
     path: /wetty
     port: 443
 
-  # Triforce Demo Frontend
-  - name: Triforce Demo
-    url: 'https://triforce-${USER}-triforce.${DOMAIN}'
-
-  # Inference Observability Dashboard
-  - name: Grafana
-    url: 'https://grafana-${USER}-triforce.${DOMAIN}'
+  # Solution Architect Agent chat UI
+  - name: Solution Architect
+    url: 'https://solution-ui-${USER}-201.${DOMAIN}'
 
   # OpenShift Console
   - name: OCP Console

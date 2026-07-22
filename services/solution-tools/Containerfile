@@ -1,0 +1,29 @@
+FROM registry.access.redhat.com/ubi9/python-311:1 AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4
+
+RUN microdnf install -y python3.11 python3.11-pip && microdnf clean all
+
+WORKDIR /app
+
+COPY --from=builder /opt/app-root/lib/python3.11/site-packages /usr/lib/python3.11/site-packages
+COPY server.py .
+COPY data/ /app/data/
+COPY contracts/ /app/contracts/
+
+ENV DATA_DIR=/app/data
+ENV CONTRACTS_DIR=/app/contracts
+ENV PYTHONPATH=/usr/lib/python3.11/site-packages
+
+USER 1001
+EXPOSE 8095
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
+    CMD curl -f http://localhost:8095/health || exit 1
+
+ENTRYPOINT ["python3.11", "server.py"]
