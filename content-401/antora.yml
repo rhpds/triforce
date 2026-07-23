@@ -1,5 +1,5 @@
 name: modules
-title: "Triforce — Confidential AI on Intel Xeon 6"
+title: "Intel Xeon 6 401 — Confidential AI"
 version: ~
 nav:
   - modules/ROOT/nav.adoc

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solution-ui
+  labels:
+    app: solution-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solution-ui
+  template:
+    metadata:
+      labels:
+        app: solution-ui
+    spec:
+      containers:
+        - name: solution-ui
+          image: quay.io/redhat-gpte/triforce-solution-ui:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AGENT_HOST
+              value: "http://solution-agent:8082"
+            - name: MCP_HOST
+              value: "http://solution-tools:8095"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solution-ui
+spec:
+  selector:
+    app: solution-ui
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: solution-ui
+spec:
+  to:
+    kind: Service
+    name: solution-ui
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

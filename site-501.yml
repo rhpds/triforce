@@ -1,24 +1,24 @@
 ---
 site:
-  title: "Triforce: Multi-Agent AI on Intel Xeon 6"
+  title: "Intel Xeon 6 501: VMs + AI"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 
 content:
   sources:
     - url: .
-      start_path: content
+      start_path: content-501
 
 ui:
   bundle:
     url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/latest/ui-bundle.zip
     snapshot: true
   supplemental_files:
-    - path: ./content/supplemental-ui
+    - path: ./supplemental-ui
 
 antora:
   extensions:
     - '@sntke/antora-mermaid-extension'
 
 output:
-  dir: ./www
+  dir: ./www-501

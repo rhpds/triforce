@@ -243,8 +243,16 @@ build-site-101: ## Build 101 showroom site
 build-site-201: ## Build 201 showroom site
 	npx antora site-201.yml
 
-build-site: ## Build default (301) showroom site
-	npx antora site.yml
+build-site-301: ## Build 301 showroom site
+	npx antora site-301.yml
+
+build-site-401: ## Build 401 showroom site
+	npx antora site-401.yml
+
+build-site-501: ## Build 501 showroom site
+	npx antora site-501.yml
+
+build-all-sites: build-site-101 build-site-201 build-site-301 build-site-401 build-site-501 ## Build all 5 showroom sites
 
 clean: ## Remove build artifacts and containers
 	podman-compose -f infrastructure/podman-compose.yaml down -v --remove-orphans 2>/dev/null || true

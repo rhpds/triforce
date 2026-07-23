@@ -1,5 +1,5 @@
 name: modules
-title: "Triforce — AI Inference at Scale on Intel Xeon 6"
+title: "Intel Xeon 6 501 — VMs + AI"
 version: ~
 nav:
   - modules/ROOT/nav.adoc

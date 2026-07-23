@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solution-tools
+  labels:
+    app: solution-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solution-tools
+  template:
+    metadata:
+      labels:
+        app: solution-tools
+    spec:
+      containers:
+        - name: solution-tools
+          image: quay.io/redhat-gpte/triforce-solution-tools:latest
+          ports:
+            - containerPort: 8095
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8095
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solution-tools
+spec:
+  selector:
+    app: solution-tools
+  ports:
+    - port: 8095
+      targetPort: 8095
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: solution-tools
+spec:
+  to:
+    kind: Service
+    name: solution-tools
+  port:
+    targetPort: 8095
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

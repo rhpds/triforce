@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solution-agent
+  labels:
+    app: solution-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solution-agent
+  template:
+    metadata:
+      labels:
+        app: solution-agent
+    spec:
+      containers:
+        - name: solution-agent
+          image: quay.io/redhat-gpte/triforce-solution-agent:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: LITELLM_API_BASE
+              value: "https://maas-rhdp.apps.maas.redhatworkshops.io"
+            - name: LITELLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-api-key
+                  key: api-key
+                  optional: true
+            - name: MCP_SERVER_URL
+              value: "http://solution-tools:8095"
+            - name: ADVISOR_MODEL
+              value: "qwen25-3b-cpu"
+            - name: PROMPT_PATH
+              value: "/etc/advisor/system_prompt"
+          volumeMounts:
+            - name: prompt
+              mountPath: /etc/advisor
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: prompt
+          configMap:
+            name: advisor-prompt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solution-agent
+spec:
+  selector:
+    app: solution-agent
+  ports:
+    - port: 8082
+      targetPort: 8082
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: solution-agent
+spec:
+  to:
+    kind: Service
+    name: solution-agent
+  port:
+    targetPort: 8082
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

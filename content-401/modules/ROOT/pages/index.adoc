@@ -1,4 +1,4 @@
-= Triforce Secure — Confidential AI on Intel Xeon 6
+= Confidential AI — Hands-On Lab
 :navtitle: Welcome
 
 == Welcome
@@ -44,7 +44,7 @@ Intel TDX creates a Trust Domain — a hardware-enforced boundary around your AI
 == Duration
 
 * **Estimated time:** 60 minutes
-* **Prerequisite:** Triforce base lab (recommended)
+* **Prerequisite:** 301 lab (recommended)
 
 [.next-nav]
 xref:01-setup.adoc[Next: Verify TDX & Operators →]

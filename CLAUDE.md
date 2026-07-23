@@ -106,9 +106,12 @@ infrastructure/
   helm/              # Helm chart with module flags
   llm-d/             # Disaggregated inference manifests
 frontend/            # React 19, TypeScript, Motion, ModuleContext
-content/             # Showroom lab (base variant)
-content-secure/      # Showroom (TDX variant)
-content-virt/        # Showroom (Virtualization variant)
+content-101/         # Showroom lab — 101 Model Deployment
+content-201/         # Showroom lab — 201 Agent Creation
+content-301/         # Showroom lab — 301 Multi-Agent AI at Scale
+content-401/         # Showroom lab — 401 Confidential AI (TDX)
+content-501/         # Showroom lab — 501 VMs + AI (KubeVirt)
+supplemental-ui/     # Shared Showroom CSS, favicon, partials
 scripts/             # generate-nav.py — builds nav from module manifests
 tests/               # Validation matrix (11 stages) + benchmark rubric
 ```

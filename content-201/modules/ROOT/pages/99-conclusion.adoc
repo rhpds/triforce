@@ -45,7 +45,7 @@ You built one agent with 3 tools. Now consider:
 * What if they shared *10 models* across CPU and GPU, with a semantic router deciding which model handles each request?
 * What if you had *15 optimization modules* -- adaptive caching, speculative decoding, multi-model fusion -- that you could enable per deployment?
 
-That is Triforce (301). The question shifts from "How do I build an agent?" to "How do I run many agents efficiently at scale?"
+That is 301. The question shifts from "How do I build an agent?" to "How do I run many agents efficiently at scale?"
 
 The patterns compound:
 

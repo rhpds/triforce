@@ -21,10 +21,10 @@ test-receipts/
 .claude/
 docs/2026 1H SAR*
 docs/maas-model-request.md
-www/
 www-101/
 www-201/
-www-secure/
-www-virt/
+www-301/
+www-401/
+www-501/
 /package.json
 /package-lock.json

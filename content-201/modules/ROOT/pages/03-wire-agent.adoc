@@ -11,7 +11,7 @@ The agent's behavior is defined by a system prompt, mounted as a ConfigMap. Depl
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/advisor-prompt-configmap.yaml
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/advisor-prompt-configmap.yaml
 ----
 
 [source,bash,role="execute",subs=attributes+]
@@ -33,7 +33,7 @@ Deploy the solution-agent pod. It connects to MAAS for inference and the MCP ser
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-agent.yaml
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-agent.yaml
 oc rollout status deploy/solution-agent --timeout=90s
 ----
 
@@ -57,7 +57,7 @@ Deploy the chat interface:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-ui.yaml
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-ui.yaml
 oc rollout status deploy/solution-ui --timeout=60s
 ----
 

@@ -1,4 +1,4 @@
-= AI Inference on Intel Xeon 6 — Hands-On Lab
+= Multi-Agent AI at Scale — Hands-On Lab
 :navtitle: Welcome
 
 == What You'll Do

@@ -1,5 +1,5 @@
 name: modules
-title: "Triforce — VMs + AI on Intel Xeon 6"
+title: "Intel Xeon 6 301 — Multi-Agent AI at Scale"
 version: ~
 nav:
   - modules/ROOT/nav.adoc

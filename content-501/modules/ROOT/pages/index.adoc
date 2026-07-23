@@ -1,4 +1,4 @@
-= Triforce Virt — VMs + AI on Intel Xeon 6
+= VMs + AI — Hands-On Lab
 :navtitle: Welcome
 
 == Welcome
@@ -44,7 +44,7 @@ OpenShift Virtualization runs your VMs as first-class Kubernetes resources. The 
 == Duration
 
 * **Estimated time:** 45 minutes
-* **Prerequisite:** Triforce base lab (recommended)
+* **Prerequisite:** 301 lab (recommended)
 
 [.next-nav]
 xref:01-setup.adoc[Next: Verify OpenShift Virtualization →]

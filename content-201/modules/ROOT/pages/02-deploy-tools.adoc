@@ -11,7 +11,7 @@ Deploy the solution-tools pod in your namespace:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/helm/templates/solution-tools.yaml
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-tools.yaml
 ----
 
 Wait for the pod to be ready:

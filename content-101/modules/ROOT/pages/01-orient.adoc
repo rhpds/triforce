@@ -18,7 +18,7 @@ oc login --insecure-skip-tls-verify -u {user} -p {password} {openshift_api_url}
 +
 [source,bash,role="execute",subs=attributes+]
 ----
-oc project {user}-101
+oc project {user}-triforce
 ----
 
 . Verify your namespace is empty:

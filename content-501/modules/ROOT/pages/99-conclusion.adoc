@@ -22,12 +22,14 @@ VMs and AI on the same server. No forklift migration. No new hardware. No separa
 
 `virtualization.enabled=true` — that's the entire change.
 
-== Other Triforce Stories
+== The Episodic Series
 
-[cols="1,2",options="header"]
+[cols="1,3,3,1",options="header"]
 |===
-| Demo | Question
-
-| *AI Inference* | Can I afford AI at scale?
-| *Secure* | Can I trust it with my data?
+| Level | Title | What You Learn | Time
+| 101 | Model Deployment | Deploy and call AI models on OpenShift | 45 min
+| 201 | Building an AI Agent | Wrap a model in tools and orchestration | 45 min
+| 301 | Multi-Agent AI at Scale | Route, optimize, and scale many agents | 2 hrs
+| 401 | Confidential AI | Protect inference with Intel TDX | 1 hr
+| *501* | *VMs + AI (this lab)* | *Run AI alongside existing VM workloads* | *45 min*
 |===
