@@ -30,6 +30,8 @@ curl -s -X POST {maas_url}/v1/chat/completions \
 * Total tokens used: ___
 ****
 
+NOTE: You just called a production-grade AI model with a single `curl`. No model download, no GPU provisioning, no container build. The MAAS endpoint and LiteLLM proxy are shared infrastructure that ships with the platform. The AMX flags you verified in Module 1 are accelerating every matrix multiply in this call -- bfloat16 precision, running on dedicated AMX silicon inside the Xeon 6 CPU.
+
 == Exercise 2: Compare Three CPU Models
 
 Run the same classification task across three models of different sizes:
@@ -103,6 +105,7 @@ curl -s -X POST {maas_url}/v1/chat/completions \
 * MAAS provides an OpenAI-compatible API -- any tool that speaks OpenAI can use it
 * Smaller models (2B) can handle simple classification; larger models (3B+) produce richer structured output
 * All inference ran on Intel Xeon 6 CPUs at $0/token -- no GPU required
+* AMX accelerates bfloat16 matrix operations on every inference call -- the core math behind model execution
 
 [.next-nav]
-xref:03-under-the-hood.adoc[Next: Module 3 — Under the Hood →]
+xref:025-maas.adoc[Next: Module 2.5 — Model-as-a-Service →]

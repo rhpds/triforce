@@ -44,6 +44,8 @@ spec:
 EOF
 ----
 
+NOTE: One YAML. That is the entire deployment. The ServingRuntime, the container image, the health checks, the routing -- all provided by OpenShift AI out of the box. The customer's platform team enables OpenShift AI; the application team writes this YAML.
+
 Watch it come up:
 
 [source,bash,role="execute",subs=attributes+]

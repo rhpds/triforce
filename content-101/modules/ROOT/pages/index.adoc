@@ -38,9 +38,14 @@ This lab is linear. Each module builds on the previous one.
 | Module | What You'll Do | Time
 | xref:01-orient.adoc[Orient] | Log in, verify your environment, understand model serving paths | ~8 min
 | xref:02-first-inference.adoc[Your First Inference] | Call models, compare sizes, extract entities | ~10 min
+| xref:025-maas.adoc[Model-as-a-Service] | How MaaS works and how to position it with customers | ~10 min
 | xref:03-under-the-hood.adoc[Solve a Real Problem] | Classify a batch, compare 3 models, pick the best one | ~15 min
 | xref:04-deploy-your-model.adoc[Deploy and Scale] | Deploy your model, scale to 2 replicas, produce a summary | ~15 min
 |===
+
+== Zero Setup Required
+
+Everything you are about to use required zero manual setup from the customer's platform team. Model serving, model routing, AI acceleration, and the management dashboard all ship with OpenShift and OpenShift AI. The only thing you need to add is a workload.
 
 == The Big Idea
 

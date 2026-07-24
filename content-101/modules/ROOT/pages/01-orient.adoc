@@ -44,10 +44,14 @@ You should see the RHOAI operator with `Succeeded` status. This operator provide
 * *ServingRuntime* -- defines how to serve models (which container image, resource limits, supported formats)
 * *InferenceService* -- declares a model to serve (which runtime, which model, how many replicas)
 
+NOTE: This operator -- and everything it provides (ServingRuntimes, InferenceServices, model management) -- installed automatically when OpenShift AI was enabled on this cluster. No Ansible, no Helm, no custom config. This is what "AI-ready platform" means in a customer conversation.
+
 Now switch to the *RHOAI Dashboard* tab. This is the visual management interface for OpenShift AI. Explore:
 
 * *Model Serving* section -- this is where your InferenceService will appear in Module 4
 * *Serving Runtimes* -- see the vLLM runtime that will host your model
+
+The dashboard, the runtimes, the CRDs -- all out-of-box with OpenShift AI.
 
 [sidebar]
 ****
@@ -58,7 +62,36 @@ Now switch to the *RHOAI Dashboard* tab. This is the visual management interface
 * Serving runtimes available in the dashboard: ___
 ****
 
-== Exercise 3: Two Paths to Model Serving
+== Exercise 3: Verify Intel AMX
+
+The Intel Xeon 6 CPUs in this cluster have Advanced Matrix Extensions (AMX) -- dedicated silicon that accelerates the matrix-multiply operations AI inference depends on. Verify AMX is present:
+
+[source,bash,role="execute"]
+----
+oc debug node/$(oc get nodes -o jsonpath='{.items[0].metadata.name}') -- chroot /host lscpu | grep -i amx
+----
+
+You should see flags including:
+
+* `amx_bf16` -- Accelerates bfloat16 matrix multiply (the format used by most inference runtimes)
+* `amx_int8` -- Accelerates INT8 quantized inference (even faster, slightly less precise)
+* `amx_tile` -- The base tile architecture that AMX operations run on
+
+[sidebar]
+****
+*What does AMX actually do?*
+
+AMX accelerates the matrix-multiply operations that inference depends on, running them directly on the CPU using dedicated silicon. Without AMX, these operations run as scalar or vector instructions -- 2-3x slower. AMX is what makes CPU-only inference feasible in this lab.
+
+Every inference call you make from here on runs through AMX.
+
+*Record:*
+
+* AMX flags present? ___
+* Number of AMX-related flags: ___
+****
+
+== Exercise 4: Two Paths to Model Serving
 
 There are two ways to serve AI models on OpenShift:
 
@@ -80,11 +113,13 @@ In Modules 2 and 3, you will use the shared MAAS endpoint. In Module 4, you will
 * [ ] `oc login` succeeded
 * [ ] Namespace is empty (no pods)
 * [ ] RHOAI operator is installed and `Succeeded`
+* [ ] Intel AMX flags verified on the node
 
 == Learning Outcomes
 
 * How to access your OpenShift namespace
-* RHOAI operator provides the platform for model serving
+* RHOAI operator and model serving ship out-of-box with OpenShift AI -- zero manual setup
+* How to verify Intel AMX is present on a node and explain what it does
 * Two deployment models: shared (MAAS) vs self-hosted (RHOAI)
 
 [.next-nav]

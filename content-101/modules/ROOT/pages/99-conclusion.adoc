@@ -3,12 +3,16 @@
 
 == What You Did
 
-In 45 minutes, you:
+In this lab, you:
 
-* Called AI models running on Intel Xeon 6 CPUs at $0/token
+* Verified Intel AMX acceleration is present on the node and powering every inference call
+* Called AI models running on Intel Xeon 6 CPUs at $0/token -- zero setup required
 * Compared three models (2B, 3B, 3.8B) on classification and entity extraction
-* Explored the cost model that makes on-premises CPU inference cheaper than cloud APIs
-* Deployed your own model serving endpoint with a single YAML
+* Learned how to position Model-as-a-Service in a customer conversation
+* Classified a real batch of support tickets and picked the best model with data
+* Deployed your own model serving endpoint with a single YAML and scaled it under load
+
+Everything you used -- model serving, model routing, the management dashboard, AMX acceleration -- ships out-of-box with OpenShift and OpenShift AI.
 
 == The Decision
 

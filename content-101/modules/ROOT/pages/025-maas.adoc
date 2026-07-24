@@ -1,0 +1,113 @@
+= Module 2.5: Model-as-a-Service
+:navtitle: Model-as-a-Service
+
+== Objective
+
+Understand what Model-as-a-Service (MaaS) is, how the routing works under the hood, and how to position it in a customer conversation.
+
+== Exercise 1: What You Just Used
+
+In Module 2, you called 3 different models with a single API key. No model download, no GPU, no container build. That is Model-as-a-Service.
+
+List every model available on the shared endpoint:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s {maas_url}/v1/models \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  | jq '.data[] | {id, owned_by}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Total models available: ___
+* CPU models (look for `-cpu` suffix): ___
+* GPU models (no `-cpu` suffix): ___
+
+The customer's app team gets an API key and a URL. That is the entire onboarding. No infrastructure tickets, no model downloads, no container builds.
+****
+
+== Exercise 2: How MaaS Routes Requests
+
+One endpoint, many models. The LiteLLM proxy routes each request to the right model on the right hardware:
+
+```
+Customer App → LiteLLM Proxy → Model Pool
+                    │
+              ┌─────┼─────┐
+              │     │     │
+           CPU    CPU    GPU
+          (Xeon)  (Xeon) (Gaudi)
+           $0     $0    $/token
+```
+
+See this in action -- call three models of different sizes through the same endpoint:
+
+[source,bash,role="execute",subs=attributes+]
+----
+for model in granite-2b-cpu qwen25-3b-cpu granite-3-2-8b-instruct-cpu; do
+  echo "=== $model ==="
+  curl -s -X POST {maas_url}/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {litellm_api_key}" \
+    -d "{\"model\": \"$model\", \"messages\": [{\"role\": \"user\", \"content\": \"What is OpenShift in one sentence?\"}], \"max_tokens\": 30}" \
+    | jq '{model: .model, tokens: .usage.total_tokens}'
+done
+----
+
+Same endpoint, same API key, same protocol -- the proxy handles model selection, hardware routing, load balancing, and token accounting.
+
+== Exercise 3: Positioning MaaS with Customers
+
+This is the framework for a customer conversation about AI on OpenShift.
+
+[sidebar]
+****
+*When a customer asks: "How do we get started with AI?"*
+
+MaaS is the answer for Day 1:
+
+. *"You already have the hardware."* Intel Xeon 6 CPUs in your existing servers can serve AI models. No new GPU purchase required. The AMX acceleration you verified in Module 1 is what makes this possible.
+
+. *"Zero setup for app teams."* Platform team enables OpenShift AI (one operator). App teams get an API key and a URL. Same OpenAI-compatible API they already know from prototyping with cloud APIs.
+
+. *"Start with CPU, scale to GPU when you need it."* CPU models handle classification, NER, summarization at $0/token. When you need frontier reasoning (100B+ parameters), GPU models on Intel Gaudi are available on the same endpoint. No code changes.
+
+. *"No vendor lock-in."* Standard OpenAI-compatible API. Swap models without changing application code. Run open-source models (Granite, Qwen, Phi) -- no per-token cloud API fees.
+****
+
+[sidebar]
+****
+*Common objections and responses:*
+
+*"But GPU is faster."*
+
+For most enterprise workloads -- classification, entity extraction, summarization -- a 2-3B parameter CPU model returns in under a second. GPU matters for frontier reasoning (100B+ models) and real-time generation with long outputs. You will measure this yourself in Module 3 -- let the data decide.
+
+*"We already use OpenAI / Azure OpenAI."*
+
+What does that cost at 100K requests per day? At $0.01 per 1K tokens, that is $40K per year. MaaS on Xeon 6 gives you the same API compatibility with zero per-token cost on hardware you already own. You will calculate the exact savings in Module 3.
+
+*"Our developers want to use their own models."*
+
+MaaS is Day 1. In Module 4 you will deploy a self-hosted model -- same OpenShift cluster, same namespace, full control. MaaS for prototyping, self-hosted for production. Same platform, same tools, same team.
+****
+
+== Verify
+
+[%interactive]
+* [ ] Listed all available models via the API
+* [ ] Understand how LiteLLM routes requests to different models on different hardware
+* [ ] Can explain the MaaS Day 1 pitch in a customer conversation
+
+== Learning Outcomes
+
+* MaaS provides multi-model access through a single OpenAI-compatible endpoint -- zero onboarding for app teams
+* LiteLLM handles model routing, hardware selection, and token accounting transparently
+* The Day 1 pitch: "You already have the hardware, zero setup for app teams, start with CPU, scale to GPU"
+* How to handle "But GPU is faster" and "We already use OpenAI" objections with data
+
+[.next-nav]
+xref:03-under-the-hood.adoc[Next: Module 3 — Solve a Real Problem →]
