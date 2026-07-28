@@ -14,9 +14,15 @@ spec:
       labels:
         app: solution-agent
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: solution-agent
           image: quay.io/redhat-gpte/triforce-solution-agent:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           ports:
             - containerPort: 8082
           env:

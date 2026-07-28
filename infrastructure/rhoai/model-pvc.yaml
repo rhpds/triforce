@@ -18,9 +18,15 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: download
           image: registry.access.redhat.com/ubi9/python-311:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           command:
             - /bin/bash
             - -c
