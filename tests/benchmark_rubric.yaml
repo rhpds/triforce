@@ -194,7 +194,7 @@ benchmark_rubric:
               max_ms: 10000
               min_entities: 7
               target_environment: maas
-            - model: microsoft-phi-4
+            - model: qwen3-14b
               hardware: gpu
               baseline_ms: 3809
               max_ms: 8000
@@ -531,7 +531,7 @@ benchmark_rubric:
         - task: ner
           cpu_model: granite-2b-cpu
           cpu_ms: 6248
-          gpu_model: microsoft-phi-4
+          gpu_model: qwen3-14b
           gpu_ms: 3809
           speedup: 1.6x
           quality_diff: "GPU includes dosages"
@@ -545,7 +545,7 @@ benchmark_rubric:
         - task: compliance_reasoning
           cpu_model: granite-2b-cpu
           cpu_ms: 3537
-          gpu_model: microsoft-phi-4
+          gpu_model: qwen3-14b
           gpu_ms: 1692
           speedup: 2.1x
           quality_diff: "GPU cites specific AML regulations"

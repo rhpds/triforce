@@ -53,11 +53,11 @@ MODELS = {
         "category": "on-cluster-cpu",
         "note": "Compact Granite 4.0. Fastest classification/simple tasks.",
     },
-    "codellama-7b-instruct": {
-        "params": "7B", "hardware": "Xeon 6 CPU", "runtime": "vLLM/KServe",
+    "llama-scout-17b": {
+        "params": "17B", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
         "input_per_1m": 0.00, "output_per_1m": 0.00,
-        "category": "on-cluster-cpu",
-        "note": "Code-specialized. Self-hosted.",
+        "category": "on-cluster-gpu",
+        "note": "Code and general reasoning. Replaces codellama-7b-instruct.",
     },
     "nomic-embed-text-v1-5": {
         "params": "137M", "hardware": "Xeon 6 CPU", "runtime": "OpenVINO/KServe",
@@ -100,11 +100,11 @@ MODELS = {
         "category": "on-cluster-gaudi",
         "note": "400K context. 2 replicas on Gaudi 3 (sunsetting).",
     },
-    "microsoft-phi-4": {
+    "qwen3-14b": {
         "params": "14B", "hardware": "Gaudi 3 GPU", "runtime": "vLLM/KServe",
         "input_per_1m": 0.00, "output_per_1m": 0.00,
         "category": "on-cluster-gaudi",
-        "note": "Phi-4. Gaudi 3 (sunsetting). Self-hosted.",
+        "note": "Qwen3 14B. Multilingual reasoning. Replaces microsoft-phi-4.",
     },
 
     # ── Vertex AI: pay-per-token (real cost) ─────────────────────────

@@ -49,7 +49,7 @@ CPU_MODELS = [
 
 GPU_MODELS = [
     "granite-3-2-8b-instruct",
-    "microsoft-phi-4",
+    "qwen3-14b",
     "gpt-oss-20b",
     "gpt-oss-120b",
     "llama-scout-17b",

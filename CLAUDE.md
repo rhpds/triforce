@@ -132,7 +132,7 @@ tests/               # Validation matrix (11 stages) + benchmark rubric
 | Model | Params | Use Case |
 |-------|--------|----------|
 | granite-3-2-8b-instruct | 8B | Reasoning, NER |
-| microsoft-phi-4 | 14B | General reasoning |
+| qwen3-14b | 14B | Multilingual reasoning |
 | qwen3-14b | 14B | Multilingual reasoning |
 | gpt-oss-20b | 20B | Summarization |
 | gpt-oss-120b | 120B | Frontier reasoning |

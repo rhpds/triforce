@@ -15,7 +15,7 @@ dependencies:
     - qwen25-3b-cpu
     gpu:
     - granite-3-2-8b-instruct
-    - microsoft-phi-4
+    - qwen3-14b
     - gpt-oss-20b
 helm:
   flag: modules.heterogeneous.enabled

@@ -18,7 +18,7 @@ dependencies:
   - qwen25-3b-cpu
   - granite-3-2-8b-instruct-cpu
   - granite-3-2-8b-instruct
-  - microsoft-phi-4
+  - qwen3-14b
 helm:
   flag: modules.benchmarking.enabled
   values:
