@@ -1,6 +1,6 @@
 ---
 site:
-  title: "Intel Xeon 6 401: Confidential AI"
+  title: "Intel Xeon 6 401 — Confidential AI"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 

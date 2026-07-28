@@ -14,8 +14,8 @@ tabs:
     path: /wetty
     port: 443
 
-  # Triforce Demo Frontend
-  - name: Triforce Demo
+  # Demo Frontend
+  - name: Demo
     url: 'https://triforce-${USER}-triforce.${DOMAIN}'
 
   # Inference Observability Dashboard

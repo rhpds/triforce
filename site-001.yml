@@ -1,13 +1,13 @@
 ---
 site:
-  title: "Intel Xeon 6 201 — Building an AI Agent"
+  title: "Intel Xeon 6 001 — Your First AI Inference"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 
 content:
   sources:
     - url: .
-      start_path: content-201
+      start_path: content-001
 
 ui:
   bundle:
@@ -21,4 +21,4 @@ antora:
     - '@sntke/antora-mermaid-extension'
 
 output:
-  dir: ./www-201
+  dir: ./www-001

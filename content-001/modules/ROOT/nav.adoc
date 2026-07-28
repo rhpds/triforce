@@ -1,0 +1,7 @@
+.Lab
+* xref:index.adoc[Welcome]
+* xref:01-serve-a-model.adoc[Module 1: Serve a Model]
+* xref:02-first-call.adoc[Module 2: Your First Inference Call]
+
+.Wrap Up
+* xref:03-conclusion.adoc[What's Next]

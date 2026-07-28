@@ -28,16 +28,17 @@ Everything you used -- model serving, model routing, the management dashboard, A
 
 == The Episodic Series
 
-This lab is the first in a five-part series. Each level builds on the previous one:
+This lab is part of an episodic series. Each level builds on the previous one:
 
-[cols="1,3,3",options="header"]
+[cols="1,3,3,1",options="header"]
 |===
-| Level | Title | What You'll Learn
-| *101* | Model Deployment (this lab) | Deploy and call AI models on OpenShift
-| *201* | Building an AI Agent | Wrap a model in an agent with tools and orchestration
-| *301* | Multi-Agent AI at Scale | Route, optimize, and scale many agents across CPU and GPU
-| *401* | Confidential AI | Protect inference with Intel TDX trusted execution
-| *501* | VMs + AI | Run AI alongside existing VM workloads
+| Level | Title | What You'll Learn | Time
+| 001 | Your First AI Inference | Serve a model from a container on any Linux box | ~20 min
+| *101* | *Model Deployment* | *Deploy and call AI models on OpenShift* | *~45 min*
+| 201 | Building an AI Agent | Wrap a model in tools and orchestration | ~45 min
+| 301 | Multi-Agent AI at Scale | Route, optimize, and scale many agents across CPU and GPU | ~2 hrs
+| 401 | Confidential AI | Protect inference with Intel TDX trusted execution | ~1 hr
+| 501 | VMs + AI | Run AI alongside existing VM workloads | ~45 min
 |===
 
 == Next: 201 — Building an AI Agent

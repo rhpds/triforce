@@ -43,6 +43,10 @@ This lab is linear. Each module builds on the previous one.
 | xref:04-deploy-your-model.adoc[Deploy and Scale] | Deploy your model, scale to 2 replicas, produce a summary | ~15 min
 |===
 
+== Prerequisite
+
+New to AI inference? Start with link:https://github.com/rhpds/triforce[001 — Your First AI Inference], a 20-minute lab where you serve a model from a single container on any Linux box. It introduces the same inference server and OpenAI-compatible API you will use throughout this lab -- no OpenShift required.
+
 == Zero Setup Required
 
 Everything you are about to use required zero manual setup from the customer's platform team. Model serving, model routing, AI acceleration, and the management dashboard all ship with OpenShift and OpenShift AI. The only thing you need to add is a workload.

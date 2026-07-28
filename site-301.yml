@@ -1,6 +1,6 @@
 ---
 site:
-  title: "Intel Xeon 6 301: Multi-Agent AI at Scale"
+  title: "Intel Xeon 6 301 — Multi-Agent AI at Scale"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 

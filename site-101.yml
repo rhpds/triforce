@@ -1,6 +1,6 @@
 ---
 site:
-  title: "Intel Xeon 6 101: Model Deployment on OpenShift"
+  title: "Intel Xeon 6 101 — Model Deployment on OpenShift"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 

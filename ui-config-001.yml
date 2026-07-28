@@ -1,0 +1,15 @@
+---
+type: showroom
+
+default_width: 35
+persist_url_state: true
+
+view_switcher:
+  enabled: true
+  default_mode: split
+
+tabs:
+  # Terminal for podman and curl commands
+  - name: Terminal
+    path: /wetty
+    port: 443

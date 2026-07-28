@@ -1,0 +1,13 @@
+name: modules
+title: "Intel Xeon 6 001 — Your First AI Inference"
+version: ~
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    experimental: true
+    page-pagination: true
+    showroom-collection-version: v1.6.8
+    guid: "{guid}"
+    user: "{user}"
+    password: "{password}"

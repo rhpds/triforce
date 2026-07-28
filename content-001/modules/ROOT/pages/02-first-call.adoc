@@ -1,0 +1,138 @@
+= Module 2: Your First Inference Call
+:navtitle: Your First Inference Call
+
+== Objective
+
+Call the model, compare prompt patterns, and understand the OpenAI-compatible API. Everything in this module uses `curl` against the server you started in Module 1.
+
+== Exercise 1: Ask a Question
+
+Send a chat completion request to your model:
+
+[source,bash,role="execute"]
+----
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ibm-granite/granite-3.2-2b-instruct",
+    "messages": [{"role": "user", "content": "What is Intel AMX and why does it matter for AI inference? Answer in 2 sentences."}],
+    "max_tokens": 100
+  }' | jq '{model: .model, content: .choices[0].message.content, tokens: .usage}'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Model: ___
+* Response quality (1-5): ___
+* Total tokens used: ___
+****
+
+NOTE: You just called an AI model with a standard HTTP request. The API is identical to OpenAI's chat completions endpoint. Any application, library, or framework that supports the OpenAI API works with this server. No code changes needed.
+
+== Exercise 2: Classify Text
+
+Use the model as a classifier. The key is a focused prompt that constrains the output:
+
+[source,bash,role="execute"]
+----
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ibm-granite/granite-3.2-2b-instruct",
+    "messages": [{"role": "user", "content": "Classify the following text as positive, negative, or neutral. Respond with only one word.\n\nText: The new processor delivers exceptional performance at lower power consumption than the previous generation."}],
+    "max_tokens": 5
+  }' | jq '.choices[0].message.content'
+----
+
+Now try a negative example:
+
+[source,bash,role="execute"]
+----
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ibm-granite/granite-3.2-2b-instruct",
+    "messages": [{"role": "user", "content": "Classify the following text as positive, negative, or neutral. Respond with only one word.\n\nText: The deployment failed repeatedly and the documentation was outdated."}],
+    "max_tokens": 5
+  }' | jq '.choices[0].message.content'
+----
+
+[sidebar]
+****
+*Record:*
+
+* Positive text classification: ___
+* Negative text classification: ___
+* Did the model get both right? ___
+****
+
+== Exercise 3: Extract Entities
+
+Ask the model to find and structure information from text:
+
+[source,bash,role="execute"]
+----
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ibm-granite/granite-3.2-2b-instruct",
+    "messages": [{"role": "user", "content": "Extract all product names and companies from this text as a JSON array.\n\nText: Red Hat OpenShift running on Intel Xeon 6 serves IBM Granite models for production AI workloads."}],
+    "max_tokens": 150
+  }' | jq '.choices[0].message.content'
+----
+
+[sidebar]
+****
+*Record:*
+
+* How many entities were extracted? ___
+* Did the model find all three companies (Red Hat, Intel, IBM)? ___
+* Were the product names accurate? ___
+****
+
+NOTE: The same 2B model handled three different tasks -- question answering, classification, and entity extraction -- with no retraining, no fine-tuning, and no configuration changes. The only thing that changed was the prompt.
+
+== Exercise 4: Understand the API Shape
+
+Every response follows the same structure. Run one more call and look at the full response:
+
+[source,bash,role="execute"]
+----
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ibm-granite/granite-3.2-2b-instruct",
+    "messages": [{"role": "user", "content": "Say hello in exactly 3 words."}],
+    "max_tokens": 10
+  }' | jq .
+----
+
+Key fields in the response:
+
+* `choices[0].message.content` -- the model's response text
+* `usage.prompt_tokens` -- tokens in your input
+* `usage.completion_tokens` -- tokens the model generated
+* `usage.total_tokens` -- total tokens consumed
+* `model` -- which model served the request
+
+This is the OpenAI chat completions schema. Every tool in the ecosystem -- LangChain, LlamaIndex, OpenAI SDKs, Hugging Face clients -- speaks this protocol.
+
+== Verify
+
+[%interactive]
+* [ ] Asked a question and got a coherent answer
+* [ ] Classified text as positive and negative correctly
+* [ ] Extracted entities as structured output
+* [ ] Examined the full API response shape
+
+== Learning Outcomes
+
+* The API is OpenAI-compatible -- any tool that speaks the OpenAI protocol works with this server
+* A single model handles many task types through prompt engineering alone
+* Token usage is visible in every response -- the foundation for cost and performance monitoring
+* Classification, extraction, and generation all use the same `/v1/chat/completions` endpoint
+
+[.next-nav]
+xref:03-conclusion.adoc[Next: What's Next ->]

@@ -1,4 +1,4 @@
-.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-frontend test-multinode test-modules test-benchmarks test-workflows test-all test-platform test-deployment clean
+.PHONY: help up down test-contracts test-infra test-unit test-contracts-compliance test-integration test-scale test-frontend test-multinode test-modules test-benchmarks test-workflows test-all test-platform test-deployment clean build-site-001 build-site-101 build-site-201 build-site-301 build-site-401 build-site-501 build-all-sites
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -237,6 +237,9 @@ build-all: build-healthcare build-finserv build-orchestrator ## Build all 301 co
 
 # --- Showroom Sites ---
 
+build-site-001: ## Build 001 showroom site
+	npx antora site-001.yml
+
 build-site-101: ## Build 101 showroom site
 	npx antora site-101.yml
 
@@ -252,10 +255,11 @@ build-site-401: ## Build 401 showroom site
 build-site-501: ## Build 501 showroom site
 	npx antora site-501.yml
 
-build-all-sites: build-site-101 build-site-201 build-site-301 build-site-401 build-site-501 ## Build all 5 showroom sites
+build-all-sites: build-site-001 build-site-101 build-site-201 build-site-301 build-site-401 build-site-501 ## Build all 6 showroom sites
 
 clean: ## Remove build artifacts and containers
 	podman-compose -f infrastructure/podman-compose.yaml down -v --remove-orphans 2>/dev/null || true
+	rm -rf www-*/ 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
 	cd services/finserv-agent && ./mvnw clean -q 2>/dev/null || mvn clean -q 2>/dev/null || true

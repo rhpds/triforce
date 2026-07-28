@@ -106,6 +106,7 @@ infrastructure/
   helm/              # Helm chart with module flags
   llm-d/             # Disaggregated inference manifests
 frontend/            # React 19, TypeScript, Motion, ModuleContext
+content-001/         # Showroom lab — 001 Your First AI Inference
 content-101/         # Showroom lab — 101 Model Deployment
 content-201/         # Showroom lab — 201 Agent Creation
 content-301/         # Showroom lab — 301 Multi-Agent AI at Scale
