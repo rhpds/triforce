@@ -9,7 +9,7 @@ Call the model, compare prompt patterns, and understand the OpenAI-compatible AP
 
 Send a chat completion request to your model:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -35,7 +35,7 @@ NOTE: You just called an AI model with a standard HTTP request. The API is ident
 
 Use the model as a classifier. The key is a focused prompt that constrains the output:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -48,7 +48,7 @@ curl -s http://localhost:8000/v1/chat/completions \
 
 Now try a negative example:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -72,7 +72,7 @@ curl -s http://localhost:8000/v1/chat/completions \
 
 Ask the model to find and structure information from text:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -98,7 +98,7 @@ NOTE: The same 2B model handled three different tasks -- question answering, cla
 
 Every response follows the same structure. Run one more call and look at the full response:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \

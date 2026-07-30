@@ -45,7 +45,7 @@ This lab is linear. Each module builds on the previous one.
 
 == Prerequisite
 
-New to AI inference? Start with link:https://github.com/rhpds/triforce[001 — Your First AI Inference], a 20-minute lab where you serve a model from a single container on any Linux box. It introduces the same inference server and OpenAI-compatible API you will use throughout this lab -- no OpenShift required.
+New to AI inference? Start with link:https://github.com/rhpds/triforce[001 — AI on Hardware You Already Own], a 20-minute quickstart where you serve a model from a single container on any Linux box. It introduces the same inference server and OpenAI-compatible API you will use throughout this lab -- no OpenShift required.
 
 == Zero Setup Required
 

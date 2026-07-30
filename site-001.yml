@@ -1,6 +1,6 @@
 ---
 site:
-  title: "Intel Xeon 6 001 — Your First AI Inference"
+  title: "Intel Xeon 6 001 — AI on Hardware You Already Own"
   url: https://github.com/rhpds/triforce
   start_page: modules::index.adoc
 

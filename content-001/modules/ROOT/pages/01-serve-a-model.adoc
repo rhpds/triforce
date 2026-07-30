@@ -9,7 +9,7 @@ Pull the Red Hat AI Inference Server container image and serve an IBM Granite mo
 
 The Red Hat AI Inference Server is a single container image. One command pulls it, starts it, downloads a model, and begins serving.
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 podman run -d --name inference-server \
   -p 8000:8000 \
@@ -30,7 +30,7 @@ NOTE: The model download takes a few minutes on first run. Subsequent starts use
 
 Follow the container logs to see the model load:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 podman logs -f inference-server
 ----
@@ -57,14 +57,14 @@ This is the same serving engine (vLLM) used in production at scale. You are runn
 
 Check that the model is listed and the API is responding:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/v1/models | jq .
 ----
 
 You should see output showing the model ID `ibm-granite/granite-3.2-2b-instruct` in the model list.
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 curl -s http://localhost:8000/health
 ----
@@ -75,7 +75,7 @@ A healthy server returns a `200` status.
 
 If you are running on an Intel Xeon 6 or 4th/5th Gen Xeon Scalable processor, you have AMX acceleration:
 
-[source,bash,role="execute"]
+[source,bash]
 ----
 lscpu | grep -i amx
 ----

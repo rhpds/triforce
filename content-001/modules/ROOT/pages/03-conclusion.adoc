@@ -1,37 +1,47 @@
 = What's Next
 :navtitle: What's Next
 
-== What You Did
+== What You Just Proved
 
-In this lab, you:
+In 20 minutes, you:
 
-* Pulled the Red Hat AI Inference Server as a single container image
-* Served an IBM Granite 2B model on a CPU -- no cluster, no cloud, no GPU
-* Called the model using the standard OpenAI-compatible API
-* Classified text, extracted entities, and answered questions -- all from `curl`
+* Pulled a production-grade AI inference server as a single container
+* Served an open-weight model on your CPU — no GPU, no cloud, no license
+* Called it with the same API that every major AI provider uses
+* Classified text, extracted entities, and answered questions — from `curl`
 
-Everything you used -- the container image, the model, the API -- runs on any Linux machine with a container runtime. No cluster. No operator. No cloud account.
+The cost of everything you just did: zero per token. The model is open-weight (IBM Granite). The runtime is open-source (vLLM). The hardware is whatever x86 server you already own.
+
+== Why This Matters for Your Business
+
+[cols="2,3",options="header"]
+|===
+| Customer Question | Your Answer
+| "Do we need GPUs to start with AI?" | No. You just ran a model on a CPU. GPUs matter at scale or for frontier reasoning — not for classification, extraction, or summarization.
+| "What does it cost per token?" | Zero. Open-weight model on hardware you already own. Cloud APIs charge $0.01-0.06 per 1K tokens. This is free.
+| "Is it the same quality as cloud APIs?" | For enterprise tasks (classification, NER, summarization), a 2-3B open model matches cloud API accuracy. You proved it in Exercise 2.
+| "Can we switch models later?" | Yes. Same API, same container, different model. Change one environment variable.
+| "Does it scale?" | That's what 101 covers. Same container, deployed on OpenShift with auto-scaling and model management.
+|===
 
 == The API Is the Constant
 
-The `/v1/chat/completions` endpoint you called in this lab is the same API at every scale:
+The `/v1/chat/completions` endpoint you called here is the same API at every scale:
 
 [cols="1,3",options="header"]
 |===
 | Scale | How It Works
-| *001 (this lab)* | `podman run` on a single machine
-| *101* | RHOAI deploys the same container as an InferenceService on OpenShift
+| *001 (this quickstart)* | `podman run` on a single machine
+| *101* | OpenShift AI deploys the same container as a managed service
 | *201* | An agent calls the same API with tools and orchestration
-| *301* | A semantic router fans requests across CPU and GPU models using the same API
+| *301* | A semantic router fans requests across CPU and GPU models
 |===
 
-Nothing changes but the infrastructure underneath. Your prompts, your code, your integrations -- they all carry forward.
+Your prompts, your code, your integrations — they all carry forward.
 
 == Clean Up
 
-Stop and remove the inference server container:
-
-[source,bash,role="execute"]
+[source,bash]
 ----
 podman stop inference-server && podman rm inference-server
 ----
@@ -41,7 +51,7 @@ podman stop inference-server && podman rm inference-server
 [cols="1,3,3,1",options="header"]
 |===
 | Level | Title | What You'll Learn | Time
-| *001* | *Your First AI Inference* | *Serve a model from a container on any Linux box* | *~20 min*
+| *001* | *AI on Hardware You Already Own (this quickstart)* | *Serve a model from a container* | *~20 min*
 | 101 | Model Deployment | Deploy and call AI models on OpenShift | ~45 min
 | 201 | Building an AI Agent | Wrap a model in tools and orchestration | ~45 min
 | 301 | Multi-Agent AI at Scale | Route, optimize, and scale many agents across CPU and GPU | ~2 hrs
@@ -51,13 +61,8 @@ podman stop inference-server && podman rm inference-server
 
 == Next: 101 — Model Deployment on OpenShift
 
-You have a model running in a container. That works for a single user, a single model, on a single machine. What happens when you need:
+You have a model running in a container. That works for one user, one model, one machine. What happens when you need multiple models, auto-scaling, and a management dashboard?
 
-* Multiple models, each with different resource profiles
-* Auto-scaling under load
-* Model versioning and rollback
-* A dashboard to manage it all
-
-In 101, you take the same inference server container and deploy it on OpenShift with Red Hat OpenShift AI. The platform handles scaling, routing, and lifecycle management. The API your applications call is the same one you used here.
+In 101, you deploy the same inference server on OpenShift with Red Hat OpenShift AI. The platform handles the lifecycle. The API stays the same.
 
 One container becomes a platform.
