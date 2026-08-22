@@ -1,140 +1,28 @@
-= Module 4: Deploy and Scale
-:navtitle: Deploy and Scale
+= Module 4: Production Patterns
+:navtitle: Production Patterns
 
 == Objective
 
-Deploy your chosen model in your own namespace, scale it to handle load, and produce a one-page summary of what you learned.
+Take the model you selected in Module 3 and push it through production-grade patterns: tune inference parameters, load test at scale, build a multi-model pipeline, and produce a deployment recommendation.
 
-== Exercise 1: Deploy the Model
+== Exercise 1: Tune Inference Parameters
 
-In Module 3 you picked a model based on data. Now deploy it. The model weights are pre-cached on a PVC:
+In Module 3 you used defaults. Now explore how parameters change quality and speed.
 
-[source,bash,role="execute",subs=attributes+]
-----
-oc get pvc model-cache
-----
-
-Create the InferenceService — one YAML, one command:
+Run the same ticket through your chosen model with different `temperature` values:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-cat << 'EOF' | oc apply -f -
-apiVersion: serving.kserve.io/v1beta1
-kind: InferenceService
-metadata:
-  name: granite-tiny
-  annotations:
-    serving.kserve.io/deploymentMode: RawDeployment
-spec:
-  predictor:
-    model:
-      modelFormat:
-        name: vLLM
-      runtime: vllm-runtime
-      storageUri: pvc://model-cache/granite-tiny
-    minReplicas: 1
-    maxReplicas: 1
-    resources:
-      requests:
-        cpu: "4"
-        memory: 4Gi
-      limits:
-        cpu: "8"
-        memory: 8Gi
-EOF
-----
-
-NOTE: One YAML. That is the entire deployment. The ServingRuntime, the container image, the health checks, the routing -- all provided by OpenShift AI out of the box. The customer's platform team enables OpenShift AI; the application team writes this YAML.
-
-Watch it come up:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc get inferenceservice granite-tiny -w
-----
-
-Press `Ctrl+C` once `READY: True`. Then verify:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc get pods
-----
-
-Switch to the *RHOAI Dashboard* tab. Navigate to *Model Serving* -- you should see your `granite-tiny` model listed with status *Ready*. This is the same visual management interface a platform team would use in production.
-
-[sidebar]
-****
-*Record:*
-
-* Time from `oc apply` to Ready: ___ seconds
-* Pod count: ___
-* Visible in RHOAI Dashboard? ___
-****
-
-== Exercise 2: Test It
-
-Call your self-hosted model with one of the support tickets from Module 3:
-
-[source,bash,role="execute"]
-----
-MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
-curl -s -X POST https://${MODEL_URL}/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "granite-tiny",
-    "messages": [{"role": "user", "content": "Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: Pods are stuck in CrashLoopBackOff after upgrading to 4.16."}],
-    "max_tokens": 10
-  }' | jq '{model: .model, response: .choices[0].message.content}'
-----
-
-== Exercise 3: Scale to Two Replicas
-
-One pod handles one request at a time. Scale to two:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc patch inferenceservice granite-tiny --type merge -p '{"spec":{"predictor":{"minReplicas":2,"maxReplicas":2}}}'
-----
-
-Watch the second pod come up:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc get pods -w
-----
-
-Press `Ctrl+C` once both pods are Running. Now hit the endpoint with a real load test using `hey`:
-
-[source,bash,role="execute"]
-----
-MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
-hey -n 20 -c 5 -m POST \
-  -H "Content-Type: application/json" \
-  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. Respond with one word."}],"max_tokens":5}' \
-  https://${MODEL_URL}/v1/chat/completions
-----
-
-`hey` sends 20 requests with 5 concurrent workers. Look at the output:
-
-* *Requests/sec* -- your throughput
-* *Latency distribution* -- p50, p95, p99 response times
-* *Status code distribution* -- all should be 200
-
-Now scale back to 1 replica and run the same test to see the difference:
-
-[source,bash,role="execute",subs=attributes+]
-----
-oc patch inferenceservice granite-tiny --type merge -p '{"spec":{"predictor":{"minReplicas":1,"maxReplicas":1}}}'
-oc rollout status deploy/granite-tiny-predictor --timeout=60s
-----
-
-[source,bash,role="execute"]
-----
-MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
-hey -n 20 -c 5 -m POST \
-  -H "Content-Type: application/json" \
-  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. Respond with one word."}],"max_tokens":5}' \
-  https://${MODEL_URL}/v1/chat/completions
+for temp in 0.0 0.3 0.7 1.0; do
+  echo "=== temperature=$temp ==="
+  for run in 1 2 3; do
+    RESULT=$(curl -s -X POST {maas_url}/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer {litellm_api_key}" \
+      -d "{\"model\": \"granite-2b-cpu\", \"temperature\": $temp, \"messages\": [{\"role\": \"user\", \"content\": \"Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: My invoice shows a charge for a service I cancelled last month.\"}], \"max_tokens\": 10}")
+    echo "  Run $run: $(echo $RESULT | jq -r '.choices[0].message.content')"
+  done
+done
 ----
 
 [sidebar]
@@ -143,100 +31,218 @@ hey -n 20 -c 5 -m POST \
 
 [cols="2,2,2",options="header"]
 |===
-| | 1 Replica | 2 Replicas
-| Requests/sec | |
-| p50 latency | |
-| p99 latency | |
+| Temperature | Consistent? | Correct?
+| 0.0 | |
+| 0.3 | |
+| 0.7 | |
+| 1.0 | |
 |===
 
-* Throughput improvement with 2 replicas: ___x
-* Scaling was: [ ] one YAML patch [ ] a code change [ ] a container rebuild
+* For classification, which temperature gives the most reliable results? ___
+* Why does `temperature=0.0` matter for production classification? ___
 ****
 
-== Exercise 4: Compare Self-Hosted vs MAAS
-
-Run the same request against both endpoints:
-
-[source,bash,role="execute"]
-----
-export MODEL_URL=$(oc get route granite-tiny -o jsonpath='{.spec.host}')
-----
+Now test `max_tokens` — how it affects response shape and latency:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-echo "=== MAAS (shared) ==="
-time curl -s -X POST {maas_url}/v1/chat/completions \
+for tokens in 1 5 10 50; do
+  START=$(date +%s%3N)
+  RESULT=$(curl -s -X POST {maas_url}/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {litellm_api_key}" \
+    -d "{\"model\": \"granite-2b-cpu\", \"temperature\": 0.0, \"max_tokens\": $tokens, \"messages\": [{\"role\": \"user\", \"content\": \"Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: API responses are timing out after the latest update.\"}]}")
+  END=$(date +%s%3N)
+  ELAPSED=$((END - START))
+  echo "max_tokens=$tokens  latency=${ELAPSED}ms  response=$(echo $RESULT | jq -r '.choices[0].message.content')"
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+* Minimum `max_tokens` that still gives a correct answer: ___
+* Latency difference between `max_tokens=1` and `max_tokens=50`: ___ ms
+* For classification, `max_tokens` should be set to ___ in production
+****
+
+== Exercise 2: Load Test the MaaS Endpoint
+
+A single request is fast. What happens under concurrent load? Use `hey` to simulate multiple users:
+
+[source,bash,role="execute",subs=attributes+]
+----
+hey -n 30 -c 1 -m POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {litellm_api_key}" \
-  -d '{"model":"granite-4-0-h-tiny-cpu","messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
-  | jq '.choices[0].message.content'
+  -d '{"model":"granite-2b-cpu","temperature":0.0,"messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
+  {maas_url}/v1/chat/completions
 ----
 
-[source,bash,role="execute"]
+Record the baseline (1 concurrent user, 30 requests). Then increase concurrency:
+
+[source,bash,role="execute",subs=attributes+]
 ----
-echo "=== Self-hosted (your namespace, 2 replicas) ==="
-time curl -s -X POST https://${MODEL_URL}/v1/chat/completions \
+hey -n 30 -c 5 -m POST \
   -H "Content-Type: application/json" \
-  -d '{"model":"granite-tiny","messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
-  | jq '.choices[0].message.content'
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{"model":"granite-2b-cpu","temperature":0.0,"messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
+  {maas_url}/v1/chat/completions
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+hey -n 30 -c 10 -m POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {litellm_api_key}" \
+  -d '{"model":"granite-2b-cpu","temperature":0.0,"messages":[{"role":"user","content":"Classify: My invoice is wrong. One word."}],"max_tokens":5}' \
+  {maas_url}/v1/chat/completions
 ----
 
 [sidebar]
 ****
+*Record:*
+
+[cols="2,2,2,2",options="header"]
+|===
+| Concurrency | Requests/sec | p50 latency | p99 latency
+| 1 | | |
+| 5 | | |
+| 10 | | |
+|===
+
+* Does latency increase linearly with concurrency? ___
+* At what concurrency does p99 latency become unacceptable for real-time use? ___
+* MaaS handles scaling transparently -- what would you need to manage if self-hosting? ___
+****
+
+== Exercise 3: Multi-Model Pipeline
+
+Production workloads rarely use one model. Build a two-stage pipeline: a fast model triages, a larger model handles complex cases.
+
+[source,bash,role="execute",subs=attributes+]
+----
+TICKETS=(
+  "My invoice shows a charge for a service I cancelled last month."
+  "The dashboard won't load and I've tried three browsers, cleared cache, disabled VPN, and the error persists across all devices in our office."
+  "How do I add a second user to my organization?"
+  "Your platform saved us 200 hours last quarter. Thank you!"
+  "I was charged twice and my bank flagged it as potential fraud. I need this resolved immediately before I dispute the charges."
+)
+EXPECTED=(billing technical account praise billing)
+
+echo "=== Stage 1: Fast triage (granite-4-0-h-tiny-cpu) ==="
+echo "=== Stage 2: Complex cases escalate to granite-3-2-8b-instruct-cpu ==="
+echo ""
+
+for i in $(seq 0 4); do
+  # Stage 1: fast model
+  S1_START=$(date +%s%3N)
+  S1=$(curl -s -X POST {maas_url}/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {litellm_api_key}" \
+    -d "{\"model\": \"granite-4-0-h-tiny-cpu\", \"temperature\": 0.0, \"max_tokens\": 20, \"messages\": [{\"role\": \"user\", \"content\": \"Classify this support ticket as billing, technical, account, or praise. Also rate your confidence as HIGH or LOW. Format: CATEGORY|CONFIDENCE\n\nTicket: ${TICKETS[$i]}\"}]}")
+  S1_END=$(date +%s%3N)
+  S1_MS=$((S1_END - S1_START))
+  S1_ANSWER=$(echo "$S1" | jq -r '.choices[0].message.content' | head -1)
+
+  CONFIDENCE=$(echo "$S1_ANSWER" | grep -oi 'HIGH\|LOW' | head -1)
+
+  if [ "$CONFIDENCE" = "LOW" ] || [ -z "$CONFIDENCE" ]; then
+    # Stage 2: escalate to larger model
+    S2_START=$(date +%s%3N)
+    S2=$(curl -s -X POST {maas_url}/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer {litellm_api_key}" \
+      -d "{\"model\": \"granite-3-2-8b-instruct-cpu\", \"temperature\": 0.0, \"max_tokens\": 10, \"messages\": [{\"role\": \"user\", \"content\": \"Classify this support ticket into exactly one category: billing, technical, account, or praise. Respond with only the category name.\n\nTicket: ${TICKETS[$i]}\"}]}")
+    S2_END=$(date +%s%3N)
+    S2_MS=$((S2_END - S2_START))
+    FINAL=$(echo "$S2" | jq -r '.choices[0].message.content' | tr '[:upper:]' '[:lower:]' | tr -d ' .')
+    echo "Ticket $((i+1)): Stage1=${S1_MS}ms(LOW) -> Stage2=${S2_MS}ms -> $FINAL (expected: ${EXPECTED[$i]})"
+  else
+    FINAL=$(echo "$S1_ANSWER" | cut -d'|' -f1 | tr '[:upper:]' '[:lower:]' | tr -d ' .')
+    echo "Ticket $((i+1)): Stage1=${S1_MS}ms(HIGH) -> $FINAL (expected: ${EXPECTED[$i]})"
+  fi
+done
+----
+
+[sidebar]
+****
+*Record:*
+
+* How many tickets went to Stage 2? ___
+* Were the Stage 2 answers more accurate? ___
+* Average latency for Stage 1 only: ___ ms
+* Average latency for Stage 1 + Stage 2: ___ ms
+* Cost savings if 80% of tickets resolve at Stage 1: Even at $0/token, the latency savings mean ___ faster response times
+****
+
+== Exercise 4: Your Deployment Recommendation
+
+You now have parameter tuning data, load test results, and a multi-model pipeline. Fill in your production deployment plan:
+
+[sidebar]
+****
+*Production Deployment Plan*
+
+*Task*: Customer support ticket classification at 100,000 tickets/day
+
+*Architecture*:
+
+[cols="2,3",options="header"]
+|===
+| Component | Your Choice
+| Stage 1 (triage) model | ___ (fast, cheap)
+| Stage 2 (escalation) model | ___ (accurate, larger)
+| Expected Stage 2 rate | ___% of tickets
+| Temperature | ___
+| max_tokens | ___
+|===
+
+*Performance projections*:
+
 [cols="2,2,2",options="header"]
 |===
-| | MAAS (shared) | Self-hosted (2 replicas)
-| Latency | ___ ms | ___ ms
-| Response | |
-|===
-****
-
-== Exercise 5: Your Summary
-
-Fill in this deployment summary — this is what you would present to a decision-maker:
-
-[sidebar]
-****
-*Deployment Summary*
-
-*Task*: Customer support ticket classification
-
-*Model selected*: ___ (from Module 3 evaluation)
-
-*Why this model*: ___ (accuracy, speed, or balance)
-
-*Deployment method*:
-
-[cols="2,3,3",options="header"]
-|===
-| | MAAS (shared) | Self-Hosted (RHOAI)
-| Setup time | 0 min | ___ min
-| Latency | ___ ms | ___ ms
-| Scaling | Managed | ___ replicas via patch
-| Cost | $0/token (shared) | $0/token (dedicated HW)
-| Control | API key only | Full K8s control
+| Metric | Measured | At 100K/day
+| Avg latency (Stage 1 only) | ___ ms |
+| Avg latency (Stage 1+2) | ___ ms |
+| Throughput at concurrency=5 | ___ req/s | ___ tickets/hour
+| p99 latency | ___ ms |
 |===
 
-*Recommendation*: For this workload, I would use [ ] MAAS [ ] Self-hosted because: ___
+*Cost comparison*:
 
-*At 100K tickets/day*: Annual cloud API savings = $___
+[cols="2,2",options="header"]
+|===
+| Platform | Annual Cost
+| Intel Xeon 6 MaaS | $0
+| Cloud API (GPT-4o-mini, 100K/day) | $657/year
+| Cloud API (GPT-4o, 100K/day) | $21,900/year
+|===
+
+*Recommendation*:
+
+For this workload, I would deploy on ___ because: ___
+
+The multi-model pipeline saves ___ in latency by resolving ___% of tickets with the fast model.
 ****
 
 == Verify
 
 [%interactive]
-* [ ] InferenceService deployed and Ready
-* [ ] Model responds to inference requests
-* [ ] Scaled to 2 replicas, parallel requests handled
-* [ ] MAAS vs self-hosted compared
-* [ ] Deployment summary filled in
+* [ ] Tested inference parameters (temperature, max_tokens)
+* [ ] Load tested at multiple concurrency levels
+* [ ] Built and ran a multi-model pipeline
+* [ ] Deployment recommendation complete with data
 
 == Learning Outcomes
 
-* An InferenceService is one YAML — deploy, scale, and manage with standard `oc` commands
-* Scaling is a patch, not a rebuild — Kubernetes handles the rest
-* Self-hosted gives you dedicated capacity and data locality; MAAS gives you zero-config multi-model access
-* You now have a deployment recommendation backed by accuracy data, latency measurements, and cost analysis
+* `temperature=0.0` and minimal `max_tokens` are essential for production classification
+* MaaS handles scaling transparently -- latency under load is the metric that matters, not replica management
+* Multi-model pipelines (fast triage + accurate escalation) reduce average latency while maintaining accuracy
+* Intel Xeon 6 CPU inference at $0/token means you can run experiments, batch jobs, and production pipelines without API bills
+* You now have a complete, data-backed deployment recommendation
 
 [.next-nav]
 xref:99-conclusion.adoc[Next: What's Next →]
