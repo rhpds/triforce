@@ -11,6 +11,12 @@ The agent's behavior is defined by a system prompt, mounted as a ConfigMap. Depl
 
 [source,bash,role="execute",subs=attributes+]
 ----
+oc project user-{guid}-triforce
+test "$(oc project -q)" = "user-{guid}-triforce"
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
 oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/advisor-prompt-configmap.yaml
 ----
 
@@ -79,6 +85,14 @@ oc rollout status deploy/solution-ui --timeout=60s
 ----
 
 Switch to the *Solution Architect* tab to see the chat interface.
+
+Confirm that the UI Route belongs to the tenant namespace before opening the tab:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get route solution-ui
+test "$(oc project -q)" = "user-{guid}-triforce"
+----
 
 == Exercise 4: First Conversation
 

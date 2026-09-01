@@ -40,6 +40,17 @@ The model provides reasoning. The tools provide data. The prompt provides struct
 
 You will deploy three pods in the next modules:
 
+First, switch the terminal to the tenant namespace assigned to this lab. Do not deploy the lab workloads into the `showroom-{guid}` namespace, which only hosts the lab guide and terminal:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc project user-{guid}-triforce
+
+test "$(oc project -q)" = "user-{guid}-triforce" \
+  && echo "Tenant namespace selected" \
+  || { echo "ERROR: wrong namespace"; exit 1; }
+----
+
 [source,bash,role="execute",subs=attributes+]
 ----
 echo "=== Components you will deploy ==="
@@ -49,6 +60,7 @@ echo "2. solution-agent    — LangGraph agent that calls the model + tools"
 echo "3. solution-ui       — Web chat interface for the agent"
 echo ""
 echo "Current namespace status:"
+oc project -q
 oc get pods
 ----
 
@@ -59,7 +71,7 @@ Your namespace should still be empty. You will fill it in Modules 2 and 3.
 [%interactive]
 * [ ] Model-only limitations understood
 * [ ] Three components understood: tools, agent, UI
-* [ ] Namespace confirmed empty
+* [ ] `user-{guid}-triforce` namespace selected and confirmed empty
 
 == Learning Outcomes
 

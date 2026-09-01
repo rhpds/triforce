@@ -7,6 +7,12 @@ Test the agent with real scenarios, then write your own system prompt for a cust
 
 Set the agent URL from the OpenShift Route so the commands always target this lab order:
 
+[source,bash,role="execute",subs=attributes+]
+----
+oc project user-{guid}-triforce
+test "$(oc project -q)" = "user-{guid}-triforce"
+----
+
 [source,bash,role="execute"]
 ----
 export ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"

@@ -11,6 +11,12 @@ Deploy the solution-tools pod in your namespace:
 
 [source,bash,role="execute",subs=attributes+]
 ----
+oc project user-{guid}-triforce
+test "$(oc project -q)" = "user-{guid}-triforce"
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
 oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-tools.yaml
 ----
 
