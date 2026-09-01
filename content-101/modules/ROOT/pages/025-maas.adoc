@@ -69,7 +69,7 @@ This is the framework for a customer conversation about AI on OpenShift.
 
 MaaS is the answer for Day 1:
 
-. *"You already have the hardware."* Intel Xeon 6 CPUs in your existing servers can serve AI models. No new GPU purchase required. The AMX acceleration you verified in Module 1 is what makes this possible.
+. *"You already have the hardware."* Intel Xeon 6 CPUs in your existing servers can serve AI models. No new GPU purchase is required. AMX acceleration, validated by the platform team, helps make this practical.
 
 . *"Zero setup for app teams."* Platform team enables OpenShift AI (one operator). App teams get an API key and a URL. Same OpenAI-compatible API they already know from prototyping with cloud APIs.
 

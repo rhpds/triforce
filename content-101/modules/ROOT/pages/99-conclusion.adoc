@@ -5,7 +5,7 @@
 
 In this lab, you:
 
-* Verified Intel AMX acceleration is present on the node and powering every inference call
+* Learned how platform administrators validate Intel AMX and how it accelerates CPU inference
 * Called AI models running on Intel Xeon 6 CPUs at $0/token -- zero setup required
 * Compared three models (2B, 3B, 3.8B) on classification and entity extraction
 * Learned how to position Model-as-a-Service in a customer conversation

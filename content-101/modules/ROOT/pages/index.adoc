@@ -53,7 +53,7 @@ Everything you are about to use required zero manual setup from the customer's p
 
 == The Big Idea
 
-AI inference does not require a GPU. Intel Xeon 6 CPUs with AMX acceleration serve models at zero incremental cost on hardware you already own. You will prove this yourself.
+AI inference does not require a GPU. Intel Xeon 6 CPUs with AMX acceleration can serve models on hardware you already own. You will exercise both shared and self-hosted CPU inference paths in this lab.
 
 [.next-nav]
 xref:01-orient.adoc[Start: Module 1 — Orient →]

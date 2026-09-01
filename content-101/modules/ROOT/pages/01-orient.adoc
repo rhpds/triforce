@@ -64,21 +64,16 @@ The dashboard, the runtimes, the CRDs -- all out-of-box with OpenShift AI.
 ****
 *Record:*
 
-* RHOAI operator version: ___
-* Status: ___
+* Model-serving APIs discovered: ___
+* Can create an InferenceService? ___
 * Serving runtimes available in the dashboard: ___
 ****
 
-== Exercise 3: Verify Intel AMX
+== Exercise 3: Understand Intel AMX
 
-The Intel Xeon 6 CPUs in this cluster have Advanced Matrix Extensions (AMX) -- dedicated silicon that accelerates the matrix-multiply operations AI inference depends on. Verify AMX is present:
+The Intel Xeon 6 CPUs backing this lab have Advanced Matrix Extensions (AMX) -- dedicated silicon that accelerates the matrix-multiply operations AI inference depends on. The platform team validates the worker hardware before making the shared cluster available. Your restricted tenant account cannot list or debug nodes, which prevents one lab user from inspecting or changing shared cluster hosts.
 
-[source,bash,role="execute"]
-----
-oc debug node/$(oc get nodes -o jsonpath='{.items[0].metadata.name}') -- chroot /host lscpu | grep -i amx
-----
-
-You should see flags including:
+On a host where an administrator has shell access, `lscpu` reports AMX capability flags including:
 
 * `amx_bf16` -- Accelerates bfloat16 matrix multiply (the format used by most inference runtimes)
 * `amx_int8` -- Accelerates INT8 quantized inference (even faster, slightly less precise)
@@ -90,12 +85,12 @@ You should see flags including:
 
 AMX accelerates the matrix-multiply operations that inference depends on, running them directly on the CPU using dedicated silicon. Without AMX, these operations run as scalar or vector instructions -- 2-3x slower. AMX is what makes CPU-only inference feasible in this lab.
 
-Every inference call you make from here on runs through AMX.
+The CPU inference services used in this lab are placed on the validated Intel worker infrastructure and configured to take advantage of the available CPU instruction set.
 
 *Record:*
 
-* AMX flags present? ___
-* Number of AMX-related flags: ___
+* Why is node debugging restricted for tenant users? ___
+* Which AI operations does AMX accelerate? ___
 ****
 
 == Exercise 4: Two Paths to Model Serving
@@ -119,14 +114,14 @@ In Modules 2 and 3, you will use the shared MAAS endpoint. In Module 4, you will
 [%interactive]
 * [ ] `oc login` succeeded
 * [ ] Namespace is empty (no pods)
-* [ ] RHOAI operator is installed and `Succeeded`
-* [ ] Intel AMX flags verified on the node
+* [ ] RHOAI model-serving APIs are available
+* [ ] Intel AMX's role in CPU inference is understood
 
 == Learning Outcomes
 
 * How to access your OpenShift namespace
 * RHOAI operator and model serving ship out-of-box with OpenShift AI -- zero manual setup
-* How to verify Intel AMX is present on a node and explain what it does
+* How platform administrators validate Intel AMX and what it does
 * Two deployment models: shared (MAAS) vs self-hosted (RHOAI)
 
 [.next-nav]
