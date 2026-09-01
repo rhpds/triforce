@@ -15,5 +15,3 @@ asciidoc:
     openshift_console_url: "%openshift_console_url%"
     openshift_cluster_ingress_domain: "%openshift_cluster_ingress_domain%"
     project_name: "user-%GUID%-triforce"
-    maas_url: "%litellm_api_endpoint%"
-    litellm_api_key: "%litellm_virtual_key%"

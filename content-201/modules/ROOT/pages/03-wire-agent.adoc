@@ -42,11 +42,11 @@ The lab provisioner has already generated and assigned a short-lived, model-scop
 [source,bash,role="execute",subs=attributes+]
 ----
 oc create configmap racmaas-connection \
-  --from-literal=api-base='{maas_url}' \
+  --from-literal=api-base='{litellm_api_endpoint}' \
   --dry-run=client -o yaml | oc apply -f -
 
 oc create secret generic litellm-api-key \
-  --from-literal=api-key='{litellm_api_key}' \
+  --from-literal=api-key='{litellm_virtual_key}' \
   --dry-run=client -o yaml | oc apply -f -
 ----
 
