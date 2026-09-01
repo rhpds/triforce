@@ -35,6 +35,7 @@ The MCP server exposes tools via JSON-RPC 2.0 -- the same protocol used by Claud
 
 [source,bash,role="execute"]
 ----
+MCP_URL="https://$(oc get route solution-tools -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
@@ -56,6 +57,7 @@ Look up Intel Xeon 6 processors optimized for AI inference:
 
 [source,bash,role="execute"]
 ----
+MCP_URL="https://$(oc get route solution-tools -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{
@@ -81,6 +83,7 @@ Look up the AI/ML capabilities of the OpenShift platform:
 
 [source,bash,role="execute"]
 ----
+MCP_URL="https://$(oc get route solution-tools -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{
@@ -104,6 +107,7 @@ Get a joint Red Hat + Intel reference architecture for retail:
 
 [source,bash,role="execute"]
 ----
+MCP_URL="https://$(oc get route solution-tools -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{

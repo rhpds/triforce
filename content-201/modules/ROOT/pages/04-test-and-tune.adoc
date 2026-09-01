@@ -24,6 +24,7 @@ Run a financial services scenario:
 
 [source,bash,role="execute"]
 ----
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
@@ -35,6 +36,7 @@ A manufacturing scenario:
 
 [source,bash,role="execute"]
 ----
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
@@ -46,6 +48,7 @@ A cost-savings scenario:
 
 [source,bash,role="execute"]
 ----
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
@@ -76,7 +79,7 @@ oc get configmap advisor-prompt -o jsonpath='{.data.system_prompt}'
 
 Now write your own. Pick a customer or industry you work with and fill in this template:
 
-[source,bash,subs=attributes+]
+[source,bash]
 ----
 # Edit this prompt for YOUR customer scenario, then run the block below to deploy it.
 #
@@ -130,9 +133,10 @@ oc rollout status deploy/solution-agent --timeout=90s
 
 Write a query that matches your customer scenario and test it:
 
-[source,bash,subs=attributes+]
+[source,bash]
 ----
 # Replace with YOUR customer's situation:
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
@@ -161,8 +165,9 @@ oc rollout status deploy/solution-agent --timeout=90s
 
 Re-run your customer scenario:
 
-[source,bash,subs=attributes+]
+[source,bash]
 ----
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{

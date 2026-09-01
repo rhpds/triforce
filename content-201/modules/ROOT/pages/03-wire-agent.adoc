@@ -100,6 +100,7 @@ Send a request via the terminal:
 
 [source,bash,role="execute"]
 ----
+ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
