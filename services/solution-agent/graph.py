@@ -57,6 +57,30 @@ def _get_advisor_prompt() -> str:
     return "You are a Red Hat + Intel Solution Architect."
 
 
+def _unwrap_mcp_result(payload: dict) -> dict:
+    """Return the machine-readable payload from a JSON-RPC MCP response."""
+    result = payload.get("result", payload)
+    if isinstance(result, dict) and isinstance(result.get("structuredContent"), dict):
+        return result["structuredContent"]
+    return result
+
+
+def _select_vertical(query: str, workload: str) -> str:
+    """Choose the reference-architecture vertical from all customer context."""
+    context = f"{query} {workload}".lower()
+    vertical_keywords = {
+        "financial_services": ("financial", "fraud", "bank", "insurance"),
+        "retail": ("retail", "store", "inventory"),
+        "manufacturing": ("manufactur", "factory", "predictive maintenance", "edge"),
+        "telco": ("telco", "telecom", "5g"),
+        "healthcare": ("health", "clinical", "medical"),
+    }
+    for vertical, keywords in vertical_keywords.items():
+        if any(keyword in context for keyword in keywords):
+            return vertical
+    return "healthcare"
+
+
 async def _mcp_call(tool_name: str, arguments: dict) -> dict:
     """Call an MCP tool via JSON-RPC 2.0."""
     try:
@@ -66,7 +90,7 @@ async def _mcp_call(tool_name: str, arguments: dict) -> dict:
                 "method": "tools/call",
                 "params": {"name": tool_name, "arguments": arguments},
             })
-            return resp.json().get("result", resp.json())
+            return _unwrap_mcp_result(resp.json())
     except Exception as e:
         return {"error": str(e)}
 
@@ -114,6 +138,11 @@ async def lookup_hardware(state: SolutionState) -> dict:
         "family": "xeon6",
         "use_case": use_case,
     })
+    # Requirement extraction can produce a useful but non-catalogue label
+    # (for example "edge_computing"). Keep the Xeon 6 recommendation useful
+    # by retrying without the optional use-case filter when there is no match.
+    if isinstance(result, dict) and not result.get("products"):
+        result = await _mcp_call("intel_hardware_lookup", {"family": "xeon6"})
     latency_ms = int((time.monotonic() - start) * 1000)
     options = result.get("products", []) if isinstance(result, dict) else result
     return {
@@ -146,20 +175,8 @@ async def lookup_platform(state: SolutionState) -> dict:
 async def get_architecture(state: SolutionState) -> dict:
     """Node 4: MCP tool call to retrieve a reference architecture."""
     reqs = state.get("requirements", {})
-    workload = reqs.get("workload_type", "").lower()
-    vertical_map = {
-        "ai inference": "healthcare",
-        "fraud detection": "financial_services",
-        "manufacturing": "manufacturing",
-        "retail": "retail",
-        "edge": "manufacturing",
-        "telco": "telco",
-    }
-    vertical = "healthcare"
-    for key, val in vertical_map.items():
-        if key in workload:
-            vertical = val
-            break
+    workload = reqs.get("workload_type", "")
+    vertical = _select_vertical(state.get("query", ""), workload)
     start = time.monotonic()
     result = await _mcp_call("reference_architectures", {
         "vertical": vertical,
