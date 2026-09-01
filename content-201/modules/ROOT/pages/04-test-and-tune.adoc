@@ -5,13 +5,20 @@
 
 Test the agent with real scenarios, then write your own system prompt for a customer you know. Deploy it, test it, and leave with an agent configured for your territory.
 
+Set the agent URL from the OpenShift Route so the commands always target this lab order:
+
+[source,bash,role="execute"]
+----
+export ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
+----
+
 == Exercise 1: Three Customer Scenarios
 
 Run a financial services scenario:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "A mid-size bank needs to score 10,000 transactions per second for fraud detection. They need p99 latency under 200ms. Current stack is mainframe-based batch processing. Budget is $500K for the initial deployment. Regulatory requirements mandate on-premises data processing."
@@ -20,9 +27,9 @@ curl -s -X POST {advisor_url}/api/v1/advise \
 
 A manufacturing scenario:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "An automotive manufacturer has 12 factories worldwide. They want predictive maintenance AI on the factory floor — analyzing sensor data from 500 robots per factory. Connectivity is unreliable. They need models that run locally on edge hardware without cloud dependency."
@@ -31,9 +38,9 @@ curl -s -X POST {advisor_url}/api/v1/advise \
 
 A cost-savings scenario:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "A 50-person startup classifies 1M customer support tickets per day using GPT-4 at $0.03 per request. They are spending $30K per month on API calls. They want to cut costs by 90% without losing classification accuracy."
@@ -120,7 +127,7 @@ Write a query that matches your customer scenario and test it:
 [source,bash,subs=attributes+]
 ----
 # Replace with YOUR customer's situation:
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "YOUR CUSTOMER SCENARIO HERE — describe their workload, constraints, current stack, and budget."
@@ -150,7 +157,7 @@ Re-run your customer scenario:
 
 [source,bash,subs=attributes+]
 ----
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "YOUR SAME CUSTOMER SCENARIO"

@@ -19,15 +19,17 @@ Wait for the pod to be ready:
 [source,bash,role="execute",subs=attributes+]
 ----
 oc rollout status deploy/solution-tools --timeout=60s
+
+export MCP_URL="https://$(oc get route solution-tools -o jsonpath='{.spec.host}')"
 ----
 
 == Exercise 2: List Available Tools
 
 The MCP server exposes tools via JSON-RPC 2.0 -- the same protocol used by Claude and VS Code:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {mcp_url}/mcp \
+curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}' \
   | jq '.result.tools[] | {name, description}'
@@ -46,9 +48,9 @@ curl -s -X POST {mcp_url}/mcp \
 
 Look up Intel Xeon 6 processors optimized for AI inference:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {mcp_url}/mcp \
+curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc":"2.0","id":"2",
@@ -71,9 +73,9 @@ curl -s -X POST {mcp_url}/mcp \
 
 Look up the AI/ML capabilities of the OpenShift platform:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {mcp_url}/mcp \
+curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc":"2.0","id":"3",
@@ -94,9 +96,9 @@ curl -s -X POST {mcp_url}/mcp \
 
 Get a joint Red Hat + Intel reference architecture for retail:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {mcp_url}/mcp \
+curl -fsS -X POST "${MCP_URL}/mcp" \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc":"2.0","id":"4",

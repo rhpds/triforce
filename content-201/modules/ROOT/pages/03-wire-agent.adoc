@@ -48,6 +48,8 @@ oc create secret generic litellm-api-key \
 ----
 oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-agent.yaml
 oc rollout status deploy/solution-agent --timeout=90s
+
+export ADVISOR_URL="https://$(oc get route solution-agent -o jsonpath='{.spec.host}')"
 ----
 
 Check the agent's environment:
@@ -82,9 +84,9 @@ Switch to the *Solution Architect* tab to see the chat interface.
 
 Send a request via the terminal:
 
-[source,bash,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-curl -s -X POST {advisor_url}/api/v1/advise \
+curl -fsS -X POST "${ADVISOR_URL}/api/v1/advise" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "A retail chain needs real-time inventory prediction across 500 stores. Each store has 2 edge servers running legacy Windows applications. They currently run VMware with Oracle DB. Budget is $2M for the infrastructure refresh. They need sub-second predictions at each store."
