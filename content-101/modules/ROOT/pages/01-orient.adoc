@@ -30,21 +30,28 @@ oc get pods
 +
 You should see `No resources found`. Your namespace is a blank slate -- you will deploy a model here in Module 4.
 
-== Exercise 2: Check the RHOAI Operator
+== Exercise 2: Verify the RHOAI model-serving APIs
 
-Red Hat OpenShift AI provides Kubernetes-native model serving. Verify the operator is installed:
+Red Hat OpenShift AI provides Kubernetes-native model serving. Your lab account is intentionally limited to your project, so it cannot list cluster-wide Operator Lifecycle Manager resources such as ClusterServiceVersions (CSVs). Instead, verify that the model-serving APIs installed by OpenShift AI are available:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get csv -A | grep rhods
+oc api-resources --api-group=serving.kserve.io | grep -E 'inferenceservices|servingruntimes'
 ----
 
-You should see the RHOAI operator with `Succeeded` status. This operator provides two key CRDs:
+You should see `InferenceService` and `ServingRuntime`. Then confirm that your account can create an InferenceService in your lab project:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc auth can-i create inferenceservices.serving.kserve.io -n {user}-triforce
+----
+
+The result should be `yes`. These APIs are provided by the RHOAI operator:
 
 * *ServingRuntime* -- defines how to serve models (which container image, resource limits, supported formats)
 * *InferenceService* -- declares a model to serve (which runtime, which model, how many replicas)
 
-NOTE: This operator -- and everything it provides (ServingRuntimes, InferenceServices, model management) -- installed automatically when OpenShift AI was enabled on this cluster. No Ansible, no Helm, no custom config. This is what "AI-ready platform" means in a customer conversation.
+NOTE: A cluster administrator can verify the operator's `Succeeded` status with `oc get csv -A | grep rhods`. The restricted lab account cannot perform that cluster-wide query. The operator -- and everything it provides (ServingRuntimes, InferenceServices, model management) -- was installed automatically when OpenShift AI was enabled on this cluster. This is what "AI-ready platform" means in a customer conversation.
 
 Now switch to the *RHOAI Dashboard* tab. This is the visual management interface for OpenShift AI. Explore:
 
