@@ -17,7 +17,9 @@ By the end, you will understand what makes an agent different from a model, and 
 
 == Why This Matters for You
 
-As a tech seller, you field workload sizing questions daily. This agent does the product lookup, benchmark analysis, and platform recommendation work. You validate the output and present it to the customer.
+As a tech seller, you field workload discovery questions daily. This agent demonstrates sourced product lookup and platform-pattern recommendations. Its output is a conversation starter: validate sizing, availability, security requirements, and product compatibility before presenting a customer design.
+
+IMPORTANT: Use only fictional or sanitized scenarios in this workshop. Do not enter confidential, regulated, export-controlled, or customer-identifying information.
 
 More broadly: this is how enterprise AI gets built. Not one monolithic model, but a model wrapped in tools and orchestration. This pattern applies to any domain.
 

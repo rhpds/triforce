@@ -1,17 +1,17 @@
 {
   "name": "solution-tools",
-  "description": "MCP tools for Intel + Red Hat Solution Architect Agent — hardware lookup, OpenShift capabilities, and joint reference architectures",
+  "description": "MCP tools for an Intel + Red Hat solution-design workshop — sourced hardware lookup, OpenShift capabilities, and illustrative architecture patterns",
   "tools": [
     {
       "name": "intel_hardware_lookup",
-      "description": "Look up Intel hardware product specifications by family. Filter by use case or minimum core count to find the right SKU for a workload.",
+      "description": "Look up sourced Intel hardware specifications by family. Results are workshop inputs, not final customer sizing guidance.",
       "inputSchema": {
         "type": "object",
         "required": ["family"],
         "properties": {
           "family": {
             "type": "string",
-            "enum": ["xeon6", "gaudi3"],
+            "enum": ["xeon6"],
             "description": "Intel product family to search"
           },
           "use_case": {
@@ -33,7 +33,7 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["sku", "family", "cores", "base_freq_ghz", "max_turbo_ghz", "tdp_watts", "amx_support", "memory_channels", "max_memory_gb", "socket", "msrp_range", "use_cases"],
+              "required": ["sku", "family", "cores", "base_freq_ghz", "max_turbo_ghz", "tdp_watts", "amx_support", "memory_channels", "max_memory_gb", "socket", "use_cases", "source_url"],
               "properties": {
                 "sku": { "type": "string" },
                 "family": { "type": "string" },
@@ -46,7 +46,7 @@
                 "memory_channels": { "type": "integer" },
                 "max_memory_gb": { "type": "integer" },
                 "socket": { "type": "string" },
-                "msrp_range": { "type": "string" },
+                "source_url": { "type": "string", "format": "uri" },
                 "use_cases": {
                   "type": "array",
                   "items": { "type": "string" }
@@ -109,7 +109,7 @@
     },
     {
       "name": "reference_architectures",
-      "description": "Retrieve joint Red Hat + Intel reference architectures by industry vertical. Returns the full stack definition including OpenShift topology, Intel hardware per tier, required operators, and solution highlights.",
+      "description": "Retrieve illustrative Red Hat + Intel architecture patterns by industry vertical. Patterns require workload discovery, sizing, security, and product validation before customer use.",
       "inputSchema": {
         "type": "object",
         "required": ["vertical"],

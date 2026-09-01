@@ -138,7 +138,8 @@ curl -fsS -X POST "${MCP_URL}/mcp" \
 == Learning Outcomes
 
 * MCP tools return structured data in milliseconds -- vs seconds for an LLM call
-* Tools provide facts the model cannot generate: real product specs, platform features, validated architectures
+* Tools provide information the model should not invent: sourced product specifications, platform capabilities, and illustrative architecture patterns
+* Workshop recommendations are not validated customer sizing. Confirm current specifications, availability, compatibility, and performance requirements with Intel and Red Hat.
 * The JSON-RPC 2.0 protocol is the same one used by Claude, VS Code, and other AI systems -- it is an industry standard
 
 [.next-nav]
