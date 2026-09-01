@@ -11,15 +11,34 @@ Call MAAS with a workload sizing question -- the kind of question a customer wou
 
 [source,bash,role="execute",subs=attributes+]
 ----
-curl -s -X POST {maas_url}/v1/chat/completions \
+export LAB_MAAS_URL="{maas_url}"
+export LAB_MAAS_TOKEN="{litellm_api_key}"
+----
+
+The lab provisioner has already generated this short-lived, model-scoped virtual key from the protected MaaS master credential. You do not create or assign a MaaS key.
+
+Confirm that the assigned virtual key can reach MaaS and that `qwen25-3b-cpu` is available:
+
+[source,bash,role="execute"]
+----
+curl -fsS "${LAB_MAAS_URL}/v1/models" \
+  -H "Authorization: Bearer ${LAB_MAAS_TOKEN}" | \
+  jq -r '.data[].id'
+----
+
+[source,bash,role="execute"]
+----
+curl -fsS -X POST "${LAB_MAAS_URL}/v1/chat/completions" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer {litellm_api_key}" \
+  -H "Authorization: Bearer ${LAB_MAAS_TOKEN}" \
   -d '{
     "model": "qwen25-3b-cpu",
     "messages": [{"role": "user", "content": "A retail chain wants to run real-time inventory prediction across 500 stores. Each store has 2 edge servers. They are currently on VMware with Oracle DB. What Intel hardware and Red Hat platform should they use? Be specific about SKUs and operators."}],
     "max_tokens": 300
-  }' | jq '.choices[0].message.content'
+  }' | jq -r 'if .error then error(.error.message) else .choices[0].message.content end'
 ----
+
+If the request fails, the command now prints the MaaS error instead of displaying an unexplained `null`.
 
 Read the response carefully.
 

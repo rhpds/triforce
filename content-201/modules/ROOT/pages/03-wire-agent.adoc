@@ -31,7 +31,7 @@ This is the primary control surface. Change the prompt, change the behavior -- n
 
 Deploy the solution-agent pod. It connects to MAAS for inference and the MCP server for tools:
 
-First, store your scoped lab key as a Kubernetes Secret. The deployment reads the key without embedding it in the manifest or container image:
+The lab provisioner has already generated and assigned a short-lived, model-scoped MaaS virtual key. Store that assigned value as a Kubernetes Secret so the deployment can read it without embedding it in the manifest or container image:
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -60,7 +60,7 @@ Key environment variables:
 * `MCP_SERVER_URL` -- where the tools live (solution-tools pod)
 * `ADVISOR_MODEL` -- which model to use for reasoning
 
-The Secret contains a short-lived, model-scoped key created for this lab order. Do not place the key directly in a Deployment or ConfigMap.
+The Secret contains the short-lived virtual key generated automatically for this lab order. The learner does not create or assign a MaaS key. Do not place the value directly in a Deployment or ConfigMap.
 
 == Exercise 3: Deploy the UI
 

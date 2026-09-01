@@ -16,9 +16,5 @@ ui:
   supplemental_files:
     - path: ./supplemental-ui
 
-antora:
-  extensions:
-    - '@sntke/antora-mermaid-extension'
-
 output:
   dir: ./www-201

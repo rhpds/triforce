@@ -28,40 +28,15 @@ Your environment has MAAS (shared model inference) and an empty namespace. You w
 [cols="2,2,2",options="header"]
 |===
 | Component | What It Is | You Deploy?
-| MAAS/LiteLLM | Shared inference (CPU + GPU models) | No -- pre-deployed
+| MAAS/LiteLLM | Shared CPU inference with an automatically assigned virtual key | No -- pre-deployed
 | Your Namespace | Empty, ready for your agent | Yes -- 3 pods
 |===
 
 == The Agent Pattern
 
-```
-Customer Workload Description
-          │
-          ▼
-   ┌──────────────┐
-   │ System Prompt │  ← "You are a Red Hat + Intel Solution Architect..."
-   │  (persona)    │
-   └──────┬───────┘
-          │
-   ┌──────┴───────┐
-   │   LangGraph   │  ← Multi-step workflow
-   │ (orchestration)│
-   └──────┬───────┘
-          │
-     ┌────┼────┐
-     │    │    │
-   Intel  OCP  Ref
-   Specs  Caps Archs
-   (MCP)  (MCP) (MCP)
-     │    │    │
-     └────┼────┘
-          │
-          ▼
-   Solution Brief
-   (with citations)
-```
+image::agent-pattern.svg[Red Hat and Intel AI agent pattern showing the customer request flowing through the system prompt and LangGraph workflow to three MCP tools and a grounded solution brief,align=center]
 
-In 101 you deployed a model. A model answers questions. An *agent* solves problems.
+A model answers questions. An *agent* uses a model, instructions, and tools to complete a structured workflow.
 
 == Lab Structure (~45 minutes)
 

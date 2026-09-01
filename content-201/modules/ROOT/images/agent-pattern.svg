@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img" aria-labelledby="title desc">
+  <title id="title">Red Hat and Intel AI agent pattern</title>
+  <desc id="desc">A customer request flows through a configurable system prompt and LangGraph workflow. The workflow uses an Intel hardware catalog, OpenShift capabilities, and reference architectures through MCP, then returns a grounded solution brief.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#4d4d4d"/></marker>
+    <style>
+      .title{font:700 30px Arial,sans-serif;fill:#151515}.label{font:700 20px Arial,sans-serif;fill:#151515}.copy{font:16px Arial,sans-serif;fill:#3c3c3c}.small{font:14px Arial,sans-serif;fill:#4d4d4d}.line{stroke:#4d4d4d;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1120" height="650" rx="18" fill="#f5f5f5"/>
+  <text x="560" y="48" text-anchor="middle" class="title">Red Hat + Intel AI Agent Pattern</text>
+  <rect x="370" y="75" width="380" height="72" rx="12" fill="#fff" stroke="#151515" stroke-width="2"/>
+  <text x="560" y="107" text-anchor="middle" class="label">Customer workload request</text>
+  <text x="560" y="132" text-anchor="middle" class="small">Goals, constraints, current platform, and scale</text>
+  <path d="M560 147 V178" class="line"/>
+  <rect x="115" y="185" width="310" height="112" rx="12" fill="#fff" stroke="#ee0000" stroke-width="3"/>
+  <text x="270" y="223" text-anchor="middle" class="label">System prompt</text>
+  <text x="270" y="251" text-anchor="middle" class="copy">Persona, process, guardrails,</text>
+  <text x="270" y="274" text-anchor="middle" class="copy">and response structure</text>
+  <rect x="695" y="185" width="310" height="112" rx="12" fill="#fff" stroke="#0068b5" stroke-width="3"/>
+  <text x="850" y="223" text-anchor="middle" class="label">MaaS CPU model</text>
+  <text x="850" y="251" text-anchor="middle" class="copy">Reasoning and synthesis on</text>
+  <text x="850" y="274" text-anchor="middle" class="copy">Intel Xeon 6 inference</text>
+  <rect x="405" y="185" width="310" height="112" rx="12" fill="#151515"/>
+  <text x="560" y="223" text-anchor="middle" class="label" fill="#fff">LangGraph workflow</text>
+  <text x="560" y="251" text-anchor="middle" class="copy" fill="#fff">Understand → research →</text>
+  <text x="560" y="274" text-anchor="middle" class="copy" fill="#fff">assemble → recommend</text>
+  <path d="M425 241 H405" class="line"/><path d="M695 241 H715" class="line"/>
+  <path d="M560 297 V340" class="line"/>
+  <text x="560" y="329" text-anchor="middle" class="small">MCP tool calls</text>
+  <rect x="65" y="355" width="300" height="105" rx="12" fill="#e7f1fa" stroke="#0068b5" stroke-width="2"/>
+  <text x="215" y="393" text-anchor="middle" class="label">Intel hardware</text>
+  <text x="215" y="423" text-anchor="middle" class="copy">Xeon 6 SKUs and use cases</text>
+  <rect x="410" y="355" width="300" height="105" rx="12" fill="#fde8e8" stroke="#ee0000" stroke-width="2"/>
+  <text x="560" y="393" text-anchor="middle" class="label">OpenShift capabilities</text>
+  <text x="560" y="423" text-anchor="middle" class="copy">Operators and platform services</text>
+  <rect x="755" y="355" width="300" height="105" rx="12" fill="#e8f5e9" stroke="#3e8635" stroke-width="2"/>
+  <text x="905" y="393" text-anchor="middle" class="label">Reference architectures</text>
+  <text x="905" y="423" text-anchor="middle" class="copy">Curated vertical patterns</text>
+  <path d="M215 460 V500 H530" class="line"/><path d="M560 460 V500" class="line"/><path d="M905 460 V500 H590" class="line"/>
+  <rect x="300" y="515" width="520" height="92" rx="14" fill="#fff" stroke="#151515" stroke-width="3"/>
+  <text x="560" y="553" text-anchor="middle" class="label">Grounded solution brief</text>
+  <text x="560" y="582" text-anchor="middle" class="copy">Specific Intel hardware + Red Hat platform recommendations</text>
+</svg>
