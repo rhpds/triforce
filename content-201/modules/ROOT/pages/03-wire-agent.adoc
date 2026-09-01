@@ -29,12 +29,16 @@ This is the primary control surface. Change the prompt, change the behavior -- n
 
 == Exercise 2: Deploy the Agent
 
-Deploy the solution-agent pod. It connects to MAAS for inference and the MCP server for tools:
+Deploy the solution-agent pod. It connects to the RACMaaS endpoint assigned to this lab and the MCP server for tools:
 
-The lab provisioner has already generated and assigned a short-lived, model-scoped MaaS virtual key. Store that assigned value as a Kubernetes Secret so the deployment can read it without embedding it in the manifest or container image:
+The lab provisioner has already generated and assigned a short-lived, model-scoped virtual key. Store the assigned endpoint in a ConfigMap and the assigned virtual key in a Secret so the deployment does not hard-code either value:
 
 [source,bash,role="execute",subs=attributes+]
 ----
+oc create configmap racmaas-connection \
+  --from-literal=api-base='{maas_url}' \
+  --dry-run=client -o yaml | oc apply -f -
+
 oc create secret generic litellm-api-key \
   --from-literal=api-key='{litellm_api_key}' \
   --dry-run=client -o yaml | oc apply -f -
@@ -55,12 +59,12 @@ oc get deploy/solution-agent -o jsonpath='{.spec.template.spec.containers[0].env
 
 Key environment variables:
 
-* `LITELLM_API_BASE` -- where the LLM lives (MAAS)
+* `LITELLM_API_BASE` -- the RACMaaS endpoint assigned to the lab
 * `LITELLM_API_KEY` -- authentication
 * `MCP_SERVER_URL` -- where the tools live (solution-tools pod)
 * `ADVISOR_MODEL` -- which model to use for reasoning
 
-The Secret contains the short-lived virtual key generated automatically for this lab order. The learner does not create or assign a MaaS key. Do not place the value directly in a Deployment or ConfigMap.
+The Secret contains the short-lived virtual key generated automatically for this lab order. The learner does not create or assign a RACMaaS key. The ConfigMap contains only the non-secret endpoint; the credential remains in the Secret.
 
 == Exercise 3: Deploy the UI
 

@@ -27,7 +27,10 @@ spec:
             - containerPort: 8082
           env:
             - name: LITELLM_API_BASE
-              value: "https://maas-rhdp.apps.maas.redhatworkshops.io"
+              valueFrom:
+                configMapKeyRef:
+                  name: racmaas-connection
+                  key: api-base
             - name: LITELLM_API_KEY
               valueFrom:
                 secretKeyRef:

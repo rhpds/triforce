@@ -5,51 +5,19 @@
 
 Understand what makes an agent different from a model by seeing where a model alone fails, and previewing the components you will assemble.
 
-== Exercise 1: Ask a Model Directly
+== Exercise 1: Understand the Model Baseline
 
-Call MAAS with a workload sizing question -- the kind of question a customer would ask you:
+RACMaaS provides the shared CPU model used by this lab. The environment and a short-lived virtual key are assigned automatically when the lab is provisioned; you do not configure or validate RACMaaS yourself.
 
-[source,bash,role="execute",subs=attributes+]
-----
-export LAB_MAAS_URL="{maas_url}"
-export LAB_MAAS_TOKEN="{litellm_api_key}"
-----
-
-The lab provisioner has already generated this short-lived, model-scoped virtual key from the protected MaaS master credential. You do not create or assign a MaaS key.
-
-Confirm that the assigned virtual key can reach MaaS and that `qwen25-3b-cpu` is available:
-
-[source,bash,role="execute"]
-----
-curl -fsS "${LAB_MAAS_URL}/v1/models" \
-  -H "Authorization: Bearer ${LAB_MAAS_TOKEN}" | \
-  jq -r '.data[].id'
-----
-
-[source,bash,role="execute"]
-----
-curl -fsS -X POST "${LAB_MAAS_URL}/v1/chat/completions" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${LAB_MAAS_TOKEN}" \
-  -d '{
-    "model": "qwen25-3b-cpu",
-    "messages": [{"role": "user", "content": "A retail chain wants to run real-time inventory prediction across 500 stores. Each store has 2 edge servers. They are currently on VMware with Oracle DB. What Intel hardware and Red Hat platform should they use? Be specific about SKUs and operators."}],
-    "max_tokens": 300
-  }' | jq -r 'if .error then error(.error.message) else .choices[0].message.content end'
-----
-
-If the request fails, the command now prints the MaaS error instead of displaying an unexplained `null`.
-
-Read the response carefully.
+The model contributes language understanding and synthesis, but a model by itself is not a product catalog or validated architecture library. Asking it for exact SKUs, operators, benchmarks, or current product facts can produce plausible but unsupported answers.
 
 [sidebar]
 ****
 *Record:*
 
-* Did the model cite specific Intel SKU numbers? ___
-* Did it name specific OpenShift operators? ___
-* Were the specifications plausible or fabricated? ___
-* Could you verify any of the claims? ___
+* Which customer facts must the agent extract? ___
+* Which recommendation facts require an authoritative tool? ___
+* Which parts should the model synthesize rather than invent? ___
 
 The model _guesses_. It cannot look up current product specs, benchmark data, or reference architectures. It may hallucinate SKU numbers, invent performance figures, or recommend products that do not exist.
 ****
@@ -89,7 +57,7 @@ Your namespace should still be empty. You will fill it in Modules 2 and 3.
 == Verify
 
 [%interactive]
-* [ ] Model response reviewed -- hallucinations identified
+* [ ] Model-only limitations understood
 * [ ] Three components understood: tools, agent, UI
 * [ ] Namespace confirmed empty
 

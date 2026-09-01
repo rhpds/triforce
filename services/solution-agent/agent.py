@@ -1,7 +1,7 @@
 """Solution Architect Agent — LangGraph-powered FastAPI application.
 
 Takes a customer workload description and generates a joint Red Hat + Intel
-solution brief. LLM inference runs on Intel Xeon 6 CPU via MAAS/LiteLLM.
+solution brief. LLM inference runs on Intel Xeon 6 CPU via RACMaaS.
 MCP tools provide hardware, platform, and architecture lookups.
 """
 

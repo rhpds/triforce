@@ -2,7 +2,7 @@
 
 Linear pipeline: understand requirements -> lookup hardware ->
 lookup platform -> get architecture -> generate brief.
-All inference on Intel Xeon 6 CPU via MAAS/LiteLLM.
+All inference on Intel Xeon 6 CPU via RACMaaS.
 """
 
 import json
@@ -19,7 +19,7 @@ from typing_extensions import TypedDict
 
 from prompts import BRIEF_PROMPT, REQUIREMENTS_PROMPT
 
-LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.maas.redhatworkshops.io")
+LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
 ADVISOR_MODEL = os.environ.get("ADVISOR_MODEL", "qwen25-3b-cpu")
 MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://solution-tools:8095")

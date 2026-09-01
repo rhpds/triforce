@@ -18,13 +18,13 @@
   <text x="270" y="251" text-anchor="middle" class="copy">Persona, process, guardrails,</text>
   <text x="270" y="274" text-anchor="middle" class="copy">and response structure</text>
   <rect x="695" y="185" width="310" height="112" rx="12" fill="#fff" stroke="#0068b5" stroke-width="3"/>
-  <text x="850" y="223" text-anchor="middle" class="label">MaaS CPU model</text>
+  <text x="850" y="223" text-anchor="middle" class="label">RACMaaS CPU model</text>
   <text x="850" y="251" text-anchor="middle" class="copy">Reasoning and synthesis on</text>
   <text x="850" y="274" text-anchor="middle" class="copy">Intel Xeon 6 inference</text>
-  <rect x="405" y="185" width="310" height="112" rx="12" fill="#151515"/>
-  <text x="560" y="223" text-anchor="middle" class="label" fill="#fff">LangGraph workflow</text>
-  <text x="560" y="251" text-anchor="middle" class="copy" fill="#fff">Understand → research →</text>
-  <text x="560" y="274" text-anchor="middle" class="copy" fill="#fff">assemble → recommend</text>
+  <rect x="405" y="185" width="310" height="112" rx="12" fill="#fff" stroke="#6a6e73" stroke-width="3"/>
+  <text x="560" y="223" text-anchor="middle" class="label">LangGraph workflow</text>
+  <text x="560" y="251" text-anchor="middle" class="copy">Understand → research →</text>
+  <text x="560" y="274" text-anchor="middle" class="copy">assemble → recommend</text>
   <path d="M425 241 H405" class="line"/><path d="M695 241 H715" class="line"/>
   <path d="M560 297 V340" class="line"/>
   <text x="560" y="329" text-anchor="middle" class="small">MCP tool calls</text>

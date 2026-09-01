@@ -23,12 +23,12 @@ More broadly: this is how enterprise AI gets built. Not one monolithic model, bu
 
 == What's Pre-Deployed
 
-Your environment has MAAS (shared model inference) and an empty namespace. You will deploy everything else.
+Your environment has RACMaaS shared model inference and an empty namespace. You will deploy everything else.
 
 [cols="2,2,2",options="header"]
 |===
 | Component | What It Is | You Deploy?
-| MAAS/LiteLLM | Shared CPU inference with an automatically assigned virtual key | No -- pre-deployed
+| RACMaaS | Shared CPU inference with an automatically assigned virtual key | No -- pre-deployed
 | Your Namespace | Empty, ready for your agent | Yes -- 3 pods
 |===
 
