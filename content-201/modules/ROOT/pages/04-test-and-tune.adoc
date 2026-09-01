@@ -77,7 +77,7 @@ Deploy your custom prompt:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-cat << 'PROMPT_EOF' | oc create configmap advisor-prompt --from-literal=system_prompt="$(cat)" --dry-run=client -o yaml | oc apply -f -
+cat > /tmp/advisor-system-prompt.txt << 'PROMPT_EOF'
 You are a Red Hat + Intel Solution Architect specializing in helping enterprise customers modernize their AI infrastructure.
 
 When a customer describes their workload, follow this process:
@@ -99,6 +99,10 @@ Always cite specific product names (Xeon 6, Gaudi, OpenShift AI, AMQ Streams).
 Always include a "Migration Path" section for customers on legacy infrastructure.
 Keep the brief under 800 words.
 PROMPT_EOF
+
+oc create configmap advisor-prompt \
+  --from-file=system_prompt=/tmp/advisor-system-prompt.txt \
+  --dry-run=client -o yaml | oc apply -f -
 ----
 
 Restart the agent to pick up the new prompt:

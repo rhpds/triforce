@@ -33,7 +33,6 @@ spec:
                 secretKeyRef:
                   name: litellm-api-key
                   key: api-key
-                  optional: true
             - name: MCP_SERVER_URL
               value: "http://solution-tools:8095"
             - name: ADVISOR_MODEL

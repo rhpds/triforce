@@ -151,3 +151,27 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/triforce-edge-agent:latest
             ${{ env.REGISTRY }}/triforce-edge-agent:${{ github.sha }}
+
+  solution-components:
+    name: "Build 201 ${{ matrix.component }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [solution-tools, solution-agent, solution-ui]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/${{ matrix.component }}
+          file: services/${{ matrix.component }}/Containerfile
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/triforce-${{ matrix.component }}:latest
+            ${{ env.REGISTRY }}/triforce-${{ matrix.component }}:${{ github.sha }}

@@ -8,6 +8,7 @@ All inference on Intel Xeon 6 CPU via MAAS/LiteLLM.
 import json
 import os
 import time
+from pathlib import Path
 from typing import Optional
 
 import httpx
@@ -22,6 +23,7 @@ LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "https://maas-rhdp.apps.ma
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
 ADVISOR_MODEL = os.environ.get("ADVISOR_MODEL", "qwen25-3b-cpu")
 MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://solution-tools:8095")
+PROMPT_PATH = os.environ.get("PROMPT_PATH", "/etc/advisor/system_prompt")
 
 
 class SolutionState(TypedDict):
@@ -43,6 +45,16 @@ def _get_llm(max_tokens: int = 2048) -> ChatOpenAI:
         temperature=0.1,
         max_tokens=max_tokens,
     )
+
+
+def _get_advisor_prompt() -> str:
+    """Return the learner-managed advisor prompt when one is mounted."""
+    prompt_file = Path(PROMPT_PATH)
+    if prompt_file.is_file():
+        prompt = prompt_file.read_text().strip()
+        if prompt:
+            return prompt
+    return "You are a Red Hat + Intel Solution Architect."
 
 
 async def _mcp_call(tool_name: str, arguments: dict) -> dict:
@@ -166,12 +178,13 @@ async def get_architecture(state: SolutionState) -> dict:
 
 async def generate_brief(state: SolutionState) -> dict:
     """Node 5: LLM synthesizes all tool results into a solution brief."""
-    prompt = BRIEF_PROMPT.format(
+    task_context = BRIEF_PROMPT.format(
         requirements=json.dumps(state.get("requirements", {}), indent=2),
         hardware_options=json.dumps(state.get("hardware_options", []), indent=2),
         platform_capabilities=json.dumps(state.get("platform_capabilities", []), indent=2),
         architecture=json.dumps(state.get("architecture", {}), indent=2),
     )
+    prompt = f"{_get_advisor_prompt()}\n\n{task_context}"
     llm = _get_llm(max_tokens=2048)
     start = time.monotonic()
     try:
