@@ -6,6 +6,7 @@ All inference on Intel Xeon 6 CPU via RACMaaS.
 """
 
 import json
+import logging
 import os
 import time
 from pathlib import Path
@@ -18,6 +19,8 @@ from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 
 from prompts import BRIEF_PROMPT, REQUIREMENTS_PROMPT
+
+logger = logging.getLogger("solution-agent.graph")
 
 LITELLM_API_BASE = os.environ.get("LITELLM_API_BASE", "")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "")
@@ -45,6 +48,14 @@ def _get_llm(max_tokens: int = 2048) -> ChatOpenAI:
         temperature=0.1,
         max_tokens=max_tokens,
     )
+
+
+def _safe_llm_error(exc: Exception) -> str:
+    """Return a bounded diagnostic without exposing the configured credential."""
+    message = str(exc)
+    if LITELLM_API_KEY:
+        message = message.replace(LITELLM_API_KEY, "[redacted]")
+    return message[:500]
 
 
 def _get_advisor_prompt() -> str:
@@ -116,9 +127,11 @@ async def understand_requirements(state: SolutionState) -> dict:
         ])
         latency_ms = int((time.monotonic() - start) * 1000)
         requirements = _extract_json(response.content)
-    except Exception:
+    except Exception as exc:
+        error = _safe_llm_error(exc)
+        logger.error("RACMaaS requirement extraction failed: %s", error)
         requirements = {"workload_type": "not specified"}
-        latency_ms = 0
+        latency_ms = int((time.monotonic() - start) * 1000)
 
     return {
         "requirements": requirements,
@@ -126,6 +139,7 @@ async def understand_requirements(state: SolutionState) -> dict:
         "inference_log": state.get("inference_log", []) + [{
             "node": "understand_requirements", "model": ADVISOR_MODEL,
             "latency_ms": latency_ms, "accelerator": "cpu",
+            **({"error": error} if "error" in locals() else {}),
         }],
     }
 
@@ -211,9 +225,11 @@ async def generate_brief(state: SolutionState) -> dict:
         ])
         latency_ms = int((time.monotonic() - start) * 1000)
         brief = response.content.strip()
-    except Exception:
+    except Exception as exc:
+        error = _safe_llm_error(exc)
+        logger.error("RACMaaS brief generation failed: %s", error)
         brief = "Brief generation failed. Please try again."
-        latency_ms = 0
+        latency_ms = int((time.monotonic() - start) * 1000)
 
     return {
         "brief": brief,
@@ -221,6 +237,7 @@ async def generate_brief(state: SolutionState) -> dict:
         "inference_log": state.get("inference_log", []) + [{
             "node": "generate_brief", "model": ADVISOR_MODEL,
             "latency_ms": latency_ms, "accelerator": "cpu",
+            **({"error": error} if "error" in locals() else {}),
         }],
     }
 

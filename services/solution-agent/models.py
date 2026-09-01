@@ -30,6 +30,7 @@ class InferenceLogEntry(BaseModel):
     tool: Optional[str] = None
     latency_ms: int = Field(ge=0)
     accelerator: Optional[str] = "cpu"
+    error: Optional[str] = None
 
 
 class AdviseResponse(BaseModel):
