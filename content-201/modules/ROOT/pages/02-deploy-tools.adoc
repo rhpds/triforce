@@ -17,7 +17,7 @@ oc project -q
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc apply -f https://raw.githubusercontent.com/rhpds/triforce/main/infrastructure/manifests-201/solution-tools.yaml
+oc apply -f https://raw.githubusercontent.com/rhpds/triforce/201-v1.0.0/infrastructure/manifests-201/solution-tools.yaml
 ----
 
 Wait for the pod to be ready:

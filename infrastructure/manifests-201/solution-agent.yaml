@@ -18,7 +18,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: solution-agent
-          image: quay.io/redhat-gpte/triforce-solution-agent:latest
+          image: quay.io/redhat-gpte/triforce-solution-agent@sha256:60897d598014f040c9f515312233b5a22df80c93ba3342c16f681be027933d03
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

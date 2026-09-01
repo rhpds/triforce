@@ -18,7 +18,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: solution-ui
-          image: quay.io/redhat-gpte/triforce-solution-ui:latest
+          image: quay.io/redhat-gpte/triforce-solution-ui@sha256:9388d91c19e845b8dcee12ef9037e4b93afadea4df5e7912dbe0a6151b8605fb
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
