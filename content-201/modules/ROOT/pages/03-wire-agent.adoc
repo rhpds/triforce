@@ -11,8 +11,8 @@ The agent's behavior is defined by a system prompt, mounted as a ConfigMap. Depl
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc project user-{guid}-triforce
-test "$(oc project -q)" = "user-{guid}-triforce"
+oc project {project_name}
+oc project -q
 ----
 
 [source,bash,role="execute",subs=attributes+]
@@ -91,7 +91,7 @@ Confirm that the UI Route belongs to the tenant namespace before opening the tab
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get route solution-ui
-test "$(oc project -q)" = "user-{guid}-triforce"
+oc project -q
 ----
 
 == Exercise 4: First Conversation

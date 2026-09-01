@@ -32,6 +32,29 @@ Your environment has RACMaaS shared model inference and an empty namespace. You 
 | Your Namespace | Empty, ready for your agent | Yes -- 3 pods
 |===
 
+== Connect to Your Lab Project
+
+The Terminal starts with access only to its own Showroom namespace. Log in as the OpenShift user generated for this lab order:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify \
+  -u {user} \
+  -p {password} \
+  {openshift_api_url}
+----
+
+Select the tenant project generated for this order:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc project {project_name}
+oc whoami
+oc project -q
+----
+
+The final command must show `{project_name}`. The project name and user change with every lab order; always use the values rendered in your current guide.
+
 == The Agent Pattern
 
 image::agent-pattern.svg[Red Hat and Intel AI agent pattern showing the customer request flowing through the system prompt and LangGraph workflow to three MCP tools and a grounded solution brief,align=center]

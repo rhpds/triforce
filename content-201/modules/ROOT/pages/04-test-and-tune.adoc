@@ -9,8 +9,8 @@ Set the agent URL from the OpenShift Route so the commands always target this la
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc project user-{guid}-triforce
-test "$(oc project -q)" = "user-{guid}-triforce"
+oc project {project_name}
+oc project -q
 ----
 
 [source,bash,role="execute"]

@@ -11,8 +11,8 @@ Deploy the solution-tools pod in your namespace:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc project user-{guid}-triforce
-test "$(oc project -q)" = "user-{guid}-triforce"
+oc project {project_name}
+oc project -q
 ----
 
 [source,bash,role="execute",subs=attributes+]
